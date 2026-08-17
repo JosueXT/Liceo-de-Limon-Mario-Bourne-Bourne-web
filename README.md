@@ -17,10 +17,10 @@ Sitio web oficial del **Liceo de Limón Mario Bourne Bourne**, colegio público 
    👉 **[https://www.python.org/downloads/](https://www.python.org/downloads/)**
 2. Haz clic en el botón amarillo **"Download Python"**.
 3. Abre el archivo descargado para comenzar la instalación.
-4. ⚠️ **MUY IMPORTANTE (¡No te saltes esto!)**:  
+4. ⚠️ **MUY IMPORTANTE (¡No te saltes esto!)**:
    En la primera ventana del instalador, en la parte de abajo, **marca la casilla que dice:**  
    ☑️ **"Add python.exe to PATH"** *(o "Agregar Python al PATH")*.
-5. Luego haz clic en **"Install Now"** y espera a que termine. ¡Listo!
+6. Luego haz clic en **"Install Now"** y espera a que termine. ¡Listo!
 
 > ℹ️ *Nota: No necesitas instalar JavaScript ni nada adicional; los navegadores como Google Chrome, Edge o Safari ya lo traen incluido.*
 
