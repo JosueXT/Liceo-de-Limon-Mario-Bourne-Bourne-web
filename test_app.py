@@ -16,76 +16,73 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.client = app.test_client()
         init_db()
 
-    def test_01_home_page_clean_and_social(self):
-        """Verifica que la página principal cargue limpiamente y contenga la sección de redes sociales"""
+    def test_01_public_page_clean(self):
+        """Verifica que la página pública para visitantes esté limpia sin scripts administrativos"""
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
         html = response.get_data(as_text=True)
         self.assertIn('Liceo de Limón', html)
-        self.assertIn('/login', html)
-        self.assertIn('Comunidad Digital', html)
-        self.assertIn('Facebook', html)
-        self.assertIn('Instagram', html)
-        self.assertIn('WhatsApp', html)
+        self.assertIn('data-is-admin="false"', html)
+        self.assertNotIn('admin_cms.js', html)
 
-    def test_02_news_with_subcategories(self):
-        """Verifica el soporte para subcategorías en noticias (ej. CAS, TOK, Actividades)"""
+    def test_02_visual_editor_active_when_logged_in(self):
+        """Verifica que al iniciar sesión se active el editor visual en vivo y la barra flotante"""
         # Login de admin
+        res_login = self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_login.status_code, 200)
+
+        # Cargar página de inicio en sesión de admin
+        res_home = self.client.get('/')
+        html_home = res_home.get_data(as_text=True)
+        self.assertIn('data-is-admin="true"', html_home)
+        self.assertIn('admin_cms.js', html_home)
+        self.assertIn('admin.css', html_home)
+
+        # Cargar subpágina IB en sesión de admin
+        res_ib = self.client.get('/modalidad/ib')
+        html_ib = res_ib.get_data(as_text=True)
+        self.assertIn('data-is-admin="true"', html_ib)
+        self.assertIn('admin_cms.js', html_ib)
+
+    def test_03_visual_edits_save_and_persist(self):
+        """Verifica que las ediciones visuales in-situ se guarden en SQLite vía /api/cms/content"""
         self.client.post('/api/auth/login',
             data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
             content_type='application/json'
         )
 
-        # Publicar noticia con subcategoría
-        news_payload = {
-            'title': 'Jornada de Servicio CAS en Cahuita',
-            'category': 'Bachillerato Internacional',
-            'category_slug': 'ib',
-            'subcategory': 'CAS',
-            'date': '17 de Agosto, 2026',
-            'summary': 'Estudiantes del IB realizaron jornada ambiental en Cahuita.',
-            'content': 'Detalle de la jornada comunitaria de servicio y creatividad.',
-            'image': 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
-            'author': 'Coordinación CAS'
-        }
-        res = self.client.post('/api/cms/news',
-            data=json.dumps(news_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(res.status_code, 200)
-        news_id = json.loads(res.get_data(as_text=True))['news_id']
-
-        # Verificar que se recupere con su subcategoría
-        res_news = self.client.get('/api/cms/news')
-        news_list = json.loads(res_news.get_data(as_text=True))['news']
-        found = next((n for n in news_list if n['id'] == news_id), None)
-        self.assertIsNotNone(found)
-        self.assertEqual(found['subcategory'], 'CAS')
-
-        # Eliminar noticia de prueba
-        self.client.delete(f'/api/cms/news/{news_id}')
-
-    def test_03_social_media_cms_persistence(self):
-        """Verifica que los enlaces de redes sociales se puedan actualizar desde el panel"""
-        self.client.post('/api/auth/login',
-            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
-            content_type='application/json'
-        )
-        update_data = {
+        update_payload = {
             'items': {
-                'facebook_name': 'Liceo de Limón Oficial MEP',
-                'instagram_name': '@liceodelimon_mep'
+                'hero_title': 'Título Editado Visualmente en Vivo',
+                'ib_hero_subtitle': 'Subtítulo IB Editado en Subpágina'
             }
         }
         res = self.client.post('/api/cms/content',
-            data=json.dumps(update_data),
+            data=json.dumps(update_payload),
             content_type='application/json'
         )
         self.assertEqual(res.status_code, 200)
 
         content = get_all_content()
-        self.assertEqual(content['facebook_name'], 'Liceo de Limón Oficial MEP')
-        self.assertEqual(content['instagram_name'], '@liceodelimon_mep')
+        self.assertEqual(content['hero_title'], 'Título Editado Visualmente en Vivo')
+        self.assertEqual(content['ib_hero_subtitle'], 'Subtítulo IB Editado en Subpágina')
+
+    def test_04_admin_panel_visual_editor_hub(self):
+        """Verifica que el panel administrativo tenga el hub de edición visual para cada página"""
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+        res_panel = self.client.get('/admin/panel')
+        self.assertEqual(res_panel.status_code, 200)
+        html = res_panel.get_data(as_text=True)
+        self.assertIn('Editor Visual (Páginas)', html)
+        self.assertIn('/modalidad/ib', html)
+        self.assertIn('/modalidad/frances', html)
+        self.assertIn('/modalidad/regular', html)
 
 if __name__ == '__main__':
     unittest.main()

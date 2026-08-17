@@ -1,15 +1,10 @@
 /* ==========================================================================
    PANEL ADMINISTRATIVO & MODO EDICIÓN VISUAL (WYSIWYG)
    Liceo de Limón Mario Bourne Bourne (MEP)
-   ==========================================================================
-   REGLA DE PRIVACIDAD:
-   - Todas las funciones de edición de texto, fotos, logotipos y la barra
-     flotante están ESTRICTAMENTE OCULTAS para el público general.
-   - Únicamente se activan cuando el administrador inicia sesión exitosamente.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. OCULTAR FUNCIONES ADMINISTRATIVAS CUANDO NO SE HA INICIADO SESIÓN
+   1. REGLAS DE PRIVACIDAD: OCULTAR CUANDO NO SE HA INICIADO SESIÓN
    -------------------------------------------------------------------------- */
 body:not(.cms-edit-mode) .admin-toolbar-floating {
   display: none !important;
@@ -30,12 +25,94 @@ body:not(.cms-edit-mode) [data-cms-key] {
   user-select: auto;
 }
 
-body:not(.cms-edit-mode) .brand-logo-container {
-  cursor: default !important;
+/* --------------------------------------------------------------------------
+   2. MODO EDICIÓN VISUAL ACTIVO (RESALTADO DE TEXTOS E IMÁGENES)
+   -------------------------------------------------------------------------- */
+body.cms-edit-mode:not(.cms-preview-mode) [data-cms-key] {
+  position: relative;
+  outline: 2px dashed rgba(2, 132, 199, 0.45);
+  outline-offset: 4px;
+  border-radius: 4px;
+  cursor: text !important;
+  transition: all var(--transition-fast);
+}
+
+body.cms-edit-mode:not(.cms-preview-mode) [data-cms-key]:hover {
+  outline: 2px solid #0284c7;
+  background-color: rgba(2, 132, 199, 0.08);
+}
+
+body.cms-edit-mode:not(.cms-preview-mode) [data-cms-key]:focus {
+  outline: 2px solid #0284c7;
+  background-color: rgba(2, 132, 199, 0.12);
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.35);
+}
+
+/* Elemento con cambios pendientes de guardar (Resaltado en Verde) */
+body.cms-edit-mode [data-cms-key].cms-modified {
+  outline: 2px solid #10b981 !important;
+  background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Imágenes y Logotipos Editables en Modo Edición */
+body.cms-edit-mode:not(.cms-preview-mode) .cms-image-wrapper {
+  position: relative;
+  cursor: pointer !important;
+  outline: 2px dashed rgba(2, 132, 199, 0.5);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+body.cms-edit-mode:not(.cms-preview-mode) .cms-image-wrapper:hover {
+  outline: 2px solid #0284c7;
+}
+
+body.cms-edit-mode:not(.cms-preview-mode) .cms-image-wrapper::after {
+  content: '📷 Cambiar';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--blanco);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  transition: all var(--transition-fast);
+  pointer-events: all;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+body.cms-edit-mode:not(.cms-preview-mode) .cms-image-wrapper:hover::after {
+  background: var(--azul);
+  transform: scale(1.06);
 }
 
 /* --------------------------------------------------------------------------
-   2. BARRA FLOTANTE DE CONTROL ADMINISTRATIVO (SOLO EN MODO EDICIÓN)
+   3. MODO VISTA PREVIA (DESACTIVA RESALTADOS PARA VER COMO EL PÚBLICO)
+   -------------------------------------------------------------------------- */
+body.cms-preview-mode [data-cms-key] {
+  outline: none !important;
+  background: transparent !important;
+  cursor: inherit !important;
+}
+
+body.cms-preview-mode .cms-image-wrapper {
+  outline: none !important;
+  cursor: inherit !important;
+}
+
+body.cms-preview-mode .cms-image-wrapper::after {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. BARRA FLOTANTE DE HERRAMIENTAS ADMINISTRATIVAS (INFERIOR)
    -------------------------------------------------------------------------- */
 .admin-toolbar-floating {
   position: fixed;
@@ -45,24 +122,23 @@ body:not(.cms-edit-mode) .brand-logo-container {
   background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
   border-radius: var(--radius-full);
-  padding: 0.6rem 1.4rem;
+  padding: 0.65rem 1.4rem;
   display: flex;
   align-items: center;
   gap: 1.2rem;
-  z-index: 999;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-  transition: all var(--transition-normal);
+  z-index: 9999;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5);
   animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .admin-status-indicator {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding-right: 1rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  gap: 0.65rem;
+  padding-right: 1.1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .admin-pulse-dot {
@@ -75,7 +151,7 @@ body:not(.cms-edit-mode) .brand-logo-container {
 }
 
 .admin-mode-text {
-  font-size: 0.825rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--blanco);
   letter-spacing: 0.3px;
@@ -88,59 +164,51 @@ body:not(.cms-edit-mode) .brand-logo-container {
   gap: 0.65rem;
 }
 
-/* Botones de la barra de administración */
 .btn-admin {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.45rem 0.95rem;
+  padding: 0.5rem 1rem;
   border-radius: var(--radius-full);
-  font-size: 0.825rem;
+  font-size: 0.85rem;
   font-weight: 600;
   transition: all var(--transition-fast);
   white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .btn-admin-save {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: var(--blanco);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
 
 .btn-admin-save:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
 }
 
-.btn-admin-add {
+.btn-admin-toggle {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--blanco);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-admin-toggle:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.btn-admin-panel {
   background: var(--azul);
   color: var(--blanco);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.btn-admin-add:hover {
+.btn-admin-panel:hover {
   background: var(--azul-light);
   transform: translateY(-2px);
-}
-
-.btn-admin-toggle {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--blanco);
-}
-
-.btn-admin-toggle:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.btn-admin-reset {
-  background: rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.btn-admin-reset:hover {
-  background: rgba(239, 68, 68, 0.35);
 }
 
 .btn-admin-logout {
@@ -151,165 +219,6 @@ body:not(.cms-edit-mode) .brand-logo-container {
 .btn-admin-logout:hover {
   background: var(--vino);
   color: var(--blanco);
-}
-
-/* --------------------------------------------------------------------------
-   3. RESALTADO VISUAL DE ELEMENTOS EDITABLES (SOLO EN MODO EDICIÓN)
-   -------------------------------------------------------------------------- */
-body.cms-edit-mode [data-cms-key] {
-  position: relative;
-  outline: 2px dashed rgba(2, 132, 199, 0.4);
-  outline-offset: 3px;
-  border-radius: 4px;
-  cursor: text !important;
-  transition: all var(--transition-fast);
-}
-
-body.cms-edit-mode [data-cms-key]:hover {
-  outline: 2px solid rgba(2, 132, 199, 0.9);
-  background-color: rgba(2, 132, 199, 0.06);
-}
-
-body.cms-edit-mode [data-cms-key]:focus {
-  outline: 2px solid #0284c7;
-  background-color: rgba(2, 132, 199, 0.1);
-  animation: editPulse 2s infinite;
-}
-
-body.cms-edit-mode [data-cms-key].cms-modified {
-  outline: 2px solid #10b981;
-  background-color: rgba(16, 185, 129, 0.08);
-}
-
-/* Contenedor de Imágenes y Logotipos Editables */
-body.cms-edit-mode .cms-image-wrapper {
-  position: relative;
-  cursor: pointer !important;
-}
-
-body.cms-edit-mode .cms-image-wrapper::after {
-  content: '📷 Cambiar';
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(15, 23, 42, 0.9);
-  color: var(--blanco);
-  font-size: 0.725rem;
-  font-weight: 700;
-  padding: 0.3rem 0.65rem;
-  border-radius: var(--radius-full);
-  backdrop-filter: blur(6px);
-  cursor: pointer;
-  z-index: 20;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  transition: all var(--transition-fast);
-  pointer-events: all;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-body.cms-edit-mode .cms-image-wrapper:hover::after {
-  background: var(--azul);
-  transform: scale(1.05);
-}
-
-body.cms-edit-mode .brand-logo-container {
-  outline: 2px dashed rgba(2, 132, 199, 0.6);
-  outline-offset: 2px;
-}
-
-/* Botones de gestión para noticias en modo edición */
-body.cms-edit-mode .news-card-admin-actions {
-  display: flex !important;
-  gap: 0.5rem;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 25;
-}
-
-.btn-card-action {
-  padding: 0.3rem 0.6rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--blanco);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  cursor: pointer;
-}
-
-.btn-card-delete {
-  background: var(--vino);
-}
-
-/* --------------------------------------------------------------------------
-   4. VENTANA MODAL DE INICIO DE SESIÓN
-   -------------------------------------------------------------------------- */
-.admin-login-modal-dialog {
-  max-width: 440px;
-  padding: 2.5rem;
-  border-radius: var(--radius-xl);
-  background: var(--blanco);
-  box-shadow: var(--shadow-xl);
-  border: 1px solid var(--gris-200);
-  text-align: center;
-}
-
-.login-header-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 1.2rem auto;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, var(--vino) 0%, var(--azul) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--blanco);
-  font-size: 1.8rem;
-  box-shadow: 0 8px 20px var(--vino-glow);
-}
-
-.login-modal-title {
-  font-family: var(--font-heading);
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--azul-dark);
-  margin-bottom: 0.3rem;
-}
-
-.login-modal-subtitle {
-  font-size: 0.875rem;
-  color: var(--gris-500);
-  margin-bottom: 2rem;
-}
-
-.login-credentials-tip {
-  background: var(--gris-100);
-  border: 1px dashed var(--gris-300);
-  border-radius: var(--radius-md);
-  padding: 0.65rem 0.9rem;
-  font-size: 0.8rem;
-  color: var(--gris-700);
-  margin-bottom: 1.5rem;
-  text-align: left;
-}
-
-.login-credentials-tip code {
-  background: var(--blanco);
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
-  font-weight: 700;
-  color: var(--vino);
-}
-
-.login-error-box {
-  background: #fee2e2;
-  border: 1px solid #f87171;
-  color: #991b1b;
-  padding: 0.65rem 0.9rem;
-  border-radius: var(--radius-md);
-  font-size: 0.85rem;
-  margin-bottom: 1.2rem;
-  display: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -343,13 +252,9 @@ body.cms-edit-mode .news-card-admin-actions {
   max-width: 380px;
 }
 
-.toast.toast-success {
-  border-left-color: #10b981;
-}
-
-.toast.toast-error {
-  border-left-color: #ef4444;
-}
+.toast.toast-success { border-left-color: #10b981; }
+.toast.toast-error { border-left-color: #ef4444; }
+.toast.toast-info { border-left-color: var(--azul); }
 
 .toast.toast-hiding {
   animation: toastSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;

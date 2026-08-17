@@ -7,7 +7,7 @@
        ===================================================================== -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administración & CMS | Liceo de Limón (MEP)</title>
+  <title>Panel de Control Institucional | Liceo de Limón (MEP)</title>
   
   <!-- Tipografías de Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +21,7 @@
   <style>
     /* Estilos del Panel Administrativo */
     body.admin-dashboard-body {
-      background: var(--gris-100);
+      background: #f8fafc;
       color: var(--gris-800);
       min-height: 100vh;
       display: flex;
@@ -31,20 +31,21 @@
     .admin-navbar {
       background: var(--azul-dark);
       color: var(--blanco);
-      padding: 0.9rem 2rem;
+      padding: 0.85rem 2.2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
       position: sticky;
       top: 0;
       z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .admin-brand {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.1rem;
     }
 
     .admin-badge-pill {
@@ -52,10 +53,11 @@
       color: var(--blanco);
       font-size: 0.75rem;
       font-weight: 700;
-      padding: 0.25rem 0.65rem;
+      padding: 0.25rem 0.75rem;
       border-radius: var(--radius-full);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(114, 18, 38, 0.35);
     }
 
     .admin-nav-actions {
@@ -67,7 +69,7 @@
     .admin-layout {
       display: grid;
       grid-template-columns: 290px 1fr;
-      min-height: calc(100vh - 65px);
+      min-height: calc(100vh - 68px);
     }
 
     /* Barra Lateral de Navegación del CMS */
@@ -77,16 +79,16 @@
       padding: 2rem 1.2rem;
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.35rem;
     }
 
     .sidebar-heading {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.1px;
       color: var(--gris-400);
-      margin: 1.2rem 0 0.5rem 0.8rem;
+      margin: 1.3rem 0 0.4rem 0.8rem;
     }
 
     .sidebar-btn {
@@ -94,19 +96,22 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 0.85rem 1rem;
+      padding: 0.8rem 1rem;
       border-radius: var(--radius-md);
-      font-size: 0.925rem;
+      font-size: 0.92rem;
       font-weight: 600;
       color: var(--gris-700);
       text-align: left;
       transition: all var(--transition-fast);
       cursor: pointer;
+      border: none;
+      background: transparent;
     }
 
     .sidebar-btn:hover {
       background: var(--gris-100);
       color: var(--azul-dark);
+      transform: translateX(3px);
     }
 
     .sidebar-btn.active {
@@ -144,7 +149,7 @@
       background: var(--blanco);
       border-radius: var(--radius-xl);
       border: 1px solid var(--gris-200);
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
       padding: 2.5rem;
       margin-bottom: 2.2rem;
     }
@@ -171,26 +176,249 @@
       margin-top: 0.25rem;
     }
 
+    /* Estilos Especiales para la Bienvenida */
+    .welcome-hero-card {
+      background: linear-gradient(135deg, var(--azul-dark) 0%, #1a365d 60%, var(--vino) 100%);
+      color: var(--blanco);
+      border-radius: var(--radius-xl);
+      padding: 3rem;
+      margin-bottom: 2.2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 35px rgba(15, 52, 96, 0.25);
+    }
+
+    .welcome-hero-card::after {
+      content: '';
+      position: absolute;
+      right: -30px;
+      bottom: -30px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .welcome-title {
+      font-family: var(--font-heading);
+      font-size: 2.1rem;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 0.8rem;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.05rem;
+      color: #e2e8f0;
+      max-width: 750px;
+      line-height: 1.6;
+      margin-bottom: 1.8rem;
+    }
+
+    .welcome-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 0.45rem 1rem;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-dot-green {
+      width: 9px;
+      height: 9px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Cuadrícula de KPIs / Métricas */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.4rem;
+      margin-bottom: 2.2rem;
+    }
+
+    .kpi-card {
+      background: var(--blanco);
+      border: 1px solid var(--gris-200);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      transition: all var(--transition-fast);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      border-color: var(--azul);
+    }
+
+    .kpi-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.8rem;
+      display: inline-block;
+    }
+
+    .kpi-number {
+      font-family: var(--font-heading);
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: var(--azul-dark);
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+
+    .kpi-label {
+      font-size: 0.85rem;
+      color: var(--gris-600);
+      font-weight: 600;
+    }
+
+    /* Cuadrícula de Accesos Rápidos */
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.4rem;
+      margin-bottom: 2.2rem;
+    }
+
+    .action-card {
+      background: var(--blanco);
+      border: 1.5px solid var(--gris-200);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      transition: all var(--transition-fast);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .action-card:hover {
+      border-color: var(--azul);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(15, 52, 96, 0.1);
+    }
+
+    .action-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .action-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--azul-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .action-card-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--azul-dark);
+    }
+
+    .action-card-desc {
+      font-size: 0.875rem;
+      color: var(--gris-600);
+      line-height: 1.5;
+      margin-bottom: 1.2rem;
+    }
+
+    .visual-pages-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .visual-page-card {
+      background: var(--gris-50);
+      border: 1.5px solid var(--gris-200);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem;
+      transition: all var(--transition-fast);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .visual-page-card:hover {
+      border-color: var(--azul);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      background: var(--blanco);
+    }
+
+    .visual-page-title {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--azul-dark);
+      margin-bottom: 0.4rem;
+    }
+
+    .visual-page-desc {
+      font-size: 0.9rem;
+      color: var(--gris-600);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
     .form-grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1.5rem;
     }
 
+    /* Caja de Previsualización de Imágenes en Tiempo Real */
     .image-preview-box {
-      border: 2px dashed var(--gris-300);
+      border: 2px dashed #93c5fd;
       border-radius: var(--radius-lg);
       padding: 1.2rem;
       text-align: center;
-      background: var(--gris-50);
-      margin-top: 0.5rem;
+      background: #f0f9ff;
+      margin-top: 0.6rem;
+      transition: all var(--transition-fast);
+    }
+
+    .image-preview-box:hover {
+      border-color: var(--azul);
+      background: #e0f2fe;
     }
 
     .image-preview-box img {
-      max-height: 160px;
+      max-height: 170px;
+      max-width: 100%;
       margin: 0 auto 0.8rem auto;
       border-radius: var(--radius-md);
       object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: block;
+    }
+
+    .image-preview-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--azul-dark);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
     }
 
     /* Tablas del Panel */
@@ -340,10 +568,10 @@
   <!-- Encabezado Superior del Panel de Administración -->
   <header class="admin-navbar">
     <div class="admin-brand">
-      <span class="brand-crest" style="width: 42px; height: 42px; font-size: 1.1rem;">LL</span>
+      <img src="{{ cms.site_logo }}" alt="Escudo Oficial" style="width: 40px; height: 40px; object-fit: contain; background: #ffffff; border-radius: var(--radius-sm); padding: 2px;">
       <div>
-        <strong style="font-size: 1.1rem; font-family: var(--font-heading);">Liceo de Limón Mario Bourne Bourne</strong>
-        <span style="font-size: 0.75rem; color: #38bdf8; display: block;">Sistema de Gestión de Contenidos & Consultas (MEP)</span>
+        <strong style="font-size: 1.1rem; font-family: var(--font-heading); color: #ffffff;">Liceo de Limón Mario Bourne Bourne</strong>
+        <span style="font-size: 0.75rem; color: #38bdf8; display: block;">Portal Administrativo & Sistema de Gestión (MEP)</span>
       </div>
       <span class="admin-badge-pill">Modo Administrador</span>
     </div>
@@ -361,13 +589,23 @@
   <div class="admin-layout">
     <!-- Barra Lateral de Pestañas -->
     <aside class="admin-sidebar">
+      <div class="sidebar-heading">Principal</div>
+      <button class="sidebar-btn active" data-tab="tab-welcome">
+        <span>🏠 Resumen & Bienvenida</span>
+      </button>
+
       <div class="sidebar-heading">Atención y Mensajes</div>
-      <button class="sidebar-btn active" data-tab="tab-inquiries">
+      <button class="sidebar-btn" data-tab="tab-inquiries">
         <span>📬 Consultas Recibidas</span>
         <span class="counter-badge" id="sidebarInquiriesCount">{{ inquiries|length }}</span>
       </button>
 
-      <div class="sidebar-heading">Gestión del Sitio</div>
+      <div class="sidebar-heading">Edición Visual</div>
+      <button class="sidebar-btn" data-tab="tab-visual-editor">
+        <span>🎨 Editor Visual (Páginas)</span>
+      </button>
+
+      <div class="sidebar-heading">Gestión de Contenidos</div>
       <button class="sidebar-btn" data-tab="tab-news">
         <span>📢 Noticias & Subcategorías</span>
       </button>
@@ -393,17 +631,239 @@
         <span>📍 Contacto & Secretaría</span>
       </button>
 
-      <div class="sidebar-heading">Mantenimiento</div>
-      <button class="sidebar-btn" data-tab="tab-reset" style="color: #dc2626;">
-        <span>🔄 Restaurar Valores Base</span>
+      <div class="sidebar-heading">Mantenimiento y Respaldo</div>
+      <button class="sidebar-btn" data-tab="tab-snapshots" style="color: var(--azul-dark); font-weight: 700;">
+        <span>🛡️ Puntos de Control & Respaldo</span>
       </button>
     </aside>
 
     <!-- Área de Contenido Principal -->
     <main class="admin-content-area">
 
-      <!-- ==================== PESTAÑA: BANDEJA DE CONSULTAS RECIBIDAS ==================== -->
-      <section class="admin-tab-pane active" id="tab-inquiries">
+      <!-- ==================== PESTAÑA 1: RESUMEN & BIENVENIDA (ACTIVA POR DEFECTO) ==================== -->
+      <section class="admin-tab-pane active" id="tab-welcome">
+        
+        <!-- Hero Banner de Bienvenida -->
+        <div class="welcome-hero-card">
+          <h1 class="welcome-title">¡Bienvenido(a) al Portal Administrativo!</h1>
+          <p class="welcome-subtitle">
+            Gestione en un solo lugar la información institucional del <strong>Liceo de Limón Mario Bourne Bourne</strong>, atienda las consultas de matrícula de los padres de familia y actualice las tres modalidades del Ministerio de Educación Pública (MEP).
+          </p>
+          <div class="welcome-status-pill">
+            <span class="status-dot-green"></span>
+            <span>Sistema Institucional en Línea • Base de Datos Conectada</span>
+          </div>
+        </div>
+
+        <!-- Cuadrícula de Métricas Clave (KPIs) -->
+        <div class="kpi-grid">
+          <div class="kpi-card" onclick="switchToTab('tab-inquiries')" style="cursor: pointer;">
+            <div class="kpi-icon">📬</div>
+            <div class="kpi-number">{{ inquiries|length }}</div>
+            <div class="kpi-label">Consultas Recibidas</div>
+          </div>
+
+          <div class="kpi-card" onclick="switchToTab('tab-news')" style="cursor: pointer;">
+            <div class="kpi-icon">📢</div>
+            <div class="kpi-number">{{ news|length }}</div>
+            <div class="kpi-label">Comunicados Oficiales</div>
+          </div>
+
+          <div class="kpi-card" onclick="switchToTab('tab-modalities')" style="cursor: pointer;">
+            <div class="kpi-icon">🎓</div>
+            <div class="kpi-number">3</div>
+            <div class="kpi-label">Modalidades MEP</div>
+          </div>
+
+          <div class="kpi-card" onclick="switchToTab('tab-snapshots')" style="cursor: pointer;">
+            <div class="kpi-icon">🛡️</div>
+            <div class="kpi-number">{{ snapshots|length }}</div>
+            <div class="kpi-label">Puntos Base Guardados</div>
+          </div>
+        </div>
+
+        <!-- Accesos Rápidos Principales -->
+        <div style="margin-bottom: 1.5rem;">
+          <h3 style="font-family: var(--font-heading); font-size: 1.35rem; color: var(--azul-dark); font-weight: 800; margin-bottom: 0.3rem;">🚀 Accesos Rápidos de Gestión</h3>
+          <p style="font-size: 0.9rem; color: var(--gris-500); margin: 0;">Seleccione la acción que desea realizar a continuación:</p>
+        </div>
+
+        <div class="quick-actions-grid">
+          <!-- Acción 1: Editor Visual -->
+          <div class="action-card" onclick="switchToTab('tab-visual-editor')">
+            <div>
+              <div class="action-card-header">
+                <div class="action-card-icon" style="background: rgba(15, 52, 96, 0.1); color: var(--azul);">🎨</div>
+                <h4 class="action-card-title">Editor Visual</h4>
+              </div>
+              <p class="action-card-desc">
+                Edite directamente sobre el diseño real de las páginas (Inicio, IB, Francés o Regular) con vista previa in-situ.
+              </p>
+            </div>
+            <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Abrir Editor Visual →</span>
+          </div>
+
+          <!-- Acción 2: Consultas -->
+          <div class="action-card" onclick="switchToTab('tab-inquiries')">
+            <div>
+              <div class="action-card-header">
+                <div class="action-card-icon" style="background: rgba(114, 18, 38, 0.1); color: var(--vino);">📬</div>
+                <h4 class="action-card-title">Bandeja de Consultas</h4>
+              </div>
+              <p class="action-card-desc">
+                Revise y responda por correo a los padres de familia y estudiantes interesados en el colegio.
+              </p>
+            </div>
+            <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Ver {{ inquiries|length }} Mensajes →</span>
+          </div>
+
+          <!-- Acción 3: Noticias -->
+          <div class="action-card" onclick="switchToTab('tab-news')">
+            <div>
+              <div class="action-card-header">
+                <div class="action-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #059669;">📢</div>
+                <h4 class="action-card-title">Publicar o Editar Noticias</h4>
+              </div>
+              <p class="action-card-desc">
+                Edite comunicados existentes o cree nuevos asignando subcategorías como CAS, TOK, DELF o Actividades.
+              </p>
+            </div>
+            <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Gestionar Noticias →</span>
+          </div>
+
+          <!-- Acción 4: Puntos de Restauración (Wayback Machine) -->
+          <div class="action-card" onclick="switchToTab('tab-snapshots')">
+            <div>
+              <div class="action-card-header">
+                <div class="action-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #2563eb;">🛡️</div>
+                <h4 class="action-card-title">Puntos de Control & Respaldo</h4>
+              </div>
+              <p class="action-card-desc">
+                Guarde el estado actual como un nuevo punto base o regrese a versiones seguras anteriores.
+              </p>
+            </div>
+            <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Wayback Machine →</span>
+          </div>
+
+          <!-- Acción 5: Identidad & Logo -->
+          <div class="action-card" onclick="switchToTab('tab-identity')">
+            <div>
+              <div class="action-card-header">
+                <div class="action-card-icon" style="background: rgba(245, 158, 11, 0.1); color: #d97706;">🎨</div>
+                <h4 class="action-card-title">Logotipo y Escudo</h4>
+              </div>
+              <p class="action-card-desc">
+                Actualice el escudo oficial del liceo y los nombres institucionales de los encabezados.
+              </p>
+            </div>
+            <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Cambiar Logo →</span>
+          </div>
+
+          <!-- Acción 6: Contacto y Secretaría -->
+          <div class="action-card" onclick="switchToTab('tab-contact')">
+            <div>
+              <div class="action-card-header">
+                <div class="action-card-icon" style="background: rgba(14, 165, 233, 0.1); color: #0284c7;">📍</div>
+                <h4 class="action-card-title">Contacto & Oficina</h4>
+              </div>
+              <p class="action-card-desc">
+                Actualice los teléfonos oficiales, correo MEP, dirección y horarios de atención al público.
+              </p>
+            </div>
+            <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Editar Contacto →</span>
+          </div>
+        </div>
+
+        <!-- Guía Rápida Informativa -->
+        <div class="panel-card" style="background: var(--blanco); border-left: 4px solid var(--azul);">
+          <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--azul-dark); margin-bottom: 0.6rem;">💡 Consejos para la Administración del Sitio</h3>
+          <ul style="color: var(--gris-700); font-size: 0.92rem; line-height: 1.8; padding-left: 1.2rem; margin: 0;">
+            <li><strong>Puntos de Control:</strong> Antes de realizar cambios grandes en textos o fotos, puedes guardar un <em>"Nuevo Punto Base"</em> en la pestaña de Respaldo para poder regresar en el tiempo cuando quieras.</li>
+            <li><strong>Edición de Noticias:</strong> Puedes hacer clic en el botón azul <em>"✏️ Editar"</em> en cualquier noticia para modificar su texto, fotos, fechas y subcategorías.</li>
+            <li><strong>Guardado Seguro:</strong> Los cambios se almacenan en la base de datos local SQLite y se conservan de forma permanente.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA 2: EDITOR VISUAL EN VIVO ==================== -->
+      <section class="admin-tab-pane" id="tab-visual-editor">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">🎨 Editor Visual en Vivo (In-Situ)</h2>
+              <p class="panel-card-desc">Edite directamente sobre el diseño real de cada página haciendo clic en los textos, celdas de tabla o fotos.</p>
+            </div>
+          </div>
+
+          <div style="background: var(--azul-soft); border-left: 4px solid var(--azul); padding: 1.2rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem;">
+            <h4 style="color: var(--azul-dark); font-size: 1.05rem; margin-bottom: 0.3rem;">✨ ¿Cómo funciona la Edición Visual?</h4>
+            <p style="font-size: 0.9rem; color: var(--gris-700); line-height: 1.6; margin: 0;">
+              Al entrar a cualquiera de las páginas con tu sesión activa, todos los títulos, párrafos, tablas y logos tendrán un <strong>borde punteado azul</strong>. Simplemente haz clic y escribe directamente sobre ellos. Puedes usar el botón <strong>"👁️ Vista Previa"</strong> en la barra inferior para ver cómo quedará antes de presionar <strong>"💾 Guardar Cambios"</strong>.
+            </p>
+          </div>
+
+          <div class="visual-pages-grid">
+            <!-- Página de Inicio -->
+            <div class="visual-page-card">
+              <div>
+                <span class="admin-badge-pill" style="background: var(--azul); margin-bottom: 0.8rem; display: inline-block;">Página Principal</span>
+                <h3 class="visual-page-title">🏠 Página de Inicio</h3>
+                <p class="visual-page-desc">
+                  Edita la portada principal, hero banner con foto de fondo, estadísticas, tarjetas de las 3 modalidades, historia y pie de página.
+                </p>
+              </div>
+              <a href="/" class="btn btn-azul" style="width: 100%; text-align: center;">
+                ✏️ Abrir y Editar Inicio en Vivo
+              </a>
+            </div>
+
+            <!-- Bachillerato Internacional -->
+            <div class="visual-page-card">
+              <div>
+                <span class="admin-badge-pill" style="background: #0284c7; margin-bottom: 0.8rem; display: inline-block;">Subpágina IB</span>
+                <h3 class="visual-page-title">🎓 Bachillerato Internacional (IB)</h3>
+                <p class="visual-page-desc">
+                  Edita la subpágina dedicada al Programa del Diploma: foto de portada, descripción pedagógica, pilares (CAS, TOK, Monografía), malla y requisitos.
+                </p>
+              </div>
+              <a href="/modalidad/ib" class="btn btn-vino" style="width: 100%; text-align: center;">
+                ✏️ Abrir y Editar Subpágina IB
+              </a>
+            </div>
+
+            <!-- Francés Avanzado -->
+            <div class="visual-page-card">
+              <div>
+                <span class="admin-badge-pill" style="background: #ea580c; margin-bottom: 0.8rem; display: inline-block;">Subpágina Francés</span>
+                <h3 class="visual-page-title">🇫🇷 Francés Avanzado (DELF)</h3>
+                <p class="visual-page-desc">
+                  Edita la subpágina de la Sección Francófona: objetivos lingüísticos, certificaciones internacionales DELF, festividades y ventajas.
+                </p>
+              </div>
+              <a href="/modalidad/frances" class="btn btn-azul" style="width: 100%; text-align: center;">
+                ✏️ Abrir y Editar Subpágina Francés
+              </a>
+            </div>
+
+            <!-- Secundaria Regular -->
+            <div class="visual-page-card">
+              <div>
+                <span class="admin-badge-pill" style="background: var(--reg-vino); margin-bottom: 0.8rem; display: inline-block;">Subpágina Regular</span>
+                <h3 class="visual-page-title">📚 Secundaria Regular (MEP)</h3>
+                <p class="visual-page-desc">
+                  Edita la subpágina del plan nacional: III y IV ciclo de educación diversificada, formación integral científico-humanista y talleres.
+                </p>
+              </div>
+              <a href="/modalidad/regular" class="btn btn-vino" style="width: 100%; text-align: center;">
+                ✏️ Abrir y Editar Subpágina Regular
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA 3: BANDEJA DE CONSULTAS RECIBIDAS ==================== -->
+      <section class="admin-tab-pane" id="tab-inquiries">
         <div class="panel-card">
           <div class="panel-card-header">
             <div>
@@ -463,20 +923,95 @@
         </div>
       </section>
 
-      <!-- ==================== PESTAÑA: GESTIÓN DE NOTICIAS & SUBCATEGORÍAS ==================== -->
+      <!-- ==================== PESTAÑA 4: GESTIÓN Y EDICIÓN DE NOTICIAS & SUBCATEGORÍAS ==================== -->
       <section class="admin-tab-pane" id="tab-news">
         <div class="panel-card">
           <div class="panel-card-header">
             <div>
-              <h2 class="panel-card-title">Gestión de Noticias y Subcategorías</h2>
-              <p class="panel-card-desc">Publique comunicados asignando categoría y subcategorías (ej. CAS, TOK, Actividades, DELF, etc.).</p>
+              <h2 class="panel-card-title">Gestión y Edición de Noticias</h2>
+              <p class="panel-card-desc">Publique o edite comunicados institucionales asignando categorías y subcategorías (ej. CAS, TOK, DELF, etc.).</p>
             </div>
             <button class="btn btn-azul btn-sm" onclick="toggleAddNewsForm()">➕ Publicar Nuevo Comunicado</button>
           </div>
 
-          <!-- Formulario para agregar noticia con subcategoría -->
+          <!-- Formulario 1: EDITAR NOTICIA EXISTENTE -->
+          <div id="editNewsBox" style="display: none; background: #f0fdf4; border: 2px solid #86efac; border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2.5rem; box-shadow: 0 8px 25px rgba(22, 101, 52, 0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid #bbf7d0; padding-bottom: 0.8rem;">
+              <div>
+                <h3 style="font-size: 1.25rem; color: #166534; margin: 0;" id="editNewsHeader">✏️ Editando Comunicado</h3>
+                <span style="font-size: 0.85rem; color: #15803d;">Modifique los campos deseados y guarde los cambios directamente en la base de datos.</span>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm" onclick="cancelEditNews()">✕ Cancelar Edición</button>
+            </div>
+
+            <form id="panelEditNewsForm">
+              <input type="hidden" id="editNewsId">
+
+              <div class="form-group">
+                <label class="form-label">Título del Comunicado</label>
+                <input type="text" id="editNewsTitle" class="form-control" required>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Categoría Principal</label>
+                  <select id="editNewsCategory" class="form-control" onchange="handleEditCategorySelectChange()">
+                    <option value="Bachillerato Internacional" data-slug="ib">Bachillerato Internacional (IB)</option>
+                    <option value="Francés Avanzado" data-slug="frances">Francés Avanzado</option>
+                    <option value="Secundaria Regular" data-slug="regular">Secundaria Regular</option>
+                    <option value="Institucionales" data-slug="institucionales">Institucionales</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Subcategoría</label>
+                  <input type="text" id="editNewsSubcategory" class="form-control" placeholder="Ej. CAS, TOK, Actividades, DELF, etc.">
+                  <div style="margin-top: 0.4rem; display: flex; gap: 0.3rem; flex-wrap: wrap;" id="editSubcatSuggestions">
+                    <!-- Botones dinámicos -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Fecha</label>
+                  <input type="text" id="editNewsDate" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Autor / Departamento</label>
+                  <input type="text" id="editNewsAuthor" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">URL de Fotografía de la Noticia</label>
+                <input type="url" id="editNewsImage" class="form-control" placeholder="https://ejemplo.com/foto.jpg">
+                <div class="image-preview-box">
+                  <span class="image-preview-label">📷 Previsualización de Fotografía en Vivo:</span>
+                  <img id="editNewsImagePreview" src="" alt="Preview Noticia">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Resumen Breve (Para tarjeta en portada)</label>
+                <textarea id="editNewsSummary" class="form-control" style="min-height: 75px;" required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Contenido Completo (Para lectura detallada)</label>
+                <textarea id="editNewsContent" class="form-control" style="min-height: 140px;"></textarea>
+              </div>
+
+              <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-vino btn-lg">💾 Guardar Cambios del Comunicado</button>
+                <button type="button" class="btn btn-outline" onclick="cancelEditNews()">Cancelar</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Formulario 2: AGREGAR NUEVA NOTICIA -->
           <div id="addNewsBox" style="display: none; background: var(--gris-50); border: 1px solid var(--gris-300); border-radius: var(--radius-lg); padding: 1.8rem; margin-bottom: 2rem;">
-            <h3 style="font-size: 1.2rem; color: var(--azul-dark); margin-bottom: 1rem;">Nuevo Comunicado Institucional</h3>
+            <h3 style="font-size: 1.2rem; color: var(--azul-dark); margin-bottom: 1rem;">➕ Nuevo Comunicado Institucional</h3>
             <form id="panelAddNewsForm">
               <div class="form-group">
                 <label class="form-label">Título de la Noticia</label>
@@ -519,8 +1054,12 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">URL de Fotografía</label>
-                <input type="url" id="pNewsImage" class="form-control" value="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80">
+                <label class="form-label">URL de Fotografía de la Noticia</label>
+                <input type="url" id="pNewsImage" class="form-control" value="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" placeholder="https://ejemplo.com/foto.jpg">
+                <div class="image-preview-box">
+                  <span class="image-preview-label">📷 Previsualización de Fotografía de la Noticia:</span>
+                  <img id="pNewsImagePreview" src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" alt="Preview Noticia">
+                </div>
               </div>
 
               <div class="form-group">
@@ -540,7 +1079,7 @@
             </form>
           </div>
 
-          <!-- Tabla de Comunicados con Subcategoría -->
+          <!-- Tabla de Comunicados con Subcategoría & Botón Editar -->
           <table class="admin-table">
             <thead>
               <tr>
@@ -567,7 +1106,10 @@
                 </td>
                 <td>{{ item.date }}</td>
                 <td>
-                  <button class="btn btn-vino btn-sm" onclick="deleteNewsItem({{ item.id }})">🗑️ Eliminar</button>
+                  <div style="display: flex; gap: 0.4rem;">
+                    <button class="btn btn-azul btn-sm" onclick="openEditNews({{ item.id }})" title="Editar este comunicado">✏️ Editar</button>
+                    <button class="btn btn-vino btn-sm" onclick="deleteNewsItem({{ item.id }})" title="Eliminar comunicado">🗑️ Eliminar</button>
+                  </div>
                 </td>
               </tr>
               {% endfor %}
@@ -576,7 +1118,7 @@
         </div>
       </section>
 
-      <!-- ==================== PESTAÑA: REDES SOCIALES OFICIALES ==================== -->
+      <!-- ==================== PESTAÑA 5: REDES SOCIALES OFICIALES ==================== -->
       <section class="admin-tab-pane" id="tab-social">
         <div class="panel-card">
           <div class="panel-card-header">
@@ -656,7 +1198,7 @@
         </div>
       </section>
 
-      <!-- ==================== PESTAÑA: LOGOTIPO E IDENTIDAD ==================== -->
+      <!-- ==================== PESTAÑA 6: LOGOTIPO E IDENTIDAD (CON PREVISUALIZACIÓN) ==================== -->
       <section class="admin-tab-pane" id="tab-identity">
         <div class="panel-card">
           <div class="panel-card-header">
@@ -693,15 +1235,14 @@
             <div>
               <div class="form-group">
                 <label class="form-label">URL del Logotipo o Escudo Institucional</label>
-                <input type="url" class="form-control" id="inputLogoUrl" data-cms-field="site_logo" value="{{ cms.site_logo }}">
+                <input type="url" class="form-control" id="inputLogoUrl" data-cms-field="site_logo" value="{{ cms.site_logo }}" placeholder="Pegue la URL del escudo...">
               </div>
 
               <div class="image-preview-box">
-                <p style="font-size: 0.8rem; font-weight: 700; color: var(--gris-600); margin-bottom: 0.5rem;">Previsualización del Logo Actual:</p>
+                <span class="image-preview-label">📷 Previsualización del Escudo Oficial en Vivo:</span>
                 <img id="logoPreviewImg" src="{{ cms.site_logo }}" alt="Previsualización Logo">
                 <div style="display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap;">
-                  <button type="button" class="btn btn-outline btn-sm" onclick="setPresetLogo('https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=200&q=80')">Escudo Tradicional</button>
-                  <button type="button" class="btn btn-outline btn-sm" onclick="setPresetLogo('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=200&q=80')">Insignia Educativa</button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="setPresetLogo('https://imgs.search.brave.com/Ly6Ar6F6AGvQFNCB_BgS9qNxglA60fHIL7u-4j1cCN8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bWVwLmdvLmNyL3Np/dGVzL2RlZmF1bHQv/ZmlsZXMvc3R5bGVz/L3Jlc3BvbnNpdmVf/MV8xXzIwMHcvcHVi/bGljL21lZGlhL2Vz/Y3Vkby1saWNlby1u/dWV2by1saW1vbi5q/cGc_aD1jMDE3OWIz/NyZpdG9rPTZJQmo1/cnFx')">Escudo Oficial MEP</button>
                 </div>
               </div>
             </div>
@@ -709,7 +1250,7 @@
         </div>
       </section>
 
-      <!-- ==================== PESTAÑA: PORTADA & HERO ==================== -->
+      <!-- ==================== PESTAÑA 7: PORTADA & HERO (CON PREVISUALIZACIÓN) ==================== -->
       <section class="admin-tab-pane" id="tab-hero">
         <div class="panel-card">
           <div class="panel-card-header">
@@ -742,16 +1283,17 @@
 
           <div class="form-group">
             <label class="form-label">URL de Fotografía de Fondo (Hero Banner)</label>
-            <input type="url" class="form-control" id="inputHeroBgUrl" data-cms-field="hero_bg_image" value="{{ cms.hero_bg_image }}">
+            <input type="url" class="form-control" id="inputHeroBgUrl" data-cms-field="hero_bg_image" value="{{ cms.hero_bg_image }}" placeholder="https://ejemplo.com/fondo.jpg">
           </div>
 
           <div class="image-preview-box">
-            <img id="heroBgPreviewImg" src="{{ cms.hero_bg_image }}" alt="Previsualización Hero" style="max-height: 200px; width: 100%;">
+            <span class="image-preview-label">📷 Previsualización del Fondo de Portada en Vivo:</span>
+            <img id="heroBgPreviewImg" src="{{ cms.hero_bg_image }}" alt="Previsualización Hero" style="max-height: 220px; width: 100%;">
           </div>
         </div>
       </section>
 
-      <!-- ==================== PESTAÑA: ESTADÍSTICAS ==================== -->
+      <!-- ==================== PESTAÑA 8: ESTADÍSTICAS ==================== -->
       <section class="admin-tab-pane" id="tab-stats">
         <div class="panel-card">
           <div class="panel-card-header">
@@ -794,28 +1336,40 @@
         </div>
       </section>
 
-      <!-- ==================== PESTAÑA: OFERTAS EDUCATIVAS ==================== -->
+      <!-- ==================== PESTAÑA 9: OFERTAS EDUCATIVAS (CON PREVISUALIZACIONES) ==================== -->
       <section class="admin-tab-pane" id="tab-modalities">
         <div class="panel-card">
           <div class="panel-card-header">
             <div>
               <h2 class="panel-card-title">Ofertas Educativas (Modalidades)</h2>
-              <p class="panel-card-desc">Edite los textos y fotos de las 3 modalidades en la portada.</p>
+              <p class="panel-card-desc">Edite los textos y fotos de las 3 modalidades en la portada con previsualización inmediata.</p>
             </div>
             <button class="btn btn-vino btn-sm btn-save-section" data-section="modalities">💾 Guardar Cambios</button>
           </div>
 
+          <!-- 1. Regular -->
           <h3 style="color: var(--reg-vino); margin-bottom: 1rem;">1. Secundaria Regular</h3>
           <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Título</label>
-              <input type="text" class="form-control" data-cms-field="regular_title" value="{{ cms.regular_title }}">
-              <label class="form-label" style="margin-top: 0.5rem;">Subtítulo</label>
-              <input type="text" class="form-control" data-cms-field="regular_subtitle" value="{{ cms.regular_subtitle }}">
+            <div>
+              <div class="form-group">
+                <label class="form-label">Título</label>
+                <input type="text" class="form-control" data-cms-field="regular_title" value="{{ cms.regular_title }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Subtítulo</label>
+                <input type="text" class="form-control" data-cms-field="regular_subtitle" value="{{ cms.regular_subtitle }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">URL de Imagen</label>
+                <input type="url" class="form-control" id="inputRegularImg" data-cms-field="regular_img" value="{{ cms.regular_img }}" placeholder="https://ejemplo.com/regular.jpg">
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">URL de Imagen</label>
-              <input type="url" class="form-control" data-cms-field="regular_img" value="{{ cms.regular_img }}">
+
+            <div>
+              <div class="image-preview-box">
+                <span class="image-preview-label">📷 Previsualización Secundaria Regular:</span>
+                <img id="regularImgPreview" src="{{ cms.regular_img }}" alt="Preview Regular">
+              </div>
             </div>
           </div>
           <div class="form-group">
@@ -823,19 +1377,31 @@
             <textarea class="form-control" data-cms-field="regular_description">{{ cms.regular_description }}</textarea>
           </div>
 
-          <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--gris-200);">
+          <hr style="margin: 2.2rem 0; border: none; border-top: 1px solid var(--gris-200);">
 
+          <!-- 2. Francés -->
           <h3 style="color: var(--fr-azul); margin-bottom: 1rem;">2. Francés Avanzado</h3>
           <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Título</label>
-              <input type="text" class="form-control" data-cms-field="french_title" value="{{ cms.french_title }}">
-              <label class="form-label" style="margin-top: 0.5rem;">Subtítulo</label>
-              <input type="text" class="form-control" data-cms-field="french_subtitle" value="{{ cms.french_subtitle }}">
+            <div>
+              <div class="form-group">
+                <label class="form-label">Título</label>
+                <input type="text" class="form-control" data-cms-field="french_title" value="{{ cms.french_title }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Subtítulo</label>
+                <input type="text" class="form-control" data-cms-field="french_subtitle" value="{{ cms.french_subtitle }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">URL de Imagen</label>
+                <input type="url" class="form-control" id="inputFrenchImg" data-cms-field="french_img" value="{{ cms.french_img }}" placeholder="https://ejemplo.com/frances.jpg">
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">URL de Imagen</label>
-              <input type="url" class="form-control" data-cms-field="french_img" value="{{ cms.french_img }}">
+
+            <div>
+              <div class="image-preview-box">
+                <span class="image-preview-label">📷 Previsualización Francés Avanzado:</span>
+                <img id="frenchImgPreview" src="{{ cms.french_img }}" alt="Preview Francés">
+              </div>
             </div>
           </div>
           <div class="form-group">
@@ -843,19 +1409,31 @@
             <textarea class="form-control" data-cms-field="french_description">{{ cms.french_description }}</textarea>
           </div>
 
-          <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--gris-200);">
+          <hr style="margin: 2.2rem 0; border: none; border-top: 1px solid var(--gris-200);">
 
+          <!-- 3. IB -->
           <h3 style="color: var(--ib-azul); margin-bottom: 1rem;">3. Bachillerato Internacional (IB)</h3>
           <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Título</label>
-              <input type="text" class="form-control" data-cms-field="ib_title" value="{{ cms.ib_title }}">
-              <label class="form-label" style="margin-top: 0.5rem;">Subtítulo</label>
-              <input type="text" class="form-control" data-cms-field="ib_subtitle" value="{{ cms.ib_subtitle }}">
+            <div>
+              <div class="form-group">
+                <label class="form-label">Título</label>
+                <input type="text" class="form-control" data-cms-field="ib_title" value="{{ cms.ib_title }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Subtítulo</label>
+                <input type="text" class="form-control" data-cms-field="ib_subtitle" value="{{ cms.ib_subtitle }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">URL de Imagen</label>
+                <input type="url" class="form-control" id="inputIbImg" data-cms-field="ib_img" value="{{ cms.ib_img }}" placeholder="https://ejemplo.com/ib.jpg">
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">URL de Imagen</label>
-              <input type="url" class="form-control" data-cms-field="ib_img" value="{{ cms.ib_img }}">
+
+            <div>
+              <div class="image-preview-box">
+                <span class="image-preview-label">📷 Previsualización Bachillerato IB:</span>
+                <img id="ibImgPreview" src="{{ cms.ib_img }}" alt="Preview IB">
+              </div>
             </div>
           </div>
           <div class="form-group">
@@ -865,7 +1443,7 @@
         </div>
       </section>
 
-      <!-- ==================== PESTAÑA: HISTORIA & MISIÓN ==================== -->
+      <!-- ==================== PESTAÑA 10: HISTORIA & MISIÓN ==================== -->
       <section class="admin-tab-pane" id="tab-history">
         <div class="panel-card">
           <div class="panel-card-header">
@@ -904,7 +1482,7 @@
         </div>
       </section>
 
-      <!-- ==================== PESTAÑA: CONTACTO ==================== -->
+      <!-- ==================== PESTAÑA 11: CONTACTO ==================== -->
       <section class="admin-tab-pane" id="tab-contact">
         <div class="panel-card">
           <div class="panel-card-header">
@@ -944,23 +1522,94 @@
         </div>
       </section>
 
-      <!-- ==================== PESTAÑA: RESTAURAR ==================== -->
-      <section class="admin-tab-pane" id="tab-reset">
-        <div class="panel-card" style="border-color: #fca5a5;">
+      <!-- ==================== PESTAÑA 12: PUNTOS DE CONTROL & WAYBACK MACHINE ==================== -->
+      <section class="admin-tab-pane" id="tab-snapshots">
+        <div class="panel-card">
           <div class="panel-card-header">
             <div>
-              <h2 class="panel-card-title" style="color: #dc2626;">Restaurar Contenidos de Fábrica</h2>
-              <p class="panel-card-desc">Restaura todos los textos, imágenes y noticias a los valores oficiales iniciales del MEP.</p>
+              <h2 class="panel-card-title">🛡️ Copias de Seguridad & Puntos de Control (Wayback Machine)</h2>
+              <p class="panel-card-desc">Guarde el estado actual del sitio como un nuevo punto base para poder regresar en el tiempo cuando lo necesite.</p>
             </div>
           </div>
 
-          <p style="color: var(--gris-700); margin-bottom: 1.5rem; line-height: 1.6;">
-            ⚠️ <strong>Atención:</strong> Esta acción borrará todas las modificaciones personalizadas y volverá a cargar los contenidos originales predeterminados.
-          </p>
+          <!-- Caja 1: Guardar Estado Actual como Nuevo Punto Base -->
+          <div style="background: var(--azul-soft); border: 2px solid #93c5fd; border-radius: var(--radius-lg); padding: 1.8rem; margin-bottom: 2.2rem;">
+            <h3 style="font-size: 1.2rem; color: var(--azul-dark); margin-bottom: 0.4rem;">💾 Guardar Estado Actual como Nuevo Punto Base</h3>
+            <p style="font-size: 0.9rem; color: var(--gris-700); line-height: 1.6; margin-bottom: 1.2rem;">
+              Crea un respaldo seguro con todos los textos, imágenes, enlaces, noticias y tablas exactamente como están configurados en este momento.
+            </p>
+            
+            <form id="createSnapshotForm" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+              <div style="flex: 1; min-width: 280px;">
+                <label class="form-label" style="font-size: 0.85rem;">Nombre o Etiqueta del Punto Base (Opcional)</label>
+                <input type="text" id="snapshotNameInput" class="form-control" placeholder="Ej. Versión Estable - Inicio de Curso 2026">
+              </div>
+              <button type="submit" class="btn btn-azul btn-lg" style="height: 46px; white-space: nowrap;">
+                💾 Guardar como Nuevo Punto Base
+              </button>
+            </form>
+          </div>
 
-          <button type="button" class="btn btn-vino btn-lg" onclick="handleFactoryReset()">
-            🔄 Restaurar Todos los Contenidos a Valores Iniciales
-          </button>
+          <!-- Caja 2: Historial de Puntos de Restauración -->
+          <div style="margin-bottom: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="font-size: 1.25rem; font-family: var(--font-heading); color: var(--azul-dark); margin: 0;">🕒 Historial de Versiones & Puntos de Restauración</h3>
+              <span class="admin-badge-pill" style="background: var(--azul);" id="snapshotsCountBadge">{{ snapshots|length }} versiones guardadas</span>
+            </div>
+
+            {% if snapshots %}
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre de la Versión</th>
+                    <th>Fecha y Hora</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="snapshotsTableBody">
+                  {% for snap in snapshots %}
+                  <tr id="snapshotRow-{{ snap.id }}">
+                    <td>#{{ snap.id }}</td>
+                    <td>
+                      <strong style="color: var(--azul-dark); font-size: 0.95rem;">{{ snap.name }}</strong>
+                    </td>
+                    <td>
+                      <span style="font-size: 0.85rem; color: var(--gris-600);">🕒 {{ snap.created_at }}</span>
+                    </td>
+                    <td>
+                      <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-azul btn-sm" onclick="handleRestoreSnapshot({{ snap.id }}, '{{ snap.name }}')" title="Restaurar toda la web exactamente a este estado">
+                          ⏪ Restaurar esta Versión
+                        </button>
+                        {% if snap.id != 1 %}
+                        <button class="btn btn-outline btn-sm" onclick="handleDeleteSnapshot({{ snap.id }}, '{{ snap.name }}')" style="color: #dc2626; border-color: #fca5a5;" title="Eliminar este punto">
+                          🗑️ Eliminar
+                        </button>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p style="color: var(--gris-500); font-style: italic;">No hay copias registradas.</p>
+            {% endif %}
+          </div>
+
+          <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+          <!-- Caja 3: Restaurar a Valores de Fábrica Iniciales MEP -->
+          <div style="border-left: 4px solid #ef4444; padding-left: 1.2rem;">
+            <h3 style="color: #dc2626; font-size: 1.15rem; margin-bottom: 0.4rem;">🔄 Restauración a Valores de Fábrica Iniciales (MEP)</h3>
+            <p style="color: var(--gris-600); font-size: 0.875rem; margin-bottom: 1rem; line-height: 1.6;">
+              Si deseas reiniciar el sitio por completo como si se acabara de instalar por primera vez con los valores originales de fábrica del MEP.
+            </p>
+            <button type="button" class="btn btn-vino btn-sm" onclick="handleFactoryReset()">
+              🔄 Restaurar Todo a Valores Iniciales de Fábrica
+            </button>
+          </div>
         </div>
       </section>
 
@@ -975,41 +1624,58 @@
     // 1. Cambio de Pestañas
     document.querySelectorAll('.sidebar-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
-
-        btn.classList.add('active');
         const tabId = btn.getAttribute('data-tab');
-        document.getElementById(tabId)?.classList.add('active');
+        switchToTab(tabId);
       });
     });
 
-    // 2. Previsualización de Logo en vivo
-    const logoInput = document.getElementById('inputLogoUrl');
-    const logoImg = document.getElementById('logoPreviewImg');
-    if (logoInput && logoImg) {
-      logoInput.addEventListener('input', () => {
-        logoImg.src = logoInput.value.trim();
+    function switchToTab(tabId) {
+      document.querySelectorAll('.sidebar-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-tab') === tabId);
       });
+      document.querySelectorAll('.admin-tab-pane').forEach(p => {
+        p.classList.toggle('active', p.id === tabId);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // 2. Previsualización Universal de Imágenes en Tiempo Real (Escribir, Pegar o Modificar)
+    function bindLiveImagePreview(inputId, previewImgId) {
+      const input = document.getElementById(inputId);
+      const img = document.getElementById(previewImgId);
+      if (input && img) {
+        const update = () => {
+          const val = input.value.trim();
+          if (val) {
+            img.src = val;
+            img.style.display = 'block';
+          }
+        };
+        input.addEventListener('input', update);
+        input.addEventListener('change', update);
+        input.addEventListener('paste', () => setTimeout(update, 50));
+      }
+    }
+
+    // Conectar todos los campos de URL de imagen con su respectiva previsualización
+    bindLiveImagePreview('inputLogoUrl', 'logoPreviewImg');
+    bindLiveImagePreview('inputHeroBgUrl', 'heroBgPreviewImg');
+    bindLiveImagePreview('inputRegularImg', 'regularImgPreview');
+    bindLiveImagePreview('inputFrenchImg', 'frenchImgPreview');
+    bindLiveImagePreview('inputIbImg', 'ibImgPreview');
+    bindLiveImagePreview('pNewsImage', 'pNewsImagePreview');
+    bindLiveImagePreview('editNewsImage', 'editNewsImagePreview');
+
     function setPresetLogo(url) {
+      const logoInput = document.getElementById('inputLogoUrl');
+      const logoImg = document.getElementById('logoPreviewImg');
       if (logoInput && logoImg) {
         logoInput.value = url;
         logoImg.src = url;
       }
     }
 
-    // 3. Previsualización de Hero en vivo
-    const heroBgInput = document.getElementById('inputHeroBgUrl');
-    const heroBgImg = document.getElementById('heroBgPreviewImg');
-    if (heroBgInput && heroBgImg) {
-      heroBgInput.addEventListener('input', () => {
-        heroBgImg.src = heroBgInput.value.trim();
-      });
-    }
-
-    // 4. Guardar Cambios de Campos CMS vía Fetch Asíncrono
+    // 3. Guardar Cambios de Campos CMS vía Fetch Asíncrono
     document.querySelectorAll('.btn-save-section').forEach(btn => {
       btn.addEventListener('click', async () => {
         const parentPane = btn.closest('.admin-tab-pane');
@@ -1050,7 +1716,7 @@
       });
     });
 
-    // 5. Gestión de Consultas Recibidas (Cambiar estado y eliminar)
+    // 4. Gestión de Consultas Recibidas (Cambiar estado y eliminar)
     async function toggleInquiryStatus(id, currentStatus) {
       const newStatus = currentStatus === 'Atendida' ? 'Pendiente' : 'Atendida';
       const badge = document.getElementById(`statusBadge-${id}`);
@@ -1098,14 +1764,28 @@
       }
     }
 
-    // 6. Gestión de Noticias & Subcategorías
+    // 5. Gestión y Edición de Noticias & Subcategorías
     function toggleAddNewsForm() {
-      const box = document.getElementById('addNewsBox');
-      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+      const addBox = document.getElementById('addNewsBox');
+      const editBox = document.getElementById('editNewsBox');
+      if (editBox) editBox.style.display = 'none';
+      addBox.style.display = addBox.style.display === 'none' ? 'block' : 'none';
+      if (addBox.style.display === 'block') {
+        addBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function cancelEditNews() {
+      const editBox = document.getElementById('editNewsBox');
+      if (editBox) editBox.style.display = 'none';
     }
 
     function setSubcat(sub) {
       document.getElementById('pNewsSubcategory').value = sub;
+    }
+
+    function setEditSubcat(sub) {
+      document.getElementById('editNewsSubcategory').value = sub;
     }
 
     function handleCategorySelectChange() {
@@ -1145,6 +1825,132 @@
       }
     }
 
+    function handleEditCategorySelectChange() {
+      const select = document.getElementById('editNewsCategory');
+      const catVal = select.value;
+      const suggestions = document.getElementById('editSubcatSuggestions');
+      if (!suggestions) return;
+
+      if (catVal === 'Bachillerato Internacional') {
+        suggestions.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('CAS')">CAS</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('TOK')">TOK</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Actividades')">Actividades</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Monografía')">Monografía</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('')">Sin subcategoría</button>
+        `;
+      } else if (catVal === 'Francés Avanzado') {
+        suggestions.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('DELF')">DELF</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Francofonía')">Francofonía</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Intercambios')">Intercambios</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('')">Sin subcategoría</button>
+        `;
+      } else if (catVal === 'Secundaria Regular') {
+        suggestions.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Feria Científica')">Feria Científica</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Deportes')">Deportes</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Académico')">Académico</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('')">Sin subcategoría</button>
+        `;
+      } else {
+        suggestions.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Actos Cívicos')">Actos Cívicos</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Avisos MEP')">Avisos MEP</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Matrícula')">Matrícula</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('')">Sin subcategoría</button>
+        `;
+      }
+    }
+
+    // Abrir Formulario para Editar Noticia
+    async function openEditNews(id) {
+      try {
+        const res = await fetch(`/api/cms/news/${id}`);
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          showToast('No se pudo cargar la información del comunicado.', 'error');
+          return;
+        }
+
+        const item = data.news;
+        document.getElementById('editNewsId').value = item.id;
+        document.getElementById('editNewsHeader').innerText = `✏️ Editando Comunicado #${item.id}: ${item.title}`;
+        document.getElementById('editNewsTitle').value = item.title || '';
+
+        const catSelect = document.getElementById('editNewsCategory');
+        if (catSelect) {
+          for (let i = 0; i < catSelect.options.length; i++) {
+            if (catSelect.options[i].value === item.category || catSelect.options[i].getAttribute('data-slug') === item.category_slug) {
+              catSelect.selectedIndex = i;
+              break;
+            }
+          }
+        }
+
+        handleEditCategorySelectChange();
+        document.getElementById('editNewsSubcategory').value = item.subcategory || '';
+        document.getElementById('editNewsDate').value = item.date || '';
+        document.getElementById('editNewsAuthor').value = item.author || '';
+
+        const imgInput = document.getElementById('editNewsImage');
+        const imgPreview = document.getElementById('editNewsImagePreview');
+        if (imgInput) imgInput.value = item.image || '';
+        if (imgPreview) {
+          imgPreview.src = item.image || '';
+          imgPreview.style.display = item.image ? 'block' : 'none';
+        }
+
+        document.getElementById('editNewsSummary').value = item.summary || '';
+        document.getElementById('editNewsContent').value = item.content || '';
+
+        // Mostrar caja de edición y ocultar la de agregar
+        document.getElementById('addNewsBox').style.display = 'none';
+        const editBox = document.getElementById('editNewsBox');
+        editBox.style.display = 'block';
+        editBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      } catch (err) {
+        showToast('Error al cargar datos del comunicado.', 'error');
+      }
+    }
+
+    // Guardar Edición de Noticia
+    document.getElementById('panelEditNewsForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editNewsId').value;
+      const title = document.getElementById('editNewsTitle').value.trim();
+      const selectCat = document.getElementById('editNewsCategory');
+      const category = selectCat.value;
+      const categorySlug = selectCat.options[selectCat.selectedIndex].getAttribute('data-slug') || 'institucionales';
+      const subcategory = document.getElementById('editNewsSubcategory').value.trim();
+      const date = document.getElementById('editNewsDate').value.trim() || new Date().toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' });
+      const summary = document.getElementById('editNewsSummary').value.trim();
+      const content = document.getElementById('editNewsContent').value.trim();
+      const image = document.getElementById('editNewsImage').value.trim();
+      const author = document.getElementById('editNewsAuthor').value.trim() || 'Liceo de Limón MEP';
+
+      try {
+        const res = await fetch(`/api/cms/news/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showToast('✓ Comunicado modificado exitosamente.', 'success');
+          setTimeout(() => window.location.reload(), 700);
+        } else {
+          showToast('Error al actualizar: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al guardar cambios de la noticia.', 'error');
+      }
+    });
+
+    // Publicar Nueva Noticia
     document.getElementById('panelAddNewsForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const title = document.getElementById('pNewsTitle').value.trim();
@@ -1193,14 +1999,82 @@
       }
     }
 
-    // 7. Restaurar Valores
+    // 6. Crear Snapshot / Guardar como Nuevo Punto Base
+    document.getElementById('createSnapshotForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('snapshotNameInput');
+      const name = nameInput.value.trim();
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Guardando versión...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/cms/snapshots', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('✓ ' + data.message, 'success');
+          nameInput.value = '';
+          setTimeout(() => window.location.reload(), 900);
+        } else {
+          showToast('Error al crear punto de restauración: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al crear punto de restauración.', 'error');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+
+    // 7. Restaurar a un Punto de Restauración Específico
+    async function handleRestoreSnapshot(id, name) {
+      if (confirm(`¿Confirma que desea restaurar todo el sitio a la versión "${name}"? Los cambios actuales se reemplazarán por el estado guardado en este punto de control.`)) {
+        try {
+          const res = await fetch(`/api/cms/snapshots/${id}/restore`, { method: 'POST' });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            showToast('✓ Sitio restaurado con éxito al punto seleccionado.', 'success');
+            setTimeout(() => window.location.reload(), 900);
+          } else {
+            showToast('Error al restaurar: ' + data.message, 'error');
+          }
+        } catch (err) {
+          showToast('Error de conexión al restaurar punto de control.', 'error');
+        }
+      }
+    }
+
+    // 8. Eliminar un Snapshot
+    async function handleDeleteSnapshot(id, name) {
+      if (confirm(`¿Eliminar la copia de seguridad "${name}"?`)) {
+        try {
+          const res = await fetch(`/api/cms/snapshots/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            showToast('✓ Punto de restauración eliminado.', 'success');
+            document.getElementById(`snapshotRow-${id}`)?.remove();
+          }
+        } catch (err) {
+          showToast('Error al eliminar punto de restauración.', 'error');
+        }
+      }
+    }
+
+    // 9. Restaurar Valores de Fábrica Iniciales
     async function handleFactoryReset() {
-      if (confirm('¿Confirma que desea restaurar TODOS los textos, logos, noticias y redes a los valores iniciales oficiales?')) {
+      if (confirm('¿Confirma que desea restaurar TODOS los textos, logos, noticias y redes a los valores iniciales oficiales del MEP?')) {
         try {
           const res = await fetch('/api/cms/reset', { method: 'POST' });
           const data = await res.json();
           if (res.ok && data.success) {
-            showToast('✓ Base de datos restaurada correctamente.', 'success');
+            showToast('✓ Base de datos restaurada correctamente con el escudo oficial.', 'success');
             setTimeout(() => window.location.reload(), 900);
           }
         } catch (err) {
@@ -1209,7 +2083,7 @@
       }
     }
 
-    // 8. Notificaciones Toast
+    // 10. Notificaciones Toast
     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');

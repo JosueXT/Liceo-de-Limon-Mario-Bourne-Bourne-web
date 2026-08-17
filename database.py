@@ -66,6 +66,17 @@ def init_db():
         )
     ''')
 
+    # 4. Tabla para copias de seguridad y puntos de restauración (Wayback Machine)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS cms_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            content_json TEXT NOT NULL,
+            news_json TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     conn.commit()
 
     # Verificar si necesitamos rellenar datos iniciales
@@ -80,6 +91,26 @@ def init_db():
     cursor.execute('SELECT COUNT(*) FROM contact_inquiries')
     if cursor.fetchone()[0] == 0:
         seed_inquiries(conn)
+
+    # Crear punto de restauración inicial base de fábrica si la tabla de snapshots está vacía
+    cursor.execute('SELECT COUNT(*) FROM cms_snapshots')
+    if cursor.fetchone()[0] == 0:
+        cursor.execute('SELECT key, value FROM cms_content')
+        content_dict = {row['key']: row['value'] for row in cursor.fetchall()}
+        cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author FROM news_articles')
+        news_list = [dict(row) for row in cursor.fetchall()]
+        cursor.execute('''
+            INSERT INTO cms_snapshots (name, content_json, news_json)
+            VALUES (?, ?, ?)
+        ''', ("Punto Base Inicial MEP (Valores de Fábrica)", json.dumps(content_dict, ensure_ascii=False), json.dumps(news_list, ensure_ascii=False)))
+        conn.commit()
+
+    # Actualizar site_logo si tiene la imagen de prueba anterior
+    cursor.execute("SELECT value FROM cms_content WHERE key = 'site_logo'")
+    row = cursor.fetchone()
+    if not row or 'unsplash' in row[0]:
+        cursor.execute("INSERT OR REPLACE INTO cms_content (key, value) VALUES ('site_logo', ?)", (DEFAULT_CMS_CONTENT['site_logo'],))
+        conn.commit()
 
     conn.close()
 
@@ -277,5 +308,91 @@ def reset_to_defaults():
     seed_content(conn)
     seed_news(conn)
     seed_inquiries(conn)
+    conn.close()
+    return True
+
+# =============================================================================
+# FUNCIONES PARA PUNTOS DE RESTAURACIÓN Y SNAPSHOTS (WAYBACK MACHINE)
+# =============================================================================
+
+def create_snapshot(name="Copia de Seguridad"):
+    """Crea una instantánea completa del estado de los contenidos y noticias actuales"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Obtener todo el contenido CMS actual
+    cursor.execute('SELECT key, value FROM cms_content')
+    rows = cursor.fetchall()
+    content_dict = {row['key']: row['value'] for row in rows}
+
+    # Obtener todas las noticias actuales
+    cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author FROM news_articles')
+    news_rows = [dict(row) for row in cursor.fetchall()]
+
+    cursor.execute('''
+        INSERT INTO cms_snapshots (name, content_json, news_json)
+        VALUES (?, ?, ?)
+    ''', (name, json.dumps(content_dict, ensure_ascii=False), json.dumps(news_rows, ensure_ascii=False)))
+    
+    new_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return new_id
+
+def get_all_snapshots():
+    """Retorna la lista de todas las copias de seguridad / puntos de restauración"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, name, created_at FROM cms_snapshots ORDER BY id DESC')
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+def restore_snapshot(snapshot_id):
+    """Restaura todos los contenidos y noticias a un punto de restauración específico"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT content_json, news_json FROM cms_snapshots WHERE id = ?', (snapshot_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return False
+
+    content_dict = json.loads(row['content_json'])
+    news_list = json.loads(row['news_json'])
+
+    # Restaurar CMS content
+    cursor.execute('DELETE FROM cms_content')
+    for key, value in content_dict.items():
+        cursor.execute('INSERT INTO cms_content (key, value) VALUES (?, ?)', (key, value))
+
+    # Restaurar Noticias
+    cursor.execute('DELETE FROM news_articles')
+    for item in news_list:
+        cursor.execute('''
+            INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            item.get('title', ''),
+            item.get('category', 'Institucionales'),
+            item.get('category_slug', 'institucionales'),
+            item.get('subcategory', ''),
+            item.get('date', ''),
+            item.get('summary', ''),
+            item.get('content', ''),
+            item.get('image', ''),
+            item.get('author', 'Liceo de Limón MEP')
+        ))
+
+    conn.commit()
+    conn.close()
+    return True
+
+def delete_snapshot(snapshot_id):
+    """Elimina un punto de restauración"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM cms_snapshots WHERE id = ?', (snapshot_id,))
+    conn.commit()
     conn.close()
     return True

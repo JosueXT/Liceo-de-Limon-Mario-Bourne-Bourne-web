@@ -245,45 +245,85 @@ function initNewsFilters() {
  */
 function initNewsModal() {
   const modal = document.getElementById('newsDetailModal');
-  const closeBtn = document.getElementById('closeNewsModalBtn');
-  const readBtns = document.querySelectorAll('.btn-read-more');
-
   if (!modal) return;
 
-  readBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const card = btn.closest('.news-card');
-      if (!card) return;
+  function openNewsModal(card) {
+    if (!card) return;
 
-      const title = card.querySelector('.news-title')?.innerText || '';
-      const date = card.querySelector('.news-meta-date')?.innerText || '';
-      const author = card.querySelector('.news-meta-author')?.innerText || '';
-      const imageSrc = card.querySelector('.news-image')?.getAttribute('src') || '';
-      const fullContent = card.getAttribute('data-content') || card.querySelector('.news-summary')?.innerText || '';
+    const title = card.querySelector('.news-title')?.innerText.trim() || 'Comunicado Oficial';
+    const date = card.querySelector('.news-meta-date')?.innerText.trim() || '';
+    const author = card.querySelector('.news-meta-author')?.innerText.trim() || 'Liceo de Limón MEP';
+    const imageEl = card.querySelector('.news-image');
+    const imageSrc = imageEl ? imageEl.getAttribute('src') : '';
+    const rawContent = card.getAttribute('data-content') || card.querySelector('.news-summary')?.innerText.trim() || '';
 
-      document.getElementById('modalNewsImage').setAttribute('src', imageSrc);
-      document.getElementById('modalNewsTitle').innerText = title;
-      document.getElementById('modalNewsDate').innerText = date;
-      document.getElementById('modalNewsAuthor').innerText = author;
-      document.getElementById('modalNewsBody').innerText = fullContent;
+    const modalImg = document.getElementById('modalNewsImage');
+    if (modalImg) {
+      if (imageSrc) {
+        modalImg.src = imageSrc;
+        modalImg.style.display = 'block';
+      } else {
+        modalImg.style.display = 'none';
+      }
+    }
 
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    });
-  });
+    const modalTitle = document.getElementById('modalNewsTitle');
+    if (modalTitle) modalTitle.innerText = title;
 
-  if (closeBtn) {
-    closeBtn.addEventListener('click', () => {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-    });
+    const modalDate = document.getElementById('modalNewsDate');
+    if (modalDate) modalDate.innerText = date;
+
+    const modalAuthor = document.getElementById('modalNewsAuthor');
+    if (modalAuthor) modalAuthor.innerText = author;
+
+    const modalBody = document.getElementById('modalNewsBody');
+    if (modalBody) {
+      // Reemplazar saltos de línea para mostrar párrafos con buen espaciado
+      modalBody.innerHTML = rawContent
+        .split('\n\n')
+        .filter(p => p.trim())
+        .map(p => `<p style="margin-bottom: 1.2rem; line-height: 1.8;">${p.trim()}</p>`)
+        .join('');
+    }
+
+    modal.style.display = 'flex';
+    // Forzar reflow para animación suave
+    void modal.offsetWidth;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
   }
 
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
+  function closeNewsModal() {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+      if (!modal.classList.contains('active')) {
+        modal.style.display = 'none';
+      }
+    }, 300);
+  }
+
+  // Delegación de eventos para clics en 'Leer Comunicado' o en la tarjeta
+  document.addEventListener('click', (e) => {
+    const readBtn = e.target.closest('.btn-read-more');
+    if (readBtn) {
+      e.preventDefault();
+      const card = readBtn.closest('.news-card');
+      openNewsModal(card);
+      return;
+    }
+
+    // Botón de cerrar o clic en el fondo oscuro
+    if (e.target === modal || e.target.closest('#closeNewsModalBtn')) {
+      e.preventDefault();
+      closeNewsModal();
+    }
+  });
+
+  // Cerrar con la tecla Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      closeNewsModal();
     }
   });
 }

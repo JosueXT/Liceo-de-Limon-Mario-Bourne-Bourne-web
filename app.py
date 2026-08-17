@@ -19,7 +19,11 @@ from database import (
     get_all_inquiries,
     update_inquiry_status,
     delete_inquiry,
-    reset_to_defaults
+    reset_to_defaults,
+    create_snapshot,
+    get_all_snapshots,
+    restore_snapshot,
+    delete_snapshot
 )
 from seed_data import MODALIDADES_DETALLE
 
@@ -102,7 +106,8 @@ def admin_panel():
     cms = get_all_content()
     news = get_all_news()
     inquiries = get_all_inquiries()
-    return render_template('admin_panel.html', cms=cms, news=news, inquiries=inquiries)
+    snapshots = get_all_snapshots()
+    return render_template('admin_panel.html', cms=cms, news=news, inquiries=inquiries, snapshots=snapshots)
 
 # =============================================================================
 # 4. ENDPOINTS API REST (FORMULARIO DE CONTACTO PÚBLICO)
@@ -247,6 +252,40 @@ def api_add_news():
         'news_id': new_id
     })
 
+@app.route('/api/cms/news/<int:news_id>', methods=['GET'])
+def api_get_single_news(news_id):
+    """Obtiene una noticia individual por su ID"""
+    item = get_news_by_id(news_id)
+    if not item:
+        return jsonify({'success': False, 'message': 'Comunicado no encontrado.'}), 404
+    return jsonify({'success': True, 'news': item})
+
+@app.route('/api/cms/news/<int:news_id>', methods=['PUT', 'POST'])
+def api_update_news(news_id):
+    """Actualiza una noticia existente en la base de datos"""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    data = request.get_json() or {}
+    title = data.get('title', '').strip()
+    category = data.get('category', 'Institucionales').strip()
+    category_slug = data.get('category_slug', 'institucionales').strip()
+    subcategory = data.get('subcategory', '').strip()
+    date = data.get('date', '').strip()
+    summary = data.get('summary', '').strip()
+    content = data.get('content', '').strip()
+    image = data.get('image', '').strip()
+    author = data.get('author', 'Liceo de Limón MEP').strip()
+
+    if not title or not summary:
+        return jsonify({'success': False, 'message': 'El título y el resumen son obligatorios.'}), 400
+
+    update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author)
+    return jsonify({
+        'success': True,
+        'message': f'Comunicado #{news_id} actualizado exitosamente.'
+    })
+
 @app.route('/api/cms/news/<int:news_id>', methods=['DELETE'])
 def api_delete_news(news_id):
     if not session.get('is_admin', False):
@@ -255,13 +294,65 @@ def api_delete_news(news_id):
     delete_news(news_id)
     return jsonify({'success': True, 'message': f'Noticia #{news_id} eliminada.'})
 
+@app.route('/api/cms/snapshots', methods=['GET'])
+def api_get_snapshots():
+    """Obtiene la lista de puntos de restauración"""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    snapshots = get_all_snapshots()
+    return jsonify({'success': True, 'snapshots': snapshots})
+
+@app.route('/api/cms/snapshots', methods=['POST'])
+def api_create_snapshot():
+    """Guarda el estado actual de los contenidos y noticias como un nuevo punto base / copia de seguridad"""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    data = request.get_json() or {}
+    name = data.get('name', '').strip()
+    if not name:
+        from datetime import datetime
+        name = f"Copia de Seguridad - {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+
+    new_id = create_snapshot(name)
+    return jsonify({
+        'success': True,
+        'message': f'Punto de restauración "{name}" creado exitosamente.',
+        'snapshot_id': new_id
+    })
+
+@app.route('/api/cms/snapshots/<int:snapshot_id>/restore', methods=['POST'])
+def api_restore_snapshot(snapshot_id):
+    """Restaura los contenidos y noticias al estado guardado en el snapshot seleccionado"""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    success = restore_snapshot(snapshot_id)
+    if not success:
+        return jsonify({'success': False, 'message': 'Punto de restauración no encontrado.'}), 404
+
+    return jsonify({
+        'success': True,
+        'message': 'Base de datos restaurada correctamente al punto de restauración seleccionado.'
+    })
+
+@app.route('/api/cms/snapshots/<int:snapshot_id>', methods=['DELETE'])
+def api_delete_snapshot(snapshot_id):
+    """Elimina un punto de restauración"""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    delete_snapshot(snapshot_id)
+    return jsonify({'success': True, 'message': 'Punto de restauración eliminado.'})
+
 @app.route('/api/cms/reset', methods=['POST'])
 def api_reset_defaults():
     if not session.get('is_admin', False):
         return jsonify({'success': False, 'message': 'No autorizado.'}), 403
 
     reset_to_defaults()
-    return jsonify({'success': True, 'message': 'Contenidos y consultas restaurados a valores iniciales.'})
+    return jsonify({'success': True, 'message': 'Contenidos y consultas restaurados a valores iniciales de fábrica.'})
 
 # =============================================================================
 # ARRANQUE DEL SERVIDOR
