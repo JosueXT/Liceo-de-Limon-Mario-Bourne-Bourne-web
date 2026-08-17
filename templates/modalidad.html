@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- =====================================================================
+       ENCABEZADO TÉCNICO Y METADATOS DE LA SUBPÁGINA DE MODALIDAD
+       ===================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ modalidad.title }} | {{ cms.site_title }}</title>
+  <meta name="description" content="Información detallada sobre {{ modalidad.title }} en el Liceo de Limón Mario Bourne Bourne (MEP). Malla curricular, requisitos de admisión y ventajas académicas.">
+  
+  <!-- Tipografías de Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- Hojas de Estilo CSS Puro (Desktop-First) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+</head>
+<body class="{{ modalidad.theme_class }}">
+
+  <!-- =====================================================================
+       1. BARRA INSTITUCIONAL SUPERIOR (MEP)
+       - Único lugar donde aparece el enlace para Iniciar Sesión.
+       ===================================================================== -->
+  <aside class="top-mep-bar">
+    <div class="container">
+      <div class="mep-entity">
+        <span class="mep-flag-strip" title="Bandera de Costa Rica">
+          <span class="flag-blue"></span>
+          <span class="flag-white"></span>
+          <span class="flag-red"></span>
+          <span class="flag-white"></span>
+          <span class="flag-blue"></span>
+        </span>
+        <span>{{ cms.header_mep_tag }}</span>
+      </div>
+      <div class="mep-quick-links">
+        <a href="/" class="mep-link">🏠 Volver al Inicio</a>
+        <a href="/#contacto" class="mep-link">📞 Contáctenos</a>
+        <!-- Enlace discreto a la subpágina de inicio de sesión -->
+        <a href="/login" class="admin-portal-badge" title="Iniciar sesión de administración">
+          🔒 Iniciar Sesión
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- =====================================================================
+       2. ENCABEZADO Y LOGO INSTITUCIONAL
+       ===================================================================== -->
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/" class="brand-wrapper">
+          <div class="brand-logo-container">
+            <img src="{{ cms.site_logo }}" alt="Escudo Liceo de Limón" class="brand-logo-img">
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">{{ cms.header_institution_name }}</span>
+            <span class="brand-subname">{{ cms.header_subname }}</span>
+            <span class="brand-subtitle">{{ cms.mep_badge }}</span>
+          </div>
+        </a>
+
+        <!-- Menú de Enlaces a las 3 Modalidades -->
+        <ul class="nav-menu">
+          <li class="nav-item"><a href="/" class="nav-link">Inicio</a></li>
+          <li class="nav-item"><a href="/modalidad/regular" class="nav-link {{ 'active' if modalidad.slug == 'regular' else '' }}">Secundaria Regular</a></li>
+          <li class="nav-item"><a href="/modalidad/frances" class="nav-link {{ 'active' if modalidad.slug == 'frances' else '' }}">Francés Avanzado</a></li>
+          <li class="nav-item"><a href="/modalidad/ib" class="nav-link {{ 'active' if modalidad.slug == 'ib' else '' }}">Bachillerato Internacional (IB)</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <a href="/#contacto" class="btn btn-vino btn-sm">Solicitar Información</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       3. MIGAS DE PAN (BREADCRUMBS) DE NAVEGACIÓN
+       ===================================================================== -->
+  <nav class="breadcrumbs-bar">
+    <div class="container">
+      <ul class="breadcrumbs-list">
+        <li><a href="/">Inicio</a></li>
+        <li><span>/</span></li>
+        <li><a href="/#modalidades">Oferta Educativa</a></li>
+        <li><span>/</span></li>
+        <li class="current-crumb">{{ modalidad.title }}</li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- =====================================================================
+       4. HERO BANNER DE LA MODALIDAD
+       ===================================================================== -->
+  <section class="modality-hero-section">
+    <div class="modality-hero-bg" style="background-image: url('{{ modalidad.hero_img }}');"></div>
+    <div class="modality-hero-overlay"></div>
+
+    <div class="container">
+      <div class="modality-hero-content reveal-left">
+        <span class="modality-badge">{{ modalidad.hero_badge }}</span>
+        <h1 class="modality-hero-title">{{ modalidad.title }}</h1>
+        <p class="modality-hero-subtitle">{{ modalidad.hero_subtitle }}</p>
+        
+        <div class="modality-hero-actions">
+          <a href="#requisitos" class="btn btn-white btn-lg">📋 Requisitos de Ingreso</a>
+          <a href="#malla" class="btn btn-outline-white btn-lg">📚 Malla Curricular</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       5. DESCRIPCIÓN PEDAGÓGICA Y ENFOQUE
+       ===================================================================== -->
+  <section class="section modality-intro-section">
+    <div class="container">
+      <div class="modality-intro-grid">
+        <div class="modality-intro-text reveal-left">
+          <span class="section-tag">Enfoque Formativo</span>
+          <h2 class="section-title">Excelencia y Oportunidades en la Educación Pública</h2>
+          <p class="lead-text">{{ modalidad.intro_p1 }}</p>
+          <p class="body-text">{{ modalidad.intro_p2 }}</p>
+        </div>
+
+        <div class="modality-intro-card-box reveal-right">
+          <div class="highlight-stat-box">
+            <span class="highlight-stat-tag">Modalidad Pública MEP</span>
+            <h3 class="highlight-stat-title">{{ modalidad.title }}</h3>
+            <p class="highlight-stat-desc">Una propuesta formativa integral con docentes especializados, respaldo institucional y proyección hacia la educación superior.</p>
+            <div class="highlight-features-check">
+              <span>✓ 100% Gratuita en el Sector Público</span>
+              <span>✓ Reconocimiento Oficial MEP / Internacional</span>
+              <span>✓ Acompañamiento Docente y Orientación</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       6. PILARES FUNDAMENTALES DEL PROGRAMA
+       ===================================================================== -->
+  <section class="section modality-pillars-section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Ejes de Formación</span>
+        <h2 class="section-title">Pilares Fundamentales del Programa</h2>
+        <p class="section-subtitle">Los componentes esenciales que estructuran la vivencia académica de los estudiantes en esta modalidad.</p>
+      </div>
+
+      <div class="pillars-grid">
+        {% for pillar in modalidad.pillars %}
+        <div class="pillar-card reveal-scale delay-{{ loop.index * 100 }}">
+          <div class="pillar-number">0{{ loop.index }}</div>
+          <h3 class="pillar-title">{{ pillar.title }}</h3>
+          <p class="pillar-desc">{{ pillar.desc }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       7. MALLA CURRICULAR Y ÁREAS DE CONOCIMIENTO
+       ===================================================================== -->
+  <section class="section modality-curriculum-section" id="malla">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Plan de Estudios</span>
+        <h2 class="section-title">Estructura Curricular y Asignaturas</h2>
+        <p class="section-subtitle">Distribución académica por áreas formativas y grupos de asignaturas.</p>
+      </div>
+
+      <div class="curriculum-table-wrapper reveal">
+        <table class="curriculum-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">Área / Grupo</th>
+              <th style="width: 75%;">Asignaturas y Enfoque Pedagógico</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in modalidad.curriculum_groups %}
+            <tr>
+              <td class="curriculum-group-cell"><strong>{{ item.group }}</strong></td>
+              <td class="curriculum-subject-cell">{{ item.subject }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       8. VENTAJAS Y BENEFICIOS PARA EL ESTUDIANTE
+       ===================================================================== -->
+  <section class="section modality-advantages-section">
+    <div class="container">
+      <div class="advantages-grid">
+        <div class="advantages-info-col reveal-left">
+          <span class="section-tag">Impacto y Futuro</span>
+          <h2 class="section-title">¿Por qué elegir esta Modalidad?</h2>
+          <p class="section-subtitle">Beneficios comprobados para la formación universitaria y el desarrollo profesional de nuestros egresados.</p>
+          
+          <div class="advantages-list">
+            {% for adv in modalidad.advantages %}
+            <div class="advantage-item">
+              <span class="advantage-check-icon">✓</span>
+              <p class="advantage-text">{{ adv }}</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="advantages-visual-col reveal-right" id="requisitos">
+          <div class="requirements-box">
+            <h3 class="requirements-title">📋 Requisitos y Proceso de Ingreso</h3>
+            <p class="requirements-subtitle">Pasos para optar por un cupo en esta sección del Liceo de Limón:</p>
+
+            <ol class="requirements-list">
+              {% for req in modalidad.requirements %}
+              <li class="requirement-list-item">
+                <span class="req-number">{{ loop.index }}</span>
+                <span class="req-text">{{ req }}</span>
+              </li>
+              {% endfor %}
+            </ol>
+
+            <div style="margin-top: 2rem;">
+              <a href="/#contacto" class="btn btn-vino btn-lg" style="width: 100%;">
+                Consultar Periodo de Admisión
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       9. PIE DE PÁGINA INSTITUCIONAL
+       ===================================================================== -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col-brand">
+          <span class="footer-brand-title">{{ cms.header_institution_name }}</span>
+          <span class="footer-brand-subtitle">{{ cms.header_subname }}</span>
+          <p class="footer-brand-desc">Colegio público perteneciente al Ministerio de Educación Pública (MEP) de Costa Rica, comprometido con la formación académica integral y el desarrollo de la juventud limonense.</p>
+          <div class="mep-entity">
+            <span class="mep-flag-strip">
+              <span class="flag-blue"></span>
+              <span class="flag-white"></span>
+              <span class="flag-red"></span>
+              <span class="flag-white"></span>
+              <span class="flag-blue"></span>
+            </span>
+            <span style="font-size: 0.8rem; color: var(--gris-300);">Ministerio de Educación Pública de Costa Rica</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Camino Académico</h4>
+          <div class="footer-links-list">
+            <a href="/modalidad/regular" class="footer-link-item">Secundaria Regular</a>
+            <a href="/modalidad/frances" class="footer-link-item">Francés Avanzado (DELF)</a>
+            <a href="/modalidad/ib" class="footer-link-item">Bachillerato Internacional (IB)</a>
+            <a href="/#instalaciones" class="footer-link-item">Laboratorios y Talleres</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Institución</h4>
+          <div class="footer-links-list">
+            <a href="/#identidad" class="footer-link-item">Historia y Fundador</a>
+            <a href="/#identidad" class="footer-link-item">Misión y Visión MEP</a>
+            <a href="/#noticias" class="footer-link-item">Comunicados Oficiales</a>
+            <a href="/#contacto" class="footer-link-item">Directorio Telefónico</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Enlaces Oficiales</h4>
+          <div class="footer-links-list">
+            <a href="/#contacto" class="footer-link-item">Secretaría y Matrícula</a>
+            <a href="https://www.mep.go.cr" target="_blank" rel="noopener" class="footer-link-item">Sitio Oficial MEP ↗</a>
+            <a href="/" class="footer-link-item">Ir al Inicio</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>{{ cms.footer_copy }}</p>
+        <p>{{ cms.footer_mep_notice }}</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts JavaScript Vanilla Públicos -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

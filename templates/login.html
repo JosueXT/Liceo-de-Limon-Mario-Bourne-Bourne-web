@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- =====================================================================
+       SUBPÁGINA DEDICADA DE INICIO DE SESIÓN ADMINISTRATIVO
+       Liceo de Limón Mario Bourne Bourne (MEP)
+       ===================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión | Panel Administrativo - Liceo de Limón (MEP)</title>
+  
+  <!-- Tipografías de Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Hojas de Estilo CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+
+  <style>
+    /* Estilos dedicados para la página de login completa */
+    body.login-page-body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, var(--azul-dark) 0%, #08192e 50%, var(--vino-dark) 100%);
+      color: var(--blanco);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .login-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .login-card-standalone {
+      width: 100%;
+      max-width: 460px;
+      background: var(--blanco);
+      color: var(--gris-800);
+      border-radius: var(--radius-xl);
+      padding: 3rem 2.5rem;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      text-align: center;
+      animation: modalScaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .login-logo-box {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 1.5rem auto;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--vino) 0%, var(--azul) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blanco);
+      font-size: 2rem;
+      box-shadow: 0 8px 24px var(--vino-glow);
+    }
+
+    .login-title {
+      font-family: var(--font-heading);
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--azul-dark);
+      margin-bottom: 0.3rem;
+    }
+
+    .login-subtitle {
+      font-size: 0.925rem;
+      color: var(--gris-500);
+      margin-bottom: 1.8rem;
+    }
+
+    .login-tip-box {
+      background: var(--gris-100);
+      border: 1px dashed var(--gris-300);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: var(--gris-700);
+      margin-bottom: 1.6rem;
+      text-align: left;
+    }
+
+    .login-tip-box code {
+      background: var(--blanco);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 700;
+      color: var(--vino);
+    }
+
+    .login-error-alert {
+      background: #fee2e2;
+      border: 1px solid #f87171;
+      color: #991b1b;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1.4rem;
+      display: none;
+    }
+
+    .back-home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--gris-500);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 1.8rem;
+      transition: color var(--transition-fast);
+    }
+
+    .back-home-link:hover {
+      color: var(--azul-dark);
+    }
+  </style>
+</head>
+<body class="login-page-body">
+
+  <!-- Barra MEP Superior -->
+  <aside class="top-mep-bar">
+    <div class="container">
+      <div class="mep-entity">
+        <span class="mep-flag-strip">
+          <span class="flag-blue"></span>
+          <span class="flag-white"></span>
+          <span class="flag-red"></span>
+          <span class="flag-white"></span>
+          <span class="flag-blue"></span>
+        </span>
+        <span>Ministerio de Educación Pública • Circuito 01 • Limón</span>
+      </div>
+      <div class="mep-quick-links">
+        <a href="/" class="mep-link">🏠 Volver al Sitio Público</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Contenedor del Formulario de Inicio de Sesión -->
+  <main class="login-wrapper">
+    <div class="login-card-standalone">
+      <div class="login-logo-box">
+        🔒
+      </div>
+
+      <h1 class="login-title">Iniciar Sesión</h1>
+      <p class="login-subtitle">Panel de Control & Gestor de Contenido (CMS)</p>
+
+      <div class="login-tip-box">
+        <strong>Credenciales de Administración:</strong><br>
+        Usuario: <code>Admin</code> | Contraseña: <code>Admin</code>
+      </div>
+
+      <div class="login-error-alert" id="loginErrorMsg"></div>
+
+      <form id="standaloneLoginForm">
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label" for="loginUsername">Usuario</label>
+          <input type="text" id="loginUsername" class="form-control" value="Admin" required autocomplete="username" placeholder="Ingrese su usuario">
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label" for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" class="form-control" value="Admin" required autocomplete="current-password" placeholder="••••••••">
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="btn btn-vino btn-lg" style="width: 100%; margin-top: 1rem;">
+          Ingresar al Panel Administrativo
+        </button>
+      </form>
+
+      <a href="/" class="back-home-link">
+        ← Volver a la página principal
+      </a>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('standaloneLoginForm');
+      const errorBox = document.getElementById('loginErrorMsg');
+      const submitBtn = document.getElementById('loginSubmitBtn');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+
+        errorBox.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Validando credenciales...';
+
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            submitBtn.innerText = '✓ Acceso Concedido. Redirigiendo...';
+            submitBtn.style.background = '#10b981';
+            setTimeout(() => {
+              window.location.href = '/admin/panel';
+            }, 600);
+          } else {
+            errorBox.innerText = data.message || 'Usuario o contraseña incorrectos.';
+            errorBox.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Ingresar al Panel Administrativo';
+          }
+        } catch (err) {
+          errorBox.innerText = 'Error al conectar con el servidor.';
+          errorBox.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Ingresar al Panel Administrativo';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

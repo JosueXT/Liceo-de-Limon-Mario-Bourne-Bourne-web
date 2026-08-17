@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- =====================================================================
+       SUBPÁGINA DEDICADA DEL PANEL DE ADMINISTRACIÓN & CMS
+       Liceo de Limón Mario Bourne Bourne (MEP)
+       ===================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración & CMS | Liceo de Limón (MEP)</title>
+  
+  <!-- Tipografías de Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Hojas de Estilo CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+
+  <style>
+    /* Estilos del Panel Administrativo */
+    body.admin-dashboard-body {
+      background: var(--gris-100);
+      color: var(--gris-800);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-navbar {
+      background: var(--azul-dark);
+      color: var(--blanco);
+      padding: 0.9rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .admin-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .admin-badge-pill {
+      background: var(--vino);
+      color: var(--blanco);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .admin-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* Barra Lateral de Navegación del CMS */
+    .admin-sidebar {
+      background: var(--blanco);
+      border-right: 1px solid var(--gris-200);
+      padding: 2rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .sidebar-heading {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gris-400);
+      margin: 1.2rem 0 0.5rem 0.8rem;
+    }
+
+    .sidebar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.925rem;
+      font-weight: 600;
+      color: var(--gris-700);
+      text-align: left;
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+
+    .sidebar-btn:hover {
+      background: var(--gris-100);
+      color: var(--azul-dark);
+    }
+
+    .sidebar-btn.active {
+      background: var(--azul-soft);
+      color: var(--azul-dark);
+      font-weight: 700;
+      border-left: 4px solid var(--azul);
+    }
+
+    .counter-badge {
+      background: var(--vino);
+      color: var(--blanco);
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.15rem 0.55rem;
+      border-radius: var(--radius-full);
+    }
+
+    /* Contenido Principal de Configuración */
+    .admin-content-area {
+      padding: 3rem 3.5rem;
+      max-width: 1200px;
+    }
+
+    .admin-tab-pane {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .admin-tab-pane.active {
+      display: block;
+    }
+
+    .panel-card {
+      background: var(--blanco);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--gris-200);
+      box-shadow: var(--shadow-sm);
+      padding: 2.5rem;
+      margin-bottom: 2.2rem;
+    }
+
+    .panel-card-header {
+      border-bottom: 1px solid var(--gris-200);
+      padding-bottom: 1.2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-card-title {
+      font-family: var(--font-heading);
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--azul-dark);
+    }
+
+    .panel-card-desc {
+      font-size: 0.9rem;
+      color: var(--gris-500);
+      margin-top: 0.25rem;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .image-preview-box {
+      border: 2px dashed var(--gris-300);
+      border-radius: var(--radius-lg);
+      padding: 1.2rem;
+      text-align: center;
+      background: var(--gris-50);
+      margin-top: 0.5rem;
+    }
+
+    .image-preview-box img {
+      max-height: 160px;
+      margin: 0 auto 0.8rem auto;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+    }
+
+    /* Tablas del Panel */
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .admin-table th {
+      background: var(--gris-100);
+      color: var(--gris-700);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.9rem 1.2rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gris-200);
+    }
+
+    .admin-table td {
+      padding: 1.1rem 1.2rem;
+      border-bottom: 1px solid var(--gris-200);
+      font-size: 0.925rem;
+      vertical-align: middle;
+    }
+
+    .admin-table tr:hover td {
+      background: var(--gris-50);
+    }
+
+    /* Tarjetas de Consultas Recibidas */
+    .inquiry-card {
+      background: var(--blanco);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gris-200);
+      padding: 1.8rem;
+      margin-bottom: 1.4rem;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .inquiry-card:hover {
+      border-color: var(--azul);
+      box-shadow: var(--shadow-md);
+    }
+
+    .inquiry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .inquiry-sender {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--azul-dark);
+    }
+
+    .inquiry-meta-row {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--gris-600);
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .inquiry-message-text {
+      background: var(--gris-50);
+      border-left: 3px solid var(--azul);
+      padding: 1rem 1.2rem;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 0.95rem;
+      color: var(--gris-800);
+      line-height: 1.6;
+      margin-bottom: 1.2rem;
+    }
+
+    .inquiry-actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .status-badge-pending {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .status-badge-attended {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    /* Notificaciones Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: all;
+      background: var(--gris-900);
+      color: var(--blanco);
+      padding: 0.9rem 1.5rem;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.925rem;
+      font-weight: 600;
+      border-left: 4px solid var(--azul);
+      animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .toast.toast-success { border-left-color: #10b981; }
+    .toast.toast-error { border-left-color: #ef4444; }
+  </style>
+</head>
+<body class="admin-dashboard-body">
+
+  <!-- Encabezado Superior del Panel de Administración -->
+  <header class="admin-navbar">
+    <div class="admin-brand">
+      <span class="brand-crest" style="width: 42px; height: 42px; font-size: 1.1rem;">LL</span>
+      <div>
+        <strong style="font-size: 1.1rem; font-family: var(--font-heading);">Liceo de Limón Mario Bourne Bourne</strong>
+        <span style="font-size: 0.75rem; color: #38bdf8; display: block;">Sistema de Gestión de Contenidos & Consultas (MEP)</span>
+      </div>
+      <span class="admin-badge-pill">Modo Administrador</span>
+    </div>
+
+    <div class="admin-nav-actions">
+      <a href="/" target="_blank" class="btn btn-outline-white btn-sm" title="Abrir la página pública en una nueva pestaña">
+        🌐 Ver Sitio Público ↗
+      </a>
+      <a href="/logout" class="btn btn-vino btn-sm" title="Cerrar sesión de administrador">
+        🚪 Cerrar Sesión
+      </a>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Barra Lateral de Pestañas -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-heading">Atención y Mensajes</div>
+      <button class="sidebar-btn active" data-tab="tab-inquiries">
+        <span>📬 Consultas Recibidas</span>
+        <span class="counter-badge" id="sidebarInquiriesCount">{{ inquiries|length }}</span>
+      </button>
+
+      <div class="sidebar-heading">Gestión del Sitio</div>
+      <button class="sidebar-btn" data-tab="tab-news">
+        <span>📢 Noticias & Subcategorías</span>
+      </button>
+      <button class="sidebar-btn" data-tab="tab-social">
+        <span>📱 Redes Sociales Oficiales</span>
+      </button>
+      <button class="sidebar-btn" data-tab="tab-identity">
+        <span>🎨 Logotipo e Identidad</span>
+      </button>
+      <button class="sidebar-btn" data-tab="tab-hero">
+        <span>🖼️ Portada & Hero Banner</span>
+      </button>
+      <button class="sidebar-btn" data-tab="tab-stats">
+        <span>📊 Estadísticas</span>
+      </button>
+      <button class="sidebar-btn" data-tab="tab-modalities">
+        <span>🎓 Ofertas Educativas</span>
+      </button>
+      <button class="sidebar-btn" data-tab="tab-history">
+        <span>🏛️ Historia, Misión & Visión</span>
+      </button>
+      <button class="sidebar-btn" data-tab="tab-contact">
+        <span>📍 Contacto & Secretaría</span>
+      </button>
+
+      <div class="sidebar-heading">Mantenimiento</div>
+      <button class="sidebar-btn" data-tab="tab-reset" style="color: #dc2626;">
+        <span>🔄 Restaurar Valores Base</span>
+      </button>
+    </aside>
+
+    <!-- Área de Contenido Principal -->
+    <main class="admin-content-area">
+
+      <!-- ==================== PESTAÑA: BANDEJA DE CONSULTAS RECIBIDAS ==================== -->
+      <section class="admin-tab-pane active" id="tab-inquiries">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">Bandeja de Consultas y Solicitudes de Matrícula</h2>
+              <p class="panel-card-desc">Mensajes enviados por padres de familia, estudiantes y visitantes desde el formulario de contacto institucional.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <span class="admin-badge-pill" style="background: var(--azul);">Total: {{ inquiries|length }} consultas</span>
+            </div>
+          </div>
+
+          {% if inquiries %}
+            <div class="inquiries-container">
+              {% for inq in inquiries %}
+              <div class="inquiry-card" id="inquiryCard-{{ inq.id }}">
+                <div class="inquiry-header">
+                  <span class="inquiry-sender">👤 {{ inq.name }}</span>
+                  <span class="status-badge {{ 'status-badge-attended' if inq.status == 'Atendida' else 'status-badge-pending' }}" 
+                        id="statusBadge-{{ inq.id }}" 
+                        onclick="toggleInquiryStatus({{ inq.id }}, '{{ inq.status }}')"
+                        title="Haga clic para alternar entre Pendiente y Atendida">
+                    {{ '✓ Atendida' if inq.status == 'Atendida' else '⏳ Pendiente' }}
+                  </span>
+                </div>
+
+                <div class="inquiry-meta-row">
+                  <span>✉️ <a href="mailto:{{ inq.email }}?subject=Respuesta de Consulta - Liceo de Limón Mario Bourne Bourne" style="color: var(--azul); text-decoration: underline;">{{ inq.email }}</a></span>
+                  {% if inq.phone %}
+                  <span>📞 <a href="tel:{{ inq.phone }}" style="color: var(--gris-700);">{{ inq.phone }}</a></span>
+                  {% endif %}
+                  <span>🏷️ <strong>Área:</strong> {{ inq.area }}</span>
+                  <span>📅 {{ inq.created_at }}</span>
+                </div>
+
+                <div class="inquiry-message-text">
+                  {{ inq.message }}
+                </div>
+
+                <div class="inquiry-actions-row">
+                  <a href="mailto:{{ inq.email }}?subject=Respuesta de Consulta - Liceo de Limón Mario Bourne Bourne&body=Estimado(a) {{ inq.name }},%0D%0A%0D%0AEn respuesta a su consulta sobre {{ inq.area }}:%0D%0A%0D%0A" class="btn btn-azul btn-sm">
+                    ✉️ Responder por Correo
+                  </a>
+                  <button class="btn btn-vino btn-sm" onclick="deleteInquiry({{ inq.id }})">
+                    🗑️ Eliminar Consulta
+                  </button>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div style="text-align: center; padding: 3rem; color: var(--gris-500);">
+              <p style="font-size: 2.5rem; margin-bottom: 0.5rem;">📭</p>
+              <p style="font-size: 1.1rem; font-weight: 600;">No hay consultas recibidas por el momento.</p>
+              <p style="font-size: 0.875rem;">Las consultas enviadas desde el formulario de la página principal aparecerán aquí automáticamente.</p>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: GESTIÓN DE NOTICIAS & SUBCATEGORÍAS ==================== -->
+      <section class="admin-tab-pane" id="tab-news">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">Gestión de Noticias y Subcategorías</h2>
+              <p class="panel-card-desc">Publique comunicados asignando categoría y subcategorías (ej. CAS, TOK, Actividades, DELF, etc.).</p>
+            </div>
+            <button class="btn btn-azul btn-sm" onclick="toggleAddNewsForm()">➕ Publicar Nuevo Comunicado</button>
+          </div>
+
+          <!-- Formulario para agregar noticia con subcategoría -->
+          <div id="addNewsBox" style="display: none; background: var(--gris-50); border: 1px solid var(--gris-300); border-radius: var(--radius-lg); padding: 1.8rem; margin-bottom: 2rem;">
+            <h3 style="font-size: 1.2rem; color: var(--azul-dark); margin-bottom: 1rem;">Nuevo Comunicado Institucional</h3>
+            <form id="panelAddNewsForm">
+              <div class="form-group">
+                <label class="form-label">Título de la Noticia</label>
+                <input type="text" id="pNewsTitle" class="form-control" required placeholder="Ej. Proyectos Ecológicos CAS 2026">
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Categoría Principal</label>
+                  <select id="pNewsCategory" class="form-control" onchange="handleCategorySelectChange()">
+                    <option value="Bachillerato Internacional" data-slug="ib">Bachillerato Internacional (IB)</option>
+                    <option value="Francés Avanzado" data-slug="frances">Francés Avanzado</option>
+                    <option value="Secundaria Regular" data-slug="regular">Secundaria Regular</option>
+                    <option value="Institucionales" data-slug="institucionales">Institucionales</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Subcategoría (Opcional o Específica)</label>
+                  <input type="text" id="pNewsSubcategory" class="form-control" placeholder="Ej. CAS, TOK, Actividades, DELF, etc.">
+                  <div style="margin-top: 0.4rem; display: flex; gap: 0.3rem; flex-wrap: wrap;" id="subcatSuggestions">
+                    <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('CAS')">CAS</button>
+                    <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('TOK')">TOK</button>
+                    <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Actividades')">Actividades</button>
+                    <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('DELF')">DELF</button>
+                    <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('')">Sin subcategoría</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Fecha</label>
+                  <input type="text" id="pNewsDate" class="form-control" placeholder="17 de Agosto, 2026">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Autor / Departamento</label>
+                  <input type="text" id="pNewsAuthor" class="form-control" placeholder="Coordinación IB / Dirección Liceo de Limón">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">URL de Fotografía</label>
+                <input type="url" id="pNewsImage" class="form-control" value="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Resumen Breve</label>
+                <textarea id="pNewsSummary" class="form-control" style="min-height: 70px;" required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Contenido Completo</label>
+                <textarea id="pNewsContent" class="form-control" style="min-height: 100px;"></textarea>
+              </div>
+
+              <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-vino">Publicar Comunicado</button>
+                <button type="button" class="btn btn-outline" onclick="toggleAddNewsForm()">Cancelar</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Tabla de Comunicados con Subcategoría -->
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Categoría</th>
+                <th>Subcategoría</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in news %}
+              <tr id="newsRow-{{ item.id }}">
+                <td>#{{ item.id }}</td>
+                <td><strong>{{ item.title }}</strong></td>
+                <td><span class="admin-badge-pill" style="background: var(--azul);">{{ item.category }}</span></td>
+                <td>
+                  {% if item.subcategory %}
+                    <span class="admin-badge-pill" style="background: var(--vino);">{{ item.subcategory }}</span>
+                  {% else %}
+                    <span style="color: var(--gris-400); font-style: italic;">— Ninguna —</span>
+                  {% endif %}
+                </td>
+                <td>{{ item.date }}</td>
+                <td>
+                  <button class="btn btn-vino btn-sm" onclick="deleteNewsItem({{ item.id }})">🗑️ Eliminar</button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: REDES SOCIALES OFICIALES ==================== -->
+      <section class="admin-tab-pane" id="tab-social">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">Redes Sociales & Comunidad Digital</h2>
+              <p class="panel-card-desc">Configure los enlaces, descripciones y canales oficiales de Facebook, Instagram y WhatsApp.</p>
+            </div>
+            <button class="btn btn-vino btn-sm btn-save-section" data-section="social">💾 Guardar Cambios</button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Título de la Sección de Redes Sociales</label>
+            <input type="text" class="form-control" data-cms-field="social_section_title" value="{{ cms.social_section_title }}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Subtítulo de la Sección</label>
+            <input type="text" class="form-control" data-cms-field="social_section_subtitle" value="{{ cms.social_section_subtitle }}">
+          </div>
+
+          <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+          <!-- Facebook -->
+          <h3 style="color: #1877F2; margin-bottom: 1rem;">📘 Facebook Institucional</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Nombre / Etiqueta de la Página</label>
+              <input type="text" class="form-control" data-cms-field="facebook_name" value="{{ cms.facebook_name }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Enlace URL Oficial de Facebook</label>
+              <input type="url" class="form-control" data-cms-field="facebook_url" value="{{ cms.facebook_url }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción de Facebook</label>
+            <textarea class="form-control" data-cms-field="facebook_desc">{{ cms.facebook_desc }}</textarea>
+          </div>
+
+          <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+          <!-- Instagram -->
+          <h3 style="color: #E1306C; margin-bottom: 1rem;">📷 Instagram Institucional</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Usuario / Handle de Instagram</label>
+              <input type="text" class="form-control" data-cms-field="instagram_name" value="{{ cms.instagram_name }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Enlace URL Oficial de Instagram</label>
+              <input type="url" class="form-control" data-cms-field="instagram_url" value="{{ cms.instagram_url }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción de Instagram</label>
+            <textarea class="form-control" data-cms-field="instagram_desc">{{ cms.instagram_desc }}</textarea>
+          </div>
+
+          <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+          <!-- Canal de WhatsApp -->
+          <h3 style="color: #25D366; margin-bottom: 1rem;">💬 Canal Oficial de WhatsApp</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Nombre del Canal de WhatsApp</label>
+              <input type="text" class="form-control" data-cms-field="whatsapp_name" value="{{ cms.whatsapp_name }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Enlace de Invitación al Canal</label>
+              <input type="url" class="form-control" data-cms-field="whatsapp_url" value="{{ cms.whatsapp_url }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción del Canal de WhatsApp</label>
+            <textarea class="form-control" data-cms-field="whatsapp_desc">{{ cms.whatsapp_desc }}</textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: LOGOTIPO E IDENTIDAD ==================== -->
+      <section class="admin-tab-pane" id="tab-identity">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">Logotipo Institucional e Identidad</h2>
+              <p class="panel-card-desc">Modifique el escudo/logo del colegio y los nombres oficiales del encabezado.</p>
+            </div>
+            <button class="btn btn-vino btn-sm btn-save-section" data-section="identity">💾 Guardar Cambios</button>
+          </div>
+
+          <div class="form-grid-2">
+            <div>
+              <div class="form-group">
+                <label class="form-label">Nombre Institucional Principal</label>
+                <input type="text" class="form-control" data-cms-field="header_institution_name" value="{{ cms.header_institution_name }}">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Subnombre (Educador)</label>
+                <input type="text" class="form-control" data-cms-field="header_subname" value="{{ cms.header_subname }}">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Dependencia MEP (Barra Superior)</label>
+                <input type="text" class="form-control" data-cms-field="header_mep_tag" value="{{ cms.header_mep_tag }}">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Etiqueta Oficial</label>
+                <input type="text" class="form-control" data-cms-field="mep_badge" value="{{ cms.mep_badge }}">
+              </div>
+            </div>
+
+            <div>
+              <div class="form-group">
+                <label class="form-label">URL del Logotipo o Escudo Institucional</label>
+                <input type="url" class="form-control" id="inputLogoUrl" data-cms-field="site_logo" value="{{ cms.site_logo }}">
+              </div>
+
+              <div class="image-preview-box">
+                <p style="font-size: 0.8rem; font-weight: 700; color: var(--gris-600); margin-bottom: 0.5rem;">Previsualización del Logo Actual:</p>
+                <img id="logoPreviewImg" src="{{ cms.site_logo }}" alt="Previsualización Logo">
+                <div style="display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-outline btn-sm" onclick="setPresetLogo('https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=200&q=80')">Escudo Tradicional</button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="setPresetLogo('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=200&q=80')">Insignia Educativa</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: PORTADA & HERO ==================== -->
+      <section class="admin-tab-pane" id="tab-hero">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">Hero Banner y Portada</h2>
+              <p class="panel-card-desc">Personalice los textos principales de bienvenida y la fotografía de fondo.</p>
+            </div>
+            <button class="btn btn-vino btn-sm btn-save-section" data-section="hero">💾 Guardar Cambios</button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Lema o Etiqueta Superior del Hero</label>
+            <input type="text" class="form-control" data-cms-field="hero_tagline" value="{{ cms.hero_tagline }}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Título Monumental de Portada</label>
+            <input type="text" class="form-control" data-cms-field="hero_title" value="{{ cms.hero_title }}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Descripción Principal</label>
+            <textarea class="form-control" data-cms-field="hero_description">{{ cms.hero_description }}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Aviso Rápido (Ticker de Anuncios)</label>
+            <input type="text" class="form-control" data-cms-field="ticker_announcement" value="{{ cms.ticker_announcement }}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">URL de Fotografía de Fondo (Hero Banner)</label>
+            <input type="url" class="form-control" id="inputHeroBgUrl" data-cms-field="hero_bg_image" value="{{ cms.hero_bg_image }}">
+          </div>
+
+          <div class="image-preview-box">
+            <img id="heroBgPreviewImg" src="{{ cms.hero_bg_image }}" alt="Previsualización Hero" style="max-height: 200px; width: 100%;">
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: ESTADÍSTICAS ==================== -->
+      <section class="admin-tab-pane" id="tab-stats">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">Estadísticas Institucionales</h2>
+              <p class="panel-card-desc">Actualice las 4 cifras destacadas de impacto institucional.</p>
+            </div>
+            <button class="btn btn-vino btn-sm btn-save-section" data-section="stats">💾 Guardar Cambios</button>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Cifra 1 (Número)</label>
+              <input type="text" class="form-control" data-cms-field="stat_1_number" value="{{ cms.stat_1_number }}">
+              <label class="form-label" style="margin-top: 0.5rem;">Etiqueta 1</label>
+              <input type="text" class="form-control" data-cms-field="stat_1_label" value="{{ cms.stat_1_label }}">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Cifra 2 (Número)</label>
+              <input type="text" class="form-control" data-cms-field="stat_2_number" value="{{ cms.stat_2_number }}">
+              <label class="form-label" style="margin-top: 0.5rem;">Etiqueta 2</label>
+              <input type="text" class="form-control" data-cms-field="stat_2_label" value="{{ cms.stat_2_label }}">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Cifra 3 (Número)</label>
+              <input type="text" class="form-control" data-cms-field="stat_3_number" value="{{ cms.stat_3_number }}">
+              <label class="form-label" style="margin-top: 0.5rem;">Etiqueta 3</label>
+              <input type="text" class="form-control" data-cms-field="stat_3_label" value="{{ cms.stat_3_label }}">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Cifra 4 (Número)</label>
+              <input type="text" class="form-control" data-cms-field="stat_4_number" value="{{ cms.stat_4_number }}">
+              <label class="form-label" style="margin-top: 0.5rem;">Etiqueta 4</label>
+              <input type="text" class="form-control" data-cms-field="stat_4_label" value="{{ cms.stat_4_label }}">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: OFERTAS EDUCATIVAS ==================== -->
+      <section class="admin-tab-pane" id="tab-modalities">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">Ofertas Educativas (Modalidades)</h2>
+              <p class="panel-card-desc">Edite los textos y fotos de las 3 modalidades en la portada.</p>
+            </div>
+            <button class="btn btn-vino btn-sm btn-save-section" data-section="modalities">💾 Guardar Cambios</button>
+          </div>
+
+          <h3 style="color: var(--reg-vino); margin-bottom: 1rem;">1. Secundaria Regular</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Título</label>
+              <input type="text" class="form-control" data-cms-field="regular_title" value="{{ cms.regular_title }}">
+              <label class="form-label" style="margin-top: 0.5rem;">Subtítulo</label>
+              <input type="text" class="form-control" data-cms-field="regular_subtitle" value="{{ cms.regular_subtitle }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">URL de Imagen</label>
+              <input type="url" class="form-control" data-cms-field="regular_img" value="{{ cms.regular_img }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" data-cms-field="regular_description">{{ cms.regular_description }}</textarea>
+          </div>
+
+          <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+          <h3 style="color: var(--fr-azul); margin-bottom: 1rem;">2. Francés Avanzado</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Título</label>
+              <input type="text" class="form-control" data-cms-field="french_title" value="{{ cms.french_title }}">
+              <label class="form-label" style="margin-top: 0.5rem;">Subtítulo</label>
+              <input type="text" class="form-control" data-cms-field="french_subtitle" value="{{ cms.french_subtitle }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">URL de Imagen</label>
+              <input type="url" class="form-control" data-cms-field="french_img" value="{{ cms.french_img }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" data-cms-field="french_description">{{ cms.french_description }}</textarea>
+          </div>
+
+          <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+          <h3 style="color: var(--ib-azul); margin-bottom: 1rem;">3. Bachillerato Internacional (IB)</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Título</label>
+              <input type="text" class="form-control" data-cms-field="ib_title" value="{{ cms.ib_title }}">
+              <label class="form-label" style="margin-top: 0.5rem;">Subtítulo</label>
+              <input type="text" class="form-control" data-cms-field="ib_subtitle" value="{{ cms.ib_subtitle }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">URL de Imagen</label>
+              <input type="url" class="form-control" data-cms-field="ib_img" value="{{ cms.ib_img }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" data-cms-field="ib_description">{{ cms.ib_description }}</textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: HISTORIA & MISIÓN ==================== -->
+      <section class="admin-tab-pane" id="tab-history">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">Historia, Misión y Visión MEP</h2>
+              <p class="panel-card-desc">Gestione los textos sobre Mario Bourne Bourne y el ideario institucional.</p>
+            </div>
+            <button class="btn btn-vino btn-sm btn-save-section" data-section="history">💾 Guardar Cambios</button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Título de la Sección de Historia</label>
+            <input type="text" class="form-control" data-cms-field="history_section_title" value="{{ cms.history_section_title }}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Párrafo 1 (Legado Histórico)</label>
+            <textarea class="form-control" data-cms-field="history_p1">{{ cms.history_p1 }}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Párrafo 2 (Valores Públicos MEP)</label>
+            <textarea class="form-control" data-cms-field="history_p2">{{ cms.history_p2 }}</textarea>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Misión Institucional</label>
+              <textarea class="form-control" data-cms-field="history_mission">{{ cms.history_mission }}</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Visión Institucional</label>
+              <textarea class="form-control" data-cms-field="history_vision">{{ cms.history_vision }}</textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: CONTACTO ==================== -->
+      <section class="admin-tab-pane" id="tab-contact">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">Contacto y Secretaría</h2>
+              <p class="panel-card-desc">Información pública de atención a padres y estudiantes.</p>
+            </div>
+            <button class="btn btn-vino btn-sm btn-save-section" data-section="contact">💾 Guardar Cambios</button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Dirección / Ubicación Institucional</label>
+            <input type="text" class="form-control" data-cms-field="contact_address" value="{{ cms.contact_address }}">
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Teléfonos de Oficina</label>
+              <input type="text" class="form-control" data-cms-field="contact_phone" value="{{ cms.contact_phone }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Correo Oficial MEP</label>
+              <input type="email" class="form-control" data-cms-field="contact_email" value="{{ cms.contact_email }}">
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Horario de Atención</label>
+              <input type="text" class="form-control" data-cms-field="contact_hours" value="{{ cms.contact_hours }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Circuito Escolar</label>
+              <input type="text" class="form-control" data-cms-field="contact_mep_region" value="{{ cms.contact_mep_region }}">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: RESTAURAR ==================== -->
+      <section class="admin-tab-pane" id="tab-reset">
+        <div class="panel-card" style="border-color: #fca5a5;">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title" style="color: #dc2626;">Restaurar Contenidos de Fábrica</h2>
+              <p class="panel-card-desc">Restaura todos los textos, imágenes y noticias a los valores oficiales iniciales del MEP.</p>
+            </div>
+          </div>
+
+          <p style="color: var(--gris-700); margin-bottom: 1.5rem; line-height: 1.6;">
+            ⚠️ <strong>Atención:</strong> Esta acción borrará todas las modificaciones personalizadas y volverá a cargar los contenidos originales predeterminados.
+          </p>
+
+          <button type="button" class="btn btn-vino btn-lg" onclick="handleFactoryReset()">
+            🔄 Restaurar Todos los Contenidos a Valores Iniciales
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Contenedor de Notificaciones Toast -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts del Panel de Control -->
+  <script>
+    // 1. Cambio de Pestañas
+    document.querySelectorAll('.sidebar-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
+
+        btn.classList.add('active');
+        const tabId = btn.getAttribute('data-tab');
+        document.getElementById(tabId)?.classList.add('active');
+      });
+    });
+
+    // 2. Previsualización de Logo en vivo
+    const logoInput = document.getElementById('inputLogoUrl');
+    const logoImg = document.getElementById('logoPreviewImg');
+    if (logoInput && logoImg) {
+      logoInput.addEventListener('input', () => {
+        logoImg.src = logoInput.value.trim();
+      });
+    }
+
+    function setPresetLogo(url) {
+      if (logoInput && logoImg) {
+        logoInput.value = url;
+        logoImg.src = url;
+      }
+    }
+
+    // 3. Previsualización de Hero en vivo
+    const heroBgInput = document.getElementById('inputHeroBgUrl');
+    const heroBgImg = document.getElementById('heroBgPreviewImg');
+    if (heroBgInput && heroBgImg) {
+      heroBgInput.addEventListener('input', () => {
+        heroBgImg.src = heroBgInput.value.trim();
+      });
+    }
+
+    // 4. Guardar Cambios de Campos CMS vía Fetch Asíncrono
+    document.querySelectorAll('.btn-save-section').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const parentPane = btn.closest('.admin-tab-pane');
+        if (!parentPane) return;
+
+        const fields = parentPane.querySelectorAll('[data-cms-field]');
+        const items = {};
+
+        fields.forEach(field => {
+          const key = field.getAttribute('data-cms-field');
+          items[key] = field.value.trim();
+        });
+
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳ Guardando...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch('/api/cms/content', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items })
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            showToast('✓ Cambios guardados correctamente en la base de datos.', 'success');
+          } else {
+            showToast('Error al guardar: ' + (data.message || 'Desconocido'), 'error');
+          }
+        } catch (err) {
+          showToast('Error de conexión al guardar cambios.', 'error');
+        } finally {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // 5. Gestión de Consultas Recibidas (Cambiar estado y eliminar)
+    async function toggleInquiryStatus(id, currentStatus) {
+      const newStatus = currentStatus === 'Atendida' ? 'Pendiente' : 'Atendida';
+      const badge = document.getElementById(`statusBadge-${id}`);
+
+      try {
+        const res = await fetch(`/api/cms/inquiries/${id}/status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(`✓ Consulta #${id} marcada como ${newStatus}.`, 'success');
+          if (badge) {
+            badge.className = `status-badge ${newStatus === 'Atendida' ? 'status-badge-attended' : 'status-badge-pending'}`;
+            badge.innerText = newStatus === 'Atendida' ? '✓ Atendida' : '⏳ Pendiente';
+            badge.setAttribute('onclick', `toggleInquiryStatus(${id}, '${newStatus}')`);
+          }
+        }
+      } catch (err) {
+        showToast('Error al actualizar estado de la consulta.', 'error');
+      }
+    }
+
+    async function deleteInquiry(id) {
+      if (confirm(`¿Está seguro de eliminar la consulta #${id}?`)) {
+        try {
+          const res = await fetch(`/api/cms/inquiries/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            showToast(`✓ Consulta #${id} eliminada.`, 'success');
+            document.getElementById(`inquiryCard-${id}`)?.remove();
+            
+            // Actualizar contador
+            const countEl = document.getElementById('sidebarInquiriesCount');
+            if (countEl) {
+              const currentCount = parseInt(countEl.innerText) || 0;
+              countEl.innerText = Math.max(0, currentCount - 1);
+            }
+          }
+        } catch (err) {
+          showToast('Error al eliminar la consulta.', 'error');
+        }
+      }
+    }
+
+    // 6. Gestión de Noticias & Subcategorías
+    function toggleAddNewsForm() {
+      const box = document.getElementById('addNewsBox');
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function setSubcat(sub) {
+      document.getElementById('pNewsSubcategory').value = sub;
+    }
+
+    function handleCategorySelectChange() {
+      const select = document.getElementById('pNewsCategory');
+      const catVal = select.value;
+      const suggestions = document.getElementById('subcatSuggestions');
+
+      if (catVal === 'Bachillerato Internacional') {
+        suggestions.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('CAS')">CAS</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('TOK')">TOK</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Actividades')">Actividades</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Monografía')">Monografía</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('')">Sin subcategoría</button>
+        `;
+      } else if (catVal === 'Francés Avanzado') {
+        suggestions.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('DELF')">DELF</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Francofonía')">Francofonía</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Intercambios')">Intercambios</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('')">Sin subcategoría</button>
+        `;
+      } else if (catVal === 'Secundaria Regular') {
+        suggestions.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Feria Científica')">Feria Científica</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Deportes')">Deportes</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Académico')">Académico</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('')">Sin subcategoría</button>
+        `;
+      } else {
+        suggestions.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Actos Cívicos')">Actos Cívicos</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Avisos MEP')">Avisos MEP</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Matrícula')">Matrícula</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('')">Sin subcategoría</button>
+        `;
+      }
+    }
+
+    document.getElementById('panelAddNewsForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('pNewsTitle').value.trim();
+      const selectCat = document.getElementById('pNewsCategory');
+      const category = selectCat.value;
+      const categorySlug = selectCat.options[selectCat.selectedIndex].getAttribute('data-slug') || 'institucionales';
+      const subcategory = document.getElementById('pNewsSubcategory').value.trim();
+      const date = document.getElementById('pNewsDate').value.trim() || new Date().toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' });
+      const summary = document.getElementById('pNewsSummary').value.trim();
+      const content = document.getElementById('pNewsContent').value.trim();
+      const image = document.getElementById('pNewsImage').value.trim();
+      const author = document.getElementById('pNewsAuthor').value.trim() || 'Liceo de Limón MEP';
+
+      try {
+        const res = await fetch('/api/cms/news', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showToast('✓ Comunicado publicado exitosamente con subcategoría.', 'success');
+          setTimeout(() => window.location.reload(), 800);
+        } else {
+          showToast('Error al publicar noticia: ' + data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al publicar noticia.', 'error');
+      }
+    });
+
+    async function deleteNewsItem(id) {
+      if (confirm(`¿Está seguro de eliminar el comunicado #${id}?`)) {
+        try {
+          const res = await fetch(`/api/cms/news/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            showToast('✓ Comunicado eliminado.', 'success');
+            document.getElementById(`newsRow-${id}`)?.remove();
+          }
+        } catch (err) {
+          showToast('Error al eliminar comunicado.', 'error');
+        }
+      }
+    }
+
+    // 7. Restaurar Valores
+    async function handleFactoryReset() {
+      if (confirm('¿Confirma que desea restaurar TODOS los textos, logos, noticias y redes a los valores iniciales oficiales?')) {
+        try {
+          const res = await fetch('/api/cms/reset', { method: 'POST' });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            showToast('✓ Base de datos restaurada correctamente.', 'success');
+            setTimeout(() => window.location.reload(), 900);
+          }
+        } catch (err) {
+          showToast('Error al restaurar base de datos.', 'error');
+        }
+      }
+    }
+
+    // 8. Notificaciones Toast
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('toast-hiding');
+        setTimeout(() => toast.remove(), 400);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

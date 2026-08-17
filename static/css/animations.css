@@ -1,0 +1,204 @@
+/* ==========================================================================
+   ANIMACIONES, KEYFRAMES Y MICROINTERACCIONES (CSS3 PURO)
+   Liceo de Limón Mario Bourne Bourne (MEP)
+   ==========================================================================
+   GUÍA RÁPIDA DE ANIMACIONES:
+   - Las animaciones de entrada (Scroll Reveal) utilizan las clases:
+     .reveal        -> Aparece de abajo hacia arriba suavemente
+     .reveal-left   -> Aparece desde la izquierda
+     .reveal-right  -> Aparece desde la derecha
+     .reveal-scale  -> Aparece aumentando de tamaño
+   - Si deseas cambiar la velocidad de una animación, ajusta los segundos (ej. 0.8s).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DEFINICIÓN DE KEYFRAMES (FOTOGRAMAS DE ANIMACIÓN)
+   -------------------------------------------------------------------------- */
+
+/* Desvanecimiento simple (Fade In) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Entrada de abajo hacia arriba (Fade In Up) */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Entrada de arriba hacia abajo (Fade In Down) */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Entrada desde la izquierda (Fade In Left) */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-35px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Entrada desde la derecha (Fade In Right) */
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(35px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Efecto de pulso para indicar elementos editables en el CMS */
+@keyframes editPulse {
+  0% {
+    outline-color: rgba(2, 132, 199, 0.4);
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4);
+  }
+  50% {
+    outline-color: rgba(2, 132, 199, 0.9);
+    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.2);
+  }
+  100% {
+    outline-color: rgba(2, 132, 199, 0.4);
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4);
+  }
+}
+
+/* Animación de entrada de las notificaciones Toast */
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animación de salida de las notificaciones Toast */
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
+/* Animación de apertura para las ventanas modales */
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. CLASES DE SCROLL REVEAL (INTERSECTION OBSERVER)
+   -------------------------------------------------------------------------- */
+
+/* Estado inicial oculto */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* Estado visible al hacer scroll */
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-left.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-right.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-scale.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Retardos para que los elementos aparezcan escalonadamente */
+.delay-100 { transition-delay: 100ms; }
+.delay-200 { transition-delay: 200ms; }
+.delay-300 { transition-delay: 300ms; }
+.delay-400 { transition-delay: 400ms; }
+.delay-500 { transition-delay: 500ms; }
+
+/* --------------------------------------------------------------------------
+   3. MICROINTERACCIONES DE HOVER Y MODALES
+   -------------------------------------------------------------------------- */
+.hover-lift {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+}
+
+.modal-dialog {
+  animation: modalScaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

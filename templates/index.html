@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- =====================================================================
+       METADATOS PRINCIPALES Y TÍTULO DE LA PÁGINA
+       ===================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-cms-key="site_title">{{ cms.site_title }}</title>
+  <meta name="description" content="Sitio web oficial del Liceo de Limón Mario Bourne Bourne. Colegio público del Ministerio de Educación Pública (MEP) de Costa Rica, ofreciendo Secundaria Regular, Francés Avanzado y Bachillerato Internacional (IB).">
+  
+  <!-- =====================================================================
+       TIPOGRAFÍAS DE GOOGLE FONTS (Outfit y Plus Jakarta Sans)
+       ===================================================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- =====================================================================
+       ARCHIVOS CSS (Estilos y Animaciones)
+       ===================================================================== -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+</head>
+<body>
+
+  <!-- =====================================================================
+       1. BARRA INSTITUCIONAL SUPERIOR (MEP)
+       ===================================================================== -->
+  <aside class="top-mep-bar">
+    <div class="container">
+      <div class="mep-entity">
+        <!-- Bandera oficial de Costa Rica -->
+        <span class="mep-flag-strip" title="Bandera de Costa Rica">
+          <span class="flag-blue"></span>
+          <span class="flag-white"></span>
+          <span class="flag-red"></span>
+          <span class="flag-white"></span>
+          <span class="flag-blue"></span>
+        </span>
+        <span>{{ cms.header_mep_tag }}</span>
+      </div>
+      <div class="mep-quick-links">
+        <span class="mep-link" style="color: #cbd5e1;">📍 Limón Centro, Costa Rica</span>
+        <a href="#redes" class="mep-link">📱 Redes Oficiales</a>
+        <a href="#contacto" class="mep-link">📞 Contáctenos</a>
+        <!-- Enlace discreto a la subpágina de inicio de sesión -->
+        <a href="/login" class="admin-portal-badge" title="Iniciar sesión de administración">
+          🔒 Iniciar Sesión
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- =====================================================================
+       2. ENCABEZADO PRINCIPAL (NAVBAR) Y LOGOTIPO
+       ===================================================================== -->
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <nav class="navbar">
+        <!-- Logotipo y Nombre del Colegio -->
+        <a href="/" class="brand-wrapper">
+          <div class="brand-logo-container">
+            <img src="{{ cms.site_logo }}" alt="Logotipo Liceo de Limón" class="brand-logo-img">
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">{{ cms.header_institution_name }}</span>
+            <span class="brand-subname">{{ cms.header_subname }}</span>
+            <span class="brand-subtitle">{{ cms.mep_badge }}</span>
+          </div>
+        </a>
+
+        <!-- Menú de Enlaces de Navegación -->
+        <ul class="nav-menu">
+          <li class="nav-item"><a href="#inicio" class="nav-link active">Inicio</a></li>
+          <li class="nav-item"><a href="#modalidades" class="nav-link">Camino Académico</a></li>
+          <li class="nav-item"><a href="#noticias" class="nav-link">Noticias y Avisos</a></li>
+          <li class="nav-item"><a href="#redes" class="nav-link">Redes Sociales</a></li>
+          <li class="nav-item"><a href="#identidad" class="nav-link">Nuestra Historia</a></li>
+          <li class="nav-item"><a href="#instalaciones" class="nav-link">Instalaciones</a></li>
+          <li class="nav-item"><a href="#contacto" class="nav-link">Contacto & MEP</a></li>
+        </ul>
+
+        <!-- Botón de Acceso Rápido a Bachillerato IB -->
+        <div class="nav-actions">
+          <a href="/modalidad/ib" class="btn btn-vino btn-sm">Bachillerato IB</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       3. TICKER DE ANUNCIOS Y AVISOS OFICIALES EN TIEMPO REAL
+       ===================================================================== -->
+  <div class="announcement-ticker">
+    <div class="container">
+      <div class="ticker-content">
+        <span class="ticker-tag">Aviso Oficial</span>
+        <span class="ticker-text">{{ cms.ticker_announcement }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       4. HERO BANNER PRINCIPAL (PARALLAX DESKTOP-FIRST)
+       ===================================================================== -->
+  <section class="hero-section" id="inicio">
+    <div class="hero-parallax-bg" style="background-image: url('{{ cms.hero_bg_image }}');"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-pattern-overlay"></div>
+
+    <div class="container">
+      <div class="hero-content reveal-left">
+        <!-- Distintivo de educación pública -->
+        <div class="hero-badge-container">
+          <span class="hero-badge-dot"></span>
+          <span class="hero-badge-text">{{ cms.hero_tagline }}</span>
+        </div>
+
+        <!-- Título y descripción principal -->
+        <h1 class="hero-title">{{ cms.hero_title }}</h1>
+        <p class="hero-description">{{ cms.hero_description }}</p>
+
+        <!-- Botones de Acción -->
+        <div class="hero-actions">
+          <a href="/modalidad/ib" class="btn hero-btn-ib btn-lg">
+            🎓 {{ cms.hero_btn_ib }}
+          </a>
+          <a href="#modalidades" class="btn hero-btn-mep btn-lg">
+            🏛️ {{ cms.hero_btn_academic }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       5. BARRA DE ESTADÍSTICAS FLOTANTE (CONTADORES ANIMADOS)
+       ===================================================================== -->
+  <div class="container stats-bar-wrapper">
+    <div class="stats-grid reveal">
+      <div class="stat-item">
+        <span class="stat-number stat-number-vino" data-target="{{ cms.stat_1_number }}">{{ cms.stat_1_number }}</span>
+        <span class="stat-label">{{ cms.stat_1_label }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="{{ cms.stat_2_number }}">{{ cms.stat_2_number }}</span>
+        <span class="stat-label">{{ cms.stat_2_label }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number stat-number-vino" data-target="{{ cms.stat_3_number }}">{{ cms.stat_3_number }}</span>
+        <span class="stat-label">{{ cms.stat_3_label }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="{{ cms.stat_4_number }}">{{ cms.stat_4_number }}</span>
+        <span class="stat-label">{{ cms.stat_4_label }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       6. CAMINO ACADÉMICO (3 OFERTAS EDUCATIVAS CON SUBPÁGINA DEDICADA)
+       ===================================================================== -->
+  <section class="section academic-section" id="modalidades">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Oferta Educativa MEP</span>
+        <h2 class="section-title">{{ cms.academic_section_title }}</h2>
+        <p class="section-subtitle">{{ cms.academic_section_subtitle }}</p>
+      </div>
+
+      <div class="pathways-grid">
+        <!-- 1. Secundaria Regular -->
+        <article class="pathway-card card-regular reveal-scale delay-100">
+          <div class="pathway-image-wrapper">
+            <span class="pathway-badge-top">{{ cms.regular_badge }}</span>
+            <img src="{{ cms.regular_img }}" alt="Secundaria Regular MEP" class="pathway-image">
+            <div class="pathway-overlay"></div>
+          </div>
+          <div class="pathway-body">
+            <h3 class="pathway-title">{{ cms.regular_title }}</h3>
+            <span class="pathway-subtitle">{{ cms.regular_subtitle }}</span>
+            <p class="pathway-description">{{ cms.regular_description }}</p>
+
+            <span class="pathway-features-title">Pilares Formativos</span>
+            <div class="pathway-features">
+              <div class="pathway-feature-item">
+                <span class="feature-icon-bullet">✓</span>
+                <span>{{ cms.regular_feature_1 }}</span>
+              </div>
+              <div class="pathway-feature-item">
+                <span class="feature-icon-bullet">✓</span>
+                <span>{{ cms.regular_feature_2 }}</span>
+              </div>
+              <div class="pathway-feature-item">
+                <span class="feature-icon-bullet">✓</span>
+                <span>{{ cms.regular_feature_3 }}</span>
+              </div>
+            </div>
+
+            <div class="pathway-footer">
+              <a href="/modalidad/regular" class="btn btn-pathway">
+                📖 Ver Información Completa →
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2. Francés Avanzado -->
+        <article class="pathway-card card-french reveal-scale delay-200">
+          <div class="pathway-image-wrapper">
+            <span class="pathway-badge-top">{{ cms.french_badge }}</span>
+            <img src="{{ cms.french_img }}" alt="Francés Avanzado MEP" class="pathway-image">
+            <div class="pathway-overlay"></div>
+          </div>
+          <div class="pathway-body">
+            <div class="french-accent-bar">
+              <span class="fr-bar-1"></span>
+              <span class="fr-bar-2"></span>
+              <span class="fr-bar-3"></span>
+              <span class="fr-bar-4"></span>
+              <span class="fr-bar-5"></span>
+            </div>
+            <h3 class="pathway-title">{{ cms.french_title }}</h3>
+            <span class="pathway-subtitle">{{ cms.french_subtitle }}</span>
+            <p class="pathway-description">{{ cms.french_description }}</p>
+
+            <span class="pathway-features-title">Beneficios del Programa</span>
+            <div class="pathway-features">
+              <div class="pathway-feature-item">
+                <span class="feature-icon-bullet">✓</span>
+                <span>{{ cms.french_feature_1 }}</span>
+              </div>
+              <div class="pathway-feature-item">
+                <span class="feature-icon-bullet">✓</span>
+                <span>{{ cms.french_feature_2 }}</span>
+              </div>
+              <div class="pathway-feature-item">
+                <span class="feature-icon-bullet">✓</span>
+                <span>{{ cms.french_feature_3 }}</span>
+              </div>
+            </div>
+
+            <div class="pathway-footer">
+              <a href="/modalidad/frances" class="btn btn-pathway">
+                📖 Ver Información Completa (DELF) →
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 3. Bachillerato Internacional IB -->
+        <article class="pathway-card card-ib reveal-scale delay-300">
+          <div class="pathway-image-wrapper">
+            <span class="pathway-badge-top">{{ cms.ib_badge }}</span>
+            <img src="{{ cms.ib_img }}" alt="Bachillerato Internacional IB" class="pathway-image">
+            <div class="pathway-overlay"></div>
+          </div>
+          <div class="pathway-body">
+            <div class="ib-official-badge">
+              <div class="ib-logo-symbol">IB</div>
+              <div class="ib-badge-info">
+                <span class="ib-badge-info-title">Programa del Diploma</span>
+                <span class="ib-badge-info-sub">Acreditación Oficial IB World School</span>
+              </div>
+            </div>
+
+            <h3 class="pathway-title">{{ cms.ib_title }}</h3>
+            <span class="pathway-subtitle">{{ cms.ib_subtitle }}</span>
+            <p class="pathway-description">{{ cms.ib_description }}</p>
+
+            <span class="pathway-features-title">Componentes Clave IB</span>
+            <div class="pathway-features">
+              <div class="pathway-feature-item">
+                <span class="feature-icon-bullet">✓</span>
+                <span>{{ cms.ib_feature_1 }}</span>
+              </div>
+              <div class="pathway-feature-item">
+                <span class="feature-icon-bullet">✓</span>
+                <span>{{ cms.ib_feature_2 }}</span>
+              </div>
+              <div class="pathway-feature-item">
+                <span class="feature-icon-bullet">✓</span>
+                <span>{{ cms.ib_feature_3 }}</span>
+              </div>
+            </div>
+
+            <div class="pathway-footer">
+              <a href="/modalidad/ib" class="btn btn-pathway">
+                📖 Ver Información Completa (IB) →
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       7. NOTICIAS Y COMUNICADOS (FILTRADO POR CATEGORÍA Y SUBCATEGORÍA)
+       ===================================================================== -->
+  <section class="section news-section" id="noticias">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag section-tag-blue">Comunicación Oficial</span>
+        <h2 class="section-title">Noticias y Comunicados Institucionales</h2>
+        <p class="section-subtitle">Manténgase informado sobre las actividades pedagógicas, avisos de matrícula y logros estudiantiles del Liceo de Limón.</p>
+      </div>
+
+      <!-- Filtros Principales por Categoría -->
+      <div class="news-filter-tabs reveal">
+        <button class="news-tab-btn active" data-filter="all">Todas las Publicaciones</button>
+        <button class="news-tab-btn" data-filter="ib">Bachillerato Internacional (IB)</button>
+        <button class="news-tab-btn" data-filter="frances">Francés Avanzado</button>
+        <button class="news-tab-btn" data-filter="regular">Secundaria Regular</button>
+        <button class="news-tab-btn" data-filter="institucionales">Institucionales</button>
+      </div>
+
+      <!-- Subfiltros Dinámicos (CAS, TOK, Actividades, DELF, etc.) -->
+      <div class="news-subfilter-container" id="newsSubfilterContainer" style="display: none;"></div>
+
+      <!-- Cuadrícula Dinámica de Comunicados -->
+      <div class="news-grid" id="newsGridContainer">
+        {% for item in news %}
+        <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}">
+          <div class="news-image-container">
+            <span class="news-tag-overlay tag-{{ item.category_slug }}">
+              {{ item.category }}
+              {% if item.subcategory %}
+                <span class="news-subcategory-tag">{{ item.subcategory }}</span>
+              {% endif %}
+            </span>
+            <img src="{{ item.image }}" alt="{{ item.title }}" class="news-image">
+          </div>
+
+          <div class="news-body">
+            <div class="news-meta">
+              <span class="news-meta-item news-meta-date">📅 {{ item.date }}</span>
+              <span class="news-meta-item news-meta-author">✍️ {{ item.author }}</span>
+            </div>
+            <h3 class="news-title">{{ item.title }}</h3>
+            <p class="news-summary">{{ item.summary }}</p>
+            <div class="news-footer">
+              <a href="#" class="btn-read-more">Leer Comunicado Completo →</a>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       8. SECCIÓN DE REDES SOCIALES INSTITUCIONALES (FACEBOOK, INSTAGRAM, WHATSAPP)
+       ===================================================================== -->
+  <section class="section social-section" id="redes">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" style="background: rgba(15, 52, 96, 0.1); color: var(--azul);">Comunidad Digital</span>
+        <h2 class="section-title">{{ cms.social_section_title }}</h2>
+        <p class="section-subtitle">{{ cms.social_section_subtitle }}</p>
+      </div>
+
+      <div class="social-grid">
+        <!-- Tarjeta de Facebook -->
+        <div class="social-card social-card-fb reveal-scale delay-100">
+          <div>
+            <div class="social-card-header">
+              <div class="social-icon-box social-icon-fb">f</div>
+              <div>
+                <h3 class="social-name">{{ cms.facebook_name }}</h3>
+                <span class="social-handle">Página Oficial Facebook</span>
+              </div>
+            </div>
+            <p class="social-desc">{{ cms.facebook_desc }}</p>
+          </div>
+          <a href="{{ cms.facebook_url }}" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-fb">
+            <span>Ir a Facebook</span> ↗
+          </a>
+        </div>
+
+        <!-- Tarjeta de Instagram -->
+        <div class="social-card social-card-ig reveal-scale delay-200">
+          <div>
+            <div class="social-card-header">
+              <div class="social-icon-box social-icon-ig">📷</div>
+              <div>
+                <h3 class="social-name">Instagram</h3>
+                <span class="social-handle">{{ cms.instagram_name }}</span>
+              </div>
+            </div>
+            <p class="social-desc">{{ cms.instagram_desc }}</p>
+          </div>
+          <a href="{{ cms.instagram_url }}" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-ig">
+            <span>Seguir en Instagram</span> ↗
+          </a>
+        </div>
+
+        <!-- Tarjeta de Canal de WhatsApp -->
+        <div class="social-card social-card-wa reveal-scale delay-300">
+          <div>
+            <div class="social-card-header">
+              <div class="social-icon-box social-icon-wa">💬</div>
+              <div>
+                <h3 class="social-name">{{ cms.whatsapp_name }}</h3>
+                <span class="social-handle">Canal Oficial de Avisos</span>
+              </div>
+            </div>
+            <p class="social-desc">{{ cms.whatsapp_desc }}</p>
+          </div>
+          <a href="{{ cms.whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-wa">
+            <span>Unirse al Canal de WhatsApp</span> ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       9. NUESTRA HISTORIA & LEGADO DEL MAESTRO MARIO BOURNE BOURNE
+       ===================================================================== -->
+  <section class="section identity-section" id="identidad">
+    <div class="container">
+      <div class="identity-grid">
+        <div class="identity-text-col reveal-left">
+          <span class="section-tag">Legado y Tradición</span>
+          <h2 class="section-title">{{ cms.history_section_title }}</h2>
+          <p class="section-subtitle" style="margin-bottom: 1.2rem;">{{ cms.history_section_subtitle }}</p>
+          
+          <p style="color: var(--gris-700); line-height: 1.7; margin-bottom: 1rem;">{{ cms.history_p1 }}</p>
+          
+          <div class="identity-quote-box">
+            "La educación pública no solo transmite conocimiento, sino que abre caminos de equidad, libertad y dignidad para toda la juventud de Limón."
+          </div>
+
+          <p style="color: var(--gris-700); line-height: 1.7;">{{ cms.history_p2 }}</p>
+
+          <div class="mission-vision-cards">
+            <div class="mv-card">
+              <h4 class="mv-card-title">🎯 {{ cms.history_mission_title }}</h4>
+              <p class="mv-card-text">{{ cms.history_mission }}</p>
+            </div>
+            <div class="mv-card">
+              <h4 class="mv-card-title">🔭 {{ cms.history_vision_title }}</h4>
+              <p class="mv-card-text">{{ cms.history_vision }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="identity-visual-col reveal-right">
+          <div class="identity-image-stack">
+            <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1000&q=80" alt="Liceo de Limón Mario Bourne Bourne" class="identity-main-img">
+          </div>
+          <div class="identity-badge-floating">
+            <div class="floating-badge-year">1945</div>
+            <div class="floating-badge-label">Fundación Oficial y Servicio Ininterrumpido a Limón</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       10. INSTALACIONES Y VIDA ESTUDIANTIL
+       ===================================================================== -->
+  <section class="section campus-section" id="instalaciones">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" style="background: rgba(255, 255, 255, 0.1); color: #38bdf8;">Espacios Educativos</span>
+        <h2 class="section-title">{{ cms.campus_title }}</h2>
+        <p class="section-subtitle">{{ cms.campus_subtitle }}</p>
+      </div>
+
+      <div class="campus-grid">
+        <div class="campus-card reveal delay-100">
+          <div class="campus-icon-box">🔬</div>
+          <h3 class="campus-card-title">{{ cms.campus_item_1_title }}</h3>
+          <p class="campus-card-desc">{{ cms.campus_item_1_desc }}</p>
+        </div>
+        <div class="campus-card reveal delay-200">
+          <div class="campus-icon-box">📚</div>
+          <h3 class="campus-card-title">{{ cms.campus_item_2_title }}</h3>
+          <p class="campus-card-desc">{{ cms.campus_item_2_desc }}</p>
+        </div>
+        <div class="campus-card reveal delay-300">
+          <div class="campus-icon-box">🏀</div>
+          <h3 class="campus-card-title">{{ cms.campus_item_3_title }}</h3>
+          <p class="campus-card-desc">{{ cms.campus_item_3_desc }}</p>
+        </div>
+        <div class="campus-card reveal delay-400">
+          <div class="campus-icon-box">🎷</div>
+          <h3 class="campus-card-title">{{ cms.campus_item_4_title }}</h3>
+          <p class="campus-card-desc">{{ cms.campus_item_4_desc }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       11. ORIENTACIÓN, MATRÍCULA Y CONTACTO INSTITUCIONAL
+       ===================================================================== -->
+  <section class="section contact-section" id="contacto">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Atención al Público</span>
+        <h2 class="section-title">{{ cms.contact_title }}</h2>
+        <p class="section-subtitle">{{ cms.contact_subtitle }}</p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-info-panel reveal-left">
+          <h3 class="contact-info-title">Secretaría & Información</h3>
+          
+          <div class="contact-details-list">
+            <div class="contact-detail-item">
+              <div class="contact-icon-circle">📍</div>
+              <div>
+                <span class="contact-item-label">Ubicación Institucional</span>
+                <p class="contact-item-value">{{ cms.contact_address }}</p>
+              </div>
+            </div>
+
+            <div class="contact-detail-item">
+              <div class="contact-icon-circle">📞</div>
+              <div>
+                <span class="contact-item-label">Teléfonos de Oficina</span>
+                <p class="contact-item-value">{{ cms.contact_phone }}</p>
+              </div>
+            </div>
+
+            <div class="contact-detail-item">
+              <div class="contact-icon-circle">✉️</div>
+              <div>
+                <span class="contact-item-label">Correo Oficial MEP</span>
+                <p class="contact-item-value">{{ cms.contact_email }}</p>
+              </div>
+            </div>
+
+            <div class="contact-detail-item">
+              <div class="contact-icon-circle">⏰</div>
+              <div>
+                <span class="contact-item-label">Horario de Atención</span>
+                <p class="contact-item-value">{{ cms.contact_hours }}</p>
+              </div>
+            </div>
+
+            <div class="contact-detail-item">
+              <div class="contact-icon-circle">🏛️</div>
+              <div>
+                <span class="contact-item-label">Dependencia Educativa</span>
+                <p class="contact-item-value">{{ cms.contact_mep_region }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form-wrapper reveal-right">
+          <form id="institutionalContactForm">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="contactName">Nombre Completo</label>
+                <input type="text" id="contactName" class="form-control" placeholder="Ej. Juan Morales" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contactEmail">Correo Electrónico</label>
+                <input type="email" id="contactEmail" class="form-control" placeholder="nombre@correo.com" required>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="contactPhone">Teléfono de Contacto</label>
+                <input type="tel" id="contactPhone" class="form-control" placeholder="+506 8888-8888">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contactArea">Área de Interés</label>
+                <select id="contactArea" class="form-control">
+                  <option value="ib">Bachillerato Internacional (IB)</option>
+                  <option value="frances">Francés Avanzado</option>
+                  <option value="regular">Secundaria Regular</option>
+                  <option value="general">Trámites de Secretaría / Constancias</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contactMessage">Consulta o Mensaje</label>
+              <textarea id="contactMessage" class="form-control" placeholder="Escriba aquí su consulta para la administración del colegio..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-vino btn-lg" style="width: 100%;">
+              ✉️ Enviar Consulta Institucional
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       12. PIE DE PÁGINA INSTITUCIONAL (FOOTER)
+       ===================================================================== -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col-brand">
+          <span class="footer-brand-title">{{ cms.header_institution_name }}</span>
+          <span class="footer-brand-subtitle">{{ cms.header_subname }}</span>
+          <p class="footer-brand-desc">Colegio público perteneciente al Ministerio de Educación Pública (MEP) de Costa Rica, comprometido con la formación académica integral y el desarrollo de la juventud limonense.</p>
+          <div class="mep-entity">
+            <span class="mep-flag-strip">
+              <span class="flag-blue"></span>
+              <span class="flag-white"></span>
+              <span class="flag-red"></span>
+              <span class="flag-white"></span>
+              <span class="flag-blue"></span>
+            </span>
+            <span style="font-size: 0.8rem; color: var(--gris-300);">Ministerio de Educación Pública de Costa Rica</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Camino Académico</h4>
+          <div class="footer-links-list">
+            <a href="/modalidad/regular" class="footer-link-item">Secundaria Regular</a>
+            <a href="/modalidad/frances" class="footer-link-item">Francés Avanzado (DELF)</a>
+            <a href="/modalidad/ib" class="footer-link-item">Bachillerato Internacional (IB)</a>
+            <a href="#instalaciones" class="footer-link-item">Laboratorios y Talleres</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Comunidad Digital</h4>
+          <div class="footer-links-list">
+            <a href="{{ cms.facebook_url }}" target="_blank" rel="noopener" class="footer-link-item">Facebook Oficial ↗</a>
+            <a href="{{ cms.instagram_url }}" target="_blank" rel="noopener" class="footer-link-item">Instagram Oficial ↗</a>
+            <a href="{{ cms.whatsapp_url }}" target="_blank" rel="noopener" class="footer-link-item">Canal de WhatsApp ↗</a>
+            <a href="#redes" class="footer-link-item">Ver Redes Sociales</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Enlaces Oficiales</h4>
+          <div class="footer-links-list">
+            <a href="#contacto" class="footer-link-item">Secretaría y Matrícula</a>
+            <a href="https://www.mep.go.cr" target="_blank" rel="noopener" class="footer-link-item">Sitio Oficial MEP ↗</a>
+            <a href="#inicio" class="footer-link-item">Ir al Inicio</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>{{ cms.footer_copy }}</p>
+        <p>{{ cms.footer_mep_notice }}</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       13. MODAL PARA LECTURA DE NOTICIAS
+       ===================================================================== -->
+  <div class="modal-backdrop" id="newsDetailModal" style="display: none;">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" id="closeNewsModalBtn">&times;</button>
+      <img src="" alt="Noticia" id="modalNewsImage" class="modal-image">
+      <div class="modal-body">
+        <h2 class="modal-title" id="modalNewsTitle">Título de la Noticia</h2>
+        <div class="modal-meta">
+          <span id="modalNewsDate">📅 Fecha</span>
+          <span id="modalNewsAuthor">✍️ Autor</span>
+        </div>
+        <div class="modal-text" id="modalNewsBody">
+          Contenido detallado de la noticia...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts JavaScript Vanilla Públicos -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
