@@ -1,4 +1,4 @@
-# 🏫 Liceo de Limón Mario Bourne Bourne (MEP)
+ 🏫 Liceo de Limón Mario Bourne Bourne (WEB)
 ### Sitio Web Institucional & Sistema de Administración (CMS)
 
 Sitio web oficial del **Liceo de Limón Mario Bourne Bourne**, colegio público del **Ministerio de Educación Pública (MEP)** de Costa Rica. Incluye información de las 3 modalidades (*Secundaria Regular, Francés Avanzado y Bachillerato Internacional IB*), redes sociales, sistema de noticias y panel de administración.
