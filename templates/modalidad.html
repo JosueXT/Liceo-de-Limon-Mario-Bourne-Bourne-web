@@ -29,12 +29,8 @@
   <aside class="top-mep-bar">
     <div class="container">
       <div class="mep-entity">
-        <span class="mep-flag-strip" title="Bandera de Costa Rica">
-          <span class="flag-blue"></span>
-          <span class="flag-white"></span>
-          <span class="flag-red"></span>
-          <span class="flag-white"></span>
-          <span class="flag-blue"></span>
+        <span class="mep-flag-strip cms-image-wrapper" data-cms-img="header_mep_flag" title="Bandera Institucional (Haga clic en modo edición para cambiar)">
+          <img src="{{ cms.header_mep_flag or '/static/img/bandera_costa_rica.svg' }}" alt="Bandera" class="mep-flag-img" data-cms-img="header_mep_flag">
         </span>
         <span data-cms-key="header_mep_tag">{{ cms.header_mep_tag }}</span>
       </div>
@@ -72,15 +68,23 @@
         </a>
 
         <!-- Menú de Enlaces a las 3 Modalidades -->
-        <ul class="nav-menu">
+        <ul class="nav-menu" id="navMenu">
           <li class="nav-item"><a href="/" class="nav-link" data-cms-key="nav_home">{{ cms.nav_home }}</a></li>
           <li class="nav-item"><a href="/modalidad/regular" class="nav-link {{ 'active' if modalidad.slug == 'regular' else '' }}" data-cms-key="regular_title">{{ cms.regular_title }}</a></li>
           <li class="nav-item"><a href="/modalidad/frances" class="nav-link {{ 'active' if modalidad.slug == 'frances' else '' }}" data-cms-key="french_title">{{ cms.french_title }}</a></li>
           <li class="nav-item"><a href="/modalidad/ib" class="nav-link {{ 'active' if modalidad.slug == 'ib' else '' }}" data-cms-key="ib_title">{{ cms.ib_title }}</a></li>
+          <li class="nav-item mobile-only-nav-item">
+            <a href="/#contacto" class="btn btn-vino btn-sm mobile-nav-btn" data-cms-key="header_contact_link_text">{{ cms.header_contact_link_text }}</a>
+          </li>
         </ul>
 
         <div class="nav-actions">
-          <a href="/#contacto" class="btn btn-vino btn-sm" data-cms-key="header_contact_link_text">{{ cms.header_contact_link_text }}</a>
+          <a href="/#contacto" class="btn btn-vino btn-sm desktop-only-btn" data-cms-key="header_contact_link_text">{{ cms.header_contact_link_text }}</a>
+          <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Abrir menú de navegación" aria-expanded="false">
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+          </button>
         </div>
       </nav>
     </div>
@@ -105,7 +109,8 @@
        4. HERO BANNER DE LA MODALIDAD
        ===================================================================== -->
   <section class="modality-hero-section">
-    <div class="modality-hero-bg cms-image-wrapper" data-cms-img="{{ modalidad.slug }}_hero_img" style="background-image: url('{{ cms.get(modalidad.slug + '_hero_img') }}');"></div>
+    {% set hero_img_url = cms.get(modalidad.slug ~ '_hero_img') %}
+    <div class="modality-hero-bg cms-image-wrapper" data-cms-img="{{ modalidad.slug }}_hero_img" style="background-image: url('{{ hero_img_url }}');"></div>
     <div class="modality-hero-overlay"></div>
 
     <div class="container">
@@ -162,28 +167,26 @@
         <p class="section-subtitle" data-cms-key="modality_pillars_subtitle">{{ cms.modality_pillars_subtitle }}</p>
       </div>
 
-      <div class="pillars-grid">
-        <!-- Pilar 1 -->
-        <div class="pillar-card reveal-scale delay-100">
-          <div class="pillar-number">01</div>
-          <h3 class="pillar-title" data-cms-key="{{ modalidad.slug }}_pillar1_title">{{ cms.get(modalidad.slug + '_pillar1_title') }}</h3>
-          <p class="pillar-desc" data-cms-key="{{ modalidad.slug }}_pillar1_desc">{{ cms.get(modalidad.slug + '_pillar1_desc') }}</p>
+      <div class="pillars-grid" data-cms-list="pillars" data-cms-prefix="{{ modalidad.slug }}_pillar">
+        {% for item in dynamic_lists.pillars %}
+        <div class="pillar-card reveal-scale" data-cms-item-index="{{ loop.index }}">
+          <div class="pillar-card-top-bar">
+            <div class="pillar-number">{{ item.num }}</div>
+            {% if is_admin %}
+            <button type="button" class="cms-delete-item-btn" title="Eliminar este pilar" aria-label="Eliminar pilar">✕</button>
+            {% endif %}
+          </div>
+          <h3 class="pillar-title" data-cms-key="{{ item.title_key }}">{{ item.title }}</h3>
+          <p class="pillar-desc" data-cms-key="{{ item.desc_key }}">{{ item.desc }}</p>
         </div>
-
-        <!-- Pilar 2 -->
-        <div class="pillar-card reveal-scale delay-200">
-          <div class="pillar-number">02</div>
-          <h3 class="pillar-title" data-cms-key="{{ modalidad.slug }}_pillar2_title">{{ cms.get(modalidad.slug + '_pillar2_title') }}</h3>
-          <p class="pillar-desc" data-cms-key="{{ modalidad.slug }}_pillar2_desc">{{ cms.get(modalidad.slug + '_pillar2_desc') }}</p>
-        </div>
-
-        <!-- Pilar 3 -->
-        <div class="pillar-card reveal-scale delay-300">
-          <div class="pillar-number">03</div>
-          <h3 class="pillar-title" data-cms-key="{{ modalidad.slug }}_pillar3_title">{{ cms.get(modalidad.slug + '_pillar3_title') }}</h3>
-          <p class="pillar-desc" data-cms-key="{{ modalidad.slug }}_pillar3_desc">{{ cms.get(modalidad.slug + '_pillar3_desc') }}</p>
-        </div>
+        {% endfor %}
       </div>
+      {% if is_admin %}
+      <button type="button" class="cms-add-item-btn" data-cms-add-target="pillars" data-cms-prefix="{{ modalidad.slug }}_pillar">
+        <span class="cms-add-icon">+</span>
+        <span>Agregar Nuevo Pilar</span>
+      </button>
+      {% endif %}
     </div>
   </section>
 
@@ -199,26 +202,38 @@
       </div>
 
       <div class="curriculum-table-wrapper reveal">
-        <table class="curriculum-table">
+        <table class="curriculum-table" data-cms-list="curriculum" data-cms-prefix="{{ modalidad.slug }}_curr_">
           <thead>
             <tr>
               <th style="width: 25%;" data-cms-key="modality_curriculum_th1">{{ cms.modality_curriculum_th1 }}</th>
-              <th style="width: 75%;" data-cms-key="modality_curriculum_th2">{{ cms.modality_curriculum_th2 }}</th>
+              <th style="width: 70%;" data-cms-key="modality_curriculum_th2">{{ cms.modality_curriculum_th2 }}</th>
+              {% if is_admin %}
+              <th class="cms-th-actions" style="width: 5%;"></th>
+              {% endif %}
             </tr>
           </thead>
           <tbody>
-            {% for i in range(1, modalidad.rows_count + 1) %}
-            {% set group_key = modalidad.slug ~ '_curr_group_' ~ i %}
-            {% set subject_key = modalidad.slug ~ '_curr_subject_' ~ i %}
-            <tr>
+            {% for item in dynamic_lists.curriculum %}
+            <tr data-cms-item-index="{{ loop.index }}">
               <td class="curriculum-group-cell">
-                <strong data-cms-key="{{ group_key }}">{{ cms.get(group_key) }}</strong>
+                <strong data-cms-key="{{ item.group_key }}">{{ item.group }}</strong>
               </td>
-              <td class="curriculum-subject-cell" data-cms-key="{{ subject_key }}">{{ cms.get(subject_key) }}</td>
+              <td class="curriculum-subject-cell" data-cms-key="{{ item.subject_key }}">{{ item.subject }}</td>
+              {% if is_admin %}
+              <td class="cms-td-actions">
+                <button type="button" class="cms-delete-item-btn" title="Eliminar esta fila" aria-label="Eliminar fila">✕</button>
+              </td>
+              {% endif %}
             </tr>
             {% endfor %}
           </tbody>
         </table>
+        {% if is_admin %}
+        <button type="button" class="cms-add-item-btn" data-cms-add-target="curriculum" data-cms-prefix="{{ modalidad.slug }}_curr_">
+          <span class="cms-add-icon">+</span>
+          <span>Agregar Fila a la Malla Curricular</span>
+        </button>
+        {% endif %}
       </div>
     </div>
   </section>
@@ -234,38 +249,23 @@
           <h2 class="section-title" data-cms-key="modality_advantages_title">{{ cms.modality_advantages_title }}</h2>
           <p class="section-subtitle" data-cms-key="modality_advantages_subtitle">{{ cms.modality_advantages_subtitle }}</p>
           
-          <div class="advantages-list">
-            {% if cms.get(modalidad.slug + '_adv_1') %}
-            <div class="advantage-item">
+          <div class="advantages-list" data-cms-list="advantages" data-cms-prefix="{{ modalidad.slug }}_adv_">
+            {% for item in dynamic_lists.advantages %}
+            <div class="advantage-item" data-cms-item-index="{{ loop.index }}">
               <span class="advantage-check-icon">✓</span>
-              <p class="advantage-text" data-cms-key="{{ modalidad.slug }}_adv_1">{{ cms.get(modalidad.slug + '_adv_1') }}</p>
+              <p class="advantage-text" data-cms-key="{{ item.key }}">{{ item.text }}</p>
+              {% if is_admin %}
+              <button type="button" class="cms-delete-item-btn" title="Eliminar este beneficio" aria-label="Eliminar beneficio">✕</button>
+              {% endif %}
             </div>
-            {% endif %}
-            {% if cms.get(modalidad.slug + '_adv_2') %}
-            <div class="advantage-item">
-              <span class="advantage-check-icon">✓</span>
-              <p class="advantage-text" data-cms-key="{{ modalidad.slug }}_adv_2">{{ cms.get(modalidad.slug + '_adv_2') }}</p>
-            </div>
-            {% endif %}
-            {% if cms.get(modalidad.slug + '_adv_3') %}
-            <div class="advantage-item">
-              <span class="advantage-check-icon">✓</span>
-              <p class="advantage-text" data-cms-key="{{ modalidad.slug }}_adv_3">{{ cms.get(modalidad.slug + '_adv_3') }}</p>
-            </div>
-            {% endif %}
-            {% if cms.get(modalidad.slug + '_adv_4') %}
-            <div class="advantage-item">
-              <span class="advantage-check-icon">✓</span>
-              <p class="advantage-text" data-cms-key="{{ modalidad.slug }}_adv_4">{{ cms.get(modalidad.slug + '_adv_4') }}</p>
-            </div>
-            {% endif %}
-            {% if cms.get(modalidad.slug + '_adv_5') %}
-            <div class="advantage-item">
-              <span class="advantage-check-icon">✓</span>
-              <p class="advantage-text" data-cms-key="{{ modalidad.slug }}_adv_5">{{ cms.get(modalidad.slug + '_adv_5') }}</p>
-            </div>
-            {% endif %}
+            {% endfor %}
           </div>
+          {% if is_admin %}
+          <button type="button" class="cms-add-item-btn" data-cms-add-target="advantages" data-cms-prefix="{{ modalidad.slug }}_adv_">
+            <span class="cms-add-icon">+</span>
+            <span>Agregar Nuevo Beneficio</span>
+          </button>
+          {% endif %}
         </div>
 
         <div class="advantages-visual-col reveal-right" id="requisitos">
@@ -273,38 +273,23 @@
             <h3 class="requirements-title" data-cms-key="modality_req_title">{{ cms.modality_req_title }}</h3>
             <p class="requirements-subtitle" data-cms-key="modality_req_subtitle">{{ cms.modality_req_subtitle }}</p>
 
-            <ol class="requirements-list">
-              {% if cms.get(modalidad.slug + '_req_1') %}
-              <li class="requirement-list-item">
-                <span class="req-number">1</span>
-                <span class="req-text" data-cms-key="{{ modalidad.slug }}_req_1">{{ cms.get(modalidad.slug + '_req_1') }}</span>
+            <ol class="requirements-list" data-cms-list="requirements" data-cms-prefix="{{ modalidad.slug }}_req_">
+              {% for item in dynamic_lists.requirements %}
+              <li class="requirement-list-item" data-cms-item-index="{{ loop.index }}">
+                <span class="req-number">{{ loop.index }}</span>
+                <span class="req-text" data-cms-key="{{ item.key }}">{{ item.text }}</span>
+                {% if is_admin %}
+                <button type="button" class="cms-delete-item-btn" title="Eliminar este requisito" aria-label="Eliminar requisito">✕</button>
+                {% endif %}
               </li>
-              {% endif %}
-              {% if cms.get(modalidad.slug + '_req_2') %}
-              <li class="requirement-list-item">
-                <span class="req-number">2</span>
-                <span class="req-text" data-cms-key="{{ modalidad.slug }}_req_2">{{ cms.get(modalidad.slug + '_req_2') }}</span>
-              </li>
-              {% endif %}
-              {% if cms.get(modalidad.slug + '_req_3') %}
-              <li class="requirement-list-item">
-                <span class="req-number">3</span>
-                <span class="req-text" data-cms-key="{{ modalidad.slug }}_req_3">{{ cms.get(modalidad.slug + '_req_3') }}</span>
-              </li>
-              {% endif %}
-              {% if cms.get(modalidad.slug + '_req_4') %}
-              <li class="requirement-list-item">
-                <span class="req-number">4</span>
-                <span class="req-text" data-cms-key="{{ modalidad.slug }}_req_4">{{ cms.get(modalidad.slug + '_req_4') }}</span>
-              </li>
-              {% endif %}
-              {% if cms.get(modalidad.slug + '_req_5') %}
-              <li class="requirement-list-item">
-                <span class="req-number">5</span>
-                <span class="req-text" data-cms-key="{{ modalidad.slug }}_req_5">{{ cms.get(modalidad.slug + '_req_5') }}</span>
-              </li>
-              {% endif %}
+              {% endfor %}
             </ol>
+            {% if is_admin %}
+            <button type="button" class="cms-add-item-btn" data-cms-add-target="requirements" data-cms-prefix="{{ modalidad.slug }}_req_">
+              <span class="cms-add-icon">+</span>
+              <span>Agregar Nuevo Requisito</span>
+            </button>
+            {% endif %}
 
             <div style="margin-top: 2rem;">
               <a href="/#contacto" class="btn btn-vino btn-lg" style="width: 100%;" data-cms-key="modality_req_btn">
@@ -318,6 +303,116 @@
   </section>
 
   <!-- =====================================================================
+       8.5. REDES SOCIALES Y CONTACTO EXCLUSIVO IB (BACHILLERATO INTERNACIONAL)
+       ===================================================================== -->
+  {% if modalidad.slug == 'ib' %}
+  <section class="section ib-social-section" id="contacto-ib">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag" style="background: rgba(15, 52, 96, 0.1); color: var(--azul);" data-cms-key="ib_social_tag">{{ cms.ib_social_tag }}</span>
+        <h2 class="section-title" data-cms-key="ib_social_title">{{ cms.ib_social_title }}</h2>
+        <p class="section-subtitle" data-cms-key="ib_social_subtitle">{{ cms.ib_social_subtitle }}</p>
+      </div>
+
+      <div class="ib-channels-grid">
+        <!-- 1. Tarjeta Facebook IB -->
+        <div class="social-card social-card-fb reveal-scale delay-100">
+          <div>
+            <div class="social-card-header">
+              <div class="social-icon-box social-icon-fb">f</div>
+              <div>
+                <h3 class="social-name" data-cms-key="ib_facebook_title">{{ cms.ib_facebook_title }}</h3>
+                <span class="social-handle" data-cms-key="ib_facebook_handle">{{ cms.ib_facebook_handle }}</span>
+              </div>
+            </div>
+            <p class="social-desc" data-cms-key="ib_facebook_desc">{{ cms.ib_facebook_desc }}</p>
+          </div>
+          <a href="{{ cms.ib_facebook_url }}" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-fb">
+            <span data-cms-key="ib_facebook_btn">{{ cms.ib_facebook_btn }}</span> ↗
+          </a>
+        </div>
+
+        <!-- 2. Tarjeta Instagram IB -->
+        <div class="social-card social-card-ig reveal-scale delay-200">
+          <div>
+            <div class="social-card-header">
+              <div class="social-icon-box social-icon-ig">📷</div>
+              <div>
+                <h3 class="social-name" data-cms-key="ib_instagram_title">{{ cms.ib_instagram_title }}</h3>
+                <span class="social-handle" data-cms-key="ib_instagram_name">{{ cms.ib_instagram_name }}</span>
+              </div>
+            </div>
+            <p class="social-desc" data-cms-key="ib_instagram_desc">{{ cms.ib_instagram_desc }}</p>
+          </div>
+          <a href="{{ cms.ib_instagram_url }}" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-ig">
+            <span data-cms-key="ib_instagram_btn">{{ cms.ib_instagram_btn }}</span> ↗
+          </a>
+        </div>
+
+        <!-- 3. Tarjeta WhatsApp IB -->
+        <div class="social-card social-card-wa reveal-scale delay-300">
+          <div>
+            <div class="social-card-header">
+              <div class="social-icon-box social-icon-wa">💬</div>
+              <div>
+                <h3 class="social-name" data-cms-key="ib_whatsapp_title">{{ cms.ib_whatsapp_title }}</h3>
+                <span class="social-handle" data-cms-key="ib_whatsapp_handle">{{ cms.ib_whatsapp_handle }}</span>
+              </div>
+            </div>
+            <p class="social-desc" data-cms-key="ib_whatsapp_desc">{{ cms.ib_whatsapp_desc }}</p>
+          </div>
+          <a href="{{ cms.ib_whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-wa">
+            <span data-cms-key="ib_whatsapp_btn">{{ cms.ib_whatsapp_btn }}</span> ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Contacto Directo con la Coordinación IB (Teléfono y Correo) -->
+      <div class="ib-coordination-card reveal">
+        <div class="ib-coord-header">
+          <div class="ib-coord-badge-icon">🏛️</div>
+          <div>
+            <h3 class="ib-coord-title" data-cms-key="ib_contact_card_title">{{ cms.ib_contact_card_title }}</h3>
+            <p class="ib-coord-desc" data-cms-key="ib_contact_card_desc">{{ cms.ib_contact_card_desc }}</p>
+          </div>
+        </div>
+
+        <div class="ib-coord-grid">
+          <!-- Teléfono -->
+          <div class="ib-coord-item">
+            <div class="ib-coord-icon">📞</div>
+            <div class="ib-coord-details">
+              <span class="ib-coord-label" data-cms-key="ib_contact_phone_label">{{ cms.ib_contact_phone_label }}</span>
+              <a href="tel:{{ cms.ib_contact_phone }}" class="ib-coord-val ib-coord-link" data-cms-key="ib_contact_phone">{{ cms.ib_contact_phone }}</a>
+              <span class="ib-coord-sub" data-cms-key="ib_contact_phone_sub">{{ cms.ib_contact_phone_sub }}</span>
+            </div>
+          </div>
+
+          <!-- Correo -->
+          <div class="ib-coord-item">
+            <div class="ib-coord-icon">✉️</div>
+            <div class="ib-coord-details">
+              <span class="ib-coord-label" data-cms-key="ib_contact_email_label">{{ cms.ib_contact_email_label }}</span>
+              <a href="mailto:{{ cms.ib_contact_email }}" class="ib-coord-val ib-coord-link" data-cms-key="ib_contact_email">{{ cms.ib_contact_email }}</a>
+              <span class="ib-coord-sub" data-cms-key="ib_contact_email_sub">{{ cms.ib_contact_email_sub }}</span>
+            </div>
+          </div>
+
+          <!-- Oficina -->
+          <div class="ib-coord-item">
+            <div class="ib-coord-icon">📍</div>
+            <div class="ib-coord-details">
+              <span class="ib-coord-label" data-cms-key="ib_contact_office_label">{{ cms.ib_contact_office_label }}</span>
+              <p class="ib-coord-val" data-cms-key="ib_contact_office">{{ cms.ib_contact_office }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- =====================================================================
        9. PIE DE PÁGINA INSTITUCIONAL (FOOTER)
        ===================================================================== -->
   <footer class="main-footer">
@@ -328,12 +423,8 @@
           <span class="footer-brand-subtitle" data-cms-key="header_subname">{{ cms.header_subname }}</span>
           <p class="footer-brand-desc" data-cms-key="footer_brand_desc">{{ cms.footer_brand_desc }}</p>
           <div class="mep-entity">
-            <span class="mep-flag-strip">
-              <span class="flag-blue"></span>
-              <span class="flag-white"></span>
-              <span class="flag-red"></span>
-              <span class="flag-white"></span>
-              <span class="flag-blue"></span>
+            <span class="mep-flag-strip cms-image-wrapper" data-cms-img="header_mep_flag" title="Bandera Institucional">
+              <img src="{{ cms.header_mep_flag or '/static/img/bandera_costa_rica.svg' }}" alt="Bandera" class="mep-flag-img" data-cms-img="header_mep_flag">
             </span>
             <span style="font-size: 0.8rem; color: var(--gris-300);" data-cms-key="footer_flag_text">{{ cms.footer_flag_text }}</span>
           </div>

@@ -5,7 +5,7 @@ SERVIDOR PRINCIPAL (FLASK) - LICEO DE LIMÓN MARIO BOURNE BOURNE (MEP)
 """
 
 import os
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response
 from database import (
     init_db,
     get_all_content,
@@ -22,8 +22,13 @@ from database import (
     reset_to_defaults,
     create_snapshot,
     get_all_snapshots,
+    get_snapshot_by_id,
+    import_snapshot,
     restore_snapshot,
-    delete_snapshot
+    delete_snapshot,
+    get_admin_user,
+    verify_admin_credentials,
+    update_admin_credentials
 )
 from seed_data import MODALIDADES_DETALLE
 
@@ -33,6 +38,79 @@ app.secret_key = os.environ.get('SECRET_KEY', 'liceo-limon-mario-bourne-mep-secr
 
 # Inicializar Base de Datos SQLite al arrancar la aplicación
 init_db()
+
+def get_modality_dynamic_lists(slug, cms):
+    """Extrae las listas dinámicas y editables para una modalidad (ventajas, requisitos, malla, pilares)."""
+    advantages = []
+    for i in range(1, 60):
+        val = cms.get(f"{slug}_adv_{i}", "").strip()
+        if val:
+            advantages.append({
+                'index': len(advantages) + 1,
+                'key': f"{slug}_adv_{len(advantages) + 1}",
+                'text': val
+            })
+
+    requirements = []
+    for i in range(1, 60):
+        val = cms.get(f"{slug}_req_{i}", "").strip()
+        if val:
+            requirements.append({
+                'index': len(requirements) + 1,
+                'key': f"{slug}_req_{len(requirements) + 1}",
+                'text': val
+            })
+
+    curriculum = []
+    for i in range(1, 60):
+        grp = cms.get(f"{slug}_curr_group_{i}", "").strip()
+        sub = cms.get(f"{slug}_curr_subject_{i}", "").strip()
+        if grp or sub:
+            c_idx = len(curriculum) + 1
+            curriculum.append({
+                'index': c_idx,
+                'group_key': f"{slug}_curr_group_{c_idx}",
+                'group': grp,
+                'subject_key': f"{slug}_curr_subject_{c_idx}",
+                'subject': sub
+            })
+
+    pillars = []
+    for i in range(1, 60):
+        title = cms.get(f"{slug}_pillar{i}_title", "").strip()
+        desc = cms.get(f"{slug}_pillar{i}_desc", "").strip()
+        if title or desc:
+            p_idx = len(pillars) + 1
+            pillars.append({
+                'index': p_idx,
+                'num': f"{p_idx:02d}",
+                'title_key': f"{slug}_pillar{p_idx}_title",
+                'title': title,
+                'desc_key': f"{slug}_pillar{p_idx}_desc",
+                'desc': desc
+            })
+
+    return {
+        'advantages': advantages,
+        'requirements': requirements,
+        'curriculum': curriculum,
+        'pillars': pillars
+    }
+
+def get_pathway_features(cms):
+    """Extrae las listas dinámicas de pilares formativos en las tarjetas de inicio (regular, french, ib)."""
+    cards = ['regular', 'french', 'ib']
+    features = {card: [] for card in cards}
+    for card in cards:
+        for i in range(1, 60):
+            val = cms.get(f"{card}_feature_{i}", "").strip()
+            if val:
+                features[card].append({
+                    'index': len(features[card]) + 1,
+                    'key': f"{card}_feature_{len(features[card]) + 1}",
+                    'text': val
+                })
+    return features
 
 # =============================================================================
 # 1. RUTAS PÚBLICAS
@@ -44,7 +122,14 @@ def home():
     cms = get_all_content()
     news = get_all_news()
     is_admin = session.get('is_admin', False)
-    return render_template('index.html', cms=cms, news=news, is_admin=is_admin)
+    pathway_features = get_pathway_features(cms)
+    return render_template(
+        'index.html',
+        cms=cms,
+        news=news,
+        is_admin=is_admin,
+        pathway_features=pathway_features
+    )
 
 @app.route('/modalidad/<slug>')
 @app.route('/oferta/<slug>')
@@ -57,12 +142,14 @@ def modalidad_detalle(slug):
     modalidad_info = MODALIDADES_DETALLE[slug]
     cms = get_all_content()
     is_admin = session.get('is_admin', False)
+    dynamic_lists = get_modality_dynamic_lists(slug, cms)
 
     return render_template(
         'modalidad.html',
         modalidad=modalidad_info,
         cms=cms,
-        is_admin=is_admin
+        is_admin=is_admin,
+        dynamic_lists=dynamic_lists
     )
 
 # =============================================================================
@@ -72,24 +159,27 @@ def modalidad_detalle(slug):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Subpágina dedicada de Inicio de Sesión."""
+    cms = get_all_content()
     if request.method == 'GET':
         if session.get('is_admin', False):
             return redirect(url_for('admin_panel'))
-        return render_template('login.html')
+        return render_template('login.html', cms=cms)
 
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '').strip()
 
-    if username == 'Admin' and password == 'Admin':
+    if verify_admin_credentials(username, password):
         session['is_admin'] = True
+        session['admin_username'] = username
         return redirect(url_for('admin_panel'))
     else:
-        return render_template('login.html', error='Credenciales incorrectas (Usuario: Admin / Contraseña: Admin)')
+        return render_template('login.html', cms=cms, error='Credenciales incorrectas. Verifique su usuario y contraseña.')
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     """Cierra la sesión administrativa y redirige al inicio público."""
     session.pop('is_admin', None)
+    session.pop('admin_username', None)
     return redirect(url_for('home'))
 
 # =============================================================================
@@ -103,11 +193,14 @@ def admin_panel():
     if not session.get('is_admin', False):
         return redirect(url_for('login'))
 
+    admin_user = get_admin_user()
+    current_admin_username = session.get('admin_username') or (admin_user['username'] if admin_user else 'Admin')
+
     cms = get_all_content()
     news = get_all_news()
     inquiries = get_all_inquiries()
     snapshots = get_all_snapshots()
-    return render_template('admin_panel.html', cms=cms, news=news, inquiries=inquiries, snapshots=snapshots)
+    return render_template('admin_panel.html', cms=cms, news=news, inquiries=inquiries, snapshots=snapshots, current_admin_username=current_admin_username)
 
 # =============================================================================
 # 4. ENDPOINTS API REST (FORMULARIO DE CONTACTO PÚBLICO)
@@ -171,13 +264,14 @@ def api_delete_inquiry(inquiry_id):
 
 @app.route('/api/auth/login', methods=['POST'])
 def api_login():
-    """Valida credenciales estrictas: Usuario: Admin / Contraseña: Admin"""
+    """Valida credenciales dinámicas en base de datos con hash seguro."""
     data = request.get_json() or {}
     username = data.get('username', '').strip()
     password = data.get('password', '').strip()
 
-    if username == 'Admin' and password == 'Admin':
+    if verify_admin_credentials(username, password):
         session['is_admin'] = True
+        session['admin_username'] = username
         return jsonify({
             'success': True,
             'message': 'Autenticación exitosa.',
@@ -186,13 +280,53 @@ def api_login():
     else:
         return jsonify({
             'success': False,
-            'message': 'Usuario o contraseña incorrectos. (Usuario: Admin / Contraseña: Admin)'
+            'message': 'Usuario o contraseña incorrectos. Verifique sus credenciales.'
         }), 401
 
 @app.route('/api/auth/logout', methods=['POST'])
 def api_logout():
     session.pop('is_admin', None)
+    session.pop('admin_username', None)
     return jsonify({'success': True, 'message': 'Sesión cerrada correctamente.'})
+
+@app.route('/api/admin/change-credentials', methods=['POST'])
+def api_change_credentials():
+    """Permite al administrador modificar su nombre de usuario y contraseña."""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    data = request.get_json() or {}
+    current_password = data.get('current_password', '').strip()
+    new_username = data.get('new_username', '').strip()
+    new_password = data.get('new_password', '').strip()
+
+    if not current_password:
+        return jsonify({'success': False, 'message': 'Debe ingresar su contraseña actual para confirmar el cambio.'}), 400
+
+    admin_user = get_admin_user()
+    if not admin_user:
+        return jsonify({'success': False, 'message': 'No se encontró la cuenta de administración.'}), 404
+
+    # Validar que la contraseña actual ingresada coincida con la registrada
+    if not verify_admin_credentials(admin_user['username'], current_password):
+        return jsonify({'success': False, 'message': 'La contraseña actual ingresada es incorrecta.'}), 400
+
+    if not new_username or len(new_username) < 3:
+        return jsonify({'success': False, 'message': 'El nombre de usuario debe contener al menos 3 caracteres.'}), 400
+
+    if not new_password or len(new_password) < 4:
+        return jsonify({'success': False, 'message': 'La nueva contraseña debe tener un mínimo de 4 caracteres.'}), 400
+
+    success = update_admin_credentials(new_username, new_password)
+    if success:
+        session['admin_username'] = new_username
+        return jsonify({
+            'success': True,
+            'message': '¡Credenciales actualizadas exitosamente! Se utilizarán en los próximos inicios de sesión.',
+            'new_username': new_username
+        })
+    else:
+        return jsonify({'success': False, 'message': 'Error al actualizar credenciales en base de datos.'}), 500
 
 @app.route('/api/cms/content', methods=['GET'])
 def api_get_content():
@@ -345,6 +479,65 @@ def api_delete_snapshot(snapshot_id):
 
     delete_snapshot(snapshot_id)
     return jsonify({'success': True, 'message': 'Punto de restauración eliminado.'})
+
+@app.route('/api/cms/snapshots/<int:snapshot_id>/download', methods=['GET'])
+def api_download_snapshot(snapshot_id):
+    """Descarga el snapshot seleccionado como un archivo JSON de respaldo oficial."""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    snapshot = get_snapshot_by_id(snapshot_id)
+    if not snapshot:
+        return jsonify({'success': False, 'message': 'Punto de restauración no encontrado.'}), 404
+
+    import json
+    json_data = json.dumps(snapshot, indent=2, ensure_ascii=False)
+    safe_name = f"respaldo_liceo_limon_{snapshot_id}.json"
+
+    return Response(
+        json_data,
+        mimetype="application/json",
+        headers={"Content-Disposition": f"attachment;filename={safe_name}"}
+    )
+
+@app.route('/api/cms/snapshots/import', methods=['POST'])
+def api_import_snapshot():
+    """Importa un archivo JSON de respaldo externo como un nuevo punto de restauración."""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    import json
+    data = None
+    if 'file' in request.files:
+        uploaded_file = request.files['file']
+        if uploaded_file.filename == '':
+            return jsonify({'success': False, 'message': 'No se seleccionó ningún archivo.'}), 400
+        try:
+            raw_bytes = uploaded_file.read()
+            data = json.loads(raw_bytes.decode('utf-8'))
+        except Exception:
+            return jsonify({'success': False, 'message': 'El archivo seleccionado no es un JSON válido.'}), 400
+    else:
+        data = request.get_json() or {}
+
+    content = data.get('content', {})
+    news = data.get('news', [])
+    name = data.get('name') or "Copia Importada"
+
+    if not isinstance(content, dict):
+        return jsonify({'success': False, 'message': 'Estructura de respaldo no válida.'}), 400
+
+    new_id = import_snapshot(name, content, news)
+
+    apply_now = request.form.get('apply_now') == 'true' or (request.is_json and (request.get_json() or {}).get('apply_now'))
+    if apply_now:
+        restore_snapshot(new_id)
+
+    return jsonify({
+        'success': True,
+        'message': f'Respaldo "{name}" importado exitosamente con ID #{new_id}.',
+        'snapshot_id': new_id
+    })
 
 @app.route('/api/cms/reset', methods=['POST'])
 def api_reset_defaults():

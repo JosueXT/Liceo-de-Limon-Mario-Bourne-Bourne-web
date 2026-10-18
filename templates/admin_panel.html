@@ -561,6 +561,119 @@
 
     .toast.toast-success { border-left-color: #10b981; }
     .toast.toast-error { border-left-color: #ef4444; }
+
+    /* ==========================================================================
+       ADAPTACIONES RESPONSIVAS DEL DASHBOARD ADMINISTRATIVO
+       ========================================================================== */
+    @media (max-width: 992px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-navbar {
+        padding: 0.75rem 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .admin-brand {
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .admin-sidebar {
+        padding: 0.8rem 1rem;
+        flex-direction: row;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.4rem;
+        border-right: none;
+        border-bottom: 1px solid var(--gris-200);
+        white-space: nowrap;
+      }
+
+      .sidebar-heading {
+        display: none;
+      }
+
+      .sidebar-btn {
+        width: auto;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.825rem;
+        flex-shrink: 0;
+        border-left: none !important;
+        border-radius: var(--radius-full);
+        background: var(--gris-100);
+      }
+
+      .sidebar-btn.active {
+        background: var(--azul) !important;
+        color: var(--blanco) !important;
+      }
+
+      .admin-content-area {
+        padding: 1.5rem 1.25rem;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      .quick-actions-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .visual-pages-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .form-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .welcome-hero-card {
+        padding: 2rem 1.5rem;
+      }
+
+      .welcome-title {
+        font-size: 1.6rem;
+      }
+
+      .welcome-subtitle {
+        font-size: 0.95rem;
+      }
+
+      .panel-card {
+        padding: 1.6rem 1.25rem;
+      }
+
+      .admin-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        display: block;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-navbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .admin-nav-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
   </style>
 </head>
 <body class="admin-dashboard-body">
@@ -574,6 +687,7 @@
         <span style="font-size: 0.75rem; color: #38bdf8; display: block;">Portal Administrativo & Sistema de Gestión (MEP)</span>
       </div>
       <span class="admin-badge-pill">Modo Administrador</span>
+      <span class="admin-badge-pill" id="topAdminUserBadge" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); cursor: pointer;" onclick="switchToTab('tab-credentials')" title="Clic para gestionar credenciales de acceso">👤 Usuario: {{ current_admin_username }}</span>
     </div>
 
     <div class="admin-nav-actions">
@@ -634,6 +748,11 @@
       <div class="sidebar-heading">Mantenimiento y Respaldo</div>
       <button class="sidebar-btn" data-tab="tab-snapshots" style="color: var(--azul-dark); font-weight: 700;">
         <span>🛡️ Puntos de Control & Respaldo</span>
+      </button>
+
+      <div class="sidebar-heading">Seguridad & Cuenta</div>
+      <button class="sidebar-btn" data-tab="tab-credentials" style="color: var(--azul-dark); font-weight: 700;">
+        <span>🔐 Seguridad & Credenciales</span>
       </button>
     </aside>
 
@@ -772,6 +891,20 @@
             </div>
             <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Editar Contacto →</span>
           </div>
+
+          <!-- Acción 7: Seguridad y Credenciales -->
+          <div class="action-card" onclick="switchToTab('tab-credentials')">
+            <div>
+              <div class="action-card-header">
+                <div class="action-card-icon" style="background: rgba(114, 18, 38, 0.1); color: var(--vino);">🔐</div>
+                <h4 class="action-card-title">Seguridad y Credenciales</h4>
+              </div>
+              <p class="action-card-desc">
+                Modifique el nombre de usuario de acceso y establezca una nueva contraseña maestra para proteger el portal administrativo.
+              </p>
+            </div>
+            <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Cambiar Claves →</span>
+          </div>
         </div>
 
         <!-- Guía Rápida Informativa -->
@@ -883,7 +1016,9 @@
                   <span class="inquiry-sender">👤 {{ inq.name }}</span>
                   <span class="status-badge {{ 'status-badge-attended' if inq.status == 'Atendida' else 'status-badge-pending' }}" 
                         id="statusBadge-{{ inq.id }}" 
-                        onclick="toggleInquiryStatus({{ inq.id }}, '{{ inq.status }}')"
+                        data-id="{{ inq.id }}"
+                        data-status="{{ inq.status }}"
+                        onclick="toggleInquiryStatus(this.dataset.id, this.dataset.status)"
                         title="Haga clic para alternar entre Pendiente y Atendida">
                     {{ '✓ Atendida' if inq.status == 'Atendida' else '⏳ Pendiente' }}
                   </span>
@@ -906,7 +1041,7 @@
                   <a href="mailto:{{ inq.email }}?subject=Respuesta de Consulta - Liceo de Limón Mario Bourne Bourne&body=Estimado(a) {{ inq.name }},%0D%0A%0D%0AEn respuesta a su consulta sobre {{ inq.area }}:%0D%0A%0D%0A" class="btn btn-azul btn-sm">
                     ✉️ Responder por Correo
                   </a>
-                  <button class="btn btn-vino btn-sm" onclick="deleteInquiry({{ inq.id }})">
+                  <button class="btn btn-vino btn-sm" data-id="{{ inq.id }}" onclick="deleteInquiry(this.dataset.id)">
                     🗑️ Eliminar Consulta
                   </button>
                 </div>
@@ -1107,8 +1242,8 @@
                 <td>{{ item.date }}</td>
                 <td>
                   <div style="display: flex; gap: 0.4rem;">
-                    <button class="btn btn-azul btn-sm" onclick="openEditNews({{ item.id }})" title="Editar este comunicado">✏️ Editar</button>
-                    <button class="btn btn-vino btn-sm" onclick="deleteNewsItem({{ item.id }})" title="Eliminar comunicado">🗑️ Eliminar</button>
+                    <button class="btn btn-azul btn-sm" data-id="{{ item.id }}" onclick="openEditNews(this.dataset.id)" title="Editar este comunicado">✏️ Editar</button>
+                    <button class="btn btn-vino btn-sm" data-id="{{ item.id }}" onclick="deleteNewsItem(this.dataset.id)" title="Eliminar comunicado">🗑️ Eliminar</button>
                   </div>
                 </td>
               </tr>
@@ -1195,6 +1330,119 @@
             <label class="form-label">Descripción del Canal de WhatsApp</label>
             <textarea class="form-control" data-cms-field="whatsapp_desc">{{ cms.whatsapp_desc }}</textarea>
           </div>
+
+          <hr style="margin: 2.5rem 0; border: none; border-top: 2px dashed #93c5fd;">
+
+          <!-- SECCIÓN DEDICADA: REDES SOCIALES Y CONTACTO EXCLUSIVO IB -->
+          <div style="background: rgba(15, 52, 96, 0.04); border: 1.5px solid #bfdbfe; border-radius: var(--radius-lg); padding: 1.8rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="color: var(--azul-dark); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                🌐 Redes Sociales y Coordinación del Bachillerato Internacional (IB)
+              </h3>
+              <span class="admin-badge-pill" style="background: var(--azul-dark);">Subpágina IB</span>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--gris-600); margin-bottom: 1.5rem;">
+              Canales exclusivos para la comunidad y aspirantes del Programa del Diploma IB (diferentes a las redes institucionales generales).
+            </p>
+
+            <!-- Títulos de sección IB -->
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Título de la Sección IB</label>
+                <input type="text" class="form-control" data-cms-field="ib_social_title" value="{{ cms.ib_social_title }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Subtítulo de la Sección IB</label>
+                <input type="text" class="form-control" data-cms-field="ib_social_subtitle" value="{{ cms.ib_social_subtitle }}">
+              </div>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+            <!-- Facebook IB -->
+            <h4 style="color: #1877F2; margin-bottom: 0.8rem;">📘 Facebook Oficial del IB</h4>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Nombre / Handle de la Página IB</label>
+                <input type="text" class="form-control" data-cms-field="ib_facebook_handle" value="{{ cms.ib_facebook_handle }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Enlace URL Oficial de Facebook IB</label>
+                <input type="url" class="form-control" data-cms-field="ib_facebook_url" value="{{ cms.ib_facebook_url }}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Descripción de Facebook IB</label>
+              <textarea class="form-control" data-cms-field="ib_facebook_desc">{{ cms.ib_facebook_desc }}</textarea>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+            <!-- Instagram IB -->
+            <h4 style="color: #E1306C; margin-bottom: 0.8rem;">📷 Instagram Oficial del IB</h4>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Usuario / Handle de Instagram IB</label>
+                <input type="text" class="form-control" data-cms-field="ib_instagram_name" value="{{ cms.ib_instagram_name }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Enlace URL Oficial de Instagram IB</label>
+                <input type="url" class="form-control" data-cms-field="ib_instagram_url" value="{{ cms.ib_instagram_url }}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Descripción de Instagram IB</label>
+              <textarea class="form-control" data-cms-field="ib_instagram_desc">{{ cms.ib_instagram_desc }}</textarea>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+            <!-- WhatsApp IB -->
+            <h4 style="color: #25D366; margin-bottom: 0.8rem;">💬 Canal Oficial de WhatsApp IB</h4>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Nombre del Canal de WhatsApp IB</label>
+                <input type="text" class="form-control" data-cms-field="ib_whatsapp_handle" value="{{ cms.ib_whatsapp_handle }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Enlace de Invitación al Canal WhatsApp IB</label>
+                <input type="url" class="form-control" data-cms-field="ib_whatsapp_url" value="{{ cms.ib_whatsapp_url }}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Descripción del Canal de WhatsApp IB</label>
+              <textarea class="form-control" data-cms-field="ib_whatsapp_desc">{{ cms.ib_whatsapp_desc }}</textarea>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--gris-200);">
+
+            <!-- Contacto Directo Coordinación IB -->
+            <h4 style="color: var(--azul-dark); margin-bottom: 0.8rem;">🏛️ Coordinación del Programa IB (Teléfono, Correo y Oficina)</h4>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Teléfono Directo de Coordinación IB</label>
+                <input type="text" class="form-control" data-cms-field="ib_contact_phone" value="{{ cms.ib_contact_phone }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Horario / Detalle del Teléfono</label>
+                <input type="text" class="form-control" data-cms-field="ib_contact_phone_sub" value="{{ cms.ib_contact_phone_sub }}">
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Correo Oficial de Coordinación IB</label>
+                <input type="email" class="form-control" data-cms-field="ib_contact_email" value="{{ cms.ib_contact_email }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Detalle / Tiempo de Respuesta del Correo</label>
+                <input type="text" class="form-control" data-cms-field="ib_contact_email_sub" value="{{ cms.ib_contact_email_sub }}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ubicación de la Oficina de Coordinación</label>
+              <input type="text" class="form-control" data-cms-field="ib_contact_office" value="{{ cms.ib_contact_office }}">
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1229,6 +1477,22 @@
               <div class="form-group">
                 <label class="form-label">Etiqueta Oficial</label>
                 <input type="text" class="form-control" data-cms-field="mep_badge" value="{{ cms.mep_badge }}">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Bandera o Insignia Superior (Barra MEP)</label>
+                <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.5rem;">
+                  <div class="mep-flag-strip" style="width: 38px; height: 22px; border: 1px solid var(--gris-300); border-radius: 3px; overflow: hidden; display: inline-flex; flex-shrink: 0;">
+                    <img id="flagPreviewImg" src="{{ cms.header_mep_flag or '/static/img/bandera_costa_rica.svg' }}" alt="Bandera" style="width: 100%; height: 100%; object-fit: cover;">
+                  </div>
+                  <input type="url" class="form-control" id="inputFlagUrl" data-cms-field="header_mep_flag" value="{{ cms.header_mep_flag or '/static/img/bandera_costa_rica.svg' }}" placeholder="URL de la bandera o insignia...">
+                </div>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-outline btn-sm" onclick="setPresetFlag('/static/img/bandera_costa_rica.svg')">🇨🇷 Costa Rica</button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="setPresetFlag('/static/img/bandera_limon.svg')">🟢 Bandera de Limón</button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="setPresetFlag('/static/img/bandera_francia.svg')">🇫🇷 Francia (DELF)</button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="setPresetFlag('https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/International_Baccalaureate_Logo.svg/64px-International_Baccalaureate_Logo.svg.png')">🌐 Bachillerato IB</button>
+                </div>
               </div>
             </div>
 
@@ -1578,12 +1842,15 @@
                       <span style="font-size: 0.85rem; color: var(--gris-600);">🕒 {{ snap.created_at }}</span>
                     </td>
                     <td>
-                      <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-azul btn-sm" onclick="handleRestoreSnapshot({{ snap.id }}, '{{ snap.name }}')" title="Restaurar toda la web exactamente a este estado">
-                          ⏪ Restaurar esta Versión
+                      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn btn-azul btn-sm" data-id="{{ snap.id }}" data-name="{{ snap.name }}" onclick="handleRestoreSnapshot(this.dataset.id, this.dataset.name)" title="Restaurar toda la web exactamente a este estado">
+                          ⏪ Restaurar
                         </button>
+                        <a href="/api/cms/snapshots/{{ snap.id }}/download" class="btn btn-outline btn-sm" style="color: var(--azul); border-color: #93c5fd;" title="Descargar archivo JSON de respaldo a su equipo">
+                          📥 Descargar JSON
+                        </a>
                         {% if snap.id != 1 %}
-                        <button class="btn btn-outline btn-sm" onclick="handleDeleteSnapshot({{ snap.id }}, '{{ snap.name }}')" style="color: #dc2626; border-color: #fca5a5;" title="Eliminar este punto">
+                        <button class="btn btn-outline btn-sm" data-id="{{ snap.id }}" data-name="{{ snap.name }}" onclick="handleDeleteSnapshot(this.dataset.id, this.dataset.name)" style="color: #dc2626; border-color: #fca5a5;" title="Eliminar este punto">
                           🗑️ Eliminar
                         </button>
                         {% endif %}
@@ -1598,6 +1865,23 @@
             {% endif %}
           </div>
 
+          <!-- Caja: Importar Archivo de Respaldo Externo (.JSON) -->
+          <div style="background: var(--gris-50); border: 1.5px dashed var(--gris-300); border-radius: var(--radius-lg); padding: 1.6rem; margin-bottom: 2.2rem;">
+            <h3 style="font-size: 1.15rem; color: var(--azul-dark); margin-bottom: 0.35rem;">📤 Importar Respaldo desde Archivo JSON</h3>
+            <p style="font-size: 0.875rem; color: var(--gris-600); margin-bottom: 1.1rem; line-height: 1.5;">
+              Cargue un archivo <code>.json</code> descargado previamente para registrarlo como un nuevo punto de restauración o aplicarlo directamente a la web.
+            </p>
+            <form id="importSnapshotForm" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+              <input type="file" id="snapshotFileInput" accept=".json" class="form-control" style="flex: 1; min-width: 260px;" required>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--gris-700); cursor: pointer;">
+                <input type="checkbox" id="snapshotApplyNowCheckbox"> Restaurar y aplicar de inmediato
+              </label>
+              <button type="submit" class="btn btn-azul btn-sm" style="height: 42px;">
+                📤 Subir e Importar Respaldo
+              </button>
+            </form>
+          </div>
+
           <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--gris-200);">
 
           <!-- Caja 3: Restaurar a Valores de Fábrica Iniciales MEP -->
@@ -1610,6 +1894,93 @@
               🔄 Restaurar Todo a Valores Iniciales de Fábrica
             </button>
           </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: SEGURIDAD & CREDENCIALES DE ACCESO ==================== -->
+      <section class="admin-tab-pane" id="tab-credentials">
+        <div class="panel-section-header">
+          <div>
+            <h2 class="panel-section-title">🔐 Seguridad & Credenciales de Administración</h2>
+            <p class="panel-section-desc">
+              Modifique el nombre de usuario y la contraseña maestra para el ingreso al panel de control del Liceo de Limón Mario Bourne Bourne.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="max-width: 680px; margin-bottom: 2rem;">
+          <div style="background: rgba(30, 58, 138, 0.05); border: 1px solid rgba(30, 58, 138, 0.15); border-radius: var(--radius-md); padding: 1.1rem 1.25rem; margin-bottom: 1.8rem; display: flex; gap: 0.85rem; align-items: flex-start;">
+            <span style="font-size: 1.5rem; line-height: 1;">🛡️</span>
+            <div>
+              <strong style="color: var(--azul-dark); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">Protección Criptográfica del Sistema</strong>
+              <span style="font-size: 0.85rem; color: var(--gris-700); line-height: 1.45; display: block;">
+                Las contraseñas se almacenan cifradas con algoritmos de hash seguros en la base de datos institucional. Cualquier actualización entra en vigencia de inmediato.
+              </span>
+            </div>
+          </div>
+
+          <form id="formAdminCredentials" autocomplete="off">
+            <!-- Nombre de Usuario -->
+            <div class="form-group" style="margin-bottom: 1.3rem;">
+              <label class="form-label" for="adminNewUsername">
+                <strong>Nombre de Usuario del Administrador</strong>
+              </label>
+              <input type="text" id="adminNewUsername" class="form-control" required autocomplete="off" value="{{ current_admin_username }}" placeholder="Ej: Admin, Director, Informatica">
+              <span style="font-size: 0.8rem; color: var(--gris-500); display: block; margin-top: 0.35rem;">
+                Identificador que utilizará para ingresar al panel de control institucional (mínimo 3 caracteres).
+              </span>
+            </div>
+
+            <!-- Contraseña Actual (Confirmación) -->
+            <div class="form-group" style="margin-bottom: 1.3rem;">
+              <label class="form-label" for="adminCurrentPassword">
+                <strong>Contraseña Actual</strong>
+              </label>
+              <div class="password-field-wrapper" style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="adminCurrentPassword" class="form-control" required autocomplete="current-password" placeholder="Ingrese su contraseña actual para validar cambios">
+                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('adminCurrentPassword', this)" title="Ver u ocultar contraseña" style="position: absolute; right: 0.75rem; background: none; border: none; cursor: pointer; color: var(--gris-500); padding: 0.35rem; font-size: 1rem;">
+                  👁️
+                </button>
+              </div>
+              <span style="font-size: 0.8rem; color: var(--gris-500); display: block; margin-top: 0.35rem;">
+                Requerida para autenticar su identidad antes de aplicar las modificaciones.
+              </span>
+            </div>
+
+            <!-- Nueva Contraseña -->
+            <div class="form-group" style="margin-bottom: 1.3rem;">
+              <label class="form-label" for="adminNewPassword">
+                <strong>Nueva Contraseña</strong>
+              </label>
+              <div class="password-field-wrapper" style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="adminNewPassword" class="form-control" required autocomplete="new-password" placeholder="Mínimo 4 caracteres (recomendado: combinar letras y números)">
+                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('adminNewPassword', this)" title="Ver u ocultar contraseña" style="position: absolute; right: 0.75rem; background: none; border: none; cursor: pointer; color: var(--gris-500); padding: 0.35rem; font-size: 1rem;">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <!-- Confirmar Nueva Contraseña -->
+            <div class="form-group" style="margin-bottom: 1.8rem;">
+              <label class="form-label" for="adminConfirmPassword">
+                <strong>Confirmar Nueva Contraseña</strong>
+              </label>
+              <div class="password-field-wrapper" style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="adminConfirmPassword" class="form-control" required autocomplete="new-password" placeholder="Reescriba la nueva contraseña exactamente igual">
+                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('adminConfirmPassword', this)" title="Ver u ocultar contraseña" style="position: absolute; right: 0.75rem; background: none; border: none; cursor: pointer; color: var(--gris-500); padding: 0.35rem; font-size: 1rem;">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <div id="credentialsErrorAlert" style="display: none; background: #fee2e2; border: 1px solid #f87171; color: #991b1b; padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; margin-bottom: 1.4rem;"></div>
+
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <button type="submit" id="btnSaveCredentials" class="btn btn-vino btn-lg">
+                💾 Guardar Nuevas Credenciales
+              </button>
+            </div>
+          </form>
         </div>
       </section>
 
@@ -1665,6 +2036,7 @@
     bindLiveImagePreview('inputIbImg', 'ibImgPreview');
     bindLiveImagePreview('pNewsImage', 'pNewsImagePreview');
     bindLiveImagePreview('editNewsImage', 'editNewsImagePreview');
+    bindLiveImagePreview('inputFlagUrl', 'flagPreviewImg');
 
     function setPresetLogo(url) {
       const logoInput = document.getElementById('inputLogoUrl');
@@ -1672,6 +2044,15 @@
       if (logoInput && logoImg) {
         logoInput.value = url;
         logoImg.src = url;
+      }
+    }
+
+    function setPresetFlag(url) {
+      const flagInput = document.getElementById('inputFlagUrl');
+      const flagImg = document.getElementById('flagPreviewImg');
+      if (flagInput && flagImg) {
+        flagInput.value = url;
+        flagImg.src = url;
       }
     }
 
@@ -1734,7 +2115,7 @@
           if (badge) {
             badge.className = `status-badge ${newStatus === 'Atendida' ? 'status-badge-attended' : 'status-badge-pending'}`;
             badge.innerText = newStatus === 'Atendida' ? '✓ Atendida' : '⏳ Pendiente';
-            badge.setAttribute('onclick', `toggleInquiryStatus(${id}, '${newStatus}')`);
+            badge.dataset.status = newStatus;
           }
         }
       } catch (err) {
@@ -2067,6 +2448,48 @@
       }
     }
 
+    // 8.5. Importar Respaldo desde Archivo JSON Externo
+    document.getElementById('importSnapshotForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('snapshotFileInput');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('Seleccione un archivo de respaldo .json primero.', 'error');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const applyNow = document.getElementById('snapshotApplyNowCheckbox')?.checked || false;
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Importando respaldo...';
+      btn.disabled = true;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('apply_now', applyNow ? 'true' : 'false');
+
+      try {
+        const res = await fetch('/api/cms/snapshots/import', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('✓ ' + data.message, 'success');
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          showToast('Error al importar: ' + (data.message || 'Desconocido'), 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al importar respaldo.', 'error');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+
     // 9. Restaurar Valores de Fábrica Iniciales
     async function handleFactoryReset() {
       if (confirm('¿Confirma que desea restaurar TODOS los textos, logos, noticias y redes a los valores iniciales oficiales del MEP?')) {
@@ -2095,6 +2518,99 @@
         toast.classList.add('toast-hiding');
         setTimeout(() => toast.remove(), 400);
       }, 4000);
+    }
+
+    // 11. Alternar Visibilidad de Contraseñas (Ver / Ocultar)
+    function togglePassVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.innerText = isPassword ? '🙈' : '👁️';
+    }
+
+    // 12. Guardar Nuevas Credenciales del Administrador
+    const formCredentials = document.getElementById('formAdminCredentials');
+    if (formCredentials) {
+      formCredentials.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorAlert = document.getElementById('credentialsErrorAlert');
+        const submitBtn = document.getElementById('btnSaveCredentials');
+        const newUsername = document.getElementById('adminNewUsername').value.trim();
+        const currentPassword = document.getElementById('adminCurrentPassword').value.trim();
+        const newPassword = document.getElementById('adminNewPassword').value.trim();
+        const confirmPassword = document.getElementById('adminConfirmPassword').value.trim();
+
+        errorAlert.style.display = 'none';
+
+        if (!currentPassword) {
+          errorAlert.innerText = 'Debe ingresar su contraseña actual para autorizar el cambio.';
+          errorAlert.style.display = 'block';
+          return;
+        }
+
+        if (newUsername.length < 3) {
+          errorAlert.innerText = 'El nombre de usuario debe contener al menos 3 caracteres.';
+          errorAlert.style.display = 'block';
+          return;
+        }
+
+        if (newPassword.length < 4) {
+          errorAlert.innerText = 'La nueva contraseña debe tener un mínimo de 4 caracteres.';
+          errorAlert.style.display = 'block';
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          errorAlert.innerText = 'La nueva contraseña y su confirmación no coinciden.';
+          errorAlert.style.display = 'block';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Guardando credenciales...';
+
+        try {
+          const res = await fetch('/api/admin/change-credentials', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              current_password: currentPassword,
+              new_username: newUsername,
+              new_password: newPassword
+            })
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            showToast('✓ ' + data.message, 'success');
+
+            // Actualizar etiqueta del usuario en la barra superior
+            const topBadge = document.getElementById('topAdminUserBadge');
+            if (topBadge) {
+              topBadge.innerText = `👤 Usuario: ${data.new_username}`;
+            }
+
+            // Limpiar los campos de contraseña por privacidad
+            document.getElementById('adminCurrentPassword').value = '';
+            document.getElementById('adminNewPassword').value = '';
+            document.getElementById('adminConfirmPassword').value = '';
+            errorAlert.style.display = 'none';
+          } else {
+            errorAlert.innerText = data.message || 'Error al actualizar las credenciales.';
+            errorAlert.style.display = 'block';
+            showToast(data.message || 'Error al actualizar credenciales.', 'error');
+          }
+        } catch (err) {
+          errorAlert.innerText = 'Error de conexión con el servidor.';
+          errorAlert.style.display = 'block';
+          showToast('Error al conectar con el servidor.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerText = '💾 Guardar Nuevas Credenciales';
+        }
+      });
     }
   </script>
 </body>

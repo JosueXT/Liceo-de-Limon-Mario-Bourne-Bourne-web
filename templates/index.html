@@ -33,13 +33,9 @@
   <aside class="top-mep-bar">
     <div class="container">
       <div class="mep-entity">
-        <!-- Bandera oficial de Costa Rica -->
-        <span class="mep-flag-strip" title="Bandera de Costa Rica">
-          <span class="flag-blue"></span>
-          <span class="flag-white"></span>
-          <span class="flag-red"></span>
-          <span class="flag-white"></span>
-          <span class="flag-blue"></span>
+        <!-- Bandera institucional editable -->
+        <span class="mep-flag-strip cms-image-wrapper" data-cms-img="header_mep_flag" title="Bandera Institucional (Haga clic en modo edición para cambiar)">
+          <img src="{{ cms.header_mep_flag or '/static/img/bandera_costa_rica.svg' }}" alt="Bandera" class="mep-flag-img" data-cms-img="header_mep_flag">
         </span>
         <span data-cms-key="header_mep_tag">{{ cms.header_mep_tag }}</span>
       </div>
@@ -79,7 +75,7 @@
         </a>
 
         <!-- Menú de Enlaces de Navegación -->
-        <ul class="nav-menu">
+        <ul class="nav-menu" id="navMenu">
           <li class="nav-item"><a href="#inicio" class="nav-link active" data-cms-key="nav_home">{{ cms.nav_home }}</a></li>
           <li class="nav-item"><a href="#modalidades" class="nav-link" data-cms-key="nav_pathways">{{ cms.nav_pathways }}</a></li>
           <li class="nav-item"><a href="#noticias" class="nav-link" data-cms-key="nav_news">{{ cms.nav_news }}</a></li>
@@ -87,11 +83,19 @@
           <li class="nav-item"><a href="#identidad" class="nav-link" data-cms-key="nav_history">{{ cms.nav_history }}</a></li>
           <li class="nav-item"><a href="#instalaciones" class="nav-link" data-cms-key="nav_campus">{{ cms.nav_campus }}</a></li>
           <li class="nav-item"><a href="#contacto" class="nav-link" data-cms-key="nav_contact">{{ cms.nav_contact }}</a></li>
+          <li class="nav-item mobile-only-nav-item">
+            <a href="/modalidad/ib" class="btn btn-vino btn-sm mobile-nav-btn" data-cms-key="nav_btn_ib">{{ cms.nav_btn_ib }}</a>
+          </li>
         </ul>
 
-        <!-- Botón de Acceso Rápido a Bachillerato IB -->
+        <!-- Acciones de Cabecera y Botón Hamburguesa -->
         <div class="nav-actions">
-          <a href="/modalidad/ib" class="btn btn-vino btn-sm" data-cms-key="nav_btn_ib">{{ cms.nav_btn_ib }}</a>
+          <a href="/modalidad/ib" class="btn btn-vino btn-sm desktop-only-btn" data-cms-key="nav_btn_ib">{{ cms.nav_btn_ib }}</a>
+          <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Abrir menú de navegación" aria-expanded="false">
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+          </button>
         </div>
       </nav>
     </div>
@@ -191,20 +195,23 @@
             <p class="pathway-description" data-cms-key="regular_description">{{ cms.regular_description }}</p>
 
             <span class="pathway-features-title" data-cms-key="regular_features_heading">{{ cms.regular_features_heading }}</span>
-            <div class="pathway-features">
-              <div class="pathway-feature-item">
+            <div class="pathway-features" data-cms-list="features" data-cms-prefix="regular_feature_">
+              {% for item in pathway_features.regular %}
+              <div class="pathway-feature-item" data-cms-item-index="{{ loop.index }}">
                 <span class="feature-icon-bullet">✓</span>
-                <span data-cms-key="regular_feature_1">{{ cms.regular_feature_1 }}</span>
+                <span data-cms-key="{{ item.key }}">{{ item.text }}</span>
+                {% if is_admin %}
+                <button type="button" class="cms-delete-item-btn" title="Eliminar beneficio" aria-label="Eliminar beneficio">✕</button>
+                {% endif %}
               </div>
-              <div class="pathway-feature-item">
-                <span class="feature-icon-bullet">✓</span>
-                <span data-cms-key="regular_feature_2">{{ cms.regular_feature_2 }}</span>
-              </div>
-              <div class="pathway-feature-item">
-                <span class="feature-icon-bullet">✓</span>
-                <span data-cms-key="regular_feature_3">{{ cms.regular_feature_3 }}</span>
-              </div>
+              {% endfor %}
             </div>
+            {% if is_admin %}
+            <button type="button" class="cms-add-item-btn" data-cms-add-target="features" data-cms-prefix="regular_feature_">
+              <span class="cms-add-icon">+</span>
+              <span>Agregar Beneficio</span>
+            </button>
+            {% endif %}
 
             <div class="pathway-footer">
               <a href="/modalidad/regular" class="btn btn-pathway" data-cms-key="regular_btn_text">
@@ -234,20 +241,23 @@
             <p class="pathway-description" data-cms-key="french_description">{{ cms.french_description }}</p>
 
             <span class="pathway-features-title" data-cms-key="french_features_heading">{{ cms.french_features_heading }}</span>
-            <div class="pathway-features">
-              <div class="pathway-feature-item">
+            <div class="pathway-features" data-cms-list="features" data-cms-prefix="french_feature_">
+              {% for item in pathway_features.french %}
+              <div class="pathway-feature-item" data-cms-item-index="{{ loop.index }}">
                 <span class="feature-icon-bullet">✓</span>
-                <span data-cms-key="french_feature_1">{{ cms.french_feature_1 }}</span>
+                <span data-cms-key="{{ item.key }}">{{ item.text }}</span>
+                {% if is_admin %}
+                <button type="button" class="cms-delete-item-btn" title="Eliminar beneficio" aria-label="Eliminar beneficio">✕</button>
+                {% endif %}
               </div>
-              <div class="pathway-feature-item">
-                <span class="feature-icon-bullet">✓</span>
-                <span data-cms-key="french_feature_2">{{ cms.french_feature_2 }}</span>
-              </div>
-              <div class="pathway-feature-item">
-                <span class="feature-icon-bullet">✓</span>
-                <span data-cms-key="french_feature_3">{{ cms.french_feature_3 }}</span>
-              </div>
+              {% endfor %}
             </div>
+            {% if is_admin %}
+            <button type="button" class="cms-add-item-btn" data-cms-add-target="features" data-cms-prefix="french_feature_">
+              <span class="cms-add-icon">+</span>
+              <span>Agregar Beneficio</span>
+            </button>
+            {% endif %}
 
             <div class="pathway-footer">
               <a href="/modalidad/frances" class="btn btn-pathway" data-cms-key="french_btn_text">
@@ -278,20 +288,23 @@
             <p class="pathway-description" data-cms-key="ib_description">{{ cms.ib_description }}</p>
 
             <span class="pathway-features-title" data-cms-key="ib_features_heading">{{ cms.ib_features_heading }}</span>
-            <div class="pathway-features">
-              <div class="pathway-feature-item">
+            <div class="pathway-features" data-cms-list="features" data-cms-prefix="ib_feature_">
+              {% for item in pathway_features.ib %}
+              <div class="pathway-feature-item" data-cms-item-index="{{ loop.index }}">
                 <span class="feature-icon-bullet">✓</span>
-                <span data-cms-key="ib_feature_1">{{ cms.ib_feature_1 }}</span>
+                <span data-cms-key="{{ item.key }}">{{ item.text }}</span>
+                {% if is_admin %}
+                <button type="button" class="cms-delete-item-btn" title="Eliminar beneficio" aria-label="Eliminar beneficio">✕</button>
+                {% endif %}
               </div>
-              <div class="pathway-feature-item">
-                <span class="feature-icon-bullet">✓</span>
-                <span data-cms-key="ib_feature_2">{{ cms.ib_feature_2 }}</span>
-              </div>
-              <div class="pathway-feature-item">
-                <span class="feature-icon-bullet">✓</span>
-                <span data-cms-key="ib_feature_3">{{ cms.ib_feature_3 }}</span>
-              </div>
+              {% endfor %}
             </div>
+            {% if is_admin %}
+            <button type="button" class="cms-add-item-btn" data-cms-add-target="features" data-cms-prefix="ib_feature_">
+              <span class="cms-add-icon">+</span>
+              <span>Agregar Beneficio</span>
+            </button>
+            {% endif %}
 
             <div class="pathway-footer">
               <a href="/modalidad/ib" class="btn btn-pathway" data-cms-key="ib_btn_text">
@@ -614,12 +627,8 @@
           <span class="footer-brand-subtitle" data-cms-key="header_subname">{{ cms.header_subname }}</span>
           <p class="footer-brand-desc" data-cms-key="footer_brand_desc">{{ cms.footer_brand_desc }}</p>
           <div class="mep-entity">
-            <span class="mep-flag-strip">
-              <span class="flag-blue"></span>
-              <span class="flag-white"></span>
-              <span class="flag-red"></span>
-              <span class="flag-white"></span>
-              <span class="flag-blue"></span>
+            <span class="mep-flag-strip cms-image-wrapper" data-cms-img="header_mep_flag" title="Bandera Institucional">
+              <img src="{{ cms.header_mep_flag or '/static/img/bandera_costa_rica.svg' }}" alt="Bandera" class="mep-flag-img" data-cms-img="header_mep_flag">
             </span>
             <span style="font-size: 0.8rem; color: var(--gris-300);" data-cms-key="footer_flag_text">{{ cms.footer_flag_text }}</span>
           </div>

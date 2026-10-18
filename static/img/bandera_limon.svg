@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" width="100%" height="100%">
+  <!-- Franja Verde Superior (1/3) -->
+  <rect width="500" height="100" y="0" fill="#009B48"/>
+  <!-- Franja Azul Central (1/3) -->
+  <rect width="500" height="100" y="100" fill="#002B7F"/>
+  <!-- Franja Blanca Inferior (1/3) -->
+  <rect width="500" height="100" y="200" fill="#FFFFFF"/>
+</svg>

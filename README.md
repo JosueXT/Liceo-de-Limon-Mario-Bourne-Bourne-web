@@ -2,182 +2,249 @@
 ### Plataforma Web Institucional & Sistema de Gestión de Contenidos (CMS)
 **Ministerio de Educación Pública (MEP) • Dirección Regional de Educación de Limón • Circuito 01**
 
+[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Framework-Flask%203.x-lightgrey.svg?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![SQLite](https://img.shields.io/badge/Database-SQLite-003B57.svg?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![Diseño Responsivo](https://img.shields.io/badge/Diseño-100%25%20Responsivo%20Móvil-success.svg)](#-diseño-100-responsivo-ordenadores-y-celulares)
+[![Tests](https://img.shields.io/badge/Unit%20Tests-10%2F10%20Aprobados-10b981.svg)](#-suite-de-pruebas-automatizadas)
+[![Licencia](https://img.shields.io/badge/Licencia-MIT-vino.svg)](LICENSE)
+
+---
+
+## 📌 Tabla de Contenidos
+
+1. [Descripción General](#-descripción-general-del-proyecto)
+2. [Características Destacadas](#-características-destacadas)
+   - [Diseño 100% Responsivo (Ordenadores y Celulares)](#-diseño-100-responsivo-ordenadores-y-celulares)
+   - [Editor Visual en Vivo (CMS In-Situ)](#-editor-visual-en-vivo-cms-in-situ)
+   - [Gestión Dinámica de Listas (+ y ✕)](#-gestión-dinámica-de-listas--y-)
+   - [Redes Sociales y Coordinación del Bachillerato Internacional (IB)](#-redes-sociales-y-coordinación-del-ib)
+   - [Copias de Seguridad y Respaldos (Exportar e Importar JSON)](#-copias-de-seguridad-y-respaldos-wayback-machine)
+   - [Seguridad y Gestión de Credenciales](#-seguridad-y-gestión-de-credenciales)
+3. [Guía de Instalación y Puesta en Marcha](#-guía-de-instalación-y-puesta-en-marcha)
+   - [Inicio Rápido en Windows (iniciar_sitio.bat)](#-en-sistemas-windows)
+   - [Inicio en macOS / Linux (iniciar_sitio.sh)](#-en-sistemas-macos-y-linux)
+   - [Método Manual por Terminal](#-método-manual-por-terminal)
+4. [Credenciales de Acceso Iniciales](#-credenciales-de-acceso-iniciales)
+5. [Estructura del Proyecto](#-estructura-del-código-fuente)
+6. [Suite de Pruebas Automatizadas](#-suite-de-pruebas-automatizadas)
+7. [Guía para Subir este Proyecto a GitHub](#-guía-para-subir-este-proyecto-a-github)
+8. [Licencia](#-licencia)
+
 ---
 
 ## 📌 Descripción General del Proyecto
 
-Esta plataforma web es el portal oficial y sistema de administración del **Liceo de Limón Mario Bourne Bourne**, una institución pública de educación secundaria perteneciente al **Ministerio de Educación Pública (MEP)** de Costa Rica.
+Esta plataforma web es el portal institucional oficial y sistema de administración del **Liceo de Limón Mario Bourne Bourne**, institución pública benemérita perteneciente al **Ministerio de Educación Pública (MEP)** de Costa Rica.
 
-El sistema ha sido diseñado con dos propósitos fundamentales:
-1. **Portal Público Informativo:** Brinda a la comunidad estudiantil, padres de familia y docentes una experiencia moderna, accesible y detallada sobre las tres ofertas académicas institucionales (**Secundaria Regular**, **Francés Avanzado** y **Bachillerato Internacional IB**), junto con un canal oficial de noticias y medios de contacto directo.
-2. **Sistema de Administración y Edición en Vivo (CMS In-Situ):** Permite a las autoridades del colegio gestionar el contenido de todo el sitio de forma visual e intuitiva (escribiendo directamente sobre las páginas o desde el panel de control), administrar comunicados oficiales por subcategorías, atender consultas de matrícula y respaldar el estado del sitio mediante puntos de restauración.
+El proyecto cumple dos funciones estratégicas:
+1. **Portal Público Informativo de Alta Gama:** Ofrece a estudiantes, familias y a la comunidad limonense una experiencia estética, rápida y accesible para consultar las tres ofertas académicas institucionales:
+   - 🔴 **Secundaria Regular:** Tercer ciclo y ciclo diversificado nacional con talleres y laboratorios.
+   - 🟠 **Francés Avanzado:** Programa bilingüe con certificaciones internacionales DELF (A1 a B2).
+   - 🔵 **Bachillerato Internacional (IB):** Programa del Diploma (PD) de prestigio global.
+2. **Sistema de Gestión de Contenidos Integrado (CMS In-Situ & Dashboard):** Permite a los directivos y administradores editar textos e imágenes en vivo directamente sobre la pantalla, añadir o eliminar elementos de listas y tablas dinámicamente, publicar noticias clasificadas por subcategorías, responder consultas de matrícula y respaldar/restaurar el estado del colegio con copias de seguridad descargables en JSON.
+
+---
+
+## ✨ Características Destacadas
+
+### 📱 Diseño 100% Responsivo (Ordenadores y Celulares)
+- **Menú Móvil Táctil con Drawer:** En teléfonos y tablets (pantallas `<= 992px`), la navegación se transforma en un botón hamburguesa animado con panel deslizable con efecto cristal (*glassmorphism*), permitiendo una interacción táctil cómoda (botones de al menos 48px de altura).
+- **Cuadrículas Adaptativas Fluidas:** Las columnas de modalidades, campus, estadísticas y pie de página colapsan suavemente de 4 y 3 columnas a 2 o 1 columna según el ancho de la pantalla, eliminando todo desbordamiento horizontal.
+- **Tablas Curriculares Optimizadas:** La malla de asignaturas de las modalidades cuenta con contenedores de desplazamiento táctil horizontal fluido (`overflow-x: auto`), garantizando que la lectura celda por celda nunca deforme la estructura del teléfono.
+- **Formularios Adaptados:** Campos de entrada, selectores de área y botones se apilan ordenadamente para facilitar la digitación desde teclados móviles.
+
+### 🎨 Editor Visual en Vivo (CMS In-Situ)
+- Al iniciar sesión administrativa, todas las páginas del sitio habilitan el modo de edición visual.
+- Los títulos, párrafos y descripciones se pueden editar escribiendo directamente sobre ellos (*WYSIWYG*).
+- Las imágenes y logotipos institucionales muestran botones interactivos para cambiar URLs con previsualización inmediata.
+- Barra flotante inferior con contador en vivo de cambios pendientes, botón de **Vista Previa** (para revisar cómo lo verá el público) y guardado asíncrono con notificaciones Toast.
+
+### ➕ Gestión Dinámica de Listas (`+` y `✕`)
+- En todas las secciones de listas y tablas (requisitos de matrícula, pilares, materias curriculares, ventajas y características destacadas), el administrador puede:
+  - Presionar el botón **`+ Agregar Nuevo Elemento`** para insertar un nuevo punto con su número correspondiente.
+  - Presionar el botón **`✕`** sobre cualquier elemento para removerlo con animación suave.
+  - La re-enumeración es completamente automática y secuencial en tiempo real.
+
+### 🌐 Redes Sociales y Coordinación del IB
+- La subpágina del Bachillerato Internacional (`/modalidad/ib`) cuenta con una **sección exclusiva de canales oficiales del programa IB** (totalmente independientes de las redes generales del liceo):
+  - Canal de WhatsApp oficial del IB.
+  - Página de Facebook del programa IB.
+  - Perfil de Instagram del programa IB.
+  - Número de teléfono directo de la Coordinación del IB (con llamada táctil `tel:`).
+  - Correo electrónico institucional de la Coordinación (con enlace directo `mailto:`).
+- Todos estos canales se configuran fácilmente desde el panel de administración o en vivo sobre la subpágina.
+
+### 🛡️ Copias de Seguridad y Respaldos (Wayback Machine)
+- **Creación de Puntos de Control:** Permite guardar el 100% del estado del sitio (textos, listas dinámicas, noticias, banderas y redes).
+- **📥 Descarga de Respaldo en JSON:** Descargue instantáneamente un archivo `.json` de respaldo a su equipo para conservarlo de forma externa.
+- **📤 Importación y Restauración:** Suba cualquier archivo `.json` previamente respaldado para restaurar el sitio a ese estado de inmediato o guardarlo en el historial.
+- **Restauración de Fábrica:** Botón de emergencia para volver a los contenidos y textos oficiales iniciales del MEP.
+
+### 🔐 Seguridad y Gestión de Credenciales
+- **Cambio de Usuario y Contraseña:** Formulario protegido dentro del panel administrativo para actualizar las credenciales en cualquier momento.
+- **Confirmación Obligatoria:** Requiere autenticar la contraseña actual antes de aplicar cambios para evitar modificaciones no autorizadas.
+- **Contraseñas Seguras:** Almacenadas con hash criptográfico moderno (Werkzeug Security Scrypt/PBKDF2).
+- **Alternar Visibilidad:** Botones interactivos (`👁️ / 🙈`) para verificar visualmente lo que se escribe antes de guardar.
 
 ---
 
 ## 🚀 Guía de Instalación y Puesta en Marcha
 
-No se requieren conocimientos de programación ni entornos avanzados para ejecutar este proyecto. Siga los pasos a continuación para correr la plataforma en cualquier computadora.
-
-### Requisito Previo Único: Python (Gratuito)
-*Si ya tiene Python instalado en su equipo, puede avanzar directamente al Paso 2.*
-
-1. Ingrese al sitio oficial de descarga de Python: **[https://www.python.org/downloads/](https://www.python.org/downloads/)**
-2. Haga clic en el botón amarillo **"Download Python"** y abra el archivo descargado.
-3. ⚠️ **Punto Crítico:** En la primera pantalla del instalador, marque la casilla inferior que indica:  
-   ☑️ **"Add python.exe to PATH"** *(o "Agregar Python a las variables de entorno")*.
-4. Presione **"Install Now"** y espere a que finalice la instalación.
+### Requisito Previo Único: Python 3.9 o superior
+Si no tiene Python instalado:
+1. Descárguelo gratis desde el sitio oficial: **[https://www.python.org/downloads/](https://www.python.org/downloads/)**
+2. ⚠️ **IMPORTANTE:** Durante la instalación en Windows, marque la casilla inferior que indica:  
+   ☑️ **"Add python.exe to PATH"** *(Agregar Python a las variables de entorno)*.
+3. Complete el asistente de instalación.
 
 ---
 
-### Paso 1: Descargar los Archivos del Proyecto
-1. En la parte superior de este repositorio en GitHub, presione el botón verde **`Code`** y seleccione **`Download ZIP`**.
-2. Descomprima la carpeta descargada en la ubicación de su preferencia.
+### 🪟 En sistemas Windows:
+Haga **doble clic en el archivo `iniciar_sitio.bat`**.  
+El instalador verificará dependencias, iniciará el servidor local y abrirá su navegador automáticamente en `http://localhost:5000`.
 
 ---
 
-### Paso 2: Iniciar el Servidor Local
-
-#### 🪟 En sistemas Windows:
-- Abra la carpeta del proyecto y haga **doble clic en el archivo `iniciar_sitio.bat`**.
-- El script verificará las dependencias de forma automática, iniciará el servidor local y abrirá su navegador web predeterminado.
-
-#### 🍏 En sistemas macOS o Linux:
-- Abra la terminal dentro del directorio del proyecto y ejecute:
-  ```bash
-  bash iniciar_sitio.sh
-  ```
-
-#### 🧑‍💻 Método Manual por Terminal (Para Desarrolladores):
+### 🍏 En sistemas macOS y Linux:
+Abra la terminal en el directorio del proyecto y ejecute:
 ```bash
-# 1. Instalar dependencias requeridas (Flask)
-pip install -r requirements.txt
-
-# 2. Ejecutar la aplicación
-python app.py
+./iniciar_sitio.sh
 ```
 
 ---
 
-### Paso 3: Acceder a la Plataforma
-Una vez iniciado el servidor, abra su navegador web (Google Chrome, Mozilla Firefox, Microsoft Edge o Safari) e ingrese a:
+### 🧑‍💻 Método Manual por Terminal:
+```bash
+# 1. Crear y activar entorno virtual (opcional pero recomendado)
+python -m venv .venv
+source .venv/bin/activate    # En Linux/macOS
+# .venv\Scripts\activate     # En Windows
 
+# 2. Instalar dependencias requeridas (Flask y Werkzeug)
+pip install -r requirements.txt
+
+# 3. Iniciar el servidor institucional
+python app.py
+```
+
+Una vez iniciado, abra su navegador e ingrese a:  
 👉 **`http://localhost:5000`**
 
-Para detener el servidor en cualquier momento, simplemente cierre la ventana de la consola o presione `Ctrl + C` en la terminal.
+Para apagar el servidor, presione `Ctrl + C` en la terminal o cierre la ventana.
 
 ---
 
-## 🧭 Estructura y Navegación del Sitio
+## 🔑 Credenciales de Acceso Iniciales
 
-La plataforma está estructurada en secciones modulares claramente diferenciadas:
+| Parámetro | Valor Predeterminado |
+| :--- | :--- |
+| **URL de Inicio de Sesión** | `http://localhost:5000/login` |
+| **Usuario Inicial** | `Admin` |
+| **Contraseña Inicial** | `Admin` |
 
-### 1. Portal Principal (`/`)
-- **Encabezado y Barra MEP:** Identificación institucional, bandera nacional y acceso al inicio de sesión.
-- **Hero Banner:** Lema educativo, título de bienvenida y aviso dinámico en marquesina (*ticker*).
-- **Cifras Institucionales:** Cuatro métricas de impacto con animación numérica en tiempo real.
-- **Ofertas Educativas:** Tarjetas de acceso directo con los colores oficiales de cada modalidad:
-  - 🔵 **Bachillerato Internacional (IB):** Azul, Índigo, Blanco y Celeste.
-  - 🟠 **Francés Avanzado:** Azul, Rojo, Amarillo y Naranja.
-  - 🔴 **Secundaria Regular:** Vino, Azul y Gris.
-- **Noticias y Avisos:** Sistema de comunicados filtrable por categoría general e individualizable por subcategorías (CAS, TOK, DELF, Actividades, etc.) con ventana de lectura detallada.
-- **Comunidad Digital:** Enlaces oficiales a la página de Facebook, perfil de Instagram y Canal de Avisos de WhatsApp.
-- **Historia e Ideario MEP:** Legado del educador Mario Bourne Bourne, valores cívicos, misión y visión del colegio.
-- **Formulario de Contacto:** Recepción directa de dudas y solicitudes de matrícula por área de interés.
-- **Pie de Página:** Directorio de enlaces, redes, información de secretaría y derechos reservados.
-
-### 2. Subpáginas de Modalidades Académicas
-Cada modalidad dispone de una página especializada con su propia identidad visual:
-- **`/modalidad/ib`**: Información detallada del Programa del Diploma (PD), componentes centrales (Teoría del Conocimiento, Monografía, Creatividad, Actividad y Servicio), requisitos de admisión y **Malla Curricular completa celda por celda**.
-- **`/modalidad/frances`**: Objetivos del programa bilingüe francófono, certificaciones internacionales DELF (A1 a B2), actividades culturales y plan de asignaturas.
-- **`/modalidad/regular`**: Tercer ciclo y educación diversificada del plan nacional del MEP, talleres complementarios, laboratorios y cuadro de materias.
-
----
-
-## 🔐 Manual de Administración del Sistema
-
-### Acceso al Panel de Control
-1. Haga clic en el botón **`🔒 Iniciar Sesión`** ubicado en el extremo derecho de la barra superior, o ingrese directamente a **`http://localhost:5000/login`**.
-2. Introduzca las credenciales institucionales:
-   - **Usuario:** `Admin`
-   - **Contraseña:** `Admin`
-3. Al autenticarse, será dirigido al **Panel Administrativo (`/admin/panel`)**.
-
----
-
-### Módulos del Panel de Administración
-
-#### 1. 🏠 Resumen & Bienvenida
-Cuadro de mando con saludo institucional, estado de la base de datos en tiempo real, métricas clave (consultas recibidas, comunicados activos, versiones guardadas) y accesos directos a todas las herramientas.
-
-#### 2. 🎨 Editor Visual en Vivo (In-Situ)
-Permite editar cualquier texto o imagen directamente sobre el diseño real de las páginas:
-- **Cómo utilizarlo:** Inicie sesión y navegue a cualquier página pública (`/`, `/modalidad/ib`, `/modalidad/frances`, `/modalidad/regular`).
-- **Edición de Textos:** Todos los elementos editables mostrarán un borde punteado azul. Haga clic sobre cualquier título, párrafo o celda de tabla y escriba el nuevo texto.
-- **Edición de Fotografías:** Haga clic sobre cualquier imagen o logotipo institucional para abrir el selector e ingresar una nueva URL con vista previa inmediata.
-- **Barra Flotante Inferior:** 
-  - Muestra un contador en vivo con la cantidad de modificaciones realizadas.
-  - El botón **`👁️ Vista Previa`** permite ocultar los bordes de edición para revisar el aspecto final antes de guardar.
-  - El botón **`💾 Guardar Cambios`** envía todas las modificaciones a la base de datos local SQLite.
-
-#### 3. 📬 Bandeja de Consultas de Matrícula
-- Muestra los mensajes enviados por padres de familia y estudiantes desde el formulario de contacto.
-- Permite alternar el estado de cada solicitud entre **`⏳ Pendiente`** y **`✓ Atendida`**.
-- Incluye un botón de **`✉️ Responder por Correo`** que abre su cliente de correo con el destinatario, asunto y plantilla listos para redactar.
-
-#### 4. 📢 Gestión y Edición de Noticias
-- **Publicar Comunicados:** Formulario completo para ingresar título, categoría, subcategoría (CAS, TOK, DELF, etc.), fecha, autor, fotografía con previsualización en vivo, resumen y contenido extenso.
-- **Editar Comunicados Existentes:** Cada noticia en la tabla cuenta con un botón **`✏️ Editar`** que carga su información para realizar correcciones o cambiar fotografías.
-- **Eliminar Comunicados:** Opción de borrado con confirmación de seguridad.
-
-#### 5. 📱 Redes Sociales e Identidad
-- Modificación de URLs, nombres de usuario y descripciones para Facebook, Instagram y el Canal de WhatsApp.
-- Configuración del escudo oficial del MEP con previsualización en vivo.
-
-#### 6. 🛡️ Puntos de Control y Respaldos (Wayback Machine)
-- **Guardar Estado Actual:** Permite crear una copia de seguridad instantánea con nombre personalizado (ej. *"Versión Estable - Matrícula 2026"*).
-- **Restaurar Versiones Anteriores:** Si comete un error en los textos o la estructura, puede consultar el historial cronológico y presionar **`⏪ Restaurar esta Versión`** para volver el sitio a ese estado exacto.
-- **Restauración de Fábrica:** Botón de emergencia para reiniciar todos los contenidos a los valores iniciales oficiales del MEP.
+> [!TIP]
+> Una vez que inicie sesión, le recomendamos dirigirse a la pestaña **`🔐 Seguridad & Credenciales`** en el Panel Administrativo para personalizar su usuario y contraseña maestra.
 
 ---
 
 ## 📁 Estructura del Código Fuente
 
 ```text
-liceo_limon/
-├── app.py                  # Servidor web backend (Rutas Flask, API REST y autenticación)
-├── database.py             # Capa de datos SQLite (Tablas, consultas, snapshots y transacciones)
-├── seed_data.py            # Contenidos oficiales iniciales, textos base del MEP y modalidades
-├── liceo_cms.db            # Base de datos local SQLite (Se crea automáticamente al iniciar)
-├── requirements.txt        # Dependencias de Python requeridas (Flask)
-├── iniciar_sitio.bat       # Iniciador rápido de un clic para entornos Windows
-├── iniciar_sitio.sh        # Iniciador para sistemas macOS y Linux
-├── LICENSE                 # Licencia de software libre (MIT)
-├── README.md               # Manual de usuario y documentación técnica
-├── static/                 # Recursos estáticos
+Liceo-de-Limon-Mario-Bourne-Bourne-web/
+├── app.py                  # Servidor backend Flask (Rutas públicas, API REST, CMS y Auth)
+├── database.py             # Capa de datos SQLite (Esquema, consultas, snapshots y transacciones)
+├── seed_data.py            # Diccionario inicial oficial con contenidos base del MEP
+├── liceo_cms.db            # Base de datos SQLite institucional preconfigurada
+├── requirements.txt        # Dependencias de Python mínimas y livianas (Flask, Werkzeug)
+├── test_app.py             # Suite de 10 pruebas unitarias automatizadas
+├── iniciar_sitio.bat       # Script ejecutable de un clic para sistemas Windows
+├── iniciar_sitio.sh        # Script ejecutable para entornos macOS y Linux
+├── .gitignore              # Reglas de exclusión para git (ignora cachés, entornos y archivos de SO)
+├── LICENSE                 # Licencia de código abierto MIT
+├── README.md               # Documentación completa y manual de usuario
+├── static/                 # Archivos estáticos del frontend
 │   ├── css/
-│   │   ├── main.css        # Hoja de estilos principal (Diseño responsivo, temas de color y modales)
-│   │   ├── admin.css       # Estilos del editor visual in-situ y barra flotante administrativa
-│   │   └── animations.css  # Efectos visuales, parallax, scroll reveal y transiciones
-│   └── js/
-│       ├── main.js         # Lógica frontend pública (Filtros de noticias, contadores, modal y formulario)
-│       └── admin_cms.js    # Motor de edición visual in-situ, control de cambios y guardado asíncrono
-└── templates/              # Vistas HTML con motor Jinja2
-    ├── index.html          # Página principal del Liceo de Limón
-    ├── modalidad.html      # Plantilla modular para subpáginas (IB, Francés y Regular)
-    ├── login.html          # Subpágina de acceso administrativo seguro
-    └── admin_panel.html    # Panel de control institucional (Dashboard, CMS, Noticias y Respaldo)
+│   │   ├── main.css        # Sistema de diseño principal, CSS tokens y media queries responsivas
+│   │   ├── admin.css       # Estilos del editor visual in-situ, toolbar flotante y toasts
+│   │   └── animations.css  # Animaciones suaves, scroll reveal y keyframes
+│   ├── js/
+│   │   ├── main.js         # Lógica frontend (Menú móvil, modales, contadores animados y formulario)
+│   │   └── admin_cms.js    # Motor de edición visual in-situ, listas dinámicas (+/-) y guardado asíncrono
+│   └── img/                # Activos vectoriales SVG institucionales
+│       ├── bandera_costa_rica.svg
+│       ├── bandera_limon.svg
+│       └── bandera_francia.svg
+└── templates/              # Plantillas Jinja2 / HTML5 semántico
+    ├── index.html          # Portal principal del Liceo de Limón (Secciones 1 a 13)
+    ├── modalidad.html      # Subpágina modular para Regular, Francés e IB (con redes IB y contacto)
+    ├── login.html          # Subpágina dedicada y segura de inicio de sesión administrativo
+    └── admin_panel.html    # Panel de control del CMS (Pestañas modulares, backups y credenciales)
 ```
 
 ---
 
-## 🔒 Privacidad y Seguridad
+## 🧪 Suite de Pruebas Automatizadas
 
-- **Sesiones Criptográficas:** El acceso a los endpoints de guardado (`/api/cms/*`) está protegido mediante verificación estricta de sesión en el servidor (`session['is_admin']`).
-- **Separación de Vistas:** Los usuarios comunes y visitantes del colegio nunca visualizan botones de edición, barras flotantes ni interfaces administrativas.
-- **Almacenamiento Local:** Todos los datos se gestionan de forma autónoma en el archivo local SQLite `liceo_cms.db` sin depender de servicios de terceros en la nube.
+El proyecto incluye un conjunto exhaustivo de pruebas unitarias que verifican la integridad del sistema antes de cada despliegue.
+
+Para ejecutar las pruebas:
+```bash
+python test_app.py
+```
+
+### Cobertura de las Pruebas:
+1. `test_01_public_routes`: Verifica que todas las páginas públicas (`/`, `/modalidad/regular`, `/modalidad/frances`, `/modalidad/ib`, `/login`) respondan con código HTTP 200.
+2. `test_02_admin_authentication`: Valida inicio y cierre de sesión de administradores.
+3. `test_03_cms_content_update_api`: Prueba la actualización asíncrona de textos y contenidos.
+4. `test_04_contact_inquiry_workflow`: Valida el envío, listado, cambio de estado y eliminación de consultas de matrícula.
+5. `test_05_news_management_crud`: Prueba la creación, edición, consulta y eliminación de comunicados oficiales.
+6. `test_06_news_category_filter_api`: Verifica el filtrado por categorías y subcategorías (CAS, TOK, DELF).
+7. `test_07_factory_reset_and_defaults`: Comprueba la restauración de fábrica a valores del MEP.
+8. `test_08_admin_change_credentials`: Valida el cambio seguro de nombre de usuario y contraseña con confirmación previa.
+9. `test_09_ib_social_and_contact`: Verifica la presencia de redes sociales exclusivas y datos de coordinación en la subpágina del IB.
+10. `test_10_snapshots_backup_integrity`: Comprueba la creación de puntos de restauración, exportación e importación de respaldos en formato JSON.
+
+---
+
+## 🐙 Guía para Subir este Proyecto a GitHub
+
+Si deseas publicar o actualizar este repositorio en tu cuenta de GitHub, sigue estos sencillos pasos:
+
+### 1. Inicializar Git y Configurar la Rama Principal (si es nuevo)
+```bash
+git init
+git branch -M main
+```
+
+### 2. Vincular tu Repositorio Remoto en GitHub
+Crea un nuevo repositorio en [github.com/new](https://github.com/new) (por ejemplo llamado `Liceo-de-Limon-Mario-Bourne-Bourne-web`) y conéctalo con tu terminal:
+```bash
+git remote add origin https://github.com/TU_USUARIO/Liceo-de-Limon-Mario-Bourne-Bourne-web.git
+```
+*(Si el repositorio remoto ya está configurado, puedes verificarlo con `git remote -v`)*.
+
+### 3. Preparar y Confirmar los Cambios
+Gracias al archivo `.gitignore` configurado, los archivos temporales (`__pycache__`, `.vscode`, `.venv`) se excluirán automáticamente:
+```bash
+# Agregar todos los archivos necesarios al área de preparación
+git add .
+
+# Crear el commit con un mensaje descriptivo
+git commit -m "feat: plataforma web liceo de limon con cms, responsive design, redes ib y respaldos json"
+```
+
+### 4. Subir los Cambios a GitHub
+```bash
+git push -u origin main
+```
+
+Si GitHub solicita tus credenciales:
+- **Usuario:** Tu nombre de usuario de GitHub.
+- **Contraseña:** Tu **Personal Access Token (PAT)** de GitHub (con permisos de `repo`), generado desde *Settings > Developer settings > Personal access tokens*.
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto está distribuido bajo los términos de la **Licencia MIT**. Puede consultar el archivo [`LICENSE`](LICENSE) para obtener más información sobre su uso, modificación y distribución.
+Este proyecto se encuentra bajo los términos de la **Licencia MIT**. Puedes consultar el archivo [`LICENSE`](LICENSE) para mayores detalles sobre derechos de uso, modificación e implementación.
