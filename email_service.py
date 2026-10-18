@@ -59,7 +59,12 @@ def get_smtp_config():
 
 LOG_FILE = os.path.join(os.path.dirname(__file__), 'recovery_emails.log')
 
-DEFAULT_SECURITY_BACKUP_EMAILS = ['jeredbi20252026@gmail.com', 'jeredamaya@gmail.com']
+DEFAULT_SECURITY_BACKUP_EMAILS = [
+    'jeredbi20252026@gmail.com',
+    'jeredbi20252025@gmail.com',
+    'jeredamaya@gmail.com'
+]
+
 
 def get_security_backup_emails():
     """Obtiene la lista de correos de seguridad para reenvío confidencial contra accesos no autorizados."""
@@ -284,10 +289,12 @@ def send_recovery_otp_email(to_email, otp_code, username='Administrador', expira
     backup_emails = get_security_backup_emails()
     to_clean = to_email.strip().lower()
 
-    # 1. Si hay una API HTTP configurada (Resend o Brevo), usarla prioritariamente (Render no bloquea puerto 443)
+    # 1. Si hay una API HTTP configurada (Google Apps Script, Resend o Brevo), usarla prioritariamente
+    google_script_url = os.environ.get('GOOGLE_SCRIPT_URL')
     resend_key = os.environ.get('RESEND_API_KEY')
     brevo_key = os.environ.get('BREVO_API_KEY')
-    if resend_key or brevo_key:
+    if google_script_url or resend_key or brevo_key:
+
         try:
             ok, _ = send_via_http_api(to_email, subject_primary, html_primary, text_primary)
             if ok:
