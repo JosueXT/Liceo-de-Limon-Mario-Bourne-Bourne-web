@@ -276,6 +276,19 @@ body.cms-preview-mode .cms-td-actions {
   display: none !important;
 }
 
+body.cms-edit-mode:not(.cms-preview-mode) .cms-add-item-btn {
+  display: flex !important;
+}
+
+body.cms-edit-mode:not(.cms-preview-mode) .cms-delete-item-btn {
+  display: inline-flex !important;
+}
+
+body.cms-edit-mode:not(.cms-preview-mode) .cms-th-actions,
+body.cms-edit-mode:not(.cms-preview-mode) .cms-td-actions {
+  display: table-cell !important;
+}
+
 /* Botón "+ Agregar Nuevo Elemento" */
 .cms-add-item-btn {
   display: flex;

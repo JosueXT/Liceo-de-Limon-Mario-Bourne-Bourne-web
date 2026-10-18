@@ -200,14 +200,18 @@
               <div class="pathway-feature-item" data-cms-item-index="{{ loop.index }}">
                 <span class="feature-icon-bullet">✓</span>
                 <span data-cms-key="{{ item.key }}">{{ item.text }}</span>
+                {% if is_admin %}
                 <button type="button" class="cms-delete-item-btn" title="Eliminar beneficio" aria-label="Eliminar beneficio">✕</button>
+                {% endif %}
               </div>
               {% endfor %}
             </div>
+            {% if is_admin %}
             <button type="button" class="cms-add-item-btn" data-cms-add-target="features" data-cms-prefix="regular_feature_">
               <span class="cms-add-icon">+</span>
               <span>Agregar Beneficio</span>
             </button>
+            {% endif %}
 
             <div class="pathway-footer">
               <a href="/modalidad/regular" class="btn btn-pathway" data-cms-key="regular_btn_text">
@@ -242,14 +246,18 @@
               <div class="pathway-feature-item" data-cms-item-index="{{ loop.index }}">
                 <span class="feature-icon-bullet">✓</span>
                 <span data-cms-key="{{ item.key }}">{{ item.text }}</span>
+                {% if is_admin %}
                 <button type="button" class="cms-delete-item-btn" title="Eliminar beneficio" aria-label="Eliminar beneficio">✕</button>
+                {% endif %}
               </div>
               {% endfor %}
             </div>
+            {% if is_admin %}
             <button type="button" class="cms-add-item-btn" data-cms-add-target="features" data-cms-prefix="french_feature_">
               <span class="cms-add-icon">+</span>
               <span>Agregar Beneficio</span>
             </button>
+            {% endif %}
 
             <div class="pathway-footer">
               <a href="/modalidad/frances" class="btn btn-pathway" data-cms-key="french_btn_text">
@@ -285,14 +293,18 @@
               <div class="pathway-feature-item" data-cms-item-index="{{ loop.index }}">
                 <span class="feature-icon-bullet">✓</span>
                 <span data-cms-key="{{ item.key }}">{{ item.text }}</span>
+                {% if is_admin %}
                 <button type="button" class="cms-delete-item-btn" title="Eliminar beneficio" aria-label="Eliminar beneficio">✕</button>
+                {% endif %}
               </div>
               {% endfor %}
             </div>
+            {% if is_admin %}
             <button type="button" class="cms-add-item-btn" data-cms-add-target="features" data-cms-prefix="ib_feature_">
               <span class="cms-add-icon">+</span>
               <span>Agregar Beneficio</span>
             </button>
+            {% endif %}
 
             <div class="pathway-footer">
               <a href="/modalidad/ib" class="btn btn-pathway" data-cms-key="ib_btn_text">

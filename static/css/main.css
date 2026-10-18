@@ -2535,6 +2535,16 @@ body.mobile-menu-open {
   width: 100% !important;
 }
 
+/* ==========================================================================
+   REGLAS GLOBALES DE PRIVACIDAD CMS: OCULTOS 100% PARA VISITANTES PÚBLICOS
+   ========================================================================== */
+.cms-add-item-btn,
+.cms-delete-item-btn,
+.cms-th-actions,
+.cms-td-actions {
+  display: none !important;
+}
+
 /* Botón Hamburguesa Moderno para Dispositivos Móviles */
 .mobile-nav-toggle {
   display: none;

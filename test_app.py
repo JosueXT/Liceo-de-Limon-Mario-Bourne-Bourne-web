@@ -353,6 +353,40 @@ class LiceoLimonTestCase(unittest.TestCase):
         # 8. Limpiar snapshot de prueba
         self.client.delete(f'/api/cms/snapshots/{snap_id}')
 
+    def test_11_public_cannot_see_cms_add_or_delete_controls(self):
+        """Verifica que los controles de agregar (+) y eliminar (✕) estén 100% invisibles para el público general"""
+        # 1. Visita pública (sin sesión de administrador)
+        res_home_anon = self.client.get('/')
+        html_home_anon = res_home_anon.get_data(as_text=True)
+        self.assertNotIn('cms-add-item-btn', html_home_anon)
+        self.assertNotIn('cms-delete-item-btn', html_home_anon)
+
+        res_ib_anon = self.client.get('/modalidad/ib')
+        html_ib_anon = res_ib_anon.get_data(as_text=True)
+        self.assertNotIn('cms-add-item-btn', html_ib_anon)
+        self.assertNotIn('cms-delete-item-btn', html_ib_anon)
+        self.assertNotIn('cms-th-actions', html_ib_anon)
+        self.assertNotIn('cms-td-actions', html_ib_anon)
+
+        # 2. Visita como administrador autenticado
+        res_login = self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_login.status_code, 200)
+
+        res_home_admin = self.client.get('/')
+        html_home_admin = res_home_admin.get_data(as_text=True)
+        self.assertIn('cms-add-item-btn', html_home_admin)
+        self.assertIn('cms-delete-item-btn', html_home_admin)
+
+        res_ib_admin = self.client.get('/modalidad/ib')
+        html_ib_admin = res_ib_admin.get_data(as_text=True)
+        self.assertIn('cms-add-item-btn', html_ib_admin)
+        self.assertIn('cms-delete-item-btn', html_ib_admin)
+        self.assertIn('cms-th-actions', html_ib_admin)
+        self.assertIn('cms-td-actions', html_ib_admin)
+
 if __name__ == '__main__':
     unittest.main()
 

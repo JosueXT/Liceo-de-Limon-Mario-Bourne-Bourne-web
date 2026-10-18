@@ -172,17 +172,21 @@
         <div class="pillar-card reveal-scale" data-cms-item-index="{{ loop.index }}">
           <div class="pillar-card-top-bar">
             <div class="pillar-number">{{ item.num }}</div>
+            {% if is_admin %}
             <button type="button" class="cms-delete-item-btn" title="Eliminar este pilar" aria-label="Eliminar pilar">✕</button>
+            {% endif %}
           </div>
           <h3 class="pillar-title" data-cms-key="{{ item.title_key }}">{{ item.title }}</h3>
           <p class="pillar-desc" data-cms-key="{{ item.desc_key }}">{{ item.desc }}</p>
         </div>
         {% endfor %}
       </div>
+      {% if is_admin %}
       <button type="button" class="cms-add-item-btn" data-cms-add-target="pillars" data-cms-prefix="{{ modalidad.slug }}_pillar">
         <span class="cms-add-icon">+</span>
         <span>Agregar Nuevo Pilar</span>
       </button>
+      {% endif %}
     </div>
   </section>
 
@@ -203,7 +207,9 @@
             <tr>
               <th style="width: 25%;" data-cms-key="modality_curriculum_th1">{{ cms.modality_curriculum_th1 }}</th>
               <th style="width: 70%;" data-cms-key="modality_curriculum_th2">{{ cms.modality_curriculum_th2 }}</th>
+              {% if is_admin %}
               <th class="cms-th-actions" style="width: 5%;"></th>
+              {% endif %}
             </tr>
           </thead>
           <tbody>
@@ -213,17 +219,21 @@
                 <strong data-cms-key="{{ item.group_key }}">{{ item.group }}</strong>
               </td>
               <td class="curriculum-subject-cell" data-cms-key="{{ item.subject_key }}">{{ item.subject }}</td>
+              {% if is_admin %}
               <td class="cms-td-actions">
                 <button type="button" class="cms-delete-item-btn" title="Eliminar esta fila" aria-label="Eliminar fila">✕</button>
               </td>
+              {% endif %}
             </tr>
             {% endfor %}
           </tbody>
         </table>
+        {% if is_admin %}
         <button type="button" class="cms-add-item-btn" data-cms-add-target="curriculum" data-cms-prefix="{{ modalidad.slug }}_curr_">
           <span class="cms-add-icon">+</span>
           <span>Agregar Fila a la Malla Curricular</span>
         </button>
+        {% endif %}
       </div>
     </div>
   </section>
@@ -244,14 +254,18 @@
             <div class="advantage-item" data-cms-item-index="{{ loop.index }}">
               <span class="advantage-check-icon">✓</span>
               <p class="advantage-text" data-cms-key="{{ item.key }}">{{ item.text }}</p>
+              {% if is_admin %}
               <button type="button" class="cms-delete-item-btn" title="Eliminar este beneficio" aria-label="Eliminar beneficio">✕</button>
+              {% endif %}
             </div>
             {% endfor %}
           </div>
+          {% if is_admin %}
           <button type="button" class="cms-add-item-btn" data-cms-add-target="advantages" data-cms-prefix="{{ modalidad.slug }}_adv_">
             <span class="cms-add-icon">+</span>
             <span>Agregar Nuevo Beneficio</span>
           </button>
+          {% endif %}
         </div>
 
         <div class="advantages-visual-col reveal-right" id="requisitos">
@@ -264,14 +278,18 @@
               <li class="requirement-list-item" data-cms-item-index="{{ loop.index }}">
                 <span class="req-number">{{ loop.index }}</span>
                 <span class="req-text" data-cms-key="{{ item.key }}">{{ item.text }}</span>
+                {% if is_admin %}
                 <button type="button" class="cms-delete-item-btn" title="Eliminar este requisito" aria-label="Eliminar requisito">✕</button>
+                {% endif %}
               </li>
               {% endfor %}
             </ol>
+            {% if is_admin %}
             <button type="button" class="cms-add-item-btn" data-cms-add-target="requirements" data-cms-prefix="{{ modalidad.slug }}_req_">
               <span class="cms-add-icon">+</span>
               <span>Agregar Nuevo Requisito</span>
             </button>
+            {% endif %}
 
             <div style="margin-top: 2rem;">
               <a href="/#contacto" class="btn btn-vino btn-lg" style="width: 100%;" data-cms-key="modality_req_btn">
