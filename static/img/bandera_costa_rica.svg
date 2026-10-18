@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" width="100%" height="100%">
+  <!-- Franja Azul Superior (1/6) -->
+  <rect width="500" height="50" y="0" fill="#002B7F"/>
+  <!-- Franja Blanca Superior (1/6) -->
+  <rect width="500" height="50" y="50" fill="#FFFFFF"/>
+  <!-- Franja Roja Central (2/6 = 100) -->
+  <rect width="500" height="100" y="100" fill="#CE1126"/>
+  <!-- Franja Blanca Inferior (1/6) -->
+  <rect width="500" height="50" y="200" fill="#FFFFFF"/>
+  <!-- Franja Azul Inferior (1/6) -->
+  <rect width="500" height="50" y="250" fill="#002B7F"/>
+</svg>

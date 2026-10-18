@@ -12,6 +12,7 @@ DEFAULT_CMS_CONTENT = {
     "header_institution_name": "Liceo de Limón",
     "header_subname": "Mario Bourne Bourne",
     "header_mep_tag": "Ministerio de Educación Pública • Circuito 01 • Limón",
+    "header_mep_flag": "/static/img/bandera_costa_rica.svg",
     "header_mep_location": "📍 Limón Centro, Costa Rica",
     "header_social_link_text": "📱 Redes Oficiales",
     "header_contact_link_text": "📞 Contáctenos",
@@ -347,7 +348,47 @@ DEFAULT_CMS_CONTENT = {
     "regular_req_1": "Certificado oficial de conclusión del II Ciclo de la Educación General Básica (6° grado).",
     "regular_req_2": "Ficha de matrícula institucional debidamente completada por el padre, madre o encargado legal.",
     "regular_req_3": "Copia de la tarjeta de identificación de menores (TIM) o cédula de identidad.",
-    "regular_req_4": "Cumplimiento de las normas de convivencia del reglamento interno del MEP y del liceo."
+    "regular_req_4": "Cumplimiento de las normas de convivencia del reglamento interno del MEP y del liceo.",
+
+    # -------------------------------------------------------------------------
+    # 13. REDES SOCIALES Y CONTACTO EXCLUSIVO - BACHILLERATO INTERNACIONAL (IB)
+    # -------------------------------------------------------------------------
+    "ib_social_tag": "Comunidad & Coordinación IB",
+    "ib_social_title": "Redes Oficiales y Contacto del Programa IB",
+    "ib_social_subtitle": "Canales de comunicación directa para aspirantes, estudiantes y familias de la sección de Bachillerato Internacional del Liceo de Limón.",
+    
+    # Facebook IB
+    "ib_facebook_title": "Facebook Oficial IB",
+    "ib_facebook_handle": "Bachillerato Internacional - Liceo de Limón",
+    "ib_facebook_desc": "Seguimiento a proyectos CAS, muestras de Monografía, coloquios de Teoría del Conocimiento (TOK) y vida estudiantil del PD.",
+    "ib_facebook_url": "https://facebook.com",
+    "ib_facebook_btn": "Seguir en Facebook",
+
+    # Instagram IB
+    "ib_instagram_title": "Instagram IB Limón",
+    "ib_instagram_name": "@ib_liceodelimon",
+    "ib_instagram_desc": "Galería fotográfica de actividades de campo, ferias del diploma, ceremonias de graduación y vivencias de nuestra comunidad IB.",
+    "ib_instagram_url": "https://instagram.com",
+    "ib_instagram_btn": "Ver en Instagram",
+
+    # WhatsApp IB
+    "ib_whatsapp_title": "Canal Oficial de WhatsApp IB",
+    "ib_whatsapp_handle": "Comunidad IB Liceo de Limón",
+    "ib_whatsapp_desc": "Avisos urgentes sobre pruebas diagnósticas, fechas límites de registro MEP-IB y convocatorias a reuniones con padres de familia.",
+    "ib_whatsapp_url": "https://whatsapp.com",
+    "ib_whatsapp_btn": "Unirse al Canal",
+
+    # Coordinación Directa IB (Teléfono y Correo)
+    "ib_contact_card_title": "Coordinación del Programa IB",
+    "ib_contact_card_desc": "Atención personalizada para dudas sobre el currículo internacional, convalidaciones universitarias y proceso de admisión.",
+    "ib_contact_phone_label": "Teléfono de Coordinación IB",
+    "ib_contact_phone": "+506 2758-0045 Ext. 108",
+    "ib_contact_phone_sub": "Lunes a Viernes de 7:30 a.m. a 3:30 p.m.",
+    "ib_contact_email_label": "Correo Oficial Coordinación IB",
+    "ib_contact_email": "ib.lic.delimon@mep.go.cr",
+    "ib_contact_email_sub": "Respuesta en un plazo de 24 a 48 horas hábiles",
+    "ib_contact_office_label": "Oficina de Coordinación",
+    "ib_contact_office": "Pabellón Académico IB • Liceo de Limón Mario Bourne Bourne"
 }
 
 # -----------------------------------------------------------------------------

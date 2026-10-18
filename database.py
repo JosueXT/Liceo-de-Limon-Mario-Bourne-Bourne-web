@@ -7,6 +7,7 @@ BASE DE DATOS (SQLite) - LICEO DE LIMÓN MARIO BOURNE BOURNE
 import sqlite3
 import os
 import json
+from werkzeug.security import generate_password_hash, check_password_hash
 from seed_data import DEFAULT_CMS_CONTENT, DEFAULT_NEWS
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'liceo_cms.db')
@@ -77,6 +78,17 @@ def init_db():
         )
     ''')
 
+    # 5. Tabla para usuarios y credenciales de acceso administrativo
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS admin_users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     conn.commit()
 
     # Verificar si necesitamos rellenar datos iniciales
@@ -91,6 +103,14 @@ def init_db():
     cursor.execute('SELECT COUNT(*) FROM contact_inquiries')
     if cursor.fetchone()[0] == 0:
         seed_inquiries(conn)
+
+    cursor.execute('SELECT COUNT(*) FROM admin_users')
+    if cursor.fetchone()[0] == 0:
+        cursor.execute('''
+            INSERT INTO admin_users (username, password_hash)
+            VALUES (?, ?)
+        ''', ('Admin', generate_password_hash('Admin')))
+        conn.commit()
 
     # Crear punto de restauración inicial base de fábrica si la tabla de snapshots está vacía
     cursor.execute('SELECT COUNT(*) FROM cms_snapshots')
@@ -316,14 +336,12 @@ def reset_to_defaults():
 # =============================================================================
 
 def create_snapshot(name="Copia de Seguridad"):
-    """Crea una instantánea completa del estado de los contenidos y noticias actuales"""
+    """Crea una instantánea completa del estado de los contenidos y noticias actuales asegurando el 100% de las claves."""
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Obtener todo el contenido CMS actual
-    cursor.execute('SELECT key, value FROM cms_content')
-    rows = cursor.fetchall()
-    content_dict = {row['key']: row['value'] for row in rows}
+    # Obtener todo el contenido CMS actual consolidado (incluyendo personalizaciones y claves base)
+    content_dict = get_all_content()
 
     # Obtener todas las noticias actuales
     cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author FROM news_articles')
@@ -347,6 +365,36 @@ def get_all_snapshots():
     rows = cursor.fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+def get_snapshot_by_id(snapshot_id):
+    """Obtiene un punto de restauración completo con sus datos para descarga o inspección."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, name, content_json, news_json, created_at FROM cms_snapshots WHERE id = ?', (snapshot_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+    return {
+        'id': row['id'],
+        'name': row['name'],
+        'content': json.loads(row['content_json']),
+        'news': json.loads(row['news_json']),
+        'created_at': str(row['created_at'])
+    }
+
+def import_snapshot(name, content_dict, news_list):
+    """Registra una copia de seguridad importada desde archivo JSON externo."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO cms_snapshots (name, content_json, news_json)
+        VALUES (?, ?, ?)
+    ''', (name, json.dumps(content_dict, ensure_ascii=False), json.dumps(news_list, ensure_ascii=False)))
+    new_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return new_id
 
 def restore_snapshot(snapshot_id):
     """Restaura todos los contenidos y noticias a un punto de restauración específico"""
@@ -393,6 +441,68 @@ def delete_snapshot(snapshot_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('DELETE FROM cms_snapshots WHERE id = ?', (snapshot_id,))
+    conn.commit()
+    conn.close()
+    return True
+
+# =============================================================================
+# FUNCIONES DE GESTIÓN DE CREDENCIALES DEL ADMINISTRADOR
+# =============================================================================
+
+def get_admin_user():
+    """Obtiene los datos del usuario administrador registrado en la base de datos."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username, password_hash, created_at, updated_at FROM admin_users ORDER BY id ASC LIMIT 1')
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def verify_admin_credentials(username, password):
+    """Valida el usuario y contraseña del administrador con hash seguro."""
+    if not username or not password:
+        return False
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username, password_hash FROM admin_users WHERE LOWER(username) = LOWER(?) LIMIT 1', (username.strip(),))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return False
+
+    stored_hash = row['password_hash']
+    # Verificar con hash seguro werkzeug o soporte retrocompatible si fuese texto plano
+    if stored_hash.startswith(('scrypt:', 'pbkdf2:')):
+        return check_password_hash(stored_hash, password)
+    else:
+        is_valid = (stored_hash == password)
+        if is_valid:
+            update_admin_credentials(row['username'], password)
+        return is_valid
+
+def update_admin_credentials(new_username, new_password):
+    """Actualiza el nombre de usuario y genera un nuevo hash de contraseña seguro."""
+    if not new_username or not new_password:
+        return False
+    new_username = new_username.strip()
+    new_hash = generate_password_hash(new_password)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM admin_users ORDER BY id ASC LIMIT 1')
+    row = cursor.fetchone()
+    if row:
+        cursor.execute('''
+            UPDATE admin_users
+            SET username = ?, password_hash = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ''', (new_username, new_hash, row['id']))
+    else:
+        cursor.execute('''
+            INSERT INTO admin_users (username, password_hash)
+            VALUES (?, ?)
+        ''', (new_username, new_hash))
     conn.commit()
     conn.close()
     return True

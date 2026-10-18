@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNewsFilters();
   initNewsModal();
   initContactForm();
+  initMobileMenu();
 });
 
 /**
@@ -375,6 +376,56 @@ function initContactForm() {
         submitBtn.style.background = '';
         submitBtn.disabled = false;
       }, 3000);
+    }
+  });
+}
+
+/**
+ * 8. Menú Móvil Hamburguesa (Responsive Drawer)
+ */
+function initMobileMenu() {
+  const toggleBtn = document.getElementById('mobileNavToggle');
+  const navMenu = document.getElementById('navMenu') || document.querySelector('.nav-menu');
+  if (!toggleBtn || !navMenu) return;
+
+  const toggle = (forceClose = false) => {
+    const shouldOpen = forceClose ? false : !navMenu.classList.contains('mobile-open');
+    navMenu.classList.toggle('mobile-open', shouldOpen);
+    toggleBtn.classList.toggle('active', shouldOpen);
+    toggleBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    document.body.classList.toggle('mobile-menu-open', shouldOpen);
+  };
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggle();
+  });
+
+  // Cerrar al hacer clic en enlaces del menú
+  navMenu.querySelectorAll('.nav-link, .btn').forEach(link => {
+    link.addEventListener('click', () => {
+      toggle(true);
+    });
+  });
+
+  // Cerrar al hacer clic fuera del menú
+  document.addEventListener('click', (e) => {
+    if (navMenu.classList.contains('mobile-open') && !navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+      toggle(true);
+    }
+  });
+
+  // Cerrar al presionar la tecla Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navMenu.classList.contains('mobile-open')) {
+      toggle(true);
+    }
+  });
+
+  // Cerrar si la pantalla se redimensiona a más de 992px
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 992 && navMenu.classList.contains('mobile-open')) {
+      toggle(true);
     }
   });
 }

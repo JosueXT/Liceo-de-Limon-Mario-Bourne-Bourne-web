@@ -1,0 +1,33 @@
+# ==============================================================================
+# ARCHIVO .gitignore - LICEO DE LIMÓN MARIO BOURNE BOURNE (MEP)
+# ==============================================================================
+
+# Archivos de caché y compilación de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Entornos virtuales de desarrollo
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Configuraciones de editores e IDEs locales
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Bases de datos temporales de pruebas unitarias y logs
+test_*.db
+*.log

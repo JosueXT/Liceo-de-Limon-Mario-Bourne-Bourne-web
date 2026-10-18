@@ -82,23 +82,57 @@
       margin-bottom: 1.8rem;
     }
 
-    .login-tip-box {
-      background: var(--gris-100);
-      border: 1px dashed var(--gris-300);
+    .login-security-notice {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: rgba(30, 58, 138, 0.06);
+      border: 1px solid rgba(30, 58, 138, 0.15);
       border-radius: var(--radius-md);
       padding: 0.75rem 1rem;
-      font-size: 0.85rem;
-      color: var(--gris-700);
+      font-size: 0.825rem;
+      color: var(--azul-dark);
       margin-bottom: 1.6rem;
-      text-align: left;
+      line-height: 1.35;
+      text-align: center;
     }
 
-    .login-tip-box code {
-      background: var(--blanco);
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-      font-weight: 700;
-      color: var(--vino);
+    .password-field-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-field-wrapper .form-control {
+      padding-right: 2.85rem;
+    }
+
+    .password-toggle-btn {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gris-500);
+      padding: 0.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-fast), background-color var(--transition-fast);
+    }
+
+    .password-toggle-btn:hover {
+      color: var(--azul);
+      background-color: var(--gris-100);
+    }
+
+    .password-toggle-btn:focus {
+      outline: 2px solid var(--azul);
+      outline-offset: 1px;
     }
 
     .login-error-alert {
@@ -136,13 +170,9 @@
     <div class="container">
       <div class="mep-entity">
         <span class="mep-flag-strip">
-          <span class="flag-blue"></span>
-          <span class="flag-white"></span>
-          <span class="flag-red"></span>
-          <span class="flag-white"></span>
-          <span class="flag-blue"></span>
+          <img src="{{ (cms and cms.header_mep_flag) or '/static/img/bandera_costa_rica.svg' }}" alt="Bandera" class="mep-flag-img">
         </span>
-        <span>Ministerio de Educación Pública • Circuito 01 • Limón</span>
+        <span>{{ (cms and cms.header_mep_tag) or 'Ministerio de Educación Pública • Circuito 01 • Limón' }}</span>
       </div>
       <div class="mep-quick-links">
         <a href="/" class="mep-link">🏠 Volver al Sitio Público</a>
@@ -160,22 +190,34 @@
       <h1 class="login-title">Iniciar Sesión</h1>
       <p class="login-subtitle">Panel de Control & Gestor de Contenido (CMS)</p>
 
-      <div class="login-tip-box">
-        <strong>Credenciales de Administración:</strong><br>
-        Usuario: <code>Admin</code> | Contraseña: <code>Admin</code>
+      <div class="login-security-notice">
+        <span>🛡️</span>
+        <span>Acceso restringido únicamente para personal administrativo institucional.</span>
       </div>
 
-      <div class="login-error-alert" id="loginErrorMsg"></div>
+      <div class="login-error-alert" id="loginErrorMsg" {% if error %}style="display: block;"{% endif %}>{{ error if error else '' }}</div>
 
-      <form id="standaloneLoginForm">
+      <form id="standaloneLoginForm" autocomplete="off">
         <div class="form-group" style="text-align: left;">
           <label class="form-label" for="loginUsername">Usuario</label>
-          <input type="text" id="loginUsername" class="form-control" value="Admin" required autocomplete="username" placeholder="Ingrese su usuario">
+          <input type="text" id="loginUsername" name="username" class="form-control" required autocomplete="off" placeholder="Ingrese su usuario">
         </div>
 
         <div class="form-group" style="text-align: left;">
           <label class="form-label" for="loginPassword">Contraseña</label>
-          <input type="password" id="loginPassword" class="form-control" value="Admin" required autocomplete="current-password" placeholder="••••••••">
+          <div class="password-field-wrapper">
+            <input type="password" id="loginPassword" name="password" class="form-control" required autocomplete="new-password" placeholder="••••••••">
+            <button type="button" id="togglePasswordBtn" class="password-toggle-btn" title="Mostrar u ocultar contraseña" aria-label="Mostrar u ocultar contraseña" tabindex="-1">
+              <svg id="eyeIconOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg id="eyeIconClosed" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <button type="submit" id="loginSubmitBtn" class="btn btn-vino btn-lg" style="width: 100%; margin-top: 1rem;">
@@ -192,13 +234,35 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('standaloneLoginForm');
+      const userInput = document.getElementById('loginUsername');
+      const passInput = document.getElementById('loginPassword');
       const errorBox = document.getElementById('loginErrorMsg');
       const submitBtn = document.getElementById('loginSubmitBtn');
+      const toggleBtn = document.getElementById('togglePasswordBtn');
+      const eyeOpen = document.getElementById('eyeIconOpen');
+      const eyeClosed = document.getElementById('eyeIconClosed');
+
+      // Limpiar proactivamente cualquier autocompletado en caché del navegador
+      if (userInput) userInput.value = '';
+      if (passInput) passInput.value = '';
+
+      // Mostrar u ocultar la contraseña de forma segura
+      if (toggleBtn && passInput) {
+        toggleBtn.addEventListener('click', () => {
+          const isPass = passInput.type === 'password';
+          passInput.type = isPass ? 'text' : 'password';
+          if (eyeOpen && eyeClosed) {
+            eyeOpen.style.display = isPass ? 'none' : 'block';
+            eyeClosed.style.display = isPass ? 'block' : 'none';
+          }
+          toggleBtn.setAttribute('aria-label', isPass ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        });
+      }
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('loginUsername').value.trim();
-        const password = document.getElementById('loginPassword').value.trim();
+        const username = userInput.value.trim();
+        const password = passInput.value.trim();
 
         errorBox.style.display = 'none';
         submitBtn.disabled = true;

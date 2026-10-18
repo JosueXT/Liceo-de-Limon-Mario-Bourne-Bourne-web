@@ -45,6 +45,9 @@ function enableVisualEditMode() {
   // Habilitar edición in-situ en todos los elementos con data-cms-key
   applyContentEditable(true);
 
+  // Inicializar controles de listas y tablas dinámicas (agregar / eliminar items)
+  initDynamicListControls();
+
   // Escuchar escritura en cualquier elemento editable
   document.addEventListener('input', (e) => {
     const target = e.target;
@@ -218,7 +221,7 @@ function initImageModal() {
     modal.innerHTML = `
       <div class="modal-dialog" style="max-width: 540px; padding: 2.2rem; background: var(--blanco); border-radius: var(--radius-xl);">
         <button class="modal-close-btn" id="closeImageModalBtn" style="top: 1rem; right: 1rem;">&times;</button>
-        <h3 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--azul-dark); margin-bottom: 0.5rem;">📷 Cambiar Fotografía o Logotipo</h3>
+        <h3 id="imageModalTitle" style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--azul-dark); margin-bottom: 0.5rem;">📷 Cambiar Fotografía o Logotipo</h3>
         <p style="font-size: 0.875rem; color: var(--gris-600); margin-bottom: 1.2rem;">Ingrese la URL de la nueva imagen para actualizarla en vivo:</p>
         
         <div style="text-align: center; margin-bottom: 1.2rem;">
@@ -227,13 +230,13 @@ function initImageModal() {
 
         <form id="editImageForm">
           <div class="form-group" style="text-align: left;">
-            <label class="form-label" for="imageUrlInput">URL de la Imagen</label>
+            <label class="form-label" for="imageUrlInput">URL de la Imagen o Bandera</label>
             <input type="url" id="imageUrlInput" class="form-control" required placeholder="https://ejemplo.com/foto.jpg">
           </div>
 
           <div style="margin-bottom: 1.2rem; text-align: left;">
             <label class="form-label">Sugerencias rápidas:</label>
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <div id="imageModalPresets" style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
               <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('https://imgs.search.brave.com/Ly6Ar6F6AGvQFNCB_BgS9qNxglA60fHIL7u-4j1cCN8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bWVwLmdvLmNyL3Np/dGVzL2RlZmF1bHQv/ZmlsZXMvc3R5bGVz/L3Jlc3BvbnNpdmVf/MV8xXzIwMHcvcHVi/bGljL21lZGlhL2Vz/Y3Vkby1saWNlby1u/dWV2by1saW1vbi5q/cGc_aD1jMDE3OWIz/NyZpdG9rPTZJQmo1/cnFx')">Escudo Oficial MEP</button>
               <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80')">Campus y Edificio</button>
               <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80')">Estudiantes</button>
@@ -281,7 +284,7 @@ function initImageModal() {
         updateModifiedCounter();
         modal.classList.remove('active');
         modal.style.display = 'none';
-        showToast('✓ Imagen actualizada en la vista. Recuerda guardar cambios.', 'info');
+        showToast('✓ Elemento actualizado en la vista. Recuerda guardar cambios.', 'info');
       }
     });
   }
@@ -292,9 +295,34 @@ function openImageEditModal(key, currentSrc) {
   const modal = document.getElementById('editImageModal');
   const urlInput = document.getElementById('imageUrlInput');
   const preview = document.getElementById('imageModalPreview');
+  const modalTitle = document.getElementById('imageModalTitle');
+  const presetsContainer = document.getElementById('imageModalPresets');
 
   if (urlInput) urlInput.value = currentSrc;
   if (preview) preview.src = currentSrc;
+
+  if (key === 'header_mep_flag') {
+    if (modalTitle) modalTitle.innerText = '🚩 Cambiar Bandera o Insignia Superior';
+    if (presetsContainer) {
+      presetsContainer.innerHTML = `
+        <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('/static/img/bandera_costa_rica.svg')">🇨🇷 Costa Rica</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('/static/img/bandera_limon.svg')">🟢 Bandera de Limón</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('/static/img/bandera_francia.svg')">🇫🇷 Francia (DELF)</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/International_Baccalaureate_Logo.svg/64px-International_Baccalaureate_Logo.svg.png')">🌐 Bachillerato IB</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('https://imgs.search.brave.com/Ly6Ar6F6AGvQFNCB_BgS9qNxglA60fHIL7u-4j1cCN8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bWVwLmdvLmNyL3Np/dGVzL2RlZmF1bHQv/ZmlsZXMvc3R5bGVz/L3Jlc3BvbnNpdmVf/MV8xXzIwMHcvcHVi/bGljL21lZGlhL2Vz/Y3Vkby1saWNlby1u/dWV2by1saW1vbi5q/cGc_aD1jMDE3OWIz/NyZpdG9rPTZJQmo1/cnFx')">🏫 Escudo MEP</button>
+      `;
+    }
+  } else {
+    if (modalTitle) modalTitle.innerText = '📷 Cambiar Fotografía o Logotipo';
+    if (presetsContainer) {
+      presetsContainer.innerHTML = `
+        <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('https://imgs.search.brave.com/Ly6Ar6F6AGvQFNCB_BgS9qNxglA60fHIL7u-4j1cCN8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bWVwLmdvLmNyL3Np/dGVzL2RlZmF1bHQv/ZmlsZXMvc3R5bGVz/L3Jlc3BvbnNpdmVf/MV8xXzIwMHcvcHVi/bGljL21lZGlhL2Vz/Y3Vkby1saWNlby1u/dWV2by1saW1vbi5q/cGc_aD1jMDE3OWIz/NyZpdG9rPTZJQmo1/cnFx')">Escudo Oficial MEP</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80')">Campus y Edificio</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="setImageModalPreset('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80')">Estudiantes</button>
+      `;
+    }
+  }
+
   if (modal) {
     modal.style.display = 'flex';
     modal.classList.add('active');
@@ -333,3 +361,272 @@ function showToast(message, type = 'info') {
 }
 
 window.showToast = showToast;
+
+/**
+ * ============================================================================
+ * 9. GESTIÓN DINÁMICA DE LISTAS Y TABLAS (AGREGAR / ELIMINAR ELEMENTOS)
+ * ============================================================================
+ */
+
+function initDynamicListControls() {
+  document.addEventListener('click', (e) => {
+    if (!CMS_STATE.isAdmin || !CMS_STATE.isEditMode || document.body.classList.contains('cms-preview-mode')) return;
+
+    // 1. Manejo del botón "+ Agregar Elemento"
+    const addBtn = e.target.closest('.cms-add-item-btn');
+    if (addBtn) {
+      e.preventDefault();
+      const listType = addBtn.getAttribute('data-cms-add-target');
+      const prefix = addBtn.getAttribute('data-cms-prefix');
+
+      let container = null;
+      if (listType === 'curriculum') {
+        const wrapper = addBtn.closest('.curriculum-table-wrapper');
+        container = (wrapper && wrapper.querySelector('table[data-cms-list="curriculum"]')) || document.querySelector(`table[data-cms-list="curriculum"][data-cms-prefix="${prefix}"]`);
+      } else {
+        container = addBtn.previousElementSibling;
+        if (!container || !container.hasAttribute('data-cms-list')) {
+          container = addBtn.parentElement.querySelector(`[data-cms-list="${listType}"]`) || document.querySelector(`[data-cms-list="${listType}"][data-cms-prefix="${prefix}"]`);
+        }
+      }
+
+      if (container) {
+        handleAddDynamicItem(container, listType, prefix);
+      }
+      return;
+    }
+
+    // 2. Manejo del botón "✕ Eliminar Elemento"
+    const deleteBtn = e.target.closest('.cms-delete-item-btn');
+    if (deleteBtn) {
+      e.preventDefault();
+      const itemEl = deleteBtn.closest('[data-cms-item-index]');
+      if (!itemEl) return;
+      const container = itemEl.closest('[data-cms-list]');
+      if (!container) return;
+
+      const listType = container.getAttribute('data-cms-list');
+      const prefix = container.getAttribute('data-cms-prefix');
+
+      handleDeleteDynamicItem(itemEl, container, listType, prefix);
+      return;
+    }
+  });
+}
+
+function handleAddDynamicItem(container, listType, prefix) {
+  const isTable = listType === 'curriculum';
+  const parent = isTable ? (container.querySelector('tbody') || container) : container;
+  const currentItems = isTable ? parent.querySelectorAll('tr[data-cms-item-index]') : parent.querySelectorAll('[data-cms-item-index]');
+  const newIndex = currentItems.length + 1;
+
+  let newElement = null;
+
+  if (listType === 'advantages') {
+    newElement = document.createElement('div');
+    newElement.className = 'advantage-item';
+    newElement.setAttribute('data-cms-item-index', newIndex);
+    newElement.innerHTML = `
+      <span class="advantage-check-icon">✓</span>
+      <p class="advantage-text cms-modified" data-cms-key="${prefix}${newIndex}" contenteditable="true" spellcheck="false">Nuevo beneficio para el estudiante...</p>
+      <button type="button" class="cms-delete-item-btn" title="Eliminar este beneficio" aria-label="Eliminar beneficio">✕</button>
+    `;
+    parent.appendChild(newElement);
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}`] = "Nuevo beneficio para el estudiante...";
+
+  } else if (listType === 'requirements') {
+    newElement = document.createElement('li');
+    newElement.className = 'requirement-list-item';
+    newElement.setAttribute('data-cms-item-index', newIndex);
+    newElement.innerHTML = `
+      <span class="req-number">${newIndex}</span>
+      <span class="req-text cms-modified" data-cms-key="${prefix}${newIndex}" contenteditable="true" spellcheck="false">Nuevo requisito de ingreso...</span>
+      <button type="button" class="cms-delete-item-btn" title="Eliminar este requisito" aria-label="Eliminar requisito">✕</button>
+    `;
+    parent.appendChild(newElement);
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}`] = "Nuevo requisito de ingreso...";
+
+  } else if (listType === 'curriculum') {
+    newElement = document.createElement('tr');
+    newElement.setAttribute('data-cms-item-index', newIndex);
+    newElement.innerHTML = `
+      <td class="curriculum-group-cell">
+        <strong class="cms-modified" data-cms-key="${prefix}group_${newIndex}" contenteditable="true" spellcheck="false">Nuevo Grupo / Área</strong>
+      </td>
+      <td class="curriculum-subject-cell cms-modified" data-cms-key="${prefix}subject_${newIndex}" contenteditable="true" spellcheck="false">Nueva Asignatura y Enfoque Pedagógico</td>
+      <td class="cms-td-actions">
+        <button type="button" class="cms-delete-item-btn" title="Eliminar esta fila" aria-label="Eliminar fila">✕</button>
+      </td>
+    `;
+    parent.appendChild(newElement);
+    CMS_STATE.modifiedItems[`${prefix}group_${newIndex}`] = "Nuevo Grupo / Área";
+    CMS_STATE.modifiedItems[`${prefix}subject_${newIndex}`] = "Nueva Asignatura y Enfoque Pedagógico";
+
+  } else if (listType === 'pillars') {
+    newElement = document.createElement('div');
+    newElement.className = 'pillar-card reveal-scale';
+    newElement.setAttribute('data-cms-item-index', newIndex);
+    const formattedNum = String(newIndex).padStart(2, '0');
+    newElement.innerHTML = `
+      <div class="pillar-card-top-bar">
+        <div class="pillar-number">${formattedNum}</div>
+        <button type="button" class="cms-delete-item-btn" title="Eliminar este pilar" aria-label="Eliminar pilar">✕</button>
+      </div>
+      <h3 class="pillar-title cms-modified" data-cms-key="${prefix}${newIndex}_title" contenteditable="true" spellcheck="false">Nuevo Pilar Formativo</h3>
+      <p class="pillar-desc cms-modified" data-cms-key="${prefix}${newIndex}_desc" contenteditable="true" spellcheck="false">Descripción de este pilar formativo institucional...</p>
+    `;
+    parent.appendChild(newElement);
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_title`] = "Nuevo Pilar Formativo";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_desc`] = "Descripción de este pilar formativo institucional...";
+
+  } else if (listType === 'features') {
+    newElement = document.createElement('div');
+    newElement.className = 'pathway-feature-item';
+    newElement.setAttribute('data-cms-item-index', newIndex);
+    newElement.innerHTML = `
+      <span class="feature-icon-bullet">✓</span>
+      <span class="cms-modified" data-cms-key="${prefix}${newIndex}" contenteditable="true" spellcheck="false">Nuevo pilar formativo...</span>
+      <button type="button" class="cms-delete-item-btn" title="Eliminar beneficio" aria-label="Eliminar beneficio">✕</button>
+    `;
+    parent.appendChild(newElement);
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}`] = "Nuevo pilar formativo...";
+  }
+
+  updateModifiedCounter();
+  showToast(`✓ Nuevo elemento añadido (#${newIndex}). Modifíquelo y recuerde guardar cambios.`, 'info');
+
+  if (newElement) {
+    const firstEditable = newElement.querySelector('[contenteditable="true"]');
+    if (firstEditable) {
+      firstEditable.focus();
+    }
+  }
+}
+
+function handleDeleteDynamicItem(itemEl, container, listType, prefix) {
+  const isTable = listType === 'curriculum';
+  const parent = isTable ? (container.querySelector('tbody') || container) : container;
+  const currentItems = isTable ? parent.querySelectorAll('tr[data-cms-item-index]') : parent.querySelectorAll('[data-cms-item-index]');
+  const previousCount = currentItems.length;
+
+  itemEl.classList.add('cms-item-removing');
+  setTimeout(() => {
+    itemEl.remove();
+    reindexDynamicList(container, listType, prefix, previousCount);
+  }, 220);
+}
+
+function reindexDynamicList(container, listType, prefix, previousCount) {
+  const isTable = listType === 'curriculum';
+  const parent = isTable ? (container.querySelector('tbody') || container) : container;
+  const remainingItems = isTable ? parent.querySelectorAll('tr[data-cms-item-index]') : parent.querySelectorAll('[data-cms-item-index]');
+
+  remainingItems.forEach((el, idx) => {
+    const newIdx = idx + 1;
+    el.setAttribute('data-cms-item-index', newIdx);
+
+    if (listType === 'advantages') {
+      const p = el.querySelector('.advantage-text');
+      if (p) {
+        const oldKey = p.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}`;
+        p.setAttribute('data-cms-key', newKey);
+        p.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newKey] = p.innerText.trim();
+        if (oldKey && oldKey !== newKey && oldKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldKey];
+        }
+      }
+    } else if (listType === 'requirements') {
+      const numSpan = el.querySelector('.req-number');
+      if (numSpan) numSpan.innerText = newIdx;
+      const textSpan = el.querySelector('.req-text');
+      if (textSpan) {
+        const oldKey = textSpan.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}`;
+        textSpan.setAttribute('data-cms-key', newKey);
+        textSpan.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newKey] = textSpan.innerText.trim();
+        if (oldKey && oldKey !== newKey && oldKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldKey];
+        }
+      }
+    } else if (listType === 'curriculum') {
+      const grpEl = el.querySelector('.curriculum-group-cell strong');
+      const subEl = el.querySelector('.curriculum-subject-cell');
+      const newGrpKey = `${prefix}group_${newIdx}`;
+      const newSubKey = `${prefix}subject_${newIdx}`;
+      if (grpEl) {
+        const oldGrpKey = grpEl.getAttribute('data-cms-key');
+        grpEl.setAttribute('data-cms-key', newGrpKey);
+        grpEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newGrpKey] = grpEl.innerText.trim();
+        if (oldGrpKey && oldGrpKey !== newGrpKey && oldGrpKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldGrpKey];
+        }
+      }
+      if (subEl) {
+        const oldSubKey = subEl.getAttribute('data-cms-key');
+        subEl.setAttribute('data-cms-key', newSubKey);
+        subEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newSubKey] = subEl.innerText.trim();
+        if (oldSubKey && oldSubKey !== newSubKey && oldSubKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldSubKey];
+        }
+      }
+    } else if (listType === 'pillars') {
+      const numEl = el.querySelector('.pillar-number');
+      if (numEl) numEl.innerText = String(newIdx).padStart(2, '0');
+      const titleEl = el.querySelector('.pillar-title');
+      const descEl = el.querySelector('.pillar-desc');
+      const newTitleKey = `${prefix}${newIdx}_title`;
+      const newDescKey = `${prefix}${newIdx}_desc`;
+      if (titleEl) {
+        const oldTitleKey = titleEl.getAttribute('data-cms-key');
+        titleEl.setAttribute('data-cms-key', newTitleKey);
+        titleEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newTitleKey] = titleEl.innerText.trim();
+        if (oldTitleKey && oldTitleKey !== newTitleKey && oldTitleKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldTitleKey];
+        }
+      }
+      if (descEl) {
+        const oldDescKey = descEl.getAttribute('data-cms-key');
+        descEl.setAttribute('data-cms-key', newDescKey);
+        descEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newDescKey] = descEl.innerText.trim();
+        if (oldDescKey && oldDescKey !== newDescKey && oldDescKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldDescKey];
+        }
+      }
+    } else if (listType === 'features') {
+      const textSpan = el.querySelector('span[data-cms-key]');
+      if (textSpan) {
+        const oldKey = textSpan.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}`;
+        textSpan.setAttribute('data-cms-key', newKey);
+        textSpan.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newKey] = textSpan.innerText.trim();
+        if (oldKey && oldKey !== newKey && oldKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldKey];
+        }
+      }
+    }
+  });
+
+  // Limpiar en la base de datos las claves eliminadas que quedaron fuera del nuevo rango
+  for (let idx = remainingItems.length + 1; idx <= previousCount; idx++) {
+    if (listType === 'curriculum') {
+      CMS_STATE.modifiedItems[`${prefix}group_${idx}`] = '';
+      CMS_STATE.modifiedItems[`${prefix}subject_${idx}`] = '';
+    } else if (listType === 'pillars') {
+      CMS_STATE.modifiedItems[`${prefix}${idx}_title`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_desc`] = '';
+    } else {
+      CMS_STATE.modifiedItems[`${prefix}${idx}`] = '';
+    }
+  }
+
+  updateModifiedCounter();
+  showToast('🗑️ Elemento eliminado. Presione "💾 Guardar Cambios" para confirmar en la base de datos.', 'info');
+}
