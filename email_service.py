@@ -160,14 +160,43 @@ def build_otp_html(otp_code, username, expiration_minutes=15, is_security_backup
 def send_via_http_api(to_email, subject, html_content, text_content):
     """Envía correo a través de APIs HTTP REST (puerto 443) que nunca son bloqueadas por Render Free Tier."""
     load_env_file()
+    google_script_url = os.environ.get('GOOGLE_SCRIPT_URL')
     resend_key = os.environ.get('RESEND_API_KEY')
     brevo_key = os.environ.get('BREVO_API_KEY')
 
+    # 1. Intentar mediante Webhook de Google Apps Script (envía directo desde tu Gmail sin restricciones)
+    if google_script_url:
+        import urllib.request
+        import json
+        payload = {
+            'to': to_email,
+            'subject': subject,
+            'html': html_content,
+            'text': text_content
+        }
+        req = urllib.request.Request(
+            google_script_url.strip(),
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                'Content-Type': 'application/json',
+                'User-Agent': 'curl/7.81.0'
+            },
+            method='POST'
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                if resp.status in (200, 302):
+                    return True, f"Enviado vía Google Apps Script a {to_email}"
+        except Exception:
+            pass
+
+    # 2. Intentar mediante Resend API
     if resend_key:
         import urllib.request
         import urllib.error
         import json
         sender = os.environ.get('RESEND_FROM', 'onboarding@resend.dev')
+
 
         # Intentar enviar al destinatario. Si el sandbox gratuito de Resend restringe el envío,
         # enviar al correo del propietario de la cuenta en Resend (jeredamaya@gmail.com).
