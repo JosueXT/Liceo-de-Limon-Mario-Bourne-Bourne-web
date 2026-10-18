@@ -6,7 +6,7 @@
 [![Flask](https://img.shields.io/badge/Framework-Flask%203.x-lightgrey.svg?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite-003B57.svg?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![Diseño Responsivo](https://img.shields.io/badge/Diseño-100%25%20Responsivo%20Móvil-success.svg)](#-diseño-100-responsivo-ordenadores-y-celulares)
-[![Tests](https://img.shields.io/badge/Unit%20Tests-10%2F10%20Aprobados-10b981.svg)](#-suite-de-pruebas-automatizadas)
+[![Tests](https://img.shields.io/badge/Unit%20Tests-13%2F13%20Aprobados-10b981.svg)](#-suite-de-pruebas-automatizadas)
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-vino.svg)](LICENSE)
 
 ---
@@ -84,6 +84,8 @@ El proyecto cumple dos funciones estratégicas:
 ### 🔐 Seguridad y Gestión de Credenciales
 - **Cambio de Usuario y Contraseña:** Formulario protegido dentro del panel administrativo para actualizar las credenciales en cualquier momento.
 - **Confirmación Obligatoria:** Requiere autenticar la contraseña actual antes de aplicar cambios para evitar modificaciones no autorizadas.
+- **Restablecimiento Asistido ante Olvido (Web):** Enlace interactivo `🔑 ¿Olvidó su contraseña?` en la pantalla `/login` con modal protegido mediante **Clave Maestra Institucional** (`MEP-LIMON-2026`).
+- **Herramienta de Rescate de Emergencia (Terminal):** Script `restablecer_password.py` para administradores con acceso a la consola o servidor, permitiendo restaurar las credenciales al instante a valores de fábrica o personalizadas.
 - **Contraseñas Seguras:** Almacenadas con hash criptográfico moderno (Werkzeug Security Scrypt/PBKDF2).
 - **Alternar Visibilidad:** Botones interactivos (`👁️ / 🙈`) para verificar visualmente lo que se escribe antes de guardar.
 
@@ -137,14 +139,64 @@ Para apagar el servidor, presione `Ctrl + C` en la terminal o cierre la ventana.
 
 ## 🔑 Credenciales de Acceso Iniciales
 
-| Parámetro | Valor Predeterminado |
-| :--- | :--- |
-| **URL de Inicio de Sesión** | `http://localhost:5000/login` |
-| **Usuario Inicial** | `Admin` |
-| **Contraseña Inicial** | `Admin` |
+| Parámetro | Valor Predeterminado | Descripción |
+| :--- | :--- | :--- |
+| **URL de Inicio de Sesión** | `http://localhost:5000/login` | Portal de acceso administrativo |
+| **Usuario Inicial** | `Admin` | Nombre de usuario inicial del sistema |
+| **Contraseña Inicial** | `Admin` | Contraseña predeterminada |
+| **Correo de Recuperación** | `liceo.limon@mep.go.cr` | Correo donde se envían los códigos temporales OTP (configurable en el panel) |
+| **Clave Maestra Institucional** | `MEP-LIMON-2026` | Código permanente e inmutable de rescate ante emergencias |
 
-> [!TIP]
-> Una vez que inicie sesión, le recomendamos dirigirse a la pestaña **`🔐 Seguridad & Credenciales`** en el Panel Administrativo para personalizar su usuario y contraseña maestra.
+### 🔄 ¿Cómo restablecer la contraseña en caso de olvido?
+
+La plataforma incluye un sistema de rescate integral con **tres alternativas**:
+
+#### Método 1: Código de 6 Dígitos por Correo Institucional (OTP) - Recomendado
+1. Diríjase a **`http://localhost:5000/login`** y presione **`🔑 ¿Olvidó su contraseña?`**.
+2. En la pestaña **`📨 Código por Correo (OTP)`**, escriba su usuario y presione **`📨 Enviar Código al Correo Institucional`**.
+3. El sistema generará un código numérico seguro de 6 dígitos con validez de 15 minutos:
+   - Si tiene configurado SMTP en su servidor, se enviará directamente a su bandeja de entrada con el diseño oficial del MEP.
+   - Si está ejecutando localmente en modo desarrollo/pruebas, el código se registrará automáticamente en la consola y en el archivo `recovery_emails.log`.
+4. Ingrese el código de 6 dígitos recibido, defina su nueva contraseña y presione **`💾 Validar y Cambiar Contraseña`**.
+
+#### Método 2: Mediante la Clave Maestra Institucional Inmutable
+1. En el mismo modal de recuperación, seleccione la pestaña **`🛡️ Clave Maestra Fija`**.
+2. Ingrese su usuario y la clave maestra fija del colegio: **`MEP-LIMON-2026`**.
+3. Escriba su nueva contraseña y confirme para ingresar de inmediato.
+> [!NOTE]
+> Para evitar accidentes y bloqueos involuntarios del personal, la Clave Maestra Institucional es **fija e inmutable** desde la interfaz web.
+
+#### Método 3: Por Terminal con el Script de Emergencia
+Si administra directamente el servidor, ejecute:
+```bash
+python restablecer_password.py
+```
+- Presione `1` para restaurar a valores de fábrica (`Admin` / `Admin`).
+- O presione `2` para escribir interactivamente el usuario y contraseña deseados.
+
+O mediante el comando rápido de un solo paso:
+```bash
+python restablecer_password.py --factory
+```
+
+---
+
+### ⚙️ Configuración del Servidor de Correo (SMTP) y Respaldo Antifraude
+Para enviar correos electrónicos reales a través de servidores institucionales (Gmail, Outlook 365, MEP), puede definir las siguientes variables de entorno en su archivo `.env`:
+
+```bash
+SMTP_HOST=smtp.gmail.com        # Servidor SMTP de su proveedor
+SMTP_PORT=587                   # Puerto (generalmente 587 para TLS)
+SMTP_USER=su_correo@gmail.com   # Usuario o correo emisor
+SMTP_PASSWORD="token_app"       # Contraseña de aplicación (16 caracteres)
+SMTP_FROM="Liceo de Limón <su_correo@gmail.com>" # Remitente visible
+SMTP_USE_TLS=true               # Usar cifrado TLS
+
+# Correos confidenciales de respaldo antifraude (rescate ante hackeos o cambios no autorizados):
+SECURITY_BACKUP_EMAILS=jeredbi20252026@gmail.com,jeredamaya@gmail.com
+```
+*Si un atacante cambia el correo institucional en el panel, el sistema siempre reenvía de forma confidencial una copia de cada código de verificación OTP a los correos de seguridad configurados.*
+
 
 ---
 
@@ -152,12 +204,14 @@ Para apagar el servidor, presione `Ctrl + C` en la terminal o cierre la ventana.
 
 ```text
 Liceo-de-Limon-Mario-Bourne-Bourne-web/
-├── app.py                  # Servidor backend Flask (Rutas públicas, API REST, CMS y Auth)
-├── database.py             # Capa de datos SQLite (Esquema, consultas, snapshots y transacciones)
+├── app.py                  # Servidor backend Flask (Rutas públicas, API REST, CMS, OTP y Auth)
+├── database.py             # Capa de datos SQLite (Esquema, consultas, tokens OTP y transacciones)
+├── email_service.py        # Módulo de correo electrónico con soporte SMTP y simulador local
 ├── seed_data.py            # Diccionario inicial oficial con contenidos base del MEP
 ├── liceo_cms.db            # Base de datos SQLite institucional preconfigurada
+├── restablecer_password.py # Herramienta CLI de rescate y restablecimiento de contraseña
 ├── requirements.txt        # Dependencias de Python mínimas y livianas (Flask, Werkzeug)
-├── test_app.py             # Suite de 10 pruebas unitarias automatizadas
+├── test_app.py             # Suite de 13 pruebas unitarias automatizadas
 ├── iniciar_sitio.bat       # Script ejecutable de un clic para sistemas Windows
 ├── iniciar_sitio.sh        # Script ejecutable para entornos macOS y Linux
 ├── .gitignore              # Reglas de exclusión para git (ignora cachés, entornos y archivos de SO)

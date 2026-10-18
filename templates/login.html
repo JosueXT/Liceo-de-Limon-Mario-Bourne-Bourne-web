@@ -161,6 +161,193 @@
     .back-home-link:hover {
       color: var(--azul-dark);
     }
+
+    /* Estilos del Modal de Restablecimiento de Contraseña */
+    .reset-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(8, 25, 46, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .reset-modal-backdrop.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .reset-modal-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--blanco);
+      color: var(--gris-800);
+      border-radius: var(--radius-xl);
+      padding: 2.25rem 2rem;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      text-align: left;
+      transform: scale(0.92);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .reset-modal-backdrop.active .reset-modal-card {
+      transform: scale(1);
+    }
+
+    .reset-modal-close-btn {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: var(--gris-100);
+      border: none;
+      color: var(--gris-600);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 700;
+      transition: all var(--transition-fast);
+    }
+
+    .reset-modal-close-btn:hover {
+      background: #fee2e2;
+      color: #991b1b;
+      transform: rotate(90deg);
+    }
+
+    .reset-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .reset-modal-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--azul) 0%, var(--vino) 100%);
+      color: var(--blanco);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      flex-shrink: 0;
+      box-shadow: 0 6px 16px rgba(128, 0, 32, 0.25);
+    }
+
+    .reset-modal-title {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--azul-dark);
+      margin: 0;
+    }
+
+    .reset-modal-subtitle {
+      font-size: 0.825rem;
+      color: var(--gris-500);
+      margin: 0.2rem 0 0 0;
+    }
+
+    .reset-info-box {
+      background: rgba(30, 58, 138, 0.06);
+      border: 1px solid rgba(30, 58, 138, 0.15);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      font-size: 0.825rem;
+      color: var(--azul-dark);
+      line-height: 1.45;
+      margin-bottom: 1.25rem;
+    }
+
+    .reset-alert {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.1rem;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .reset-alert.error {
+      background: #fee2e2;
+      border: 1px solid #f87171;
+      color: #991b1b;
+      display: block;
+    }
+
+    .reset-alert.success {
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      color: #166534;
+      display: block;
+    }
+
+    /* Pestañas de Métodos de Recuperación */
+    .reset-nav-tabs {
+      display: flex;
+      gap: 0.4rem;
+      border-bottom: 2px solid var(--gris-200);
+      margin-bottom: 1.25rem;
+    }
+
+    .reset-tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 0.65rem 0.5rem;
+      font-family: var(--font-heading);
+      font-size: 0.825rem;
+      font-weight: 700;
+      color: var(--gris-500);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .reset-tab-btn:hover {
+      color: var(--azul-dark);
+    }
+
+    .reset-tab-btn.active {
+      color: var(--azul-dark);
+      border-bottom-color: var(--azul);
+      background: rgba(30, 58, 138, 0.04);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    }
+
+    .otp-code-input {
+      font-family: 'Courier New', monospace;
+      font-size: 1.4rem !important;
+      letter-spacing: 0.45rem;
+      text-align: center;
+      font-weight: 800;
+      color: var(--vino);
+    }
   </style>
 </head>
 <body class="login-page-body">
@@ -220,7 +407,14 @@
           </div>
         </div>
 
-        <button type="submit" id="loginSubmitBtn" class="btn btn-vino btn-lg" style="width: 100%; margin-top: 1rem;">
+        <!-- Enlace para restablecer contraseña -->
+        <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem; margin-bottom: 1.25rem;">
+          <a href="javascript:void(0)" id="btnOpenForgotModal" style="color: var(--azul); font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; transition: color var(--transition-fast);">
+            🔑 ¿Olvidó su contraseña?
+          </a>
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="btn btn-vino btn-lg" style="width: 100%; margin-top: 0.25rem;">
           Ingresar al Panel Administrativo
         </button>
       </form>
@@ -231,8 +425,186 @@
     </div>
   </main>
 
+  <!-- =====================================================================
+       MODAL DE RECUPERACIÓN / RESTABLECIMIENTO DE CONTRASEÑA (DUAL: OTP & CLAVE)
+       ===================================================================== -->
+  <div class="reset-modal-backdrop" id="resetPasswordModal" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle">
+    <div class="reset-modal-card">
+      <button type="button" class="reset-modal-close-btn" id="btnCloseResetModal" aria-label="Cerrar modal">&times;</button>
+      
+      <div class="reset-modal-header">
+        <div class="reset-modal-icon">🔐</div>
+        <div>
+          <h2 class="reset-modal-title" id="resetModalTitle">Restablecer Contraseña</h2>
+          <p class="reset-modal-subtitle">Sistema Institucional de Rescate MEP</p>
+        </div>
+      </div>
+
+      <!-- Selector de Método: Pestañas -->
+      <div class="reset-nav-tabs">
+        <button type="button" class="reset-tab-btn active" id="tabBtnOtp" onclick="switchResetMethod('otp')">
+          <span>📨</span> Código por Correo (OTP)
+        </button>
+        <button type="button" class="reset-tab-btn" id="tabBtnKey" onclick="switchResetMethod('key')">
+          <span>🛡️</span> Clave Maestra Fija
+        </button>
+      </div>
+
+      <div class="reset-alert" id="resetModalAlert"></div>
+
+      <!-- ================= MÉTODO 1: CÓDIGO POR CORREO ELECTRÓNICO (OTP) ================= -->
+      <div id="methodOtpContainer">
+        <div class="reset-info-box">
+          <strong>📨 Envío de Código de Un Solo Uso:</strong><br>
+          Enviaremos un código numérico temporal de 6 dígitos (válido por 15 minutos) al correo institucional oficial configurado en el sistema.
+        </div>
+
+        <!-- Paso A: Solicitar Código -->
+        <div id="otpStepRequest" style="margin-bottom: 1.25rem;">
+          <div class="form-group" style="text-align: left; margin-bottom: 0.85rem;">
+            <label class="form-label" for="otpUsername">Usuario a Restablecer</label>
+            <input type="text" id="otpUsername" class="form-control" placeholder="Ej: Admin" autocomplete="off">
+          </div>
+          <button type="button" id="btnRequestOtp" class="btn btn-azul" style="width: 100%;">
+            📨 Enviar Código al Correo Institucional
+          </button>
+        </div>
+
+        <!-- Paso B: Validar Código y Crear Nueva Contraseña -->
+        <form id="otpVerifyForm" autocomplete="off" style="display: none;">
+          <div class="form-group" style="text-align: left; margin-bottom: 1.1rem;">
+            <label class="form-label" for="resetOtpCode">
+              <strong>Código de Verificación (6 dígitos)</strong>
+            </label>
+            <input type="text" id="resetOtpCode" class="form-control otp-code-input" maxlength="6" required placeholder="••••••" autocomplete="one-time-code">
+            <span style="font-size: 0.775rem; color: var(--gris-500); display: block; margin-top: 0.25rem; text-align: center;">
+              Revise su bandeja de entrada (y carpeta de spam). <a href="javascript:void(0)" id="btnResendOtp" style="color: var(--azul); font-weight: 600;">Reenviar código</a>
+            </span>
+          </div>
+
+          <div class="form-group" style="text-align: left; margin-bottom: 1.1rem;">
+            <label class="form-label" for="otpNewPass">Nueva Contraseña</label>
+            <div class="password-field-wrapper">
+              <input type="password" id="otpNewPass" class="form-control" required placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+              <button type="button" class="password-toggle-btn" onclick="toggleFieldVis('otpNewPass', this)" title="Ver u ocultar contraseña" tabindex="-1">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group" style="text-align: left; margin-bottom: 1.35rem;">
+            <label class="form-label" for="otpConfirmPass">Confirmar Nueva Contraseña</label>
+            <div class="password-field-wrapper">
+              <input type="password" id="otpConfirmPass" class="form-control" required placeholder="Repita la nueva contraseña" autocomplete="new-password">
+              <button type="button" class="password-toggle-btn" onclick="toggleFieldVis('otpConfirmPass', this)" title="Ver u ocultar contraseña" tabindex="-1">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" onclick="closeResetModal()">Cancelar</button>
+            <button type="submit" id="btnSubmitOtpReset" class="btn btn-vino">💾 Validar y Cambiar Contraseña</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ================= MÉTODO 2: CLAVE MAESTRA INSTITUCIONAL INMUTABLE ================= -->
+      <div id="methodKeyContainer" style="display: none;">
+        <div class="reset-info-box">
+          <strong>🛡️ Clave Maestra Protegida e Inmutable:</strong><br>
+          Para emergencias sin acceso a correo, ingrese la Clave Maestra Institucional permanente del Liceo: <code>MEP-LIMON-2026</code>.
+        </div>
+
+        <form id="keyResetForm" autocomplete="off">
+          <div class="form-group" style="text-align: left; margin-bottom: 1.1rem;">
+            <label class="form-label" for="keyUsername">Usuario a Restablecer</label>
+            <input type="text" id="keyUsername" class="form-control" required placeholder="Ej: Admin" autocomplete="off">
+          </div>
+
+          <div class="form-group" style="text-align: left; margin-bottom: 1.1rem;">
+            <label class="form-label" for="keyRecoveryKey">Clave Maestra Institucional</label>
+            <div class="password-field-wrapper">
+              <input type="password" id="keyRecoveryKey" class="form-control" required placeholder="Ingrese clave maestra" autocomplete="off">
+              <button type="button" class="password-toggle-btn" onclick="toggleFieldVis('keyRecoveryKey', this)" title="Ver u ocultar clave" tabindex="-1">
+                👁️
+              </button>
+            </div>
+            <span style="font-size: 0.775rem; color: var(--gris-500); display: block; margin-top: 0.25rem;">
+              Clave oficial fija: <code>MEP-LIMON-2026</code> (no se puede cambiar para evitar accidentes).
+            </span>
+          </div>
+
+          <div class="form-group" style="text-align: left; margin-bottom: 1.1rem;">
+            <label class="form-label" for="keyNewPass">Nueva Contraseña</label>
+            <div class="password-field-wrapper">
+              <input type="password" id="keyNewPass" class="form-control" required placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+              <button type="button" class="password-toggle-btn" onclick="toggleFieldVis('keyNewPass', this)" title="Ver u ocultar contraseña" tabindex="-1">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group" style="text-align: left; margin-bottom: 1.35rem;">
+            <label class="form-label" for="keyConfirmPass">Confirmar Nueva Contraseña</label>
+            <div class="password-field-wrapper">
+              <input type="password" id="keyConfirmPass" class="form-control" required placeholder="Repita la nueva contraseña" autocomplete="new-password">
+              <button type="button" class="password-toggle-btn" onclick="toggleFieldVis('keyConfirmPass', this)" title="Ver u ocultar contraseña" tabindex="-1">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" onclick="closeResetModal()">Cancelar</button>
+            <button type="submit" id="btnSubmitKeyReset" class="btn btn-vino">💾 Restablecer Contraseña</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
   <script>
+    // Función global para alternar visibilidad de campos de contraseña
+    function toggleFieldVis(fieldId, btn) {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
+      const isPass = field.type === 'password';
+      field.type = isPass ? 'text' : 'password';
+      btn.innerText = isPass ? '🙈' : '👁️';
+    }
+
+    // Alternar entre los métodos de recuperación (OTP por correo vs Clave Maestra)
+    function switchResetMethod(method) {
+      const tabOtp = document.getElementById('tabBtnOtp');
+      const tabKey = document.getElementById('tabBtnKey');
+      const containerOtp = document.getElementById('methodOtpContainer');
+      const containerKey = document.getElementById('methodKeyContainer');
+      const alertBox = document.getElementById('resetModalAlert');
+
+      alertBox.style.display = 'none';
+
+      if (method === 'otp') {
+        tabOtp.classList.add('active');
+        tabKey.classList.remove('active');
+        containerOtp.style.display = 'block';
+        containerKey.style.display = 'none';
+      } else {
+        tabKey.classList.add('active');
+        tabOtp.classList.remove('active');
+        containerKey.style.display = 'block';
+        containerOtp.style.display = 'none';
+      }
+    }
+
+    function closeResetModal() {
+      const resetModal = document.getElementById('resetPasswordModal');
+      if (resetModal) resetModal.classList.remove('active');
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      // 1. Elementos del Login Principal
       const form = document.getElementById('standaloneLoginForm');
       const userInput = document.getElementById('loginUsername');
       const passInput = document.getElementById('loginPassword');
@@ -242,11 +614,36 @@
       const eyeOpen = document.getElementById('eyeIconOpen');
       const eyeClosed = document.getElementById('eyeIconClosed');
 
+      // 2. Elementos del Modal
+      const btnOpenForgot = document.getElementById('btnOpenForgotModal');
+      const resetModal = document.getElementById('resetPasswordModal');
+      const btnCloseReset = document.getElementById('btnCloseResetModal');
+      const resetAlert = document.getElementById('resetModalAlert');
+
+      // Elementos del Método OTP
+      const otpUser = document.getElementById('otpUsername');
+      const btnRequestOtp = document.getElementById('btnRequestOtp');
+      const btnResendOtp = document.getElementById('btnResendOtp');
+      const otpStepRequest = document.getElementById('otpStepRequest');
+      const otpVerifyForm = document.getElementById('otpVerifyForm');
+      const resetOtpCode = document.getElementById('resetOtpCode');
+      const otpNewPass = document.getElementById('otpNewPass');
+      const otpConfirmPass = document.getElementById('otpConfirmPass');
+      const btnSubmitOtp = document.getElementById('btnSubmitOtpReset');
+
+      // Elementos del Método Clave Maestra
+      const keyResetForm = document.getElementById('keyResetForm');
+      const keyUser = document.getElementById('keyUsername');
+      const keyRecoveryKey = document.getElementById('keyRecoveryKey');
+      const keyNewPass = document.getElementById('keyNewPass');
+      const keyConfirmPass = document.getElementById('keyConfirmPass');
+      const btnSubmitKey = document.getElementById('btnSubmitKeyReset');
+
       // Limpiar proactivamente cualquier autocompletado en caché del navegador
       if (userInput) userInput.value = '';
       if (passInput) passInput.value = '';
 
-      // Mostrar u ocultar la contraseña de forma segura
+      // Mostrar u ocultar la contraseña de forma segura en el login
       if (toggleBtn && passInput) {
         toggleBtn.addEventListener('click', () => {
           const isPass = passInput.type === 'password';
@@ -259,6 +656,7 @@
         });
       }
 
+      // Manejador del Login Principal
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = userInput.value.trim();
@@ -286,6 +684,9 @@
           } else {
             errorBox.innerText = data.message || 'Usuario o contraseña incorrectos.';
             errorBox.style.display = 'block';
+            errorBox.style.background = '#fee2e2';
+            errorBox.style.borderColor = '#f87171';
+            errorBox.style.color = '#991b1b';
             submitBtn.disabled = false;
             submitBtn.innerText = 'Ingresar al Panel Administrativo';
           }
@@ -296,6 +697,280 @@
           submitBtn.innerText = 'Ingresar al Panel Administrativo';
         }
       });
+
+      // 3. Apertura del Modal de Restablecimiento
+      function openResetModal() {
+        resetAlert.style.display = 'none';
+        resetAlert.className = 'reset-alert';
+        resetAlert.innerText = '';
+
+        const currentVal = (userInput && userInput.value.trim()) ? userInput.value.trim() : 'Admin';
+        if (otpUser) otpUser.value = currentVal;
+        if (keyUser) keyUser.value = currentVal;
+
+        // Resetear vistas de OTP
+        if (otpStepRequest) otpStepRequest.style.display = 'block';
+        if (otpVerifyForm) otpVerifyForm.style.display = 'none';
+        if (btnRequestOtp) {
+          btnRequestOtp.disabled = false;
+          btnRequestOtp.innerText = '📨 Enviar Código al Correo Institucional';
+        }
+
+        switchResetMethod('otp');
+        resetModal.classList.add('active');
+      }
+
+      if (btnOpenForgot) {
+        btnOpenForgot.addEventListener('click', (e) => {
+          e.preventDefault();
+          openResetModal();
+        });
+      }
+
+      if (btnCloseReset) btnCloseReset.addEventListener('click', closeResetModal);
+
+      // Cerrar al hacer clic fuera de la tarjeta
+      resetModal.addEventListener('click', (e) => {
+        if (e.target === resetModal) closeResetModal();
+      });
+
+      // Cerrar con Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && resetModal.classList.contains('active')) {
+          closeResetModal();
+        }
+      });
+
+      // 4. LÓGICA DE SOLICITUD DE OTP POR CORREO
+      async function handleRequestOtp() {
+        const username = otpUser.value.trim() || 'Admin';
+        btnRequestOtp.disabled = true;
+        btnRequestOtp.innerText = 'Enviando código...';
+        resetAlert.style.display = 'none';
+
+        try {
+          const res = await fetch('/api/auth/request-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username })
+          });
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            resetAlert.className = 'reset-alert success';
+            resetAlert.innerText = data.message || 'Código enviado al correo.';
+            resetAlert.style.display = 'block';
+
+            // Mostrar el formulario para introducir el código y la nueva contraseña
+            otpVerifyForm.style.display = 'block';
+            setTimeout(() => resetOtpCode.focus(), 150);
+
+            // Temporizador de reenvío de 60 segundos
+            let countdown = 60;
+            btnRequestOtp.innerText = `Reenviar en ${countdown}s`;
+            const interval = setInterval(() => {
+              countdown--;
+              if (countdown > 0) {
+                btnRequestOtp.innerText = `Reenviar en ${countdown}s`;
+              } else {
+                clearInterval(interval);
+                btnRequestOtp.disabled = false;
+                btnRequestOtp.innerText = '📨 Reenviar Código al Correo';
+              }
+            }, 1000);
+          } else {
+            resetAlert.className = 'reset-alert error';
+            resetAlert.innerText = data.message || 'No fue posible enviar el código.';
+            resetAlert.style.display = 'block';
+            btnRequestOtp.disabled = false;
+            btnRequestOtp.innerText = '📨 Enviar Código al Correo Institucional';
+          }
+        } catch (err) {
+          resetAlert.className = 'reset-alert error';
+          resetAlert.innerText = 'Error de conexión con el servidor al solicitar código.';
+          resetAlert.style.display = 'block';
+          btnRequestOtp.disabled = false;
+          btnRequestOtp.innerText = '📨 Enviar Código al Correo Institucional';
+        }
+      }
+
+      if (btnRequestOtp) btnRequestOtp.addEventListener('click', handleRequestOtp);
+      if (btnResendOtp) {
+        btnResendOtp.addEventListener('click', (e) => {
+          e.preventDefault();
+          handleRequestOtp();
+        });
+      }
+
+      // 5. VALIDACIÓN DE OTP Y ACTUALIZACIÓN DE CONTRASEÑA
+      if (otpVerifyForm) {
+        otpVerifyForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const username = otpUser.value.trim() || 'Admin';
+          const otp = resetOtpCode.value.trim();
+          const new_password = otpNewPass.value.trim();
+          const confirm_password = otpConfirmPass.value.trim();
+
+          resetAlert.style.display = 'none';
+
+          if (!otp || otp.length !== 6) {
+            resetAlert.className = 'reset-alert error';
+            resetAlert.innerText = 'Por favor ingrese el código completo de 6 dígitos.';
+            resetAlert.style.display = 'block';
+            return;
+          }
+
+          if (new_password.length < 4) {
+            resetAlert.className = 'reset-alert error';
+            resetAlert.innerText = 'La nueva contraseña debe tener un mínimo de 4 caracteres.';
+            resetAlert.style.display = 'block';
+            return;
+          }
+
+          if (new_password !== confirm_password) {
+            resetAlert.className = 'reset-alert error';
+            resetAlert.innerText = 'Las nuevas contraseñas no coinciden. Verifique ambas casillas.';
+            resetAlert.style.display = 'block';
+            return;
+          }
+
+          btnSubmitOtp.disabled = true;
+          btnSubmitOtp.innerText = 'Validando código...';
+
+          try {
+            const res = await fetch('/api/auth/reset-password-otp', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, otp, new_password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+              resetAlert.className = 'reset-alert success';
+              resetAlert.innerText = data.message || '¡Contraseña restablecida exitosamente!';
+              resetAlert.style.display = 'block';
+              btnSubmitOtp.innerText = '✓ Restablecida';
+              btnSubmitOtp.style.background = '#10b981';
+
+              setTimeout(() => {
+                closeResetModal();
+                if (userInput) userInput.value = username;
+                if (passInput) passInput.value = new_password;
+
+                errorBox.style.display = 'block';
+                errorBox.style.background = '#dcfce7';
+                errorBox.style.borderColor = '#86efac';
+                errorBox.style.color = '#166534';
+                errorBox.innerText = '✓ ¡Contraseña restablecida con éxito mediante código! Ingrese presionando el botón.';
+
+                btnSubmitOtp.disabled = false;
+                btnSubmitOtp.innerText = '💾 Validar y Cambiar Contraseña';
+                btnSubmitOtp.style.background = '';
+              }, 1200);
+            } else {
+              resetAlert.className = 'reset-alert error';
+              resetAlert.innerText = data.message || 'Código incorrecto o expirado.';
+              resetAlert.style.display = 'block';
+              btnSubmitOtp.disabled = false;
+              btnSubmitOtp.innerText = '💾 Validar y Cambiar Contraseña';
+            }
+          } catch (err) {
+            resetAlert.className = 'reset-alert error';
+            resetAlert.innerText = 'Error de conexión con el servidor.';
+            resetAlert.style.display = 'block';
+            btnSubmitOtp.disabled = false;
+            btnSubmitOtp.innerText = '💾 Validar y Cambiar Contraseña';
+          }
+        });
+      }
+
+      // 6. MÉTODO CON CLAVE MAESTRA INSTITUCIONAL INMUTABLE
+      if (keyResetForm) {
+        keyResetForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const username = keyUser.value.trim() || 'Admin';
+          const recovery_key = keyRecoveryKey.value.trim();
+          const new_password = keyNewPass.value.trim();
+          const confirm_password = keyConfirmPass.value.trim();
+
+          resetAlert.style.display = 'none';
+
+          if (!recovery_key) {
+            resetAlert.className = 'reset-alert error';
+            resetAlert.innerText = 'Por favor ingrese la Clave Maestra Institucional.';
+            resetAlert.style.display = 'block';
+            return;
+          }
+
+          if (new_password.length < 4) {
+            resetAlert.className = 'reset-alert error';
+            resetAlert.innerText = 'La nueva contraseña debe tener un mínimo de 4 caracteres.';
+            resetAlert.style.display = 'block';
+            return;
+          }
+
+          if (new_password !== confirm_password) {
+            resetAlert.className = 'reset-alert error';
+            resetAlert.innerText = 'Las nuevas contraseñas no coinciden.';
+            resetAlert.style.display = 'block';
+            return;
+          }
+
+          btnSubmitKey.disabled = true;
+          btnSubmitKey.innerText = 'Validando clave maestra...';
+
+          try {
+            const res = await fetch('/api/auth/reset-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: username,
+                recovery_key: recovery_key,
+                new_password: new_password
+              })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+              resetAlert.className = 'reset-alert success';
+              resetAlert.innerText = data.message || '¡Contraseña restablecida exitosamente!';
+              resetAlert.style.display = 'block';
+              btnSubmitKey.innerText = '✓ Restablecida';
+              btnSubmitKey.style.background = '#10b981';
+
+              setTimeout(() => {
+                closeResetModal();
+                if (userInput) userInput.value = username;
+                if (passInput) passInput.value = new_password;
+
+                errorBox.style.display = 'block';
+                errorBox.style.background = '#dcfce7';
+                errorBox.style.borderColor = '#86efac';
+                errorBox.style.color = '#166534';
+                errorBox.innerText = '✓ ¡Contraseña restablecida con éxito! Ya puede iniciar sesión.';
+
+                btnSubmitKey.disabled = false;
+                btnSubmitKey.innerText = '💾 Restablecer Contraseña';
+                btnSubmitKey.style.background = '';
+              }, 1200);
+            } else {
+              resetAlert.className = 'reset-alert error';
+              resetAlert.innerText = data.message || 'Clave maestra institucional incorrecta.';
+              resetAlert.style.display = 'block';
+              btnSubmitKey.disabled = false;
+              btnSubmitKey.innerText = '💾 Restablecer Contraseña';
+            }
+          } catch (err) {
+            resetAlert.className = 'reset-alert error';
+            resetAlert.innerText = 'Error de conexión con el servidor.';
+            resetAlert.style.display = 'block';
+            btnSubmitKey.disabled = false;
+            btnSubmitKey.innerText = '💾 Restablecer Contraseña';
+          }
+        });
+      }
     });
   </script>
 </body>

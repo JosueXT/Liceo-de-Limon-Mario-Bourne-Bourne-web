@@ -28,6 +28,11 @@ venv.bak/
 Thumbs.db
 desktop.ini
 
+# Variables de entorno y credenciales sensibles
+.env
+.env.local
+
 # Bases de datos temporales de pruebas unitarias y logs
 test_*.db
 *.log
+

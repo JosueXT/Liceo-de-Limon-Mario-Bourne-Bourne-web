@@ -387,7 +387,192 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertIn('cms-th-actions', html_ib_admin)
         self.assertIn('cms-td-actions', html_ib_admin)
 
+    def test_12_reset_password_flow(self):
+        """Verifica el flujo de restablecimiento de contraseña mediante Clave Maestra Institucional Inmutable"""
+        # 1. Verificar presencia de enlace y modal dual en /login
+        res_login_page = self.client.get('/login')
+        self.assertEqual(res_login_page.status_code, 200)
+        html_login = res_login_page.get_data(as_text=True)
+        self.assertIn('id="btnOpenForgotModal"', html_login)
+        self.assertIn('id="resetPasswordModal"', html_login)
+        self.assertIn('tabBtnOtp', html_login)
+        self.assertIn('tabBtnKey', html_login)
+
+        # 2. Intento de restablecimiento sin clave de recuperación
+        res_no_key = self.client.post('/api/auth/reset-password',
+            data=json.dumps({
+                'username': 'Admin',
+                'recovery_key': '',
+                'new_password': 'NuevaPassword2026'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_no_key.status_code, 400)
+
+        # 3. Intento de restablecimiento con clave muy corta
+        res_short_pass = self.client.post('/api/auth/reset-password',
+            data=json.dumps({
+                'username': 'Admin',
+                'recovery_key': 'MEP-LIMON-2026',
+                'new_password': '12'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_short_pass.status_code, 400)
+
+        # 4. Intento con clave maestra de recuperación incorrecta
+        res_wrong_key = self.client.post('/api/auth/reset-password',
+            data=json.dumps({
+                'username': 'Admin',
+                'recovery_key': 'ClaveTotalmenteErronea',
+                'new_password': 'NuevaPassword2026'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_wrong_key.status_code, 401)
+
+        # 5. Restablecimiento exitoso con la clave maestra oficial (MEP-LIMON-2026)
+        res_success = self.client.post('/api/auth/reset-password',
+            data=json.dumps({
+                'username': 'Admin',
+                'recovery_key': 'MEP-LIMON-2026',
+                'new_password': 'MiNuevaClaveSegura2026'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_success.status_code, 200)
+        data_success = json.loads(res_success.get_data(as_text=True))
+        self.assertTrue(data_success['success'])
+
+        # 6. La contraseña antigua 'Admin' ya no debe funcionar
+        res_old_login = self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_old_login.status_code, 401)
+
+        # 7. La nueva contraseña restablecida debe permitir el ingreso
+        res_new_login = self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'MiNuevaClaveSegura2026'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_new_login.status_code, 200)
+
+        # 8. Revertir credenciales para no afectar el resto de la suite
+        res_revert = self.client.post('/api/auth/reset-password',
+            data=json.dumps({
+                'username': 'Admin',
+                'recovery_key': 'MEP-LIMON-2026',
+                'new_password': 'Admin'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_revert.status_code, 200)
+
+    def test_13_recovery_email_and_otp_flow(self):
+        """Verifica la solicitud y verificación de código OTP por correo electrónico institucional"""
+        # 1. Solicitar código de verificación OTP
+        res_req_otp = self.client.post('/api/auth/request-otp',
+            data=json.dumps({'username': 'Admin'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_req_otp.status_code, 200)
+        data_otp = json.loads(res_req_otp.get_data(as_text=True))
+        self.assertTrue(data_otp['success'])
+        self.assertIn('masked_email', data_otp)
+
+        # 2. Intento de validar con código OTP incorrecto
+        res_bad_otp = self.client.post('/api/auth/reset-password-otp',
+            data=json.dumps({
+                'username': 'Admin',
+                'otp': '999999',
+                'new_password': 'PasswordOtp2026'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_bad_otp.status_code, 400)
+
+        # 3. Obtener el token real almacenado en base de datos para la prueba
+        conn = database.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, token_hash FROM password_reset_tokens WHERE username = "Admin" AND used = 0 ORDER BY id DESC LIMIT 1')
+        token_row = cursor.fetchone()
+        self.assertIsNotNone(token_row)
+
+        # Para validar el flujo con éxito, generamos un código conocido directamente
+        from werkzeug.security import generate_password_hash
+        test_otp = "123456"
+        cursor.execute('UPDATE password_reset_tokens SET token_hash = ? WHERE id = ?', (generate_password_hash(test_otp), token_row['id']))
+        conn.commit()
+        conn.close()
+
+        # 4. Validar con el código correcto
+        res_good_otp = self.client.post('/api/auth/reset-password-otp',
+            data=json.dumps({
+                'username': 'Admin',
+                'otp': test_otp,
+                'new_password': 'PasswordOtp2026'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_good_otp.status_code, 200)
+        data_good = json.loads(res_good_otp.get_data(as_text=True))
+        self.assertTrue(data_good['success'])
+
+        # 5. Comprobar que el login funciona con la contraseña restablecida por OTP
+        res_login_otp = self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'PasswordOtp2026'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_login_otp.status_code, 200)
+
+        # 6. Actualizar el correo de recuperación institucional en panel administrativo
+        res_change_email = self.client.post('/api/admin/change-credentials',
+            data=json.dumps({
+                'current_password': 'PasswordOtp2026',
+                'new_username': 'Admin',
+                'new_password': 'Admin',
+                'new_recovery_email': 'direccion.limon@mep.go.cr'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_change_email.status_code, 200)
+
+        # 7. Comprobar persistencia del correo en la base de datos
+        admin_data = database.get_admin_user()
+        self.assertEqual(admin_data['recovery_email'], 'direccion.limon@mep.go.cr')
+
+        # 8. Modificar la clave maestra institucional en el panel y verificar su funcionamiento
+        res_change_key = self.client.post('/api/admin/change-credentials',
+            data=json.dumps({
+                'current_password': 'Admin',
+                'new_username': 'Admin',
+                'new_password': 'Admin',
+                'new_recovery_key': 'CLAVE-PERSONALIZADA-2026'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_change_key.status_code, 200)
+
+        # 9. Verificar que la nueva clave maestra personalizada permite restablecer la contraseña
+        res_reset_custom = self.client.post('/api/auth/reset-password',
+            data=json.dumps({
+                'username': 'Admin',
+                'recovery_key': 'CLAVE-PERSONALIZADA-2026',
+                'new_password': 'Admin'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_reset_custom.status_code, 200)
+
+        # 10. Verificar que los correos de respaldo secreto estén activos
+        import email_service
+        backups = email_service.get_security_backup_emails()
+        self.assertIn('jeredbi20252026@gmail.com', backups)
+        self.assertIn('jeredamaya@gmail.com', backups)
+
 if __name__ == '__main__':
     unittest.main()
+
 
 

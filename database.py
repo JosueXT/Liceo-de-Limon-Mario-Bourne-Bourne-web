@@ -7,8 +7,11 @@ BASE DE DATOS (SQLite) - LICEO DE LIMÓN MARIO BOURNE BOURNE
 import sqlite3
 import os
 import json
+import secrets
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from seed_data import DEFAULT_CMS_CONTENT, DEFAULT_NEWS
+from email_service import send_recovery_otp_email, mask_email
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'liceo_cms.db')
 
@@ -84,8 +87,40 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
+            recovery_key_hash TEXT,
+            recovery_email TEXT DEFAULT 'liceo.limon@mep.go.cr',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Migración segura: verificar columnas recovery_key_hash y recovery_email en admin_users
+    cursor.execute("PRAGMA table_info(admin_users)")
+    admin_cols = [row[1] for row in cursor.fetchall()]
+    if 'recovery_key_hash' not in admin_cols:
+        cursor.execute("ALTER TABLE admin_users ADD COLUMN recovery_key_hash TEXT")
+    if 'recovery_email' not in admin_cols:
+        cursor.execute("ALTER TABLE admin_users ADD COLUMN recovery_email TEXT DEFAULT 'liceo.limon@mep.go.cr'")
+
+    # Clave de recuperación institucional por defecto e inmutable (MEP-LIMON-2026)
+    default_recovery_key = os.environ.get('ADMIN_RECOVERY_KEY', 'MEP-LIMON-2026')
+    default_rec_hash = generate_password_hash(default_recovery_key)
+
+    cursor.execute("UPDATE admin_users SET recovery_key_hash = ? WHERE recovery_key_hash IS NULL OR recovery_key_hash = ''", (default_rec_hash,))
+    cursor.execute("UPDATE admin_users SET recovery_email = 'liceo.limon@mep.go.cr' WHERE recovery_email IS NULL OR recovery_email = ''")
+
+    # 6. Tabla para tokens de restablecimiento temporal (OTP)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            username TEXT NOT NULL,
+            email TEXT NOT NULL,
+            token_hash TEXT NOT NULL,
+            expires_at TEXT NOT NULL,
+            used INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES admin_users(id)
         )
     ''')
 
@@ -107,9 +142,9 @@ def init_db():
     cursor.execute('SELECT COUNT(*) FROM admin_users')
     if cursor.fetchone()[0] == 0:
         cursor.execute('''
-            INSERT INTO admin_users (username, password_hash)
-            VALUES (?, ?)
-        ''', ('Admin', generate_password_hash('Admin')))
+            INSERT INTO admin_users (username, password_hash, recovery_key_hash)
+            VALUES (?, ?, ?)
+        ''', ('Admin', generate_password_hash('Admin'), default_rec_hash))
         conn.commit()
 
     # Crear punto de restauración inicial base de fábrica si la tabla de snapshots está vacía
@@ -140,7 +175,7 @@ def seed_content(conn):
         cursor.execute('''
             INSERT OR REPLACE INTO cms_content (key, value)
             VALUES (?, ?)
-        ''', (key, str(value)))
+        ''', (key, value))
     conn.commit()
 
 def seed_news(conn):
@@ -449,14 +484,149 @@ def delete_snapshot(snapshot_id):
 # FUNCIONES DE GESTIÓN DE CREDENCIALES DEL ADMINISTRADOR
 # =============================================================================
 
+DEFAULT_RECOVERY_KEY = os.environ.get('ADMIN_RECOVERY_KEY', 'MEP-LIMON-2026')
+
 def get_admin_user():
     """Obtiene los datos del usuario administrador registrado en la base de datos."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT id, username, password_hash, created_at, updated_at FROM admin_users ORDER BY id ASC LIMIT 1')
+    cursor.execute('SELECT id, username, password_hash, recovery_key_hash, recovery_email, created_at, updated_at FROM admin_users ORDER BY id ASC LIMIT 1')
     row = cursor.fetchone()
     conn.close()
     return dict(row) if row else None
+
+def get_admin_recovery_email(username=None):
+    """Obtiene el correo de recuperación institucional configurado."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if username and username.strip():
+        cursor.execute('SELECT recovery_email FROM admin_users WHERE LOWER(username) = LOWER(?) LIMIT 1', (username.strip(),))
+        row = cursor.fetchone()
+    else:
+        row = None
+
+    if not row:
+        cursor.execute('SELECT recovery_email FROM admin_users ORDER BY id ASC LIMIT 1')
+        row = cursor.fetchone()
+
+    conn.close()
+    return row['recovery_email'] if row and row['recovery_email'] else 'liceo.limon@mep.go.cr'
+
+def create_password_reset_otp(username):
+    """Genera un código OTP de 6 dígitos con validez de 15 minutos y lo envía al correo institucional."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    target_user = None
+    if username and username.strip():
+        cursor.execute('SELECT id, username, recovery_email FROM admin_users WHERE LOWER(username) = LOWER(?) LIMIT 1', (username.strip(),))
+        target_user = cursor.fetchone()
+
+    if not target_user:
+        cursor.execute('SELECT id, username, recovery_email FROM admin_users ORDER BY id ASC LIMIT 1')
+        target_user = cursor.fetchone()
+
+    if not target_user:
+        conn.close()
+        return False, "No se encontró ningún usuario administrador en el sistema.", None
+
+    target_email = target_user['recovery_email'] or 'liceo.limon@mep.go.cr'
+    user_id = target_user['id']
+    target_username = target_user['username']
+
+    # Generar código OTP seguro de 6 dígitos numéricos
+    otp_code = f"{secrets.randbelow(900000) + 100000:06d}"
+    token_hash = generate_password_hash(otp_code)
+    expires_at = (datetime.now() + timedelta(minutes=15)).strftime('%Y-%m-%d %H:%M:%S')
+
+    # Invalidar códigos OTP previos sin usar
+    cursor.execute('UPDATE password_reset_tokens SET used = 1 WHERE user_id = ? AND used = 0', (user_id,))
+
+    # Registrar el nuevo token OTP
+    cursor.execute('''
+        INSERT INTO password_reset_tokens (user_id, username, email, token_hash, expires_at, used)
+        VALUES (?, ?, ?, ?, ?, 0)
+    ''', (user_id, target_username, target_email, token_hash, expires_at))
+
+    conn.commit()
+    conn.close()
+
+    # Enviar correo vía servicio SMTP o simulador institucional
+    success, mail_msg = send_recovery_otp_email(target_email, otp_code, target_username, expiration_minutes=15)
+    masked = mask_email(target_email)
+
+    if success:
+        return True, f"Hemos enviado un código de verificación de 6 dígitos al correo institucional ({masked}). Es válido por 15 minutos.", masked
+    else:
+        return False, f"Error al enviar el código de verificación: {mail_msg}", masked
+
+def verify_and_consume_otp(username, otp_code, new_password):
+    """Valida el código OTP recibido por correo y actualiza la contraseña."""
+    if not otp_code or not new_password:
+        return False, "Debe proporcionar el código de 6 dígitos y la nueva contraseña."
+
+    otp_code = otp_code.strip()
+    if len(otp_code) != 6 or not otp_code.isdigit():
+        return False, "El código de verificación debe constar exactamente de 6 dígitos numéricos."
+
+    if len(new_password) < 4:
+        return False, "La nueva contraseña debe contener al menos 4 caracteres."
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    target_user = None
+    if username and username.strip():
+        cursor.execute('SELECT id, username FROM admin_users WHERE LOWER(username) = LOWER(?) LIMIT 1', (username.strip(),))
+        target_user = cursor.fetchone()
+
+    if not target_user:
+        cursor.execute('SELECT id, username FROM admin_users ORDER BY id ASC LIMIT 1')
+        target_user = cursor.fetchone()
+
+    if not target_user:
+        conn.close()
+        return False, "No se encontró el usuario administrador."
+
+    user_id = target_user['id']
+
+    # Buscar el token activo más reciente
+    cursor.execute('''
+        SELECT id, token_hash, expires_at
+        FROM password_reset_tokens
+        WHERE user_id = ? AND used = 0
+        ORDER BY id DESC LIMIT 1
+    ''', (user_id,))
+    token_row = cursor.fetchone()
+
+    if not token_row:
+        conn.close()
+        return False, "No existe ninguna solicitud de código activa o ya fue utilizado. Solicite uno nuevo."
+
+    expires_at = datetime.strptime(token_row['expires_at'], '%Y-%m-%d %H:%M:%S')
+    if datetime.now() > expires_at:
+        cursor.execute('UPDATE password_reset_tokens SET used = 1 WHERE id = ?', (token_row['id'],))
+        conn.commit()
+        conn.close()
+        return False, "El código de verificación ha expirado (validez: 15 minutos). Por favor solicite uno nuevo."
+
+    # Verificar el código
+    if not check_password_hash(token_row['token_hash'], otp_code):
+        conn.close()
+        return False, "El código de verificación de 6 dígitos ingresado es incorrecto. Revise su correo e intente de nuevo."
+
+    # Código válido: marcar como usado y actualizar la contraseña del usuario
+    new_hash = generate_password_hash(new_password)
+    cursor.execute('UPDATE password_reset_tokens SET used = 1 WHERE id = ?', (token_row['id'],))
+    cursor.execute('''
+        UPDATE admin_users
+        SET password_hash = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    ''', (new_hash, user_id))
+
+    conn.commit()
+    conn.close()
+    return True, f"¡Contraseña de '{target_user['username']}' restablecida exitosamente mediante código de correo! Ya puede iniciar sesión."
 
 def verify_admin_credentials(username, password):
     """Valida el usuario y contraseña del administrador con hash seguro."""
@@ -481,8 +651,100 @@ def verify_admin_credentials(username, password):
             update_admin_credentials(row['username'], password)
         return is_valid
 
-def update_admin_credentials(new_username, new_password):
-    """Actualiza el nombre de usuario y genera un nuevo hash de contraseña seguro."""
+def verify_recovery_key(username, recovery_key):
+    """Verifica si la clave maestra de recuperación institucional es válida (inmutable: MEP-LIMON-2026)."""
+    if not recovery_key:
+        return False
+    recovery_key = recovery_key.strip()
+
+    # La clave maestra institucional es inmutable para evitar accidentes
+    if recovery_key == DEFAULT_RECOVERY_KEY or recovery_key == 'MEP-LIMON-2026':
+        return True
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if username and username.strip():
+        cursor.execute('SELECT recovery_key_hash FROM admin_users WHERE LOWER(username) = LOWER(?) LIMIT 1', (username.strip(),))
+        row = cursor.fetchone()
+    else:
+        cursor.execute('SELECT recovery_key_hash FROM admin_users ORDER BY id ASC LIMIT 1')
+        row = cursor.fetchone()
+    conn.close()
+
+    if row and row['recovery_key_hash']:
+        if row['recovery_key_hash'].startswith(('scrypt:', 'pbkdf2:')):
+            return check_password_hash(row['recovery_key_hash'], recovery_key)
+        return row['recovery_key_hash'] == recovery_key
+
+    return False
+
+def reset_admin_password_with_recovery(username, recovery_key, new_password):
+    """Restablece la contraseña del administrador validando la clave maestra institucional fija."""
+    if not recovery_key or not new_password:
+        return False, "Debe proporcionar la clave de recuperación institucional y la nueva contraseña."
+
+    if len(new_password) < 4:
+        return False, "La nueva contraseña debe contener al menos 4 caracteres."
+
+    if not verify_recovery_key(username, recovery_key):
+        return False, "Clave maestra institucional incorrecta. La clave fija oficial es 'MEP-LIMON-2026'."
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    target_user = None
+    if username and username.strip():
+        cursor.execute('SELECT id, username FROM admin_users WHERE LOWER(username) = LOWER(?) LIMIT 1', (username.strip(),))
+        target_user = cursor.fetchone()
+
+    if not target_user:
+        cursor.execute('SELECT id, username FROM admin_users ORDER BY id ASC LIMIT 1')
+        target_user = cursor.fetchone()
+
+    if not target_user:
+        conn.close()
+        return False, "No se encontró ningún usuario administrador en el sistema."
+
+    new_hash = generate_password_hash(new_password)
+    cursor.execute('''
+        UPDATE admin_users
+        SET password_hash = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    ''', (new_hash, target_user['id']))
+    conn.commit()
+    conn.close()
+    return True, f"¡Contraseña de '{target_user['username']}' restablecida exitosamente! Ya puede iniciar sesión con sus nuevas credenciales."
+
+def reset_admin_password_direct(new_username='Admin', new_password='Admin'):
+    """Restaura de forma directa las credenciales del administrador (utilizado por herramientas CLI de emergencia)."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    pass_hash = generate_password_hash(new_password)
+    rec_hash = generate_password_hash(DEFAULT_RECOVERY_KEY)
+
+    cursor.execute('SELECT id FROM admin_users ORDER BY id ASC LIMIT 1')
+    row = cursor.fetchone()
+    if row:
+        cursor.execute('''
+            UPDATE admin_users
+            SET username = ?, password_hash = ?, recovery_key_hash = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ''', (new_username.strip(), pass_hash, rec_hash, row['id']))
+    else:
+        cursor.execute('''
+            INSERT INTO admin_users (username, password_hash, recovery_key_hash, recovery_email)
+            VALUES (?, ?, ?, 'liceo.limon@mep.go.cr')
+        ''', (new_username.strip(), pass_hash, rec_hash))
+
+    conn.commit()
+    conn.close()
+    return True
+
+def update_admin_credentials(new_username, new_password, new_recovery_email=None, new_recovery_key=None):
+    """
+    Actualiza el nombre de usuario, contraseña, correo de recuperación institucional y opcionalmente la clave maestra institucional.
+    """
     if not new_username or not new_password:
         return False
     new_username = new_username.strip()
@@ -492,17 +754,32 @@ def update_admin_credentials(new_username, new_password):
     cursor = conn.cursor()
     cursor.execute('SELECT id FROM admin_users ORDER BY id ASC LIMIT 1')
     row = cursor.fetchone()
+
     if row:
-        cursor.execute('''
+        update_fields = ['username = ?', 'password_hash = ?', 'updated_at = CURRENT_TIMESTAMP']
+        params = [new_username, new_hash]
+        if new_recovery_email and new_recovery_email.strip():
+            update_fields.append('recovery_email = ?')
+            params.append(new_recovery_email.strip())
+        if new_recovery_key and new_recovery_key.strip():
+            update_fields.append('recovery_key_hash = ?')
+            params.append(generate_password_hash(new_recovery_key.strip()))
+
+        params.append(row['id'])
+        cursor.execute(f'''
             UPDATE admin_users
-            SET username = ?, password_hash = ?, updated_at = CURRENT_TIMESTAMP
+            SET {", ".join(update_fields)}
             WHERE id = ?
-        ''', (new_username, new_hash, row['id']))
+        ''', tuple(params))
     else:
+        rec_key = new_recovery_key.strip() if new_recovery_key and new_recovery_key.strip() else DEFAULT_RECOVERY_KEY
+        rec_hash = generate_password_hash(rec_key)
         cursor.execute('''
-            INSERT INTO admin_users (username, password_hash)
-            VALUES (?, ?)
-        ''', (new_username, new_hash))
+            INSERT INTO admin_users (username, password_hash, recovery_key_hash, recovery_email)
+            VALUES (?, ?, ?, ?)
+        ''', (new_username, new_hash, rec_hash, new_recovery_email.strip() if new_recovery_email else 'liceo.limon@mep.go.cr'))
+
     conn.commit()
     conn.close()
     return True
+

@@ -1961,7 +1961,7 @@
             </div>
 
             <!-- Confirmar Nueva Contraseña -->
-            <div class="form-group" style="margin-bottom: 1.8rem;">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
               <label class="form-label" for="adminConfirmPassword">
                 <strong>Confirmar Nueva Contraseña</strong>
               </label>
@@ -1972,6 +1972,35 @@
                 </button>
               </div>
             </div>
+
+            <!-- Correo Electrónico de Recuperación Institucional -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+              <label class="form-label" for="adminRecoveryEmail">
+                <strong>📧 Correo Electrónico de Recuperación Institucional</strong>
+              </label>
+              <input type="email" id="adminRecoveryEmail" class="form-control" autocomplete="email" value="{{ current_recovery_email }}" placeholder="ejemplo: liceo.limon@mep.go.cr">
+              <span style="font-size: 0.8rem; color: var(--gris-500); display: block; margin-top: 0.35rem;">
+                A este correo institucional se enviarán los códigos de verificación temporal (OTP de 6 dígitos) si olvida su contraseña.
+              </span>
+            </div>
+
+            <!-- Clave Maestra Institucional -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+              <label class="form-label" for="adminNewRecoveryKey">
+                <strong>🔑 Clave Maestra Institucional de Rescate</strong>
+              </label>
+              <div class="password-field-wrapper" style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="adminNewRecoveryKey" class="form-control" autocomplete="new-password" placeholder="Dejar en blanco para conservar la clave actual (por defecto: MEP-LIMON-2026)">
+                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('adminNewRecoveryKey', this)" title="Ver u ocultar clave maestra" style="position: absolute; right: 0.75rem; background: none; border: none; cursor: pointer; color: var(--gris-500); padding: 0.35rem; font-size: 1rem;">
+                  👁️
+                </button>
+              </div>
+              <span style="font-size: 0.8rem; color: var(--gris-500); display: block; margin-top: 0.35rem;">
+                Esta clave permite el rescate inmediato desde la pantalla de inicio de sesión sin necesidad de correo electrónico.
+              </span>
+            </div>
+
+
 
             <div id="credentialsErrorAlert" style="display: none; background: #fee2e2; border: 1px solid #f87171; color: #991b1b; padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; margin-bottom: 1.4rem;"></div>
 
@@ -2567,6 +2596,11 @@
           return;
         }
 
+        const recoveryEmailInput = document.getElementById('adminRecoveryEmail');
+        const newRecoveryEmail = recoveryEmailInput ? recoveryEmailInput.value.trim() : '';
+        const recoveryKeyInput = document.getElementById('adminNewRecoveryKey');
+        const newRecoveryKey = recoveryKeyInput ? recoveryKeyInput.value.trim() : '';
+
         submitBtn.disabled = true;
         submitBtn.innerText = 'Guardando credenciales...';
 
@@ -2577,7 +2611,9 @@
             body: JSON.stringify({
               current_password: currentPassword,
               new_username: newUsername,
-              new_password: newPassword
+              new_password: newPassword,
+              new_recovery_email: newRecoveryEmail,
+              new_recovery_key: newRecoveryKey
             })
           });
 
@@ -2596,12 +2632,14 @@
             document.getElementById('adminCurrentPassword').value = '';
             document.getElementById('adminNewPassword').value = '';
             document.getElementById('adminConfirmPassword').value = '';
+            if (recoveryKeyInput) recoveryKeyInput.value = '';
             errorAlert.style.display = 'none';
           } else {
             errorAlert.innerText = data.message || 'Error al actualizar las credenciales.';
             errorAlert.style.display = 'block';
             showToast(data.message || 'Error al actualizar credenciales.', 'error');
           }
+
         } catch (err) {
           errorAlert.innerText = 'Error de conexión con el servidor.';
           errorAlert.style.display = 'block';

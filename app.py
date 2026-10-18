@@ -28,7 +28,13 @@ from database import (
     delete_snapshot,
     get_admin_user,
     verify_admin_credentials,
-    update_admin_credentials
+    update_admin_credentials,
+    reset_admin_password_with_recovery,
+    reset_admin_password_direct,
+    verify_recovery_key,
+    create_password_reset_otp,
+    verify_and_consume_otp,
+    get_admin_recovery_email
 )
 from seed_data import MODALIDADES_DETALLE
 
@@ -195,12 +201,13 @@ def admin_panel():
 
     admin_user = get_admin_user()
     current_admin_username = session.get('admin_username') or (admin_user['username'] if admin_user else 'Admin')
+    current_recovery_email = (admin_user['recovery_email'] if admin_user and admin_user.get('recovery_email') else 'liceo.limon@mep.go.cr')
 
     cms = get_all_content()
     news = get_all_news()
     inquiries = get_all_inquiries()
     snapshots = get_all_snapshots()
-    return render_template('admin_panel.html', cms=cms, news=news, inquiries=inquiries, snapshots=snapshots, current_admin_username=current_admin_username)
+    return render_template('admin_panel.html', cms=cms, news=news, inquiries=inquiries, snapshots=snapshots, current_admin_username=current_admin_username, current_recovery_email=current_recovery_email)
 
 # =============================================================================
 # 4. ENDPOINTS API REST (FORMULARIO DE CONTACTO PÚBLICO)
@@ -289,9 +296,79 @@ def api_logout():
     session.pop('admin_username', None)
     return jsonify({'success': True, 'message': 'Sesión cerrada correctamente.'})
 
+@app.route('/api/auth/reset-password', methods=['POST'])
+def api_reset_password():
+    """Permite al personal directivo restablecer la contraseña en caso de olvido validando la clave de recuperación institucional."""
+    data = request.get_json() or {}
+    username = data.get('username', '').strip()
+    recovery_key = data.get('recovery_key', '').strip()
+    new_password = data.get('new_password', '').strip()
+
+    if not recovery_key:
+        return jsonify({
+            'success': False,
+            'message': 'Debe ingresar la Clave Maestra de Recuperación Institucional (o código de rescate).'
+        }), 400
+
+    if not new_password or len(new_password) < 4:
+        return jsonify({
+            'success': False,
+            'message': 'La nueva contraseña debe contener un mínimo de 4 caracteres.'
+        }), 400
+
+    success, message = reset_admin_password_with_recovery(username, recovery_key, new_password)
+    if success:
+        return jsonify({
+            'success': True,
+            'message': message
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'message': message
+        }), 401
+
+@app.route('/api/auth/request-otp', methods=['POST'])
+def api_request_otp():
+    """Genera y envía un código temporal de 6 dígitos (OTP) al correo institucional de recuperación."""
+    data = request.get_json() or {}
+    username = data.get('username', '').strip()
+    success, message, masked_email = create_password_reset_otp(username)
+    if success:
+        return jsonify({
+            'success': True,
+            'message': message,
+            'masked_email': masked_email
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'message': message
+        }), 400
+
+@app.route('/api/auth/reset-password-otp', methods=['POST'])
+def api_reset_password_otp():
+    """Valida el código temporal recibido por correo y actualiza la contraseña."""
+    data = request.get_json() or {}
+    username = data.get('username', '').strip()
+    otp = data.get('otp', '').strip()
+    new_password = data.get('new_password', '').strip()
+
+    if not otp:
+        return jsonify({'success': False, 'message': 'Debe ingresar el código de 6 dígitos recibido en su correo.'}), 400
+
+    if not new_password or len(new_password) < 4:
+        return jsonify({'success': False, 'message': 'La nueva contraseña debe tener al menos 4 caracteres.'}), 400
+
+    success, message = verify_and_consume_otp(username, otp, new_password)
+    if success:
+        return jsonify({'success': True, 'message': message})
+    else:
+        return jsonify({'success': False, 'message': message}), 400
+
 @app.route('/api/admin/change-credentials', methods=['POST'])
 def api_change_credentials():
-    """Permite al administrador modificar su nombre de usuario y contraseña."""
+    """Permite al administrador modificar su nombre de usuario, contraseña y correo de recuperación institucional."""
     if not session.get('is_admin', False):
         return jsonify({'success': False, 'message': 'No autorizado.'}), 403
 
@@ -299,6 +376,7 @@ def api_change_credentials():
     current_password = data.get('current_password', '').strip()
     new_username = data.get('new_username', '').strip()
     new_password = data.get('new_password', '').strip()
+    new_recovery_email = data.get('new_recovery_email', '').strip()
 
     if not current_password:
         return jsonify({'success': False, 'message': 'Debe ingresar su contraseña actual para confirmar el cambio.'}), 400
@@ -317,16 +395,28 @@ def api_change_credentials():
     if not new_password or len(new_password) < 4:
         return jsonify({'success': False, 'message': 'La nueva contraseña debe tener un mínimo de 4 caracteres.'}), 400
 
-    success = update_admin_credentials(new_username, new_password)
+    new_recovery_key = data.get('new_recovery_key', '').strip()
+    if new_recovery_key and len(new_recovery_key) < 4:
+        return jsonify({'success': False, 'message': 'La nueva clave maestra institucional debe tener un mínimo de 4 caracteres.'}), 400
+
+    success = update_admin_credentials(
+        new_username,
+        new_password,
+        new_recovery_email if new_recovery_email else None,
+        new_recovery_key if new_recovery_key else None
+    )
     if success:
         session['admin_username'] = new_username
         return jsonify({
             'success': True,
             'message': '¡Credenciales actualizadas exitosamente! Se utilizarán en los próximos inicios de sesión.',
-            'new_username': new_username
+            'new_username': new_username,
+            'new_recovery_email': new_recovery_email or admin_user.get('recovery_email', 'liceo.limon@mep.go.cr'),
+            'updated_recovery_key': bool(new_recovery_key)
         })
     else:
         return jsonify({'success': False, 'message': 'Error al actualizar credenciales en base de datos.'}), 500
+
 
 @app.route('/api/cms/content', methods=['GET'])
 def api_get_content():
