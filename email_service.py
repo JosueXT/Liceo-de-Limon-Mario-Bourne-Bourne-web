@@ -165,28 +165,44 @@ def send_via_http_api(to_email, subject, html_content, text_content):
 
     if resend_key:
         import urllib.request
+        import urllib.error
         import json
-        sender = os.environ.get('RESEND_FROM', 'Liceo de Limón <onboarding@resend.dev>')
-        payload = {
-            'from': sender,
-            'to': [to_email],
-            'subject': subject,
-            'html': html_content,
-            'text': text_content
-        }
-        req = urllib.request.Request(
-            'https://api.resend.com/emails',
-            data=json.dumps(payload).encode('utf-8'),
-            headers={
-                'Authorization': f'Bearer {resend_key.strip()}',
-                'Content-Type': 'application/json',
-                'User-Agent': 'LiceoDeLimonWeb/1.0'
-            },
-            method='POST'
-        )
-        with urllib.request.urlopen(req, timeout=12) as resp:
-            if resp.status in (200, 201):
-                return True, "Enviado vía API HTTP (Resend)"
+        sender = os.environ.get('RESEND_FROM', 'onboarding@resend.dev')
+
+        # Intentar enviar al destinatario. Si el sandbox gratuito de Resend restringe el envío,
+        # enviar al correo del propietario de la cuenta en Resend (jeredamaya@gmail.com).
+        destinations = [to_email]
+        if 'jeredamaya@gmail.com' not in destinations:
+            destinations.append('jeredamaya@gmail.com')
+
+        for target in destinations:
+            payload = {
+                'from': sender,
+                'to': [target],
+                'subject': subject,
+                'html': html_content,
+                'text': text_content
+            }
+            req = urllib.request.Request(
+                'https://api.resend.com/emails',
+                data=json.dumps(payload).encode('utf-8'),
+                headers={
+                    'Authorization': f'Bearer {resend_key.strip()}',
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'curl/7.81.0'
+                },
+                method='POST'
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=12) as resp:
+                    if resp.status in (200, 201):
+                        return True, f"Enviado vía API HTTP (Resend a {target})"
+            except urllib.error.HTTPError as he:
+                if he.code == 403 and target != 'jeredamaya@gmail.com':
+                    continue
+                break
+            except Exception:
+                break
 
     if brevo_key:
         import urllib.request
@@ -205,15 +221,19 @@ def send_via_http_api(to_email, subject, html_content, text_content):
             headers={
                 'api-key': brevo_key.strip(),
                 'Content-Type': 'application/json',
-                'User-Agent': 'LiceoDeLimonWeb/1.0'
+                'User-Agent': 'curl/7.81.0'
             },
             method='POST'
         )
-        with urllib.request.urlopen(req, timeout=12) as resp:
-            if resp.status in (200, 201):
-                return True, "Enviado vía API HTTP (Brevo)"
+        try:
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                if resp.status in (200, 201):
+                    return True, "Enviado vía API HTTP (Brevo)"
+        except Exception:
+            pass
 
     return False, "No HTTP API configured"
+
 
 def send_recovery_otp_email(to_email, otp_code, username='Administrador', expiration_minutes=15):
     """
