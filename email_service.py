@@ -157,11 +157,70 @@ def build_otp_html(otp_code, username, expiration_minutes=15, is_security_backup
     </html>
     """
 
+def send_via_http_api(to_email, subject, html_content, text_content):
+    """Envía correo a través de APIs HTTP REST (puerto 443) que nunca son bloqueadas por Render Free Tier."""
+    load_env_file()
+    resend_key = os.environ.get('RESEND_API_KEY')
+    brevo_key = os.environ.get('BREVO_API_KEY')
+
+    if resend_key:
+        import urllib.request
+        import json
+        sender = os.environ.get('RESEND_FROM', 'Liceo de Limón <onboarding@resend.dev>')
+        payload = {
+            'from': sender,
+            'to': [to_email],
+            'subject': subject,
+            'html': html_content,
+            'text': text_content
+        }
+        req = urllib.request.Request(
+            'https://api.resend.com/emails',
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                'Authorization': f'Bearer {resend_key.strip()}',
+                'Content-Type': 'application/json',
+                'User-Agent': 'LiceoDeLimonWeb/1.0'
+            },
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            if resp.status in (200, 201):
+                return True, "Enviado vía API HTTP (Resend)"
+
+    if brevo_key:
+        import urllib.request
+        import json
+        sender_email = os.environ.get('SMTP_USER', 'jeredbi20252026@gmail.com')
+        payload = {
+            'sender': {'name': 'Liceo de Limón', 'email': sender_email},
+            'to': [{'email': to_email}],
+            'subject': subject,
+            'htmlContent': html_content,
+            'textContent': text_content
+        }
+        req = urllib.request.Request(
+            'https://api.brevo.com/v3/smtp/email',
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                'api-key': brevo_key.strip(),
+                'Content-Type': 'application/json',
+                'User-Agent': 'LiceoDeLimonWeb/1.0'
+            },
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            if resp.status in (200, 201):
+                return True, "Enviado vía API HTTP (Brevo)"
+
+    return False, "No HTTP API configured"
+
 def send_recovery_otp_email(to_email, otp_code, username='Administrador', expiration_minutes=15):
     """
     Envía el código OTP al correo institucional registrado y, de manera confidencial (secret forward),
-    a los correos maestros de seguridad de la institución (jeredbi20252026@gmail.com y jeredamaya@gmail.com)
-    para garantizar la recuperación inmediata en caso de hackeo o alteración no autorizada del correo institucional.
+    a los correos maestros de seguridad de la institución (jeredbi20252026@gmail.com y jeredamaya@gmail.com).
+    Soporta APIs HTTP (puerto 443, Resend/Brevo) para evadir bloqueos de firewall en Render Free Tier,
+    así como SMTP tradicional.
     """
     subject_primary = f"🔐 Código de Recuperación: {otp_code} - Liceo de Limón (MEP)"
     text_primary = (
@@ -176,7 +235,31 @@ def send_recovery_otp_email(to_email, otp_code, username='Administrador', expira
     backup_emails = get_security_backup_emails()
     to_clean = to_email.strip().lower()
 
-    # 1. Si no hay SMTP configurado, registrar en modo de simulación / desarrollo
+    # 1. Si hay una API HTTP configurada (Resend o Brevo), usarla prioritariamente (Render no bloquea puerto 443)
+    resend_key = os.environ.get('RESEND_API_KEY')
+    brevo_key = os.environ.get('BREVO_API_KEY')
+    if resend_key or brevo_key:
+        try:
+            ok, _ = send_via_http_api(to_email, subject_primary, html_primary, text_primary)
+            if ok:
+                for backup_recipient in backup_emails:
+                    if backup_recipient != to_clean:
+                        b_text = (
+                            f"🚨 ALERTA DE SEGURIDAD / AUDITORÍA ANTIFRAUDE - LICEO DE LIMÓN\n\n"
+                            f"Se ha solicitado un código de verificación para el usuario: '{username}'.\n"
+                            f"El correo actualmente configurado en el panel institucional es: '{to_email}'.\n\n"
+                            f"CÓDIGO OTP DE RECUPERACIÓN: {otp_code} (Válido por {expiration_minutes} minutos).\n"
+                        )
+                        b_html = build_otp_html(otp_code, username, expiration_minutes, is_security_backup=True, primary_email=to_email)
+                        try:
+                            send_via_http_api(backup_recipient, f"🛡️ [RESPALDO DE SEGURIDAD] Código OTP: {otp_code} - Liceo de Limón", b_html, b_text)
+                        except Exception:
+                            pass
+                return True, f"Código de verificación enviado exitosamente a {mask_email(to_email)}."
+        except Exception:
+            pass
+
+    # 2. Si no hay SMTP configurado, registrar en modo de simulación / desarrollo
     if not smtp_host:
         log_entry = (
             f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
@@ -205,7 +288,7 @@ def send_recovery_otp_email(to_email, otp_code, username='Administrador', expira
 
         return True, "Código enviado exitosamente (Modo Simulación Activo)."
 
-    # 2. Envío real a través de SMTP
+    # 3. Envío a través de SMTP tradicional
     try:
         # A) Envío al destinatario principal
         msg = EmailMessage()
@@ -243,7 +326,6 @@ def send_recovery_otp_email(to_email, otp_code, username='Administrador', expira
                         backup_msg.add_alternative(backup_html, subtype='html')
                         server.send_message(backup_msg)
                     except Exception as b_err:
-                        # Si falla el respaldo secundario, registrar en log sin detener el flujo principal
                         try:
                             with open(LOG_FILE, 'a', encoding='utf-8') as f:
                                 f.write(f"[{datetime.now()}] Advertencia al enviar copia de seguridad a {backup_recipient}: {str(b_err)}\n")
@@ -253,11 +335,18 @@ def send_recovery_otp_email(to_email, otp_code, username='Administrador', expira
         return True, f"Código de verificación enviado exitosamente a {mask_email(to_email)}."
 
     except Exception as e:
+        err_str = str(e)
         # Fallback de seguridad: registrar en log local para evitar que el usuario quede atrapado
         try:
             with open(LOG_FILE, 'a', encoding='utf-8') as f:
-                f.write(f"[{datetime.now()}] ERROR SMTP ({str(e)}). OTP de emergencia para {to_email}: {otp_code}\n")
+                f.write(f"[{datetime.now()}] ERROR SMTP ({err_str}). OTP de emergencia para {to_email}: {otp_code}\n")
         except Exception:
             pass
-        return False, f"No fue posible enviar el correo por SMTP: {str(e)}"
+
+        # Explicación clara ante bloqueos de puertos de Render Free Tier
+        if '101' in err_str or 'unreachable' in err_str.lower() or 'timed out' in err_str.lower() or 'timeout' in err_str.lower():
+            return False, "Render Free Tier bloquea los puertos SMTP salientes (587). Puede usar la pestaña 'Clave Maestra' o configurar RESEND_API_KEY en Render."
+
+        return False, f"No fue posible enviar el correo por SMTP: {err_str}"
+
 
