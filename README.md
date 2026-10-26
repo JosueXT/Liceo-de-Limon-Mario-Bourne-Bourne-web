@@ -4,7 +4,8 @@
 
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Framework-Flask%203.x-lightgrey.svg?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![SQLite](https://img.shields.io/badge/Database-SQLite-003B57.svg?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![Database](https://img.shields.io/badge/Database-SQLite%20%2F%20Turso%20Cloud-003B57.svg?logo=sqlite&logoColor=white)](https://turso.tech)
+[![Desarrollo](https://img.shields.io/badge/Desarrollo-Estudiantes%20IB%20%2B%20IA%20(Vibe%20Coding)-8b5cf6.svg)](#-innovación-y-desarrollo-estudiantes-ib--inteligencia-artificial-vibe-coding)
 [![Diseño Responsivo](https://img.shields.io/badge/Diseño-100%25%20Responsivo%20Móvil-success.svg)](#-diseño-100-responsivo-ordenadores-y-celulares)
 [![Tests](https://img.shields.io/badge/Unit%20Tests-13%2F13%20Aprobados-10b981.svg)](#-suite-de-pruebas-automatizadas)
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-vino.svg)](LICENSE)
@@ -14,14 +15,16 @@
 ## 📌 Tabla de Contenidos
 
 1. [Descripción General](#-descripción-general-del-proyecto)
-2. [Características Destacadas](#-características-destacadas)
+2. [Innovación y Desarrollo: Estudiantes IB & IA ("Vibe Coding")](#-innovación-y-desarrollo-estudiantes-ib--inteligencia-artificial-vibe-coding)
+3. [Características Destacadas](#-características-destacadas)
    - [Diseño 100% Responsivo (Ordenadores y Celulares)](#-diseño-100-responsivo-ordenadores-y-celulares)
    - [Editor Visual en Vivo (CMS In-Situ)](#-editor-visual-en-vivo-cms-in-situ)
+   - [Control Interactivo de Encuadre y Posición de Fotos](#-control-interactivo-de-encuadre-y-posición-de-fotos)
    - [Gestión Dinámica de Listas (+ y ✕)](#-gestión-dinámica-de-listas--y-)
    - [Redes Sociales y Coordinación del Bachillerato Internacional (IB)](#-redes-sociales-y-coordinación-del-ib)
    - [Copias de Seguridad y Respaldos (Exportar e Importar JSON)](#-copias-de-seguridad-y-respaldos-wayback-machine)
    - [Seguridad y Gestión de Credenciales](#-seguridad-y-gestión-de-credenciales)
-3. [Guía de Instalación y Puesta en Marcha](#-guía-de-instalación-y-puesta-en-marcha)
+4. [Guía de Instalación y Puesta en Marcha](#-guía-de-instalación-y-puesta-en-marcha)
    - [Inicio Rápido en Windows (iniciar_sitio.bat)](#-en-sistemas-windows)
    - [Inicio en macOS / Linux (iniciar_sitio.sh)](#-en-sistemas-macos-y-linux)
    - [Método Manual por Terminal](#-método-manual-por-terminal)
@@ -46,7 +49,27 @@ El proyecto cumple dos funciones estratégicas:
 
 ---
 
+## 💡 Innovación y Desarrollo: Estudiantes IB & Inteligencia Artificial ("Vibe Coding")
+
+Este proyecto fue ideado, liderado e impulsado con la visión de **estudiantes del Bachillerato Internacional (IB)** del **Liceo de Limón Mario Bourne Bourne**, en estrecha colaboración con tecnologías de **Inteligencia Artificial de última generación**, siguiendo la revolucionaria metodología de desarrollo conocida como **"Vibe Coding"**.
+
+### ¿Qué representa este hito?
+1. **Liderazgo y Rigor del Perfil IB:**
+   Fieles a los atributos del Bachillerato Internacional (indagadores, pensadores, audaces y solidarios), los estudiantes identificaron la necesidad de dotar a su colegio benemérito de un portal web a la altura de los mejores estándares mundiales, como parte de su compromiso de impacto social y pedagógico (vinculado al espíritu de *Creatividad, Actividad y Servicio - CAS*).
+
+2. **La Metodología "Vibe Coding":**
+   El *Vibe Coding* es el paradigma moderno de ingeniería donde la creatividad, la visión de diseño, la arquitectura de producto y el criterio humano se fusionan con asistentes avanzados de Inteligencia Artificial. Los estudiantes establecieron la dirección estética caribeña, los requerimientos de seguridad institucional del MEP y los flujos de experiencia de usuario, mientras la IA colaboró en tiempo real para materializar código limpio, pruebas automatizadas exhaustivas y persistencia en la nube.
+
+3. **Orgullo Limonense y Educación Pública:**
+   Demuestra fehacientemente cómo la juventud de la educación pública costarricense en la provincia de Limón es pionera en la adopción de inteligencia artificial aplicada, demostrando que con talento, perseverancia y las herramientas del futuro se pueden crear plataformas de impacto real para su comunidad.
+
+---
+
 ## ✨ Características Destacadas
+
+### 🎯 Control Interactivo de Encuadre y Posición de Fotos
+- Al agregar o editar fotografías por URL (en noticias o imágenes del CMS), el administrador dispone de una **botonera direccional 3x3** (↖, ⬆, ↗, ⬅, ⏺, ➡, ↙, ⬇, ↘) y **deslizadores milimétricos (Sliders X e Y)**.
+- Permite mover y recortar el encuadre en vivo para que los rostros, edificios o momentos destacados se vean en el punto visual exacto tanto en computadoras como en teléfonos.
 
 ### 📱 Diseño 100% Responsivo (Ordenadores y Celulares)
 - **Menú Móvil Táctil con Drawer:** En teléfonos y tablets (pantallas `<= 992px`), la navegación se transforma en un botón hamburguesa animado con panel deslizable con efecto cristal (*glassmorphism*), permitiendo una interacción táctil cómoda (botones de al menos 48px de altura).

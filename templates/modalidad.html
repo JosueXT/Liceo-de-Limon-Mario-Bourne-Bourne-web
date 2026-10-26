@@ -127,6 +127,38 @@
     </div>
   </section>
 
+  {% if modalidad.slug == 'ib' %}
+  <!-- =====================================================================
+       4.1 SELLO Y RECONOCIMIENTO OFICIAL IB WORLD SCHOOL
+       ===================================================================== -->
+  <section class="section ib-accreditation-section reveal-scale">
+    <div class="container">
+      <div class="ib-accreditation-card">
+        <div class="ib-logo-container cms-image-wrapper" data-cms-img="ib_official_logo" title="Haga clic en modo edición para cambiar el logo oficial del IB">
+          <img src="{{ cms.get('ib_official_logo', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/International_Baccalaureate_Logo.svg/512px-International_Baccalaureate_Logo.svg.png') }}" alt="Bachillerato Internacional Oficial" class="ib-official-logo-img" data-cms-img="ib_official_logo">
+        </div>
+        <div class="ib-accreditation-content">
+          <div class="ib-badge-wrapper">
+            <span class="ib-accreditation-tag" data-cms-key="ib_official_tag">{{ cms.get('ib_official_tag', 'Acreditación Académica Global') }}</span>
+          </div>
+          <h2 class="ib-accreditation-title" data-cms-key="ib_official_title">{{ cms.get('ib_official_title', 'Colegio del Mundo del IB (International Baccalaureate)') }}</h2>
+          <p class="ib-accreditation-desc" data-cms-key="ib_official_desc">{{ cms.get('ib_official_desc', 'El Liceo de Limón Mario Bourne Bourne está oficialmente acreditado como Colegio del Mundo del IB, ofreciendo el prestigioso Programa del Diploma (PD) con validez y homologación universitaria a nivel internacional.') }}</p>
+          <div class="ib-accreditation-actions">
+            <a href="{{ cms.get('ib_official_link', 'https://www.ibo.org/es/') }}" target="_blank" rel="noopener noreferrer" class="btn btn-ib-link" id="ibLinkAnchor">
+              <span data-cms-key="ib_official_btn_text">{{ cms.get('ib_official_btn_text', 'Conocer más en el sitio oficial del IB') }}</span> ↗
+            </a>
+            {% if is_admin %}
+            <button type="button" class="btn btn-outline btn-sm cms-edit-link-btn" title="Editar enlace web al que dirige el botón" onclick="promptEditCmsLink('ib_official_link', 'ibLinkAnchor')">
+              🔗 Editar Enlace Oficial
+            </button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
   <!-- =====================================================================
        5. DESCRIPCIÓN PEDAGÓGICA Y ENFOQUE
        ===================================================================== -->

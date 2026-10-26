@@ -343,7 +343,7 @@
       <!-- Cuadrícula Dinámica de Comunicados -->
       <div class="news-grid" id="newsGridContainer">
         {% for item in news %}
-        <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}">
+        <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}" data-image-position="{{ item.image_position or 'center center' }}">
           <div class="news-image-container">
             <span class="news-tag-overlay tag-{{ item.category_slug }}">
               {{ item.category }}
@@ -351,7 +351,7 @@
                 <span class="news-subcategory-tag">{{ item.subcategory }}</span>
               {% endif %}
             </span>
-            <img src="{{ item.image }}" alt="{{ item.title }}" class="news-image">
+            <img src="{{ item.image }}" alt="{{ item.title }}" class="news-image" style="object-position: {{ item.image_position or 'center center' }};">
           </div>
 
           <div class="news-body">

@@ -256,12 +256,14 @@ function initNewsModal() {
     const author = card.querySelector('.news-meta-author')?.innerText.trim() || 'Liceo de Limón MEP';
     const imageEl = card.querySelector('.news-image');
     const imageSrc = imageEl ? imageEl.getAttribute('src') : '';
+    const imagePos = (imageEl && imageEl.style.objectPosition) || card.getAttribute('data-image-position') || 'center center';
     const rawContent = card.getAttribute('data-content') || card.querySelector('.news-summary')?.innerText.trim() || '';
 
     const modalImg = document.getElementById('modalNewsImage');
     if (modalImg) {
       if (imageSrc) {
         modalImg.src = imageSrc;
+        modalImg.style.objectPosition = imagePos;
         modalImg.style.display = 'block';
       } else {
         modalImg.style.display = 'none';

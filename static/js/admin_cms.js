@@ -209,7 +209,7 @@ async function saveAllCmsChanges() {
 }
 
 /**
- * 7. Modal de Cambio de Imagen y Logotipo
+ * 7. Modal de Cambio de Imagen y Logotipo con Control de Encuadre / Posición
  */
 function initImageModal() {
   let modal = document.getElementById('editImageModal');
@@ -219,19 +219,58 @@ function initImageModal() {
     modal.className = 'modal-backdrop';
     modal.style.display = 'none';
     modal.innerHTML = `
-      <div class="modal-dialog" style="max-width: 540px; padding: 2.2rem; background: var(--blanco); border-radius: var(--radius-xl);">
+      <div class="modal-dialog" style="max-width: 580px; padding: 2.2rem; background: var(--blanco); border-radius: var(--radius-xl); max-height: 90vh; overflow-y: auto;">
         <button class="modal-close-btn" id="closeImageModalBtn" style="top: 1rem; right: 1rem;">&times;</button>
         <h3 id="imageModalTitle" style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--azul-dark); margin-bottom: 0.5rem;">📷 Cambiar Fotografía o Logotipo</h3>
-        <p style="font-size: 0.875rem; color: var(--gris-600); margin-bottom: 1.2rem;">Ingrese la URL de la nueva imagen para actualizarla en vivo:</p>
+        <p style="font-size: 0.875rem; color: var(--gris-600); margin-bottom: 1.2rem;">Ingrese la URL y ajuste el encuadre para que se vea en el punto exacto:</p>
         
-        <div style="text-align: center; margin-bottom: 1.2rem;">
-          <img id="imageModalPreview" src="" alt="Previsualización" style="max-height: 160px; margin: 0 auto; border-radius: var(--radius-md); object-fit: cover;">
+        <div style="text-align: center; margin-bottom: 1.2rem; overflow: hidden; background: var(--gris-200); border-radius: var(--radius-md); max-height: 190px; display: flex; align-items: center; justify-content: center; position: relative;">
+          <img id="imageModalPreview" src="" alt="Previsualización" style="width: 100%; height: 190px; object-fit: cover; object-position: 50% 50%; transition: object-position 0.15s ease, transform 0.15s ease;">
+          <span style="position: absolute; bottom: 6px; right: 8px; font-size: 0.72rem; background: rgba(0,0,0,0.65); color: #fff; padding: 2px 7px; border-radius: 4px; font-family: monospace;" id="imageModalFocalBadge">50% 50%</span>
         </div>
 
         <form id="editImageForm">
-          <div class="form-group" style="text-align: left;">
-            <label class="form-label" for="imageUrlInput">URL de la Imagen o Bandera</label>
+          <div class="form-group" style="text-align: left; margin-bottom: 0.8rem;">
+            <label class="form-label" for="imageUrlInput">URL de la Imagen</label>
             <input type="url" id="imageUrlInput" class="form-control" required placeholder="https://ejemplo.com/foto.jpg">
+          </div>
+
+          <!-- Control Interactivo de Encuadre / Posición Focal -->
+          <div style="background: var(--gris-100); border: 1px solid var(--gris-300); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--gris-800);">🎯 Ajustar Encuadre (Mover Foto):</span>
+              <span style="font-size: 0.78rem; color: var(--azul); font-weight: 600;" id="modalFocalLabel">Centro</span>
+            </div>
+
+            <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+              <!-- Botones direccionales 3x3 -->
+              <div style="display: grid; grid-template-columns: repeat(3, 34px); gap: 4px;">
+                <button type="button" class="btn btn-outline btn-sm" style="padding: 0; height: 32px; font-size: 0.85rem;" title="Arriba Izq" onclick="setModalImageFocal(0, 0, 'Arriba Izq')">↖</button>
+                <button type="button" class="btn btn-outline btn-sm" style="padding: 0; height: 32px; font-size: 0.85rem;" title="Arriba Centro" onclick="setModalImageFocal(50, 0, 'Arriba Centro')">⬆</button>
+                <button type="button" class="btn btn-outline btn-sm" style="padding: 0; height: 32px; font-size: 0.85rem;" title="Arriba Der" onclick="setModalImageFocal(100, 0, 'Arriba Der')">↗</button>
+                <button type="button" class="btn btn-outline btn-sm" style="padding: 0; height: 32px; font-size: 0.85rem;" title="Centro Izq" onclick="setModalImageFocal(0, 50, 'Centro Izq')">⬅</button>
+                <button type="button" class="btn btn-outline btn-sm" style="padding: 0; height: 32px; font-size: 0.85rem; font-weight: bold;" title="Centro" onclick="setModalImageFocal(50, 50, 'Centro')">⏺</button>
+                <button type="button" class="btn btn-outline btn-sm" style="padding: 0; height: 32px; font-size: 0.85rem;" title="Centro Der" onclick="setModalImageFocal(100, 50, 'Centro Der')">➡</button>
+                <button type="button" class="btn btn-outline btn-sm" style="padding: 0; height: 32px; font-size: 0.85rem;" title="Abajo Izq" onclick="setModalImageFocal(0, 100, 'Abajo Izq')">↙</button>
+                <button type="button" class="btn btn-outline btn-sm" style="padding: 0; height: 32px; font-size: 0.85rem;" title="Abajo Centro" onclick="setModalImageFocal(50, 100, 'Abajo Centro')">⬇</button>
+                <button type="button" class="btn btn-outline btn-sm" style="padding: 0; height: 32px; font-size: 0.85rem;" title="Abajo Der" onclick="setModalImageFocal(100, 100, 'Abajo Der')">↘</button>
+              </div>
+
+              <!-- Sliders de precisión -->
+              <div style="flex: 1; min-width: 170px; display: flex; flex-direction: column; gap: 0.35rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--gris-700);">
+                  <span>↕️ Altura (Y):</span>
+                  <span id="modalFocalYText">50%</span>
+                </div>
+                <input type="range" id="modalFocalYSlider" min="0" max="100" value="50" style="width: 100%; cursor: pointer;" oninput="onModalFocalSliderChange()">
+
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--gris-700);">
+                  <span>↔️ Lado (X):</span>
+                  <span id="modalFocalXText">50%</span>
+                </div>
+                <input type="range" id="modalFocalXSlider" min="0" max="100" value="50" style="width: 100%; cursor: pointer;" oninput="onModalFocalSliderChange()">
+              </div>
+            </div>
           </div>
 
           <div style="margin-bottom: 1.2rem; text-align: left;">
@@ -266,29 +305,86 @@ function initImageModal() {
       e.preventDefault();
       const newUrl = urlInput.value.trim();
       const key = CMS_STATE.currentEditingImageKey;
+      const xSlider = document.getElementById('modalFocalXSlider');
+      const ySlider = document.getElementById('modalFocalYSlider');
+      const x = xSlider ? xSlider.value : 50;
+      const y = ySlider ? ySlider.value : 50;
+      const positionVal = `${x}% ${y}%`;
 
       if (newUrl && key) {
         // Actualizar en la vista
         document.querySelectorAll(`img[data-cms-img="${key}"]`).forEach(img => {
           img.src = newUrl;
+          img.style.objectPosition = positionVal;
         });
 
         document.querySelectorAll(`[data-cms-img="${key}"]`).forEach(el => {
           if (!el.matches('img')) {
             el.style.backgroundImage = `url('${newUrl}')`;
+            el.style.backgroundPosition = positionVal;
           }
         });
 
-        // Registrar como modificado
+        // Registrar como modificado URL y posición focal
         CMS_STATE.modifiedItems[key] = newUrl;
+        CMS_STATE.modifiedItems[key + '_position'] = positionVal;
         updateModifiedCounter();
         modal.classList.remove('active');
         modal.style.display = 'none';
-        showToast('✓ Elemento actualizado en la vista. Recuerda guardar cambios.', 'info');
+        showToast('✓ Imagen y encuadre actualizados en la vista. Recuerda guardar cambios.', 'info');
       }
     });
   }
 }
+
+function setModalImageFocal(x, y, label) {
+  const xSlider = document.getElementById('modalFocalXSlider');
+  const ySlider = document.getElementById('modalFocalYSlider');
+  const xText = document.getElementById('modalFocalXText');
+  const yText = document.getElementById('modalFocalYText');
+  const preview = document.getElementById('imageModalPreview');
+  const badge = document.getElementById('imageModalFocalBadge');
+  const lbl = document.getElementById('modalFocalLabel');
+
+  if (xSlider) xSlider.value = x;
+  if (ySlider) ySlider.value = y;
+  if (xText) xText.innerText = `${x}%`;
+  if (yText) yText.innerText = `${y}%`;
+  if (badge) badge.innerText = `${x}% ${y}%`;
+  if (lbl && label) lbl.innerText = label;
+  if (preview) preview.style.objectPosition = `${x}% ${y}%`;
+}
+window.setModalImageFocal = setModalImageFocal;
+
+function onModalFocalSliderChange() {
+  const x = document.getElementById('modalFocalXSlider')?.value || 50;
+  const y = document.getElementById('modalFocalYSlider')?.value || 50;
+  const preview = document.getElementById('imageModalPreview');
+  const badge = document.getElementById('imageModalFocalBadge');
+  const xText = document.getElementById('modalFocalXText');
+  const yText = document.getElementById('modalFocalYText');
+  const lbl = document.getElementById('modalFocalLabel');
+
+  if (xText) xText.innerText = `${x}%`;
+  if (yText) yText.innerText = `${y}%`;
+  if (badge) badge.innerText = `${x}% ${y}%`;
+  if (lbl) lbl.innerText = `Personalizado (${x}% ${y}%)`;
+  if (preview) preview.style.objectPosition = `${x}% ${y}%`;
+}
+window.onModalFocalSliderChange = onModalFocalSliderChange;
+
+function promptEditCmsLink(key, elementId) {
+  const currentLink = CMS_STATE.modifiedItems[key] || (document.getElementById(elementId)?.getAttribute('href')) || '';
+  const newLink = prompt('Ingrese el enlace oficial (URL):', currentLink);
+  if (newLink !== null && newLink.trim()) {
+    const el = document.getElementById(elementId);
+    if (el) el.setAttribute('href', newLink.trim());
+    CMS_STATE.modifiedItems[key] = newLink.trim();
+    updateModifiedCounter();
+    showToast('✓ Enlace actualizado en la vista. Recuerda hacer clic en "Guardar Cambios".', 'info');
+  }
+}
+window.promptEditCmsLink = promptEditCmsLink;
 
 function openImageEditModal(key, currentSrc) {
   CMS_STATE.currentEditingImageKey = key;

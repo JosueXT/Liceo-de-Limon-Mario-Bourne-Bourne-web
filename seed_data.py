@@ -102,6 +102,15 @@ DEFAULT_CMS_CONTENT = {
     "ib_btn_text": "📖 Ver Información Completa (IB) →",
     "ib_img": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
 
+    # Sello y Reconocimiento Oficial IB World School
+    "ib_official_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/International_Baccalaureate_Logo.svg/512px-International_Baccalaureate_Logo.svg.png",
+    "ib_official_logo_position": "center center",
+    "ib_official_link": "https://www.ibo.org/es/",
+    "ib_official_tag": "Acreditación Académica Global",
+    "ib_official_title": "Colegio del Mundo del IB (International Baccalaureate)",
+    "ib_official_desc": "El Liceo de Limón Mario Bourne Bourne está oficialmente acreditado como Colegio del Mundo del IB, ofreciendo el prestigioso Programa del Diploma (PD) con validez y homologación universitaria a nivel internacional.",
+    "ib_official_btn_text": "Conocer más en el sitio oficial del IB",
+
     # -------------------------------------------------------------------------
     # 6. SECCIÓN DE NOTICIAS Y COMUNICADOS (PORTADA)
     # -------------------------------------------------------------------------

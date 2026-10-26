@@ -105,7 +105,7 @@ def main():
     print("\nEstado actual de la cuenta administrativa:")
     if current:
         print(f"  • Usuario registrado actual: '{current['username']}'")
-        print(f"  • Correo de recuperación:   '{current.get('recovery_email', 'liceo.limon@mep.go.cr')}'")
+        print(f"  • Correo de recuperación:   '{current.get('recovery_email', 'jeredamaya@gmail.com')}'")
         print(f"  • Clave Maestra Oficial:    '{DEFAULT_RECOVERY_KEY}' (Fija e inmutable)")
     else:
         print("  • Ningún usuario encontrado (se creará uno nuevo).")

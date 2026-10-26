@@ -534,7 +534,7 @@ class LiceoLimonTestCase(unittest.TestCase):
                 'current_password': 'PasswordOtp2026',
                 'new_username': 'Admin',
                 'new_password': 'Admin',
-                'new_recovery_email': 'direccion.limon@mep.go.cr'
+                'new_recovery_email': 'jeredamaya@gmail.com'
             }),
             content_type='application/json'
         )
@@ -543,7 +543,7 @@ class LiceoLimonTestCase(unittest.TestCase):
         # 7. Comprobar persistencia del correo en la base de datos
         admin_data = database.get_admin_user()
         assert admin_data is not None
-        self.assertEqual(admin_data['recovery_email'], 'direccion.limon@mep.go.cr')
+        self.assertEqual(admin_data['recovery_email'], 'jeredamaya@gmail.com')
 
         # 8. Modificar la clave maestra institucional en el panel y verificar su funcionamiento
         res_change_key = self.client.post('/api/admin/change-credentials',

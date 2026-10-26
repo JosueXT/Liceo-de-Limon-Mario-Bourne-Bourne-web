@@ -118,6 +118,45 @@ def get_pathway_features(cms):
                 })
     return features
 
+def get_campus_dynamic_list(cms):
+    """Extrae la lista dinámica de espacios educativos y vida estudiantil para #instalaciones."""
+    items = []
+    for i in range(1, 60):
+        title = cms.get(f"campus_item_{i}_title", "").strip()
+        desc = cms.get(f"campus_item_{i}_desc", "").strip()
+        icon = cms.get(f"campus_item_{i}_icon", "").strip()
+        if title or desc:
+            c_idx = len(items) + 1
+            items.append({
+                'index': c_idx,
+                'title_key': f"campus_item_{c_idx}_title",
+                'title': title,
+                'desc_key': f"campus_item_{c_idx}_desc",
+                'desc': desc,
+                'icon_key': f"campus_item_{c_idx}_icon",
+                'icon': icon or '🏫'
+            })
+
+    # Si no hay registrados en base de datos aún, usar los 4 valores por defecto
+    if not items:
+        defaults = [
+            ("🔬", "Laboratorio de Computación", "Espacios equipados para física, química, biología y tecnologías digitales MEP."),
+            ("📚", "Biblioteca y Centro de Recursos", "Contenido bliográfico, áreas de estudio silencioso y acceso a bases de datos académicas."),
+            ("🏀", "Áreas Deportivas", "Cancha multiuso para atletismo, baloncesto, voleibol y fútbol."),
+            ("🎷", "Salón de Expresión Artística y Banda", "Cuna de la reconocida Banda del Liceo de Limón y talleres de música.")
+        ]
+        for idx, (default_icon, default_title, default_desc) in enumerate(defaults, 1):
+            items.append({
+                'index': idx,
+                'title_key': f"campus_item_{idx}_title",
+                'title': cms.get(f"campus_item_{idx}_title", default_title),
+                'desc_key': f"campus_item_{idx}_desc",
+                'desc': cms.get(f"campus_item_{idx}_desc", default_desc),
+                'icon_key': f"campus_item_{idx}_icon",
+                'icon': cms.get(f"campus_item_{idx}_icon", default_icon)
+            })
+    return items
+
 # =============================================================================
 # 1. RUTAS PÚBLICAS
 # =============================================================================
@@ -129,12 +168,14 @@ def home():
     news = get_all_news()
     is_admin = session.get('is_admin', False)
     pathway_features = get_pathway_features(cms)
+    dynamic_campus = get_campus_dynamic_list(cms)
     return render_template(
         'index.html',
         cms=cms,
         news=news,
         is_admin=is_admin,
-        pathway_features=pathway_features
+        pathway_features=pathway_features,
+        dynamic_campus=dynamic_campus
     )
 
 @app.route('/modalidad/<slug>')
@@ -201,7 +242,7 @@ def admin_panel():
 
     admin_user = get_admin_user()
     current_admin_username = session.get('admin_username') or (admin_user['username'] if admin_user else 'Admin')
-    current_recovery_email = (admin_user['recovery_email'] if admin_user and admin_user.get('recovery_email') else 'liceo.limon@mep.go.cr')
+    current_recovery_email = (admin_user['recovery_email'] if admin_user and admin_user.get('recovery_email') else 'jeredamaya@gmail.com')
 
     cms = get_all_content()
     news = get_all_news()
@@ -411,7 +452,7 @@ def api_change_credentials():
             'success': True,
             'message': '¡Credenciales actualizadas exitosamente! Se utilizarán en los próximos inicios de sesión.',
             'new_username': new_username,
-            'new_recovery_email': new_recovery_email or admin_user.get('recovery_email', 'liceo.limon@mep.go.cr'),
+            'new_recovery_email': new_recovery_email or (admin_user.get('recovery_email') if admin_user else 'jeredamaya@gmail.com'),
             'updated_recovery_key': bool(new_recovery_key)
         })
     else:
@@ -464,12 +505,13 @@ def api_add_news():
     summary = data.get('summary', '').strip()
     content = data.get('content', '').strip()
     image = data.get('image', 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80').strip()
+    image_position = data.get('image_position', 'center center').strip() or 'center center'
     author = data.get('author', 'Liceo de Limón MEP').strip()
 
     if not title or not summary:
         return jsonify({'success': False, 'message': 'El título y el resumen son obligatorios.'}), 400
 
-    new_id = add_news(title, category, category_slug, subcategory, date, summary, content, image, author)
+    new_id = add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position)
     return jsonify({
         'success': True,
         'message': 'Comunicado institucional publicado exitosamente.',
@@ -499,12 +541,13 @@ def api_update_news(news_id):
     summary = data.get('summary', '').strip()
     content = data.get('content', '').strip()
     image = data.get('image', '').strip()
+    image_position = data.get('image_position', 'center center').strip() or 'center center'
     author = data.get('author', 'Liceo de Limón MEP').strip()
 
     if not title or not summary:
         return jsonify({'success': False, 'message': 'El título y el resumen son obligatorios.'}), 400
 
-    update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author)
+    update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position)
     return jsonify({
         'success': True,
         'message': f'Comunicado #{news_id} actualizado exitosamente.'

@@ -187,11 +187,13 @@ def init_db():
         )
     ''')
 
-    # Migración segura: verificar si la columna subcategory existe en news_articles
+    # Migración segura: verificar si subcategory e image_position existen en news_articles
     cursor.execute("PRAGMA table_info(news_articles)")
     columns = [row[1] for row in cursor.fetchall()]
     if 'subcategory' not in columns:
         cursor.execute("ALTER TABLE news_articles ADD COLUMN subcategory TEXT DEFAULT ''")
+    if 'image_position' not in columns:
+        cursor.execute("ALTER TABLE news_articles ADD COLUMN image_position TEXT DEFAULT 'center center'")
 
     # 3. Tabla para consultas de contacto
     cursor.execute('''
@@ -225,7 +227,7 @@ def init_db():
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             recovery_key_hash TEXT,
-            recovery_email TEXT DEFAULT 'liceo.limon@mep.go.cr',
+            recovery_email TEXT DEFAULT 'jeredamaya@gmail.com',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -237,14 +239,14 @@ def init_db():
     if 'recovery_key_hash' not in admin_cols:
         cursor.execute("ALTER TABLE admin_users ADD COLUMN recovery_key_hash TEXT")
     if 'recovery_email' not in admin_cols:
-        cursor.execute("ALTER TABLE admin_users ADD COLUMN recovery_email TEXT DEFAULT 'liceo.limon@mep.go.cr'")
+        cursor.execute("ALTER TABLE admin_users ADD COLUMN recovery_email TEXT DEFAULT 'jeredamaya@gmail.com'")
 
     # Clave de recuperación institucional por defecto e inmutable (MEP-LIMON-2026)
     default_recovery_key = os.environ.get('ADMIN_RECOVERY_KEY', 'MEP-LIMON-2026')
     default_rec_hash = generate_password_hash(default_recovery_key)
 
     cursor.execute("UPDATE admin_users SET recovery_key_hash = ? WHERE recovery_key_hash IS NULL OR recovery_key_hash = ''", (default_rec_hash,))
-    cursor.execute("UPDATE admin_users SET recovery_email = 'liceo.limon@mep.go.cr' WHERE recovery_email IS NULL OR recovery_email = ''")
+    cursor.execute("UPDATE admin_users SET recovery_email = 'jeredamaya@gmail.com' WHERE recovery_email IS NULL OR recovery_email = '' OR recovery_email = 'liceo.limon@mep.go.cr'")
 
     # 6. Tabla para tokens de restablecimiento temporal (OTP)
     cursor.execute('''
@@ -419,26 +421,26 @@ def get_news_by_id(news_id):
     conn.close()
     return dict(row) if row else None
 
-def add_news(title, category, category_slug, subcategory, date, summary, content, image, author):
+def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center'):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (title, category, category_slug, subcategory, date, summary, content, image, author))
+        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center'))
     new_id = cursor.lastrowid
     conn.commit()
     conn.close()
     return new_id
 
-def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author):
+def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center'):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE news_articles
-        SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?
+        SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?
         WHERE id = ?
-    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, news_id))
+    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', news_id))
     conn.commit()
     conn.close()
     return True
@@ -651,7 +653,7 @@ def get_admin_recovery_email(username=None):
         row = cursor.fetchone()
 
     conn.close()
-    return row['recovery_email'] if row and row['recovery_email'] else 'liceo.limon@mep.go.cr'
+    return row['recovery_email'] if row and row['recovery_email'] else 'jeredamaya@gmail.com'
 
 def create_password_reset_otp(username):
     """Genera un código OTP de 6 dígitos con validez de 15 minutos y lo envía al correo institucional."""
@@ -671,7 +673,7 @@ def create_password_reset_otp(username):
         conn.close()
         return False, "No se encontró ningún usuario administrador en el sistema.", None
 
-    target_email = target_user['recovery_email'] or 'liceo.limon@mep.go.cr'
+    target_email = target_user['recovery_email'] or 'jeredamaya@gmail.com'
     user_id = target_user['id']
     target_username = target_user['username']
 
@@ -918,7 +920,7 @@ def update_admin_credentials(new_username, new_password, new_recovery_email=None
         cursor.execute('''
             INSERT INTO admin_users (username, password_hash, recovery_key_hash, recovery_email)
             VALUES (?, ?, ?, ?)
-        ''', (new_username, new_hash, rec_hash, new_recovery_email.strip() if new_recovery_email else 'liceo.limon@mep.go.cr'))
+        ''', (new_username, new_hash, rec_hash, new_recovery_email.strip() if new_recovery_email else 'jeredamaya@gmail.com'))
 
     conn.commit()
     conn.close()
