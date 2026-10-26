@@ -14,6 +14,7 @@ from database import init_db, reset_to_defaults, get_all_content, get_all_news, 
 
 class LiceoLimonTestCase(unittest.TestCase):
     def setUp(self):
+        os.environ['TESTING'] = 'True'
         app.config['TESTING'] = True
         app.config['SECRET_KEY'] = 'test-secret-key'
         self.temp_db = tempfile.NamedTemporaryFile(suffix='.db', delete=False)
@@ -24,6 +25,7 @@ class LiceoLimonTestCase(unittest.TestCase):
         init_db()
 
     def tearDown(self):
+        os.environ.pop('TESTING', None)
         database.DB_PATH = self.orig_db_path
         if hasattr(self, 'temp_db') and os.path.exists(self.temp_db.name):
             try:
@@ -540,6 +542,7 @@ class LiceoLimonTestCase(unittest.TestCase):
 
         # 7. Comprobar persistencia del correo en la base de datos
         admin_data = database.get_admin_user()
+        assert admin_data is not None
         self.assertEqual(admin_data['recovery_email'], 'direccion.limon@mep.go.cr')
 
         # 8. Modificar la clave maestra institucional en el panel y verificar su funcionamiento

@@ -11,11 +11,148 @@ import secrets
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from seed_data import DEFAULT_CMS_CONTENT, DEFAULT_NEWS
-from email_service import send_recovery_otp_email, mask_email
+from email_service import send_recovery_otp_email, mask_email, load_env_file
+
+try:
+    import libsql
+    HAS_LIBSQL = True
+except ImportError:
+    HAS_LIBSQL = False
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'liceo_cms.db')
 
+class LibsqlRow:
+    """Emula sqlite3.Row para el cliente de Turso (libsql)."""
+    def __init__(self, cols, vals):
+        self._cols = cols or []
+        self._vals = vals
+        self._map = {c: v for c, v in zip(self._cols, vals)}
+
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self._vals[item]
+        return self._map[item]
+
+    def keys(self):
+        return self._cols
+
+    def values(self):
+        return [self._map[c] for c in self._cols]
+
+    def items(self):
+        return [(c, self._map[c]) for c in self._cols]
+
+    def get(self, key, default=None):
+        return self._map.get(key, default)
+
+    def __iter__(self):
+        return iter(self._cols)
+
+    def __repr__(self):
+        return f"<LibsqlRow {self._map}>"
+
+
+class LibsqlCursorWrapper:
+    """Envuelve el cursor de libsql para retornar filas compatibles con sqlite3.Row."""
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def __getattr__(self, name):
+        return getattr(self._cursor, name)
+
+    def _wrap_row(self, row):
+        if row is None:
+            return None
+        cols = [d[0] for d in self._cursor.description] if self._cursor.description else []
+        return LibsqlRow(cols, row)
+
+    def fetchone(self):
+        return self._wrap_row(self._cursor.fetchone())
+
+    def fetchall(self):
+        rows = self._cursor.fetchall()
+        if not rows:
+            return []
+        cols = [d[0] for d in self._cursor.description] if self._cursor.description else []
+        return [LibsqlRow(cols, r) for r in rows]
+
+    def fetchmany(self, size=None):
+        rows = self._cursor.fetchmany(size) if size is not None else self._cursor.fetchmany()
+        if not rows:
+            return []
+        cols = [d[0] for d in self._cursor.description] if self._cursor.description else []
+        return [LibsqlRow(cols, r) for r in rows]
+
+    def __iter__(self):
+        for row in self.fetchall():
+            yield row
+
+
+class LibsqlConnectionWrapper:
+    """Envuelve la conexión de libsql para compatibilidad con context managers y row_factory."""
+    def __init__(self, conn):
+        self._conn = conn
+
+    def __getattr__(self, name):
+        return getattr(self._conn, name)
+
+    def cursor(self):
+        return LibsqlCursorWrapper(self._conn.cursor())
+
+    def execute(self, *args, **kwargs):
+        cur = self.cursor()
+        cur.execute(*args, **kwargs)
+        return cur
+
+    def commit(self):
+        return self._conn.commit()
+
+    def rollback(self):
+        try:
+            return self._conn.rollback()
+        except Exception:
+            pass
+
+    def close(self):
+        return self._conn.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is None:
+            self.commit()
+        else:
+            self.rollback()
+
+
 def get_db_connection():
+    load_env_file()
+
+    # Si estamos en modo de pruebas unitarias, usar siempre la base de datos local temporal
+    if os.environ.get('TESTING') == 'True':
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    try:
+        from flask import current_app
+        if current_app and current_app.config.get('TESTING'):
+            conn = sqlite3.connect(DB_PATH)
+            conn.row_factory = sqlite3.Row
+            return conn
+    except Exception:
+        pass
+
+    turso_url = os.environ.get('TURSO_DATABASE_URL', '').strip()
+    turso_token = os.environ.get('TURSO_AUTH_TOKEN', '').strip()
+
+    if turso_url and HAS_LIBSQL:
+        # Conexión persistente en la nube (Turso)
+        conn = getattr(libsql, "connect")(database=turso_url, auth_token=turso_token)
+        return LibsqlConnectionWrapper(conn)
+
+    # Conexión local a archivo SQLite (desarrollo o sin Turso configurado)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
@@ -126,21 +263,25 @@ def init_db():
 
     conn.commit()
 
+    def _is_empty():
+        row = cursor.fetchone()
+        return not row or row[0] == 0
+
     # Verificar si necesitamos rellenar datos iniciales
     cursor.execute('SELECT COUNT(*) FROM cms_content')
-    if cursor.fetchone()[0] == 0:
+    if _is_empty():
         seed_content(conn)
 
     cursor.execute('SELECT COUNT(*) FROM news_articles')
-    if cursor.fetchone()[0] == 0:
+    if _is_empty():
         seed_news(conn)
 
     cursor.execute('SELECT COUNT(*) FROM contact_inquiries')
-    if cursor.fetchone()[0] == 0:
+    if _is_empty():
         seed_inquiries(conn)
 
     cursor.execute('SELECT COUNT(*) FROM admin_users')
-    if cursor.fetchone()[0] == 0:
+    if _is_empty():
         cursor.execute('''
             INSERT INTO admin_users (username, password_hash, recovery_key_hash)
             VALUES (?, ?, ?)
@@ -149,7 +290,7 @@ def init_db():
 
     # Crear punto de restauración inicial base de fábrica si la tabla de snapshots está vacía
     cursor.execute('SELECT COUNT(*) FROM cms_snapshots')
-    if cursor.fetchone()[0] == 0:
+    if _is_empty():
         cursor.execute('SELECT key, value FROM cms_content')
         content_dict = {row['key']: row['value'] for row in cursor.fetchall()}
         cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author FROM news_articles')
