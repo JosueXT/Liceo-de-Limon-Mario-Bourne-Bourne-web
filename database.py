@@ -7,6 +7,7 @@ BASE DE DATOS (SQLite) - LICEO DE LIMÓN MARIO BOURNE BOURNE
 import sqlite3
 import os
 import json
+import time
 import secrets
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -376,10 +377,29 @@ def seed_inquiries(conn):
     conn.commit()
 
 # =============================================================================
-# FUNCIONES DE CONSULTA Y ACTUALIZACIÓN (CMS & NOTICIAS)
+# CACHÉ EN MEMORIA PARA MÁXIMA VELOCIDAD (SUB-MILISEGUNDO)
 # =============================================================================
+_CACHE_CONTENT = None
+_CACHE_CONTENT_TIME = 0
+_CACHE_NEWS = None
+_CACHE_NEWS_TIME = 0
+CACHE_TTL_SECONDS = 120  # 2 minutos de TTL en memoria o invalidación inmediata al editar
 
-def get_all_content():
+def invalidate_cms_cache():
+    """Invalida la memoria caché para forzar lectura fresca desde la base de datos."""
+    global _CACHE_CONTENT, _CACHE_CONTENT_TIME, _CACHE_NEWS, _CACHE_NEWS_TIME
+    _CACHE_CONTENT = None
+    _CACHE_CONTENT_TIME = 0
+    _CACHE_NEWS = None
+    _CACHE_NEWS_TIME = 0
+
+def get_all_content(force_fresh=False):
+    """Obtiene todos los contenidos del CMS utilizando caché en RAM ultra-rápida."""
+    global _CACHE_CONTENT, _CACHE_CONTENT_TIME
+    now = time.time()
+    if not force_fresh and _CACHE_CONTENT is not None and (now - _CACHE_CONTENT_TIME < CACHE_TTL_SECONDS):
+        return dict(_CACHE_CONTENT)
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT key, value FROM cms_content')
@@ -390,7 +410,10 @@ def get_all_content():
     for k, v in DEFAULT_CMS_CONTENT.items():
         if k not in content:
             content[k] = v
-    return content
+
+    _CACHE_CONTENT = content
+    _CACHE_CONTENT_TIME = now
+    return dict(content)
 
 def update_bulk_content(items_dict):
     conn = get_db_connection()
@@ -403,15 +426,25 @@ def update_bulk_content(items_dict):
         ''', (key, str(value)))
     conn.commit()
     conn.close()
+    invalidate_cms_cache()
     return True
 
-def get_all_news():
+def get_all_news(force_fresh=False):
+    """Obtiene todas las noticias utilizando caché en RAM ultra-rápida."""
+    global _CACHE_NEWS, _CACHE_NEWS_TIME
+    now = time.time()
+    if not force_fresh and _CACHE_NEWS is not None and (now - _CACHE_NEWS_TIME < CACHE_TTL_SECONDS):
+        return list(_CACHE_NEWS)
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM news_articles ORDER BY id DESC')
     rows = cursor.fetchall()
     conn.close()
-    return [dict(row) for row in rows]
+    news = [dict(row) for row in rows]
+    _CACHE_NEWS = news
+    _CACHE_NEWS_TIME = now
+    return list(news)
 
 def get_news_by_id(news_id):
     conn = get_db_connection()
@@ -431,6 +464,7 @@ def add_news(title, category, category_slug, subcategory, date, summary, content
     new_id = cursor.lastrowid
     conn.commit()
     conn.close()
+    invalidate_cms_cache()
     return new_id
 
 def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center'):
@@ -443,6 +477,7 @@ def update_news(news_id, title, category, category_slug, subcategory, date, summ
     ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', news_id))
     conn.commit()
     conn.close()
+    invalidate_cms_cache()
     return True
 
 def delete_news(news_id):
@@ -451,6 +486,7 @@ def delete_news(news_id):
     cursor.execute('DELETE FROM news_articles WHERE id = ?', (news_id,))
     conn.commit()
     conn.close()
+    invalidate_cms_cache()
     return True
 
 # =============================================================================
@@ -507,6 +543,7 @@ def reset_to_defaults():
     seed_news(conn)
     seed_inquiries(conn)
     conn.close()
+    invalidate_cms_cache()
     return True
 
 # =============================================================================
@@ -612,6 +649,7 @@ def restore_snapshot(snapshot_id):
 
     conn.commit()
     conn.close()
+    invalidate_cms_cache()
     return True
 
 def delete_snapshot(snapshot_id):
