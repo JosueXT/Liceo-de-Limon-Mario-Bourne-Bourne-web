@@ -121,8 +121,18 @@ def get_client_ip():
         return forwarded.split(',')[0].strip()
     return request.remote_addr or '127.0.0.1'
 
-# Inicializar Base de Datos SQLite al arrancar la aplicación
-init_db()
+# Inicialización perezosa de Base de Datos (se ejecuta dentro del worker de Gunicorn para evitar deadlocks de Tokio/Rust)
+_db_setup_done = False
+
+@app.before_request
+def setup_db_on_first_request():
+    global _db_setup_done
+    if not _db_setup_done:
+        try:
+            init_db()
+        except Exception as e:
+            print(f"[ADVERTENCIA] Error inicializando BD: {e}")
+        _db_setup_done = True
 
 def get_modality_dynamic_lists(slug, cms):
     """Extrae las listas dinámicas y editables para una modalidad (ventajas, requisitos, malla, pilares)."""
