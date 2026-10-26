@@ -795,14 +795,10 @@ def verify_admin_credentials(username, password):
         return is_valid
 
 def verify_recovery_key(username, recovery_key):
-    """Verifica si la clave maestra de recuperación institucional es válida (inmutable: MEP-LIMON-2026)."""
+    """Verifica si la clave de recuperación institucional es válida contra el hash de base de datos."""
     if not recovery_key:
         return False
     recovery_key = recovery_key.strip()
-
-    # La clave maestra institucional es inmutable para evitar accidentes
-    if recovery_key == DEFAULT_RECOVERY_KEY or recovery_key == 'MEP-LIMON-2026':
-        return True
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -815,14 +811,19 @@ def verify_recovery_key(username, recovery_key):
     conn.close()
 
     if row and row['recovery_key_hash']:
-        if row['recovery_key_hash'].startswith(('scrypt:', 'pbkdf2:')):
-            return check_password_hash(row['recovery_key_hash'], recovery_key)
-        return row['recovery_key_hash'] == recovery_key
+        stored_hash = row['recovery_key_hash']
+        if stored_hash.startswith(('scrypt:', 'pbkdf2:')):
+            return check_password_hash(stored_hash, recovery_key)
+        return secrets.compare_digest(stored_hash, recovery_key)
+
+    # Si no hay hash en BD pero hay clave definida en variable de entorno
+    if DEFAULT_RECOVERY_KEY:
+        return secrets.compare_digest(recovery_key, DEFAULT_RECOVERY_KEY)
 
     return False
 
 def reset_admin_password_with_recovery(username, recovery_key, new_password):
-    """Restablece la contraseña del administrador validando la clave maestra institucional fija."""
+    """Restablece la contraseña del administrador validando la clave de recuperación institucional."""
     if not recovery_key or not new_password:
         return False, "Debe proporcionar la clave de recuperación institucional y la nueva contraseña."
 
@@ -830,7 +831,7 @@ def reset_admin_password_with_recovery(username, recovery_key, new_password):
         return False, "La nueva contraseña debe contener al menos 4 caracteres."
 
     if not verify_recovery_key(username, recovery_key):
-        return False, "Clave maestra institucional incorrecta. La clave fija oficial es 'MEP-LIMON-2026'."
+        return False, "Clave de recuperación institucional incorrecta. Verifique sus credenciales institucionales o use la recuperación por correo OTP."
 
     conn = get_db_connection()
     cursor = conn.cursor()

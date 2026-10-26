@@ -22,7 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initNewsModal();
   initContactForm();
   initMobileMenu();
+  initNewsImagePositions();
 });
+
+function initNewsImagePositions() {
+  document.querySelectorAll('.news-image[data-position]').forEach(img => {
+    const pos = img.getAttribute('data-position');
+    if (pos) img.style.objectPosition = pos;
+  });
+}
 
 /**
  * 1. Barra de Navegación Sticky con sombra al hacer Scroll
@@ -150,20 +158,55 @@ function animateValue(obj, start, end, duration, hasPlus, hasPercent) {
 
 /**
  * 5. Filtros Jerárquicos por Categoría y Subcategoría de Noticias
- * Permite filtrar comunicados por 'Todas', 'ib', 'frances', 'regular' o 'institucionales',
- * y además despliega subcategorías (ej: CAS, TOK, Actividades, DELF, etc.) si existen.
+ * Permite filtrar comunicados por 'Todas', 'ib', 'frances', 'regular' o 'institucionales'.
+ * Inicialmente ninguna categoría está seleccionada para evitar saturación visual.
+ * Al presionar una categoría se despliegan sus comunicados con animación escalonada.
+ * Si se presiona nuevamente la categoría activa, se pliegan de nuevo.
  */
 function initNewsFilters() {
   const filterBtns = document.querySelectorAll('.news-tab-btn');
   const newsCards = document.querySelectorAll('.news-card');
   const subfilterWrapper = document.getElementById('newsSubfilterContainer');
+  const initialState = document.getElementById('newsInitialState');
 
   if (!filterBtns.length || !newsCards.length) return;
 
-  let currentCategory = 'all';
+  // Inicialmente ninguna categoría está seleccionada
+  let currentCategory = null;
   let currentSubcategory = 'all';
 
+  // Ocultar todas las noticias al arrancar la página
+  newsCards.forEach(card => {
+    card.style.display = 'none';
+    card.classList.remove('news-card-deploying');
+  });
+
+  if (initialState) {
+    initialState.style.display = 'flex';
+  }
+
   function applyFilters() {
+    if (!currentCategory) {
+      // Sin categoría activa: ocultar comunicados y mostrar estado inicial
+      newsCards.forEach(card => {
+        card.style.display = 'none';
+        card.classList.remove('news-card-deploying');
+      });
+      if (initialState) {
+        initialState.style.display = 'flex';
+      }
+      if (subfilterWrapper) {
+        subfilterWrapper.style.display = 'none';
+        subfilterWrapper.innerHTML = '';
+      }
+      return;
+    }
+
+    if (initialState) {
+      initialState.style.display = 'none';
+    }
+
+    let matchCount = 0;
     newsCards.forEach(card => {
       const cardCategory = card.getAttribute('data-category');
       const cardSubcategory = (card.getAttribute('data-subcategory') || '').trim();
@@ -173,9 +216,15 @@ function initNewsFilters() {
 
       if (matchesCategory && matchesSubcategory) {
         card.style.display = 'flex';
-        card.classList.add('fadeIn');
+        // Reiniciar animación con delay escalonado para efecto cascada
+        card.classList.remove('news-card-deploying');
+        void card.offsetWidth; // Forzar reflow
+        card.style.animationDelay = `${matchCount * 65}ms`;
+        card.classList.add('news-card-deploying');
+        matchCount++;
       } else {
         card.style.display = 'none';
+        card.classList.remove('news-card-deploying');
       }
     });
   }
@@ -183,7 +232,7 @@ function initNewsFilters() {
   function renderSubcategoriesForCategory(category) {
     if (!subfilterWrapper) return;
 
-    if (category === 'all') {
+    if (!category || category === 'all') {
       subfilterWrapper.style.display = 'none';
       subfilterWrapper.innerHTML = '';
       return;
@@ -229,10 +278,23 @@ function initNewsFilters() {
 
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
+      const filterValue = btn.getAttribute('data-filter');
+
+      // Si se hace clic en la categoría que ya estaba activa, se deselecciona (toggle para plegar)
+      if (btn.classList.contains('active')) {
+        btn.classList.remove('active');
+        currentCategory = null;
+        currentSubcategory = 'all';
+        renderSubcategoriesForCategory(null);
+        applyFilters();
+        return;
+      }
+
+      // Si se selecciona una nueva categoría
       filterBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      currentCategory = btn.getAttribute('data-filter');
+      currentCategory = filterValue;
       currentSubcategory = 'all'; // reiniciar subcategoría al cambiar categoría
 
       renderSubcategoriesForCategory(currentCategory);

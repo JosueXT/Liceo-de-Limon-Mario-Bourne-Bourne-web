@@ -5,7 +5,12 @@ SERVIDOR PRINCIPAL (FLASK) - LICEO DE LIMÓN MARIO BOURNE BOURNE (MEP)
 """
 
 import os
+import time
+import secrets
+from datetime import timedelta
+from collections import defaultdict
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response
+from email_service import load_env_file
 from database import (
     init_db,
     get_all_content,
@@ -38,9 +43,83 @@ from database import (
 )
 from seed_data import MODALIDADES_DETALLE
 
+# Cargar variables de entorno desde .env antes de inicializar servicios
+load_env_file()
+
 app = Flask(__name__)
-# Clave secreta para firmar sesiones seguras
-app.secret_key = os.environ.get('SECRET_KEY', 'liceo-limon-mario-bourne-mep-secret-key-2026')
+
+# Clave secreta criptográfica para firmar sesiones seguras (no predecible)
+secret_key = os.environ.get('SECRET_KEY')
+if not secret_key:
+    secret_key = secrets.token_hex(32)
+app.secret_key = secret_key
+
+# Configuración endurecida de cookies de sesión
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_SECURE=bool(os.environ.get('RENDER') or os.environ.get('FLASK_ENV') == 'production'),
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8)
+)
+
+@app.after_request
+def add_security_headers(response):
+    """Agrega cabeceras de seguridad HTTP estándar para prevenir ataques comunes."""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
+
+# =============================================================================
+# ESCUDO DE SEGURIDAD (PROTECCIÓN CONTRA FUERZA BRUTA Y RATE LIMITING)
+# =============================================================================
+class SecurityShield:
+    """Controlador en memoria para mitigar ataques de fuerza bruta y abusos de autenticación."""
+    def __init__(self):
+        self.failed_attempts = defaultdict(list)
+        self.request_history = defaultdict(list)
+
+    def is_locked(self, ip, action, max_attempts=5, window_seconds=600):
+        now = time.time()
+        self.failed_attempts[(ip, action)] = [
+            t for t in self.failed_attempts[(ip, action)] if now - t < window_seconds
+        ]
+        if len(self.failed_attempts[(ip, action)]) >= max_attempts:
+            oldest = self.failed_attempts[(ip, action)][0]
+            remaining = int(window_seconds - (now - oldest))
+            return True, max(1, remaining)
+        return False, 0
+
+    def record_failure(self, ip, action):
+        self.failed_attempts[(ip, action)].append(time.time())
+
+    def reset_failures(self, ip, action):
+        self.failed_attempts.pop((ip, action), None)
+
+    def is_rate_limited(self, ip, action, max_requests=4, window_seconds=600):
+        now = time.time()
+        self.request_history[(ip, action)] = [
+            t for t in self.request_history[(ip, action)] if now - t < window_seconds
+        ]
+        if len(self.request_history[(ip, action)]) >= max_requests:
+            oldest = self.request_history[(ip, action)][0]
+            remaining = int(window_seconds - (now - oldest))
+            return True, max(1, remaining)
+        self.request_history[(ip, action)].append(now)
+        return False, 0
+
+    def reset_all(self):
+        self.failed_attempts.clear()
+        self.request_history.clear()
+
+security_shield = SecurityShield()
+
+def get_client_ip():
+    """Obtiene la IP pública real del cliente considerando proxies inversos o balanceadores."""
+    forwarded = request.headers.get('X-Forwarded-For')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.remote_addr or '127.0.0.1'
 
 # Inicializar Base de Datos SQLite al arrancar la aplicación
 init_db()
@@ -212,14 +291,25 @@ def login():
             return redirect(url_for('admin_panel'))
         return render_template('login.html', cms=cms)
 
+    if not app.config.get('TESTING'):
+        ip = get_client_ip()
+        locked, remaining = security_shield.is_locked(ip, 'login', max_attempts=5, window_seconds=600)
+        if locked:
+            mins = (remaining + 59) // 60
+            return render_template('login.html', cms=cms, error=f'Acceso bloqueado temporalmente por {mins} minuto(s) debido a múltiples intentos fallidos.')
+
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '').strip()
 
     if verify_admin_credentials(username, password):
+        if not app.config.get('TESTING'):
+            security_shield.reset_failures(get_client_ip(), 'login')
         session['is_admin'] = True
         session['admin_username'] = username
         return redirect(url_for('admin_panel'))
     else:
+        if not app.config.get('TESTING'):
+            security_shield.record_failure(get_client_ip(), 'login')
         return render_template('login.html', cms=cms, error='Credenciales incorrectas. Verifique su usuario y contraseña.')
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -312,12 +402,24 @@ def api_delete_inquiry(inquiry_id):
 
 @app.route('/api/auth/login', methods=['POST'])
 def api_login():
-    """Valida credenciales dinámicas en base de datos con hash seguro."""
+    """Valida credenciales dinámicas en base de datos con hash seguro y protección contra fuerza bruta."""
+    ip = get_client_ip()
+    if not app.config.get('TESTING'):
+        locked, remaining = security_shield.is_locked(ip, 'api_login', max_attempts=5, window_seconds=600)
+        if locked:
+            mins = (remaining + 59) // 60
+            return jsonify({
+                'success': False,
+                'message': f'Acceso bloqueado temporalmente por {mins} minuto(s) debido a múltiples intentos fallidos.'
+            }), 429
+
     data = request.get_json() or {}
     username = data.get('username', '').strip()
     password = data.get('password', '').strip()
 
     if verify_admin_credentials(username, password):
+        if not app.config.get('TESTING'):
+            security_shield.reset_failures(ip, 'api_login')
         session['is_admin'] = True
         session['admin_username'] = username
         return jsonify({
@@ -326,6 +428,8 @@ def api_login():
             'redirect': '/admin/panel'
         })
     else:
+        if not app.config.get('TESTING'):
+            security_shield.record_failure(ip, 'api_login')
         return jsonify({
             'success': False,
             'message': 'Usuario o contraseña incorrectos. Verifique sus credenciales.'
@@ -340,6 +444,16 @@ def api_logout():
 @app.route('/api/auth/reset-password', methods=['POST'])
 def api_reset_password():
     """Permite al personal directivo restablecer la contraseña en caso de olvido validando la clave de recuperación institucional."""
+    ip = get_client_ip()
+    if not app.config.get('TESTING'):
+        locked, remaining = security_shield.is_locked(ip, 'reset_key', max_attempts=5, window_seconds=600)
+        if locked:
+            mins = (remaining + 59) // 60
+            return jsonify({
+                'success': False,
+                'message': f'Demasiados intentos fallidos con la clave institucional. Bloqueado temporalmente por {mins} minuto(s).'
+            }), 429
+
     data = request.get_json() or {}
     username = data.get('username', '').strip()
     recovery_key = data.get('recovery_key', '').strip()
@@ -359,11 +473,15 @@ def api_reset_password():
 
     success, message = reset_admin_password_with_recovery(username, recovery_key, new_password)
     if success:
+        if not app.config.get('TESTING'):
+            security_shield.reset_failures(ip, 'reset_key')
         return jsonify({
             'success': True,
             'message': message
         })
     else:
+        if not app.config.get('TESTING'):
+            security_shield.record_failure(ip, 'reset_key')
         return jsonify({
             'success': False,
             'message': message
@@ -371,7 +489,17 @@ def api_reset_password():
 
 @app.route('/api/auth/request-otp', methods=['POST'])
 def api_request_otp():
-    """Genera y envía un código temporal de 6 dígitos (OTP) al correo institucional de recuperación."""
+    """Genera y envía un código temporal de 6 dígitos (OTP) al correo institucional con rate limiting."""
+    ip = get_client_ip()
+    if not app.config.get('TESTING'):
+        limited, remaining = security_shield.is_rate_limited(ip, 'request_otp', max_requests=4, window_seconds=600)
+        if limited:
+            mins = (remaining + 59) // 60
+            return jsonify({
+                'success': False,
+                'message': f'Ha alcanzado el límite de solicitudes de código. Por favor espere {mins} minuto(s) antes de solicitar otro.'
+            }), 429
+
     data = request.get_json() or {}
     username = data.get('username', '').strip()
     success, message, masked_email = create_password_reset_otp(username)
@@ -389,7 +517,17 @@ def api_request_otp():
 
 @app.route('/api/auth/reset-password-otp', methods=['POST'])
 def api_reset_password_otp():
-    """Valida el código temporal recibido por correo y actualiza la contraseña."""
+    """Valida el código temporal recibido por correo y actualiza la contraseña con protección contra fuerza bruta."""
+    ip = get_client_ip()
+    if not app.config.get('TESTING'):
+        locked, remaining = security_shield.is_locked(ip, 'verify_otp', max_attempts=5, window_seconds=600)
+        if locked:
+            mins = (remaining + 59) // 60
+            return jsonify({
+                'success': False,
+                'message': f'Demasiados intentos fallidos con el código de verificación. Bloqueado temporalmente por {mins} minuto(s).'
+            }), 429
+
     data = request.get_json() or {}
     username = data.get('username', '').strip()
     otp = data.get('otp', '').strip()
@@ -403,8 +541,12 @@ def api_reset_password_otp():
 
     success, message = verify_and_consume_otp(username, otp, new_password)
     if success:
+        if not app.config.get('TESTING'):
+            security_shield.reset_failures(ip, 'verify_otp')
         return jsonify({'success': True, 'message': message})
     else:
+        if not app.config.get('TESTING'):
+            security_shield.record_failure(ip, 'verify_otp')
         return jsonify({'success': False, 'message': message}), 400
 
 @app.route('/api/admin/change-credentials', methods=['POST'])

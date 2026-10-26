@@ -131,8 +131,20 @@
   <!-- =====================================================================
        4.1 SELLO Y RECONOCIMIENTO OFICIAL IB WORLD SCHOOL
        ===================================================================== -->
-  <section class="section ib-accreditation-section reveal-scale">
+  {% set hide_ib_accreditation = (cms.get('hide_section_ib_accreditation') == 'true') %}
+  <section class="section ib-accreditation-section reveal-scale cms-toggleable-section {% if hide_ib_accreditation %}cms-hidden-exposure{% endif %}" data-cms-visibility-key="hide_section_ib_accreditation" {% if not is_admin and hide_ib_accreditation %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_ib_accreditation else '' }}" data-cms-visibility-target="hide_section_ib_accreditation" data-is-hidden="{{ 'true' if hide_ib_accreditation else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_ib_accreditation else '👁️' }}</span>
+          <span class="vis-text">{{ 'Sello IB Oculto' if hide_ib_accreditation else 'Sello IB Visible' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_ib_accreditation %}hidden{% endif %}>
+          ⚠️ Sello Oficial IB Oculto al Público
+        </span>
+      </div>
+      {% endif %}
       <div class="ib-accreditation-card">
         <div class="ib-logo-container cms-image-wrapper" data-cms-img="ib_official_logo" title="Haga clic en modo edición para cambiar el logo oficial del IB">
           <img src="{{ cms.get('ib_official_logo', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/International_Baccalaureate_Logo.svg/512px-International_Baccalaureate_Logo.svg.png') }}" alt="Bachillerato Internacional Oficial" class="ib-official-logo-img" data-cms-img="ib_official_logo">
@@ -162,8 +174,20 @@
   <!-- =====================================================================
        5. DESCRIPCIÓN PEDAGÓGICA Y ENFOQUE
        ===================================================================== -->
-  <section class="section modality-intro-section">
+  {% set hide_intro = (cms.get('hide_section_intro_' ~ modalidad.slug) == 'true') %}
+  <section class="section modality-intro-section cms-toggleable-section {% if hide_intro %}cms-hidden-exposure{% endif %}" data-cms-visibility-key="hide_section_intro_{{ modalidad.slug }}" {% if not is_admin and hide_intro %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_intro else '' }}" data-cms-visibility-target="hide_section_intro_{{ modalidad.slug }}" data-is-hidden="{{ 'true' if hide_intro else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_intro else '👁️' }}</span>
+          <span class="vis-text">{{ 'Intro Oculta' if hide_intro else 'Intro Visible' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_intro %}hidden{% endif %}>
+          ⚠️ Introducción Oculta al Público
+        </span>
+      </div>
+      {% endif %}
       <div class="modality-intro-grid">
         <div class="modality-intro-text reveal-left">
           <span class="section-tag" data-cms-key="modality_intro_tag">{{ cms.modality_intro_tag }}</span>
@@ -191,8 +215,20 @@
   <!-- =====================================================================
        6. PILARES FUNDAMENTALES DEL PROGRAMA
        ===================================================================== -->
-  <section class="section modality-pillars-section">
+  {% set hide_pillars = (cms.get('hide_section_pillars_' ~ modalidad.slug) == 'true') %}
+  <section class="section modality-pillars-section cms-toggleable-section {% if hide_pillars %}cms-hidden-exposure{% endif %}" data-cms-visibility-key="hide_section_pillars_{{ modalidad.slug }}" {% if not is_admin and hide_pillars %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_pillars else '' }}" data-cms-visibility-target="hide_section_pillars_{{ modalidad.slug }}" data-is-hidden="{{ 'true' if hide_pillars else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_pillars else '👁️' }}</span>
+          <span class="vis-text">{{ 'Pilares Ocultos' if hide_pillars else 'Pilares Visibles' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_pillars %}hidden{% endif %}>
+          ⚠️ Pilares Ocultos al Público
+        </span>
+      </div>
+      {% endif %}
       <div class="section-header reveal">
         <span class="section-tag" data-cms-key="modality_pillars_tag">{{ cms.modality_pillars_tag }}</span>
         <h2 class="section-title" data-cms-key="modality_pillars_title">{{ cms.modality_pillars_title }}</h2>
@@ -225,8 +261,20 @@
   <!-- =====================================================================
        7. MALLA CURRICULAR Y ÁREAS DE CONOCIMIENTO (TABLA 100% EDITABLE)
        ===================================================================== -->
-  <section class="section modality-curriculum-section" id="malla">
+  {% set hide_malla = (cms.get('hide_section_malla_' ~ modalidad.slug) == 'true') %}
+  <section class="section modality-curriculum-section cms-toggleable-section {% if hide_malla %}cms-hidden-exposure{% endif %}" id="malla" data-cms-visibility-key="hide_section_malla_{{ modalidad.slug }}" {% if not is_admin and hide_malla %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_malla else '' }}" data-cms-visibility-target="hide_section_malla_{{ modalidad.slug }}" data-is-hidden="{{ 'true' if hide_malla else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_malla else '👁️' }}</span>
+          <span class="vis-text">{{ 'Malla Oculta' if hide_malla else 'Malla Visible' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_malla %}hidden{% endif %}>
+          ⚠️ Malla Curricular Oculta al Público
+        </span>
+      </div>
+      {% endif %}
       <div class="section-header reveal">
         <span class="section-tag" data-cms-key="modality_curriculum_tag">{{ cms.modality_curriculum_tag }}</span>
         <h2 class="section-title" data-cms-key="modality_curriculum_title">{{ cms.modality_curriculum_title }}</h2>
@@ -273,8 +321,20 @@
   <!-- =====================================================================
        8. VENTAJAS Y BENEFICIOS PARA EL ESTUDIANTE
        ===================================================================== -->
-  <section class="section modality-advantages-section">
+  {% set hide_advantages = (cms.get('hide_section_advantages_' ~ modalidad.slug) == 'true') %}
+  <section class="section modality-advantages-section cms-toggleable-section {% if hide_advantages %}cms-hidden-exposure{% endif %}" data-cms-visibility-key="hide_section_advantages_{{ modalidad.slug }}" {% if not is_admin and hide_advantages %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_advantages else '' }}" data-cms-visibility-target="hide_section_advantages_{{ modalidad.slug }}" data-is-hidden="{{ 'true' if hide_advantages else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_advantages else '👁️' }}</span>
+          <span class="vis-text">{{ 'Ventajas Ocultas' if hide_advantages else 'Ventajas Visibles' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_advantages %}hidden{% endif %}>
+          ⚠️ Ventajas Ocultas al Público
+        </span>
+      </div>
+      {% endif %}
       <div class="advantages-grid">
         <div class="advantages-info-col reveal-left">
           <span class="section-tag" data-cms-key="modality_advantages_tag">{{ cms.modality_advantages_tag }}</span>
@@ -338,8 +398,20 @@
        8.5. REDES SOCIALES Y CONTACTO EXCLUSIVO IB (BACHILLERATO INTERNACIONAL)
        ===================================================================== -->
   {% if modalidad.slug == 'ib' %}
-  <section class="section ib-social-section" id="contacto-ib">
+  {% set hide_ib_social = (cms.get('hide_section_ib_social') == 'true') %}
+  <section class="section ib-social-section cms-toggleable-section {% if hide_ib_social %}cms-hidden-exposure{% endif %}" id="contacto-ib" data-cms-visibility-key="hide_section_ib_social" {% if not is_admin and hide_ib_social %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_ib_social else '' }}" data-cms-visibility-target="hide_section_ib_social" data-is-hidden="{{ 'true' if hide_ib_social else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_ib_social else '👁️' }}</span>
+          <span class="vis-text">{{ 'Redes IB Ocultas' if hide_ib_social else 'Redes IB Visibles' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_ib_social %}hidden{% endif %}>
+          ⚠️ Redes Sociales IB Ocultas al Público
+        </span>
+      </div>
+      {% endif %}
       <div class="section-header reveal">
         <span class="section-tag" style="background: rgba(15, 52, 96, 0.1); color: var(--azul);" data-cms-key="ib_social_tag">{{ cms.ib_social_tag }}</span>
         <h2 class="section-title" data-cms-key="ib_social_title">{{ cms.ib_social_title }}</h2>

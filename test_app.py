@@ -574,6 +574,98 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertIn('jeredbi20252026@gmail.com', backups)
         self.assertIn('jeredamaya@gmail.com', backups)
 
+    def test_14_visibility_toggles_and_dynamic_campus(self):
+        """Verifica el sistema de visibilidad (ocultar/mostrar con baja exposición) y espacios dinámicos"""
+        # 1. Verificar carga pública por defecto con 4 espacios educativos
+        res_pub = self.client.get('/')
+        self.assertEqual(res_pub.status_code, 200)
+        html_pub = res_pub.get_data(as_text=True)
+        self.assertIn('Laboratorios de Ciencias y Computación', html_pub)
+        self.assertIn('data-cms-list="campus"', html_pub)
+        self.assertNotIn('contact-info-full-width', html_pub)
+
+        # 2. Login como admin
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+
+        # 3. Guardar nuevo espacio educativo #5 y ocultar el formulario de contacto y las instalaciones
+        res_update = self.client.post('/api/cms/content',
+            data=json.dumps({
+                'items': {
+                    'campus_item_5_title': 'Laboratorio de Robótica y STEM',
+                    'campus_item_5_desc': 'Espacio de robótica educativa de última generación.',
+                    'campus_item_5_icon': '🤖',
+                    'hide_section_contacto_form': 'true',
+                    'hide_section_instalaciones': 'true'
+                }
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_update.status_code, 200)
+
+        # 4. Verificar vista en sesión de Administrador (Editor Visual):
+        # - Las instalaciones y el formulario tienen baja exposición (.cms-hidden-exposure)
+        # - NO están ocultos (no tienen display: none) para permitir su edición
+        # - El panel de contacto de secretaría NO se estira (.contact-info-full-width no está activo)
+        res_admin = self.client.get('/')
+        html_admin = res_admin.get_data(as_text=True)
+        self.assertIn('Laboratorio de Robótica y STEM', html_admin)
+        self.assertIn('hide_section_contacto_form', html_admin)
+        self.assertIn('hide_section_instalaciones', html_admin)
+        self.assertIn('btn-cms-visibility-toggle', html_admin)
+        self.assertIn('cms-hidden-exposure', html_admin)
+        self.assertNotIn('class="contact-info-panel reveal-left contact-info-full-width"', html_admin)
+
+        # 5. Cerrar sesión y verificar vista para el público general:
+        # - El formulario de contacto está oculto (display: none !important)
+        # - El panel de Secretaría & Información se estira (contact-info-full-width)
+        # - La sección de instalaciones está oculta al público (display: none !important)
+        self.client.get('/logout')
+        res_visitor = self.client.get('/')
+        html_visitor = res_visitor.get_data(as_text=True)
+        self.assertIn('contact-info-full-width', html_visitor)
+        self.assertIn('data-cms-visibility-key="hide_section_contacto_form" style="display: none !important;"', html_visitor)
+        self.assertIn('data-cms-visibility-key="hide_section_instalaciones" style="display: none !important;"', html_visitor)
+
+    def test_15_security_shield_and_headers(self):
+        """Verifica cabeceras HTTP de seguridad, protección de cookies y escudo contra fuerza bruta"""
+        # 1. Cabeceras HTTP de seguridad en respuestas públicas
+        res = self.client.get('/')
+        self.assertEqual(res.headers.get('X-Content-Type-Options'), 'nosniff')
+        self.assertEqual(res.headers.get('X-Frame-Options'), 'SAMEORIGIN')
+        self.assertEqual(res.headers.get('X-XSS-Protection'), '1; mode=block')
+
+        # 2. Comprobar que los mensajes de error no filtran la clave institucional
+        res_err = self.client.post('/api/auth/reset-password',
+            data=json.dumps({
+                'username': 'Admin',
+                'recovery_key': 'clave_falsa_999',
+                'new_password': 'NuevaPassword2026'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(res_err.status_code, 401)
+        err_data = json.loads(res_err.get_data(as_text=True))
+        self.assertNotIn('MEP-LIMON-2026', err_data['message'])
+
+        # 3. Validar escudo de fuerza bruta SecurityShield
+        from app import security_shield
+        security_shield.reset_all()
+        fake_ip = '10.20.30.40'
+        for _ in range(5):
+            security_shield.record_failure(fake_ip, 'api_login')
+
+        locked, remaining = security_shield.is_locked(fake_ip, 'api_login', max_attempts=5)
+        self.assertTrue(locked)
+        self.assertGreater(remaining, 0)
+
+        # Tras éxito se reinicia el contador de fallas
+        security_shield.reset_failures(fake_ip, 'api_login')
+        locked_after, _ = security_shield.is_locked(fake_ip, 'api_login', max_attempts=5)
+        self.assertFalse(locked_after)
+
 if __name__ == '__main__':
     unittest.main()
 

@@ -48,6 +48,9 @@ function enableVisualEditMode() {
   // Inicializar controles de listas y tablas dinámicas (agregar / eliminar items)
   initDynamicListControls();
 
+  // Inicializar controles de visibilidad de secciones y bloques (ocultar / mostrar al público)
+  initVisibilityToggleControls();
+
   // Escuchar escritura en cualquier elemento editable
   document.addEventListener('input', (e) => {
     const target = e.target;
@@ -586,6 +589,23 @@ function handleAddDynamicItem(container, listType, prefix) {
     `;
     parent.appendChild(newElement);
     CMS_STATE.modifiedItems[`${prefix}${newIndex}`] = "Nuevo pilar formativo...";
+
+  } else if (listType === 'campus') {
+    newElement = document.createElement('div');
+    newElement.className = 'campus-card reveal delay-100';
+    newElement.setAttribute('data-cms-item-index', newIndex);
+    newElement.innerHTML = `
+      <div class="campus-card-top-bar" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.4rem;">
+        <div class="campus-icon-box cms-modified" data-cms-key="${prefix}${newIndex}_icon" contenteditable="true" spellcheck="false" title="Haga clic para editar ícono" style="margin-bottom: 0;">🏫</div>
+        <button type="button" class="cms-delete-item-btn" title="Eliminar este espacio educativo" aria-label="Eliminar espacio">✕</button>
+      </div>
+      <h3 class="campus-card-title cms-modified" data-cms-key="${prefix}${newIndex}_title" contenteditable="true" spellcheck="false">Nuevo Espacio Educativo</h3>
+      <p class="campus-card-desc cms-modified" data-cms-key="${prefix}${newIndex}_desc" contenteditable="true" spellcheck="false">Descripción de las instalaciones y recursos pedagógicos...</p>
+    `;
+    parent.appendChild(newElement);
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_icon`] = "🏫";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_title`] = "Nuevo Espacio Educativo";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_desc`] = "Descripción de las instalaciones y recursos pedagógicos...";
   }
 
   updateModifiedCounter();
@@ -707,6 +727,41 @@ function reindexDynamicList(container, listType, prefix, previousCount) {
           delete CMS_STATE.modifiedItems[oldKey];
         }
       }
+    } else if (listType === 'campus') {
+      const iconEl = el.querySelector('.campus-icon-box');
+      const titleEl = el.querySelector('.campus-card-title');
+      const descEl = el.querySelector('.campus-card-desc');
+      const newIconKey = `${prefix}${newIdx}_icon`;
+      const newTitleKey = `${prefix}${newIdx}_title`;
+      const newDescKey = `${prefix}${newIdx}_desc`;
+
+      if (iconEl) {
+        const oldIconKey = iconEl.getAttribute('data-cms-key');
+        iconEl.setAttribute('data-cms-key', newIconKey);
+        iconEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newIconKey] = iconEl.innerText.trim();
+        if (oldIconKey && oldIconKey !== newIconKey && oldIconKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldIconKey];
+        }
+      }
+      if (titleEl) {
+        const oldTitleKey = titleEl.getAttribute('data-cms-key');
+        titleEl.setAttribute('data-cms-key', newTitleKey);
+        titleEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newTitleKey] = titleEl.innerText.trim();
+        if (oldTitleKey && oldTitleKey !== newTitleKey && oldTitleKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldTitleKey];
+        }
+      }
+      if (descEl) {
+        const oldDescKey = descEl.getAttribute('data-cms-key');
+        descEl.setAttribute('data-cms-key', newDescKey);
+        descEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newDescKey] = descEl.innerText.trim();
+        if (oldDescKey && oldDescKey !== newDescKey && oldDescKey.startsWith(prefix)) {
+          delete CMS_STATE.modifiedItems[oldDescKey];
+        }
+      }
     }
   });
 
@@ -718,6 +773,10 @@ function reindexDynamicList(container, listType, prefix, previousCount) {
     } else if (listType === 'pillars') {
       CMS_STATE.modifiedItems[`${prefix}${idx}_title`] = '';
       CMS_STATE.modifiedItems[`${prefix}${idx}_desc`] = '';
+    } else if (listType === 'campus') {
+      CMS_STATE.modifiedItems[`${prefix}${idx}_icon`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_title`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_desc`] = '';
     } else {
       CMS_STATE.modifiedItems[`${prefix}${idx}`] = '';
     }
@@ -726,3 +785,74 @@ function reindexDynamicList(container, listType, prefix, previousCount) {
   updateModifiedCounter();
   showToast('🗑️ Elemento eliminado. Presione "💾 Guardar Cambios" para confirmar en la base de datos.', 'info');
 }
+
+/**
+ * ============================================================================
+ * 10. CONTROL DE VISIBILIDAD DE SECCIONES (OCULTAR / MOSTRAR AL PÚBLICO)
+ * ============================================================================
+ */
+function initVisibilityToggleControls() {
+  document.addEventListener('click', (e) => {
+    const toggleBtn = e.target.closest('.btn-cms-visibility-toggle');
+    if (!toggleBtn) return;
+    e.preventDefault();
+
+    const targetKey = toggleBtn.getAttribute('data-cms-visibility-target');
+    if (!targetKey) return;
+
+    const currentIsHidden = toggleBtn.getAttribute('data-is-hidden') === 'true';
+    const newIsHidden = !currentIsHidden;
+
+    // Actualizar botón
+    toggleBtn.setAttribute('data-is-hidden', newIsHidden ? 'true' : 'false');
+    const iconSpan = toggleBtn.querySelector('.vis-icon');
+    const textSpan = toggleBtn.querySelector('.vis-text');
+    if (newIsHidden) {
+      toggleBtn.classList.add('btn-cms-visibility-hidden');
+      if (iconSpan) iconSpan.innerText = '🚫';
+      if (textSpan) textSpan.innerText = 'Oculto al público';
+    } else {
+      toggleBtn.classList.remove('btn-cms-visibility-hidden');
+      if (iconSpan) iconSpan.innerText = '👁️';
+      if (textSpan) textSpan.innerText = 'Visible al público';
+    }
+
+    // Actualizar elemento contenedor con baja exposición
+    const sectionEl = toggleBtn.closest('.cms-toggleable-section') || document.querySelector(`[data-cms-visibility-key="${targetKey}"]`);
+    if (sectionEl) {
+      if (newIsHidden) {
+        sectionEl.classList.add('cms-hidden-exposure');
+      } else {
+        sectionEl.classList.remove('cms-hidden-exposure');
+      }
+      const badge = sectionEl.querySelector('.cms-hidden-exposure-badge');
+      if (badge) {
+        badge.style.display = newIsHidden ? 'inline-flex' : 'none';
+      }
+    }
+
+    // Caso especial para formulario de contacto: ajustar panel de secretaría
+    if (targetKey === 'hide_section_contacto_form') {
+      const infoPanel = document.getElementById('contactInfoPanel');
+      if (infoPanel) {
+        if (newIsHidden) {
+          infoPanel.classList.add('contact-info-preview-full');
+        } else {
+          infoPanel.classList.remove('contact-info-preview-full');
+        }
+      }
+    }
+
+    // Registrar en modificaciones pendientes
+    CMS_STATE.modifiedItems[targetKey] = newIsHidden ? 'true' : 'false';
+    updateModifiedCounter();
+
+    showToast(
+      newIsHidden 
+        ? '🚫 Bloque marcado como OCULTO al público (baja exposición activa). Guarde cambios para aplicar.'
+        : '👁️ Bloque marcado como VISIBLE al público. Guarde cambios para aplicar.',
+      newIsHidden ? 'warning' : 'success'
+    );
+  });
+}
+

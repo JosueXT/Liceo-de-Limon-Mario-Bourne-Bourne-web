@@ -104,12 +104,19 @@
   <!-- =====================================================================
        3. TICKER DE ANUNCIOS Y AVISOS OFICIALES EN TIEMPO REAL
        ===================================================================== -->
-  <div class="announcement-ticker">
-    <div class="container">
-      <div class="ticker-content">
+  {% set hide_ticker = (cms.get('hide_section_ticker') == 'true') %}
+  <div class="announcement-ticker cms-toggleable-section {% if hide_ticker %}cms-hidden-exposure{% endif %}" data-cms-visibility-key="hide_section_ticker" {% if not is_admin and hide_ticker %}style="display: none !important;"{% endif %}>
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+      <div class="ticker-content" style="flex: 1;">
         <span class="ticker-tag" data-cms-key="ticker_tag">{{ cms.ticker_tag }}</span>
         <span class="ticker-text" data-cms-key="ticker_announcement">{{ cms.ticker_announcement }}</span>
       </div>
+      {% if is_admin %}
+      <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_ticker else '' }}" data-cms-visibility-target="hide_section_ticker" data-is-hidden="{{ 'true' if hide_ticker else 'false' }}" style="flex-shrink: 0;" title="Alternar visibilidad del cintillo de anuncios">
+        <span class="vis-icon">{{ '🚫' if hide_ticker else '👁️' }}</span>
+        <span class="vis-text">{{ 'Avisos Ocultos' if hide_ticker else 'Avisos Visibles' }}</span>
+      </button>
+      {% endif %}
     </div>
   </div>
 
@@ -149,7 +156,19 @@
   <!-- =====================================================================
        5. BARRA DE ESTADÍSTICAS FLOTANTE (CONTADORES ANIMADOS)
        ===================================================================== -->
-  <div class="container stats-bar-wrapper">
+  {% set hide_estadisticas = (cms.get('hide_section_estadisticas') == 'true') %}
+  <div class="container stats-bar-wrapper cms-toggleable-section {% if hide_estadisticas %}cms-hidden-exposure{% endif %}" data-cms-visibility-key="hide_section_estadisticas" {% if not is_admin and hide_estadisticas %}style="display: none !important;"{% endif %}>
+    {% if is_admin %}
+    <div class="cms-visibility-toolbar">
+      <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_estadisticas else '' }}" data-cms-visibility-target="hide_section_estadisticas" data-is-hidden="{{ 'true' if hide_estadisticas else 'false' }}">
+        <span class="vis-icon">{{ '🚫' if hide_estadisticas else '👁️' }}</span>
+        <span class="vis-text">{{ 'Estadísticas Ocultas' if hide_estadisticas else 'Estadísticas Visibles' }}</span>
+      </button>
+      <span class="cms-hidden-exposure-badge" {% if not hide_estadisticas %}hidden{% endif %}>
+        ⚠️ Estadísticas Ocultas al Público
+      </span>
+    </div>
+    {% endif %}
     <div class="stats-grid reveal">
       <div class="stat-item">
         <span class="stat-number stat-number-vino" data-target="{{ cms.stat_1_number }}" data-cms-key="stat_1_number">{{ cms.stat_1_number }}</span>
@@ -173,8 +192,21 @@
   <!-- =====================================================================
        6. CAMINO ACADÉMICO (3 OFERTAS EDUCATIVAS CON SUBPÁGINA DEDICADA)
        ===================================================================== -->
-  <section class="section academic-section" id="modalidades">
+  {% set hide_modalidades = (cms.get('hide_section_modalidades') == 'true') %}
+  <section class="section academic-section cms-toggleable-section {% if hide_modalidades %}cms-hidden-exposure{% endif %}" id="modalidades" data-cms-visibility-key="hide_section_modalidades" {% if not is_admin and hide_modalidades %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_modalidades else '' }}" data-cms-visibility-target="hide_section_modalidades" data-is-hidden="{{ 'true' if hide_modalidades else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_modalidades else '👁️' }}</span>
+          <span class="vis-text">{{ 'Modalidades Ocultas' if hide_modalidades else 'Modalidades Visibles' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_modalidades %}hidden{% endif %}>
+          ⚠️ Camino Académico Oculto al Público
+        </span>
+      </div>
+      {% endif %}
+
       <div class="section-header reveal">
         <span class="section-tag" data-cms-key="academic_section_tag">{{ cms.academic_section_tag }}</span>
         <h2 class="section-title" data-cms-key="academic_section_title">{{ cms.academic_section_title }}</h2>
@@ -320,8 +352,21 @@
   <!-- =====================================================================
        7. NOTICIAS Y COMUNICADOS (FILTRADO POR CATEGORÍA Y SUBCATEGORÍA)
        ===================================================================== -->
-  <section class="section news-section" id="noticias">
+  {% set hide_noticias = (cms.get('hide_section_noticias') == 'true') %}
+  <section class="section news-section cms-toggleable-section {% if hide_noticias %}cms-hidden-exposure{% endif %}" id="noticias" data-cms-visibility-key="hide_section_noticias" {% if not is_admin and hide_noticias %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_noticias else '' }}" data-cms-visibility-target="hide_section_noticias" data-is-hidden="{{ 'true' if hide_noticias else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_noticias else '👁️' }}</span>
+          <span class="vis-text">{{ 'Noticias Ocultas' if hide_noticias else 'Noticias Visibles' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_noticias %}hidden{% endif %}>
+          ⚠️ Sección de Noticias Oculta al Público
+        </span>
+      </div>
+      {% endif %}
+
       <div class="section-header reveal">
         <span class="section-tag section-tag-blue" data-cms-key="news_section_tag">{{ cms.news_section_tag }}</span>
         <h2 class="section-title" data-cms-key="news_section_title">{{ cms.news_section_title }}</h2>
@@ -330,7 +375,7 @@
 
       <!-- Filtros Principales por Categoría -->
       <div class="news-filter-tabs reveal">
-        <button class="news-tab-btn active" data-filter="all" data-cms-key="news_tab_all">{{ cms.news_tab_all }}</button>
+        <button class="news-tab-btn" data-filter="all" data-cms-key="news_tab_all">{{ cms.news_tab_all }}</button>
         <button class="news-tab-btn" data-filter="ib" data-cms-key="news_tab_ib">{{ cms.news_tab_ib }}</button>
         <button class="news-tab-btn" data-filter="frances" data-cms-key="news_tab_frances">{{ cms.news_tab_frances }}</button>
         <button class="news-tab-btn" data-filter="regular" data-cms-key="news_tab_regular">{{ cms.news_tab_regular }}</button>
@@ -339,6 +384,16 @@
 
       <!-- Subfiltros Dinámicos (CAS, TOK, Actividades, DELF, etc.) -->
       <div class="news-subfilter-container" id="newsSubfilterContainer" style="display: none;"></div>
+
+      <!-- Estado Inicial Limpio (Sin noticias desplegadas hasta elegir categoría) -->
+      <div class="news-initial-state" id="newsInitialState">
+        <div class="news-initial-icon">📰</div>
+        <h3 class="news-initial-title">Explore los Comunicados Oficiales</h3>
+        <p class="news-initial-desc">Seleccione una categoría arriba para desplegar las publicaciones institucionales.</p>
+        <div class="news-initial-hint">
+          <span>💡 Toque una categoría para ver sus noticias • Vuelva a tocarla para cerrarla</span>
+        </div>
+      </div>
 
       <!-- Cuadrícula Dinámica de Comunicados -->
       <div class="news-grid" id="newsGridContainer">
@@ -351,7 +406,7 @@
                 <span class="news-subcategory-tag">{{ item.subcategory }}</span>
               {% endif %}
             </span>
-            <img src="{{ item.image }}" alt="{{ item.title }}" class="news-image" style="object-position: {{ item.image_position or 'center center' }};">
+            <img src="{{ item.image }}" alt="{{ item.title }}" class="news-image" data-position="{{ item.image_position or 'center center' }}">
           </div>
 
           <div class="news-body">
@@ -374,8 +429,21 @@
   <!-- =====================================================================
        8. SECCIÓN DE REDES SOCIALES INSTITUCIONALES (FACEBOOK, INSTAGRAM, WHATSAPP)
        ===================================================================== -->
-  <section class="section social-section" id="redes">
+  {% set hide_redes = (cms.get('hide_section_redes') == 'true') %}
+  <section class="section social-section cms-toggleable-section {% if hide_redes %}cms-hidden-exposure{% endif %}" id="redes" data-cms-visibility-key="hide_section_redes" {% if not is_admin and hide_redes %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_redes else '' }}" data-cms-visibility-target="hide_section_redes" data-is-hidden="{{ 'true' if hide_redes else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_redes else '👁️' }}</span>
+          <span class="vis-text">{{ 'Redes Ocultas' if hide_redes else 'Redes Visibles' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_redes %}hidden{% endif %}>
+          ⚠️ Sección de Redes Oculta al Público
+        </span>
+      </div>
+      {% endif %}
+
       <div class="section-header reveal">
         <span class="section-tag" style="background: rgba(15, 52, 96, 0.1); color: var(--azul);" data-cms-key="social_section_tag">{{ cms.social_section_tag }}</span>
         <h2 class="section-title" data-cms-key="social_section_title">{{ cms.social_section_title }}</h2>
@@ -440,8 +508,21 @@
   <!-- =====================================================================
        9. NUESTRA HISTORIA & LEGADO DEL MAESTRO MARIO BOURNE BOURNE
        ===================================================================== -->
-  <section class="section identity-section" id="identidad">
+  {% set hide_identidad = (cms.get('hide_section_identidad') == 'true') %}
+  <section class="section identity-section cms-toggleable-section {% if hide_identidad %}cms-hidden-exposure{% endif %}" id="identidad" data-cms-visibility-key="hide_section_identidad" {% if not is_admin and hide_identidad %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_identidad else '' }}" data-cms-visibility-target="hide_section_identidad" data-is-hidden="{{ 'true' if hide_identidad else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_identidad else '👁️' }}</span>
+          <span class="vis-text">{{ 'Historia Oculta' if hide_identidad else 'Historia Visible' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_identidad %}hidden{% endif %}>
+          ⚠️ Sección de Identidad Oculta al Público
+        </span>
+      </div>
+      {% endif %}
+
       <div class="identity-grid">
         <div class="identity-text-col reveal-left">
           <span class="section-tag" data-cms-key="history_section_tag">{{ cms.history_section_tag }}</span>
@@ -480,46 +561,74 @@
   </section>
 
   <!-- =====================================================================
-       10. INSTALACIONES Y VIDA ESTUDIANTIL
+       10. INSTALACIONES Y VIDA ESTUDIANTIL (DINÁMICO Y EDITABLE)
        ===================================================================== -->
-  <section class="section campus-section" id="instalaciones">
+  {% set hide_instalaciones = (cms.get('hide_section_instalaciones') == 'true') %}
+  <section class="section campus-section cms-toggleable-section {% if hide_instalaciones %}cms-hidden-exposure{% endif %}" id="instalaciones" data-cms-visibility-key="hide_section_instalaciones" {% if not is_admin and hide_instalaciones %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_instalaciones else '' }}" data-cms-visibility-target="hide_section_instalaciones" data-is-hidden="{{ 'true' if hide_instalaciones else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_instalaciones else '👁️' }}</span>
+          <span class="vis-text">{{ 'Oculto al público' if hide_instalaciones else 'Visible al público' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_instalaciones %}hidden{% endif %}>
+          ⚠️ Espacios Educativos Ocultos al Público (Baja Exposición)
+        </span>
+      </div>
+      {% endif %}
+
       <div class="section-header reveal">
         <span class="section-tag" style="background: rgba(255, 255, 255, 0.1); color: #38bdf8;" data-cms-key="campus_section_tag">{{ cms.campus_section_tag }}</span>
         <h2 class="section-title" data-cms-key="campus_title">{{ cms.campus_title }}</h2>
         <p class="section-subtitle" data-cms-key="campus_subtitle">{{ cms.campus_subtitle }}</p>
       </div>
 
-      <div class="campus-grid">
-        <div class="campus-card reveal delay-100">
-          <div class="campus-icon-box">🔬</div>
-          <h3 class="campus-card-title" data-cms-key="campus_item_1_title">{{ cms.campus_item_1_title }}</h3>
-          <p class="campus-card-desc" data-cms-key="campus_item_1_desc">{{ cms.campus_item_1_desc }}</p>
+      <div class="campus-grid" data-cms-list="campus" data-cms-prefix="campus_item_">
+        {% for item in dynamic_campus %}
+        <div class="campus-card reveal delay-{{ (loop.index % 5) * 100 }}" data-cms-item-index="{{ loop.index }}">
+          <div class="campus-card-top-bar">
+            <div class="campus-icon-box" data-cms-key="{{ item.icon_key }}" title="Haga clic para editar ícono">{{ item.icon }}</div>
+            {% if is_admin %}
+            <button type="button" class="cms-delete-item-btn" title="Eliminar este espacio educativo" aria-label="Eliminar espacio">✕</button>
+            {% endif %}
+          </div>
+          <h3 class="campus-card-title" data-cms-key="{{ item.title_key }}">{{ item.title }}</h3>
+          <p class="campus-card-desc" data-cms-key="{{ item.desc_key }}">{{ item.desc }}</p>
         </div>
-        <div class="campus-card reveal delay-200">
-          <div class="campus-icon-box">📚</div>
-          <h3 class="campus-card-title" data-cms-key="campus_item_2_title">{{ cms.campus_item_2_title }}</h3>
-          <p class="campus-card-desc" data-cms-key="campus_item_2_desc">{{ cms.campus_item_2_desc }}</p>
-        </div>
-        <div class="campus-card reveal delay-300">
-          <div class="campus-icon-box">🏀</div>
-          <h3 class="campus-card-title" data-cms-key="campus_item_3_title">{{ cms.campus_item_3_title }}</h3>
-          <p class="campus-card-desc" data-cms-key="campus_item_3_desc">{{ cms.campus_item_3_desc }}</p>
-        </div>
-        <div class="campus-card reveal delay-400">
-          <div class="campus-icon-box">🎷</div>
-          <h3 class="campus-card-title" data-cms-key="campus_item_4_title">{{ cms.campus_item_4_title }}</h3>
-          <p class="campus-card-desc" data-cms-key="campus_item_4_desc">{{ cms.campus_item_4_desc }}</p>
-        </div>
+        {% endfor %}
       </div>
+
+      {% if is_admin %}
+      <div style="margin-top: 2.2rem; text-align: center;">
+        <button type="button" class="cms-add-item-btn" data-cms-add-target="campus" data-cms-prefix="campus_item_">
+          <span class="cms-add-icon">+</span>
+          <span>Agregar Nuevo Espacio Educativo</span>
+        </button>
+      </div>
+      {% endif %}
     </div>
   </section>
 
   <!-- =====================================================================
        11. ORIENTACIÓN, MATRÍCULA Y CONTACTO INSTITUCIONAL
        ===================================================================== -->
-  <section class="section contact-section" id="contacto">
+  {% set hide_contacto = (cms.get('hide_section_contacto') == 'true') %}
+  {% set hide_form = (cms.get('hide_section_contacto_form') == 'true') %}
+  <section class="section contact-section cms-toggleable-section {% if hide_contacto %}cms-hidden-exposure{% endif %}" id="contacto" data-cms-visibility-key="hide_section_contacto" {% if not is_admin and hide_contacto %}style="display: none !important;"{% endif %}>
     <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_contacto else '' }}" data-cms-visibility-target="hide_section_contacto" data-is-hidden="{{ 'true' if hide_contacto else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_contacto else '👁️' }}</span>
+          <span class="vis-text">{{ 'Sección Oculta' if hide_contacto else 'Sección Visible' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_contacto %}hidden{% endif %}>
+          ⚠️ Sección de Contacto Oculta al Público (Baja Exposición)
+        </span>
+      </div>
+      {% endif %}
+
       <div class="section-header reveal">
         <span class="section-tag" data-cms-key="contact_section_tag">{{ cms.contact_section_tag }}</span>
         <h2 class="section-title" data-cms-key="contact_title">{{ cms.contact_title }}</h2>
@@ -527,7 +636,7 @@
       </div>
 
       <div class="contact-grid">
-        <div class="contact-info-panel reveal-left">
+        <div class="contact-info-panel reveal-left {% if not is_admin and hide_form %}contact-info-full-width{% elif is_admin and hide_form %}contact-info-preview-full{% endif %}" id="contactInfoPanel">
           <h3 class="contact-info-title" data-cms-key="contact_info_box_title">{{ cms.contact_info_box_title }}</h3>
           
           <div class="contact-details-list">
@@ -573,7 +682,19 @@
           </div>
         </div>
 
-        <div class="contact-form-wrapper reveal-right">
+        <div class="contact-form-wrapper reveal-right cms-toggleable-section {% if hide_form %}cms-hidden-exposure{% endif %}" id="contactFormWrapper" data-cms-visibility-key="hide_section_contacto_form" {% if not is_admin and hide_form %}style="display: none !important;"{% endif %}>
+          {% if is_admin %}
+          <div class="cms-visibility-toolbar" style="margin-bottom: 1.2rem;">
+            <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_form else '' }}" data-cms-visibility-target="hide_section_contacto_form" data-is-hidden="{{ 'true' if hide_form else 'false' }}">
+              <span class="vis-icon">{{ '🚫' if hide_form else '👁️' }}</span>
+              <span class="vis-text">{{ 'Formulario Oculto' if hide_form else 'Formulario Visible' }}</span>
+            </button>
+            <span class="cms-hidden-exposure-badge" {% if not hide_form %}hidden{% endif %}>
+              ⚠️ Formulario Oculto al Público (Baja Exposición)
+            </span>
+          </div>
+          {% endif %}
+
           <form id="institutionalContactForm">
             <div class="form-row-2">
               <div class="form-group">
