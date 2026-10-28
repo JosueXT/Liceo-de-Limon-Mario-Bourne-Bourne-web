@@ -8,6 +8,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-cms-key="{{ modalidad.slug }}_sub_title">{{ cms.get(modalidad.slug + '_sub_title', modalidad.title) }} | {{ cms.site_title }}</title>
   <meta name="description" content="Información detallada sobre {{ cms.get(modalidad.slug + '_sub_title', modalidad.title) }} en el Liceo de Limón Mario Bourne Bourne (MEP). Malla curricular, requisitos de admisión y ventajas académicas.">
+
+  <!-- Favicon e Íconos de Navegador -->
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="icon" type="image/png" sizes="64x64" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/escudo_liceo.jpg') }}">
+
+  <!-- Open Graph / Meta etiquetas para WhatsApp y Redes -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://liceomariobourne.dpdns.org/modalidad/{{ modalidad.slug }}">
+  <meta property="og:site_name" content="Liceo de Limón Mario Bourne Bourne">
+  <meta property="og:title" content="{{ cms.get(modalidad.slug + '_sub_title', modalidad.title) }} | {{ cms.site_title }}">
+  <meta property="og:description" content="Información detallada sobre {{ cms.get(modalidad.slug + '_sub_title', modalidad.title) }} en el Liceo de Limón Mario Bourne Bourne (MEP).">
+  <meta property="og:image" content="{{ url_for('static', filename='img/og_preview.jpg', _external=True) }}">
+  <meta property="og:image:secure_url" content="{{ url_for('static', filename='img/og_preview.jpg', _external=True) }}">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="es_CR">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ cms.get(modalidad.slug + '_sub_title', modalidad.title) }} | {{ cms.site_title }}">
+  <meta name="twitter:image" content="{{ url_for('static', filename='img/og_preview.jpg', _external=True) }}">
   
   <!-- Tipografías de Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

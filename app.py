@@ -9,7 +9,7 @@ import time
 import secrets
 from datetime import timedelta
 from collections import defaultdict
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_from_directory
 from email_service import load_env_file
 from database import (
     init_db,
@@ -249,6 +249,12 @@ def get_campus_dynamic_list(cms):
 # =============================================================================
 # 1. RUTAS PÚBLICAS
 # =============================================================================
+
+@app.route('/favicon.ico')
+def favicon():
+    """Servir favicon.ico directamente para navegadores y motores de búsqueda"""
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/')
 def home():
