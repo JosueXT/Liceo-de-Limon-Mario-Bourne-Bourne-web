@@ -17,7 +17,7 @@ DEFAULT_CMS_CONTENT = {
     "header_social_link_text": "📱 Redes Oficiales",
     "header_contact_link_text": "📞 Contáctenos",
     "mep_badge": "Colegio Público Oficial del MEP",
-    "site_logo": "https://imgs.search.brave.com/Ly6Ar6F6AGvQFNCB_BgS9qNxglA60fHIL7u-4j1cCN8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bWVwLmdvLmNyL3Np/dGVzL2RlZmF1bHQv/ZmlsZXMvc3R5bGVz/L3Jlc3BvbnNpdmVf/MV8xXzIwMHcvcHVi/bGljL21lZGlhL2Vz/Y3Vkby1saWNlby1u/dWV2by1saW1vbi5q/cGc_aD1jMDE3OWIz/NyZpdG9rPTZJQmo1/cnFx",
+    "site_logo": "/static/img/escudo_oficial.png",
     
     # Navegación del Navbar
     "nav_home": "Inicio",
