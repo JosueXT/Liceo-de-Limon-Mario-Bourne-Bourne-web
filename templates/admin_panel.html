@@ -775,6 +775,12 @@
         <span>📍 Contacto & Secretaría</span>
       </button>
 
+      <div class="sidebar-heading">Equipo y Créditos</div>
+      <button class="sidebar-btn" data-tab="tab-developers">
+        <span>💻 Desarrolladores & Créditos</span>
+        <span class="counter-badge" id="sidebarDevsCount" style="background: #0284c7;">{{ developers|length if developers else 0 }}</span>
+      </button>
+
       <div class="sidebar-heading">Mantenimiento y Respaldo</div>
       <button class="sidebar-btn" data-tab="tab-snapshots" style="color: var(--azul-dark); font-weight: 700;">
         <span>🛡️ Puntos de Control & Respaldo</span>
@@ -1918,6 +1924,149 @@
         </div>
       </section>
 
+      <!-- ==================== PESTAÑA: EQUIPO DE DESARROLLADORES & CRÉDITOS ==================== -->
+      <section class="admin-tab-pane" id="tab-developers">
+        <div class="panel-card">
+          <div class="panel-card-header" style="flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h2 class="panel-card-title">💻 Equipo de Desarrolladores & Créditos Web</h2>
+              <p class="panel-card-desc">Edite la información de los desarrolladores, agregue nuevos colaboradores, modifique fotografías y redes sociales sin necesidad del editor visual.</p>
+            </div>
+            <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+              <a href="/desarrolladores" target="_blank" class="btn btn-outline btn-sm" title="Abrir la subpágina pública de desarrolladores en nueva pestaña">
+                🌐 Ver Subpágina ↗
+              </a>
+              <button type="button" class="btn btn-azul btn-sm" onclick="addAdminDeveloperCard()">
+                ➕ Agregar Desarrollador
+              </button>
+              <button type="button" class="btn btn-vino btn-sm" id="btnSaveAllDevsTop" onclick="saveAllDevelopersAdmin()">
+                💾 Guardar Cambios
+              </button>
+            </div>
+          </div>
+
+          <!-- Encabezado de la Subpágina -->
+          <div style="background: var(--gris-100); border: 1px solid var(--gris-300); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem;">
+            <h3 style="font-size: 1.1rem; color: var(--azul-dark); margin-bottom: 0.8rem;">🏷️ Encabezado y Textos de la Subpágina</h3>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Título de la Pestaña (Navegador)</label>
+                <input type="text" id="adminDevsPageTitle" class="form-control" value="{{ cms.get('devs_page_title', 'Equipo de Desarrollo Web | Liceo de Limón Mario Bourne Bourne') }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Etiqueta Destacada (Hero Tag)</label>
+                <input type="text" id="adminDevsHeroTag" class="form-control" value="{{ cms.get('devs_hero_tag', '💻 Innovación & Talento Digital Liceísta') }}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Título Principal (Hero Title)</label>
+              <input type="text" id="adminDevsHeroTitle" class="form-control" value="{{ cms.get('devs_hero_title', 'Desarrolladores de la Plataforma Institucional') }}">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Subtítulo Descriptivo (Hero Subtitle)</label>
+              <textarea id="adminDevsHeroSubtitle" class="form-control" rows="2">{{ cms.get('devs_hero_subtitle', 'Estudiantes, egresados y colaboradores que diseñaron, programaron y desplegaron el sitio web oficial del Liceo de Limón Mario Bourne Bourne.') }}</textarea>
+            </div>
+          </div>
+
+          <!-- Listado Dinámico de Desarrolladores -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+            <h3 style="font-size: 1.2rem; color: var(--azul-dark); margin: 0;">👥 Integrantes del Equipo</h3>
+            <span style="font-size: 0.85rem; color: var(--gris-600);" id="adminDevsCounterLabel">Total: {{ developers|length if developers else 0 }} desarrollador(es)</span>
+          </div>
+
+          <div id="adminDevsListContainer" style="display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem;">
+            {% for dev in developers %}
+            <div class="admin-dev-item-card" data-dev-index="{{ loop.index }}" style="background: #ffffff; border: 1px solid var(--gris-300); border-radius: var(--radius-lg); padding: 1.6rem; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: relative; transition: all 0.25s ease;">
+              <!-- Barra superior de la tarjeta -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--gris-200);">
+                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                  <span class="admin-badge-pill" style="background: var(--azul); font-weight: 800; font-size: 0.8rem;">#<span class="admin-dev-num">{{ loop.index }}</span></span>
+                  <strong style="color: var(--azul-dark); font-size: 1.05rem;" class="admin-dev-title-display">{{ dev.name }}</strong>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #fca5a5;" onclick="deleteAdminDeveloperCard(this)" title="Eliminar este desarrollador">
+                  ✕ Eliminar
+                </button>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 100px 1fr; gap: 1.5rem; align-items: flex-start;">
+                <!-- Miniatura de Foto -->
+                <div style="text-align: center;">
+                  <div style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 3px solid #0284c7; background: #e2e8f0; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center;">
+                    <img src="{{ dev.photo }}" alt="{{ dev.name }}" class="admin-dev-photo-preview" style="width: 100%; height: 100%; object-fit: cover;">
+                  </div>
+                  <span style="font-size: 0.7rem; color: var(--gris-600); font-weight: 600;">Foto Actual</span>
+                </div>
+
+                <!-- Formulario del Desarrollador -->
+                <div style="flex: 1;">
+                  <div class="form-grid-2">
+                    <div class="form-group">
+                      <label class="form-label">Nombre del Desarrollador *</label>
+                      <input type="text" class="form-control admin-dev-name" value="{{ dev.name }}" required placeholder="Ej. Josué" oninput="updateAdminDevCardHeader(this)">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Rol / Especialidad *</label>
+                      <input type="text" class="form-control admin-dev-role" value="{{ dev.role }}" required placeholder="Ej. Desarrollador Principal & Arquitectura Web">
+                    </div>
+                  </div>
+
+                  <div class="form-grid-2">
+                    <div class="form-group">
+                      <label class="form-label">Generación / Año</label>
+                      <input type="text" class="form-control admin-dev-year" value="{{ dev.year }}" placeholder="Ej. Generación 2026">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">URL de Fotografía</label>
+                      <input type="url" class="form-control admin-dev-photo" value="{{ dev.photo }}" placeholder="https://... o enlace de Google Drive" oninput="updateAdminDevPhotoPreview(this)">
+                      <small style="display: block; font-size: 0.72rem; color: var(--gris-600); margin-top: 3px;">💡 Soporta enlaces directos y Google Drive compartidos.</small>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Biografía Breve / Aportes</label>
+                    <textarea class="form-control admin-dev-bio" rows="2" placeholder="Resumen de aportes técnicos en la plataforma...">{{ dev.bio }}</textarea>
+                  </div>
+
+                  <!-- Redes Sociales -->
+                  <div style="background: var(--gris-50); border: 1px solid var(--gris-200); border-radius: var(--radius-md); padding: 1rem; margin-top: 0.5rem;">
+                    <label class="form-label" style="margin-bottom: 0.6rem; color: var(--azul-dark); font-weight: 700;">🔗 Vínculos de Redes Sociales (Opcionales):</label>
+                    <div class="form-grid-2">
+                      <div class="form-group" style="margin-bottom: 0.6rem;">
+                        <span style="font-size: 0.78rem; font-weight: 600; color: var(--gris-700);">GitHub (URL)</span>
+                        <input type="url" class="form-control admin-dev-github" value="{{ dev.github }}" placeholder="https://github.com/usuario">
+                      </div>
+                      <div class="form-group" style="margin-bottom: 0.6rem;">
+                        <span style="font-size: 0.78rem; font-weight: 600; color: var(--gris-700);">LinkedIn (URL)</span>
+                        <input type="url" class="form-control admin-dev-linkedin" value="{{ dev.linkedin }}" placeholder="https://linkedin.com/in/usuario">
+                      </div>
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <span style="font-size: 0.78rem; font-weight: 600; color: var(--gris-700);">Instagram (URL)</span>
+                        <input type="url" class="form-control admin-dev-instagram" value="{{ dev.instagram }}" placeholder="https://instagram.com/usuario">
+                      </div>
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <span style="font-size: 0.78rem; font-weight: 600; color: var(--gris-700);">Correo Electrónico</span>
+                        <input type="email" class="form-control admin-dev-email" value="{{ dev.email }}" placeholder="desarrollador@ejemplo.com">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Barra de Acciones Final -->
+          <div style="display: flex; gap: 1rem; justify-content: space-between; align-items: center; border-top: 1px solid var(--gris-300); padding-top: 1.5rem;">
+            <button type="button" class="btn btn-outline" onclick="addAdminDeveloperCard()">
+              ➕ Agregar Otro Desarrollador
+            </button>
+            <button type="button" class="btn btn-vino btn-lg" id="btnSaveAllDevsBottom" onclick="saveAllDevelopersAdmin()">
+              💾 Guardar Todos los Cambios
+            </button>
+          </div>
+        </div>
+      </section>
+
       <!-- ==================== PESTAÑA 12: PUNTOS DE CONTROL & WAYBACK MACHINE ==================== -->
       <section class="admin-tab-pane" id="tab-snapshots">
         <div class="panel-card">
@@ -2874,6 +3023,213 @@
           submitBtn.innerText = '💾 Guardar Nuevas Credenciales';
         }
       });
+    }
+    // =========================================================================
+    // 8. GESTIÓN DEL EQUIPO DE DESARROLLADORES (DESDE EL PANEL DE CONTROL)
+    // =========================================================================
+    function updateAdminDevCardHeader(input) {
+      const card = input.closest('.admin-dev-item-card');
+      const titleDisplay = card?.querySelector('.admin-dev-title-display');
+      if (titleDisplay) {
+        titleDisplay.innerText = input.value.trim() || 'Nuevo Desarrollador';
+      }
+    }
+
+    function updateAdminDevPhotoPreview(input) {
+      const parsed = typeof parseDriveImageUrl === 'function' ? parseDriveImageUrl(input.value) : input.value;
+      if (parsed !== input.value) {
+        input.value = parsed;
+      }
+      const card = input.closest('.admin-dev-item-card');
+      const img = card?.querySelector('.admin-dev-photo-preview');
+      if (img && parsed) {
+        img.src = parsed;
+      }
+    }
+
+    function addAdminDeveloperCard() {
+      const container = document.getElementById('adminDevsListContainer');
+      if (!container) return;
+      const cards = container.querySelectorAll('.admin-dev-item-card');
+      const newIndex = cards.length + 1;
+      const defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80';
+
+      const card = document.createElement('div');
+      card.className = 'admin-dev-item-card';
+      card.setAttribute('data-dev-index', newIndex);
+      card.style.cssText = 'background: #ffffff; border: 1px solid var(--gris-300); border-radius: var(--radius-lg); padding: 1.6rem; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: relative; transition: all 0.25s ease;';
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--gris-200);">
+          <div style="display: flex; align-items: center; gap: 0.8rem;">
+            <span class="admin-badge-pill" style="background: var(--azul); font-weight: 800; font-size: 0.8rem;">#<span class="admin-dev-num">${newIndex}</span></span>
+            <strong style="color: var(--azul-dark); font-size: 1.05rem;" class="admin-dev-title-display">Nuevo Desarrollador #${newIndex}</strong>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #fca5a5;" onclick="deleteAdminDeveloperCard(this)" title="Eliminar este desarrollador">
+            ✕ Eliminar
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 1.5rem; align-items: flex-start;">
+          <div style="text-align: center;">
+            <div style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 3px solid #0284c7; background: #e2e8f0; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center;">
+              <img src="${defaultAvatar}" alt="Foto Desarrollador" class="admin-dev-photo-preview" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <span style="font-size: 0.7rem; color: var(--gris-600); font-weight: 600;">Foto Actual</span>
+          </div>
+
+          <div style="flex: 1;">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Nombre del Desarrollador *</label>
+                <input type="text" class="form-control admin-dev-name" value="" required placeholder="Ej. Nombre y Apellidos" oninput="updateAdminDevCardHeader(this)">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Rol / Especialidad *</label>
+                <input type="text" class="form-control admin-dev-role" value="Desarrollador Web" required placeholder="Ej. Diseñador UI/UX & Frontend">
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Generación / Año</label>
+                <input type="text" class="form-control admin-dev-year" value="Generación 2026" placeholder="Ej. Generación 2026">
+              </div>
+              <div class="form-group">
+                <label class="form-label">URL de Fotografía</label>
+                <input type="url" class="form-control admin-dev-photo" value="${defaultAvatar}" placeholder="https://... o enlace de Google Drive" oninput="updateAdminDevPhotoPreview(this)">
+                <small style="display: block; font-size: 0.72rem; color: var(--gris-600); margin-top: 3px;">💡 Soporta enlaces directos y Google Drive compartidos.</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Biografía Breve / Aportes</label>
+              <textarea class="form-control admin-dev-bio" rows="2" placeholder="Resumen de aportes técnicos en la plataforma..."></textarea>
+            </div>
+
+            <div style="background: var(--gris-50); border: 1px solid var(--gris-200); border-radius: var(--radius-md); padding: 1rem; margin-top: 0.5rem;">
+              <label class="form-label" style="margin-bottom: 0.6rem; color: var(--azul-dark); font-weight: 700;">🔗 Vínculos de Redes Sociales (Opcionales):</label>
+              <div class="form-grid-2">
+                <div class="form-group" style="margin-bottom: 0.6rem;">
+                  <span style="font-size: 0.78rem; font-weight: 600; color: var(--gris-700);">GitHub (URL)</span>
+                  <input type="url" class="form-control admin-dev-github" value="" placeholder="https://github.com/usuario">
+                </div>
+                <div class="form-group" style="margin-bottom: 0.6rem;">
+                  <span style="font-size: 0.78rem; font-weight: 600; color: var(--gris-700);">LinkedIn (URL)</span>
+                  <input type="url" class="form-control admin-dev-linkedin" value="" placeholder="https://linkedin.com/in/usuario">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <span style="font-size: 0.78rem; font-weight: 600; color: var(--gris-700);">Instagram (URL)</span>
+                  <input type="url" class="form-control admin-dev-instagram" value="" placeholder="https://instagram.com/usuario">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <span style="font-size: 0.78rem; font-weight: 600; color: var(--gris-700);">Correo Electrónico</span>
+                  <input type="email" class="form-control admin-dev-email" value="" placeholder="desarrollador@ejemplo.com">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.querySelector('.admin-dev-name')?.focus();
+
+      reindexAdminDevCards();
+      showToast(`✓ Nuevo integrante (#${newIndex}) añadido a la lista. Complete sus datos y presione Guardar.`, 'info');
+    }
+
+    function deleteAdminDeveloperCard(btn) {
+      const card = btn.closest('.admin-dev-item-card');
+      if (!card) return;
+      const name = card.querySelector('.admin-dev-name')?.value.trim() || 'este desarrollador';
+      if (confirm(`¿Está seguro de remover a ${name}? Recuerde presionar "Guardar Cambios" para confirmar.`)) {
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          card.remove();
+          reindexAdminDevCards();
+          showToast('Desarrollador removido de la vista. Guarde cambios para aplicar.', 'info');
+        }, 200);
+      }
+    }
+
+    function reindexAdminDevCards() {
+      const container = document.getElementById('adminDevsListContainer');
+      if (!container) return;
+      const cards = container.querySelectorAll('.admin-dev-item-card');
+      cards.forEach((c, idx) => {
+        const num = idx + 1;
+        c.setAttribute('data-dev-index', num);
+        const numEl = c.querySelector('.admin-dev-num');
+        if (numEl) numEl.innerText = num;
+      });
+
+      const count = cards.length;
+      const counterLabel = document.getElementById('adminDevsCounterLabel');
+      if (counterLabel) counterLabel.innerText = `Total: ${count} desarrollador(es)`;
+      const sidebarBadge = document.getElementById('sidebarDevsCount');
+      if (sidebarBadge) sidebarBadge.innerText = count;
+    }
+
+    async function saveAllDevelopersAdmin() {
+      const topBtn = document.getElementById('btnSaveAllDevsTop');
+      const btmBtn = document.getElementById('btnSaveAllDevsBottom');
+      if (topBtn) { topBtn.disabled = true; topBtn.innerText = '⏳ Guardando...'; }
+      if (btmBtn) { btmBtn.disabled = true; btmBtn.innerText = '⏳ Guardando...'; }
+
+      const container = document.getElementById('adminDevsListContainer');
+      const cards = container ? container.querySelectorAll('.admin-dev-item-card') : [];
+
+      const developers = [];
+      cards.forEach(card => {
+        const name = card.querySelector('.admin-dev-name')?.value.trim() || '';
+        const role = card.querySelector('.admin-dev-role')?.value.trim() || '';
+        const year = card.querySelector('.admin-dev-year')?.value.trim() || 'Generación 2026';
+        let photo = card.querySelector('.admin-dev-photo')?.value.trim() || '';
+        if (typeof parseDriveImageUrl === 'function') photo = parseDriveImageUrl(photo);
+        const bio = card.querySelector('.admin-dev-bio')?.value.trim() || '';
+        const github = card.querySelector('.admin-dev-github')?.value.trim() || '';
+        const linkedin = card.querySelector('.admin-dev-linkedin')?.value.trim() || '';
+        const instagram = card.querySelector('.admin-dev-instagram')?.value.trim() || '';
+        const email = card.querySelector('.admin-dev-email')?.value.trim() || '';
+
+        developers.push({ name, role, year, photo, bio, github, linkedin, instagram, email });
+      });
+
+      const pageTitle = document.getElementById('adminDevsPageTitle')?.value.trim() || '';
+      const heroTag = document.getElementById('adminDevsHeroTag')?.value.trim() || '';
+      const heroTitle = document.getElementById('adminDevsHeroTitle')?.value.trim() || '';
+      const heroSubtitle = document.getElementById('adminDevsHeroSubtitle')?.value.trim() || '';
+
+      const payload = {
+        developers,
+        devs_page_title: pageTitle,
+        devs_hero_tag: heroTag,
+        devs_hero_title: heroTitle,
+        devs_hero_subtitle: heroSubtitle
+      };
+
+      try {
+        const res = await fetch('/api/cms/developers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('✓ ' + data.message, 'success');
+          reindexAdminDevCards();
+        } else {
+          showToast('Error al guardar desarrolladores: ' + (data.message || 'Error desconocido'), 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al guardar desarrolladores.', 'error');
+      } finally {
+        if (topBtn) { topBtn.disabled = false; topBtn.innerText = '💾 Guardar Cambios'; }
+        if (btmBtn) { btmBtn.disabled = false; btmBtn.innerText = '💾 Guardar Todos los Cambios'; }
+      }
     }
   </script>
 </body>

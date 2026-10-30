@@ -39,8 +39,19 @@
 </head>
 <body data-is-admin="{{ 'true' if is_admin else 'false' }}" class="devs-page-body">
 
-  <!-- Fondo dinámico con gradiente radial de brillo sutil -->
+  <!-- Fondo dinámico con gradiente radial y orbes cibernéticos en movimiento -->
   <div class="devs-bg-glow"></div>
+  <div class="devs-cyber-grid"></div>
+  <div class="devs-particles-container">
+    <span class="cyber-particle cp1"></span>
+    <span class="cyber-particle cp2"></span>
+    <span class="cyber-particle cp3"></span>
+    <span class="cyber-particle cp4"></span>
+    <span class="cyber-particle cp5"></span>
+    <span class="cyber-particle cp6"></span>
+    <span class="cyber-particle cp7"></span>
+    <span class="cyber-particle cp8"></span>
+  </div>
 
   <!-- =====================================================================
        1. BARRA INSTITUCIONAL SUPERIOR (MEP)
@@ -57,6 +68,7 @@
         <span class="mep-link" style="color: #cbd5e1;" data-cms-key="header_mep_location">{{ cms.header_mep_location }}</span>
         <a href="/#redes" class="mep-link" data-cms-key="header_social_link_text">{{ cms.header_social_link_text }}</a>
         <a href="/#contacto" class="mep-link" data-cms-key="header_contact_link_text">{{ cms.header_contact_link_text }}</a>
+        <a href="/desarrolladores" class="mep-link mep-dev-link" style="color: #38bdf8; font-weight: 700;" title="Equipo de desarrollo de la plataforma web">💻 Créditos Web</a>
         {% if is_admin %}
         <a href="/admin/panel" class="admin-portal-badge" style="background: var(--azul);" title="Ir al Panel de Control">
           ⚙️ Panel Admin
@@ -100,6 +112,7 @@
         </ul>
 
         <div class="nav-actions">
+          <a href="/desarrolladores" class="btn btn-outline-white btn-sm desktop-only-btn dev-action-pill" style="border-color: #38bdf8; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.12);" title="Página actual de créditos">💻 Créditos Web</a>
           <a href="/modalidad/ib" class="btn btn-vino btn-sm desktop-only-btn">Bachillerato IB</a>
           <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Abrir menú de navegación" aria-expanded="false">
             <span class="hamburger-bar"></span>
@@ -124,6 +137,15 @@
         {{ cms.get('devs_hero_subtitle', 'Estudiantes, egresados y colaboradores que diseñaron, programaron y desplegaron el sitio web oficial del Liceo de Limón Mario Bourne Bourne.') }}
       </p>
 
+      <!-- Insignias de Tecnologías Utilizadas con Animación Flotante -->
+      <div class="devs-tech-stack reveal delay-250">
+        <span class="tech-badge">🐍 Python & Flask</span>
+        <span class="tech-badge">⚡ Turso Cloud DB</span>
+        <span class="tech-badge">🎨 Modern Vanilla CSS</span>
+        <span class="tech-badge">✨ Interactive JS</span>
+        <span class="tech-badge">🛡️ MEP Certified</span>
+      </div>
+
       {% if is_admin %}
       <!-- Botón de administración para añadir nuevos integrantes -->
       <div class="devs-admin-bar reveal delay-300">
@@ -139,6 +161,8 @@
       <div class="devs-grid" id="developersGrid" data-cms-list="developers" data-cms-prefix="dev_item_">
         {% for dev in developers %}
         <div class="dev-card reveal-scale" data-cms-item-index="{{ dev.index }}" id="devCard-{{ dev.index }}">
+          <div class="dev-card-ambient-light"></div>
+          <span class="dev-card-chip">&lt;/&gt; Web Dev</span>
           {% if is_admin %}
           <button type="button" class="cms-delete-item-btn" title="Eliminar a este desarrollador" aria-label="Eliminar desarrollador">✕</button>
           {% endif %}
@@ -329,7 +353,11 @@
           <div class="footer-links-list">
             <a href="/#contacto" class="footer-link-item" data-cms-key="footer_col3_link1">{{ cms.footer_col3_link1 }}</a>
             <a href="https://www.mep.go.cr" target="_blank" rel="noopener" class="footer-link-item" data-cms-key="footer_col3_link2">{{ cms.footer_col3_link2 }}</a>
-            <a href="/desarrolladores" class="footer-link-item" style="color: #38bdf8; font-weight: 600;">💻 Equipo de Desarrollo</a>
+            <div style="margin: 0.4rem 0;">
+              <a href="/desarrolladores" class="footer-credit-pill" title="Equipo de desarrollo y créditos web">
+                <span>💻</span> Equipo de Desarrollo & Créditos ↗
+              </a>
+            </div>
             <a href="/" class="footer-link-item" data-cms-key="footer_col3_link3">{{ cms.footer_col3_link3 }}</a>
           </div>
         </div>

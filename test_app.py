@@ -792,6 +792,90 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertIn('modalNewsVideoContainer', html_ib)
         self.assertIn(yt_video, html_ib)
 
+    def test_18_admin_panel_developers_management(self):
+        """Verifica la gestión completa de Desarrolladores desde el Panel de Administración y visibilidad de enlaces"""
+        # 1. Verificar visibilidad de enlaces prominentes en el sitio
+        res_home = self.client.get('/')
+        html_home = res_home.get_data(as_text=True)
+        self.assertIn('mep-dev-link', html_home)
+        self.assertIn('nav-dev-highlight', html_home)
+        self.assertIn('footer-credit-pill', html_home)
+
+        res_ib = self.client.get('/modalidad/ib')
+        html_ib = res_ib.get_data(as_text=True)
+        self.assertIn('mep-dev-link', html_ib)
+        self.assertIn('nav-dev-highlight', html_ib)
+        self.assertIn('footer-credit-pill', html_ib)
+
+        # 2. Login y acceso a la pestaña de Desarrolladores en el panel de control
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+        res_panel = self.client.get('/admin/panel')
+        self.assertEqual(res_panel.status_code, 200)
+        html_panel = res_panel.get_data(as_text=True)
+        self.assertIn('tab-developers', html_panel)
+        self.assertIn('adminDevsListContainer', html_panel)
+        self.assertIn('sidebarDevsCount', html_panel)
+
+        # 3. Consultar la API REST de desarrolladores
+        res_get_devs = self.client.get('/api/cms/developers')
+        self.assertEqual(res_get_devs.status_code, 200)
+        data_get = json.loads(res_get_devs.get_data(as_text=True))
+        self.assertTrue(data_get['success'])
+        self.assertIsInstance(data_get['developers'], list)
+
+        # 4. Modificar y agregar desarrolladores directamente desde la API del panel
+        payload = {
+            'devs_page_title': 'Créditos y Creadores | Liceo de Limón',
+            'devs_hero_tag': '💻 Innovación Estudiantil 2026',
+            'devs_hero_title': 'Arquitectura & Programación',
+            'devs_hero_subtitle': 'Plataforma oficial desarrollada por talento costarricense.',
+            'developers': [
+                {
+                    'name': 'Josué',
+                    'role': 'Lead Full-Stack Developer',
+                    'year': 'Gen 2026',
+                    'photo': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500',
+                    'bio': 'Desarrollo integral del sistema, autenticación y base de datos Turso.',
+                    'github': 'https://github.com/JosueXT',
+                    'linkedin': 'https://linkedin.com/in/josue',
+                    'instagram': 'https://instagram.com/josue',
+                    'email': 'soporte@liceomariobourne.dpdns.org'
+                },
+                {
+                    'name': 'Mariana Cordero',
+                    'role': 'Ingeniera de Pruebas & Calidad',
+                    'year': 'Gen 2026',
+                    'photo': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500',
+                    'bio': 'Auditoría de seguridad y pruebas de compatibilidad multidispositivo.',
+                    'github': 'https://github.com/mariana',
+                    'linkedin': 'https://linkedin.com/in/mariana',
+                    'instagram': 'https://instagram.com/mariana',
+                    'email': 'mariana@liceomariobourne.dpdns.org'
+                }
+            ]
+        }
+        res_post_devs = self.client.post('/api/cms/developers',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(res_post_devs.status_code, 200)
+        data_post = json.loads(res_post_devs.get_data(as_text=True))
+        self.assertTrue(data_post['success'])
+        self.assertEqual(data_post['count'], 2)
+
+        # 5. Comprobar que los cambios impactan la subpágina pública sin usar el editor visual
+        res_devs_page = self.client.get('/desarrolladores')
+        self.assertEqual(res_devs_page.status_code, 200)
+        html_devs_page = res_devs_page.get_data(as_text=True)
+        self.assertIn('Lead Full-Stack Developer', html_devs_page)
+        self.assertIn('Mariana Cordero', html_devs_page)
+        self.assertIn('Ingeniera de Pruebas', html_devs_page)
+        self.assertIn('Arquitectura', html_devs_page)
+        self.assertIn('Programación', html_devs_page)
+
 if __name__ == '__main__':
     unittest.main()
 

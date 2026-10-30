@@ -426,7 +426,8 @@ def admin_panel():
     news = get_all_news()
     inquiries = get_all_inquiries()
     snapshots = get_all_snapshots()
-    return render_template('admin_panel.html', cms=cms, news=news, inquiries=inquiries, snapshots=snapshots, current_admin_username=current_admin_username, current_recovery_email=current_recovery_email)
+    developers = get_developers_dynamic_list(cms)
+    return render_template('admin_panel.html', cms=cms, news=news, inquiries=inquiries, snapshots=snapshots, developers=developers, current_admin_username=current_admin_username, current_recovery_email=current_recovery_email)
 
 # =============================================================================
 # 4. ENDPOINTS API REST (FORMULARIO DE CONTACTO PÚBLICO)
@@ -716,6 +717,65 @@ def api_save_content():
         })
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error en base de datos: {str(e)}'}), 500
+
+@app.route('/api/cms/developers', methods=['GET'])
+def api_get_developers():
+    """Retorna la lista estructurada de desarrolladores."""
+    cms = get_all_content()
+    devs = get_developers_dynamic_list(cms)
+    return jsonify({'success': True, 'developers': devs})
+
+@app.route('/api/cms/developers', methods=['POST'])
+def api_update_developers():
+    """Actualiza la lista completa de desarrolladores desde el panel administrativo."""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    data = request.get_json() or {}
+    devs = data.get('developers', [])
+
+    items_to_save = {}
+    if 'devs_page_title' in data:
+        items_to_save['devs_page_title'] = str(data['devs_page_title']).strip()
+    if 'devs_hero_tag' in data:
+        items_to_save['devs_hero_tag'] = str(data['devs_hero_tag']).strip()
+    if 'devs_hero_title' in data:
+        items_to_save['devs_hero_title'] = str(data['devs_hero_title']).strip()
+    if 'devs_hero_subtitle' in data:
+        items_to_save['devs_hero_subtitle'] = str(data['devs_hero_subtitle']).strip()
+
+    for idx, dev in enumerate(devs, start=1):
+        items_to_save[f"dev_item_{idx}_name"] = dev.get('name', '').strip()
+        items_to_save[f"dev_item_{idx}_role"] = dev.get('role', '').strip()
+        items_to_save[f"dev_item_{idx}_year"] = dev.get('year', 'Generación 2026').strip()
+        items_to_save[f"dev_item_{idx}_bio"] = dev.get('bio', '').strip()
+        items_to_save[f"dev_item_{idx}_photo"] = dev.get('photo', '').strip()
+        items_to_save[f"dev_item_{idx}_github"] = dev.get('github', '').strip()
+        items_to_save[f"dev_item_{idx}_linkedin"] = dev.get('linkedin', '').strip()
+        items_to_save[f"dev_item_{idx}_instagram"] = dev.get('instagram', '').strip()
+        items_to_save[f"dev_item_{idx}_email"] = dev.get('email', '').strip()
+
+    # Limpiar campos de desarrolladores eliminados hasta el índice 60
+    for idx in range(len(devs) + 1, 61):
+        items_to_save[f"dev_item_{idx}_name"] = ""
+        items_to_save[f"dev_item_{idx}_role"] = ""
+        items_to_save[f"dev_item_{idx}_year"] = ""
+        items_to_save[f"dev_item_{idx}_bio"] = ""
+        items_to_save[f"dev_item_{idx}_photo"] = ""
+        items_to_save[f"dev_item_{idx}_github"] = ""
+        items_to_save[f"dev_item_{idx}_linkedin"] = ""
+        items_to_save[f"dev_item_{idx}_instagram"] = ""
+        items_to_save[f"dev_item_{idx}_email"] = ""
+
+    try:
+        update_bulk_content(items_to_save)
+        return jsonify({
+            'success': True,
+            'message': 'Equipo de desarrolladores guardado exitosamente.',
+            'count': len(devs)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error al guardar en base de datos: {str(e)}'}), 500
 
 @app.route('/api/cms/news', methods=['GET'])
 def api_get_news():
