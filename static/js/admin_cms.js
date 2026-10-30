@@ -235,7 +235,8 @@ function initImageModal() {
         <form id="editImageForm">
           <div class="form-group" style="text-align: left; margin-bottom: 0.8rem;">
             <label class="form-label" for="imageUrlInput">URL de la Imagen</label>
-            <input type="url" id="imageUrlInput" class="form-control" required placeholder="https://ejemplo.com/foto.jpg">
+            <input type="url" id="imageUrlInput" class="form-control" required placeholder="https://ejemplo.com/foto.jpg o enlace de Google Drive">
+            <small style="display: block; margin-top: 0.35rem; color: var(--gris-600); font-size: 0.75rem;">💡 Soporta enlaces directos y de Google Drive (asegúrese de que el archivo esté compartido en "Cualquier persona con el enlace").</small>
           </div>
 
           <!-- Control Interactivo de Encuadre / Posición Focal -->
@@ -300,13 +301,37 @@ function initImageModal() {
 
     const urlInput = document.getElementById('imageUrlInput');
     const previewImg = document.getElementById('imageModalPreview');
+
+    function parseDriveImageUrl(url) {
+      if (!url) return '';
+      const trimmed = url.trim();
+      const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+                         trimmed.match(/id=([a-zA-Z0-9_-]+)/);
+      if (driveMatch && (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com'))) {
+        return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+      }
+      return trimmed;
+    }
+
     urlInput?.addEventListener('input', () => {
+      const parsed = parseDriveImageUrl(urlInput.value);
+      if (parsed !== urlInput.value) {
+        urlInput.value = parsed;
+      }
+      if (previewImg) previewImg.src = urlInput.value.trim();
+    });
+
+    urlInput?.addEventListener('change', () => {
+      const parsed = parseDriveImageUrl(urlInput.value);
+      if (parsed !== urlInput.value) {
+        urlInput.value = parsed;
+      }
       if (previewImg) previewImg.src = urlInput.value.trim();
     });
 
     document.getElementById('editImageForm')?.addEventListener('submit', (e) => {
       e.preventDefault();
-      const newUrl = urlInput.value.trim();
+      const newUrl = parseDriveImageUrl(urlInput.value.trim());
       const key = CMS_STATE.currentEditingImageKey;
       const xSlider = document.getElementById('modalFocalXSlider');
       const ySlider = document.getElementById('modalFocalYSlider');
@@ -606,6 +631,67 @@ function handleAddDynamicItem(container, listType, prefix) {
     CMS_STATE.modifiedItems[`${prefix}${newIndex}_icon`] = "🏫";
     CMS_STATE.modifiedItems[`${prefix}${newIndex}_title`] = "Nuevo Espacio Educativo";
     CMS_STATE.modifiedItems[`${prefix}${newIndex}_desc`] = "Descripción de las instalaciones y recursos pedagógicos...";
+
+  } else if (listType === 'developers') {
+    newElement = document.createElement('div');
+    newElement.className = 'dev-card reveal-scale';
+    newElement.setAttribute('data-cms-item-index', newIndex);
+    newElement.id = `devCard-${newIndex}`;
+    const defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
+    newElement.innerHTML = `
+      <button type="button" class="cms-delete-item-btn" title="Eliminar a este desarrollador" aria-label="Eliminar desarrollador">✕</button>
+
+      <div class="dev-avatar-wrapper">
+        <div class="dev-avatar-img-box cms-image-wrapper" data-cms-img="${prefix}${newIndex}_photo" title="Haga clic en modo edición para cambiar la fotografía">
+          <img src="${defaultAvatar}" alt="Nuevo Desarrollador" class="dev-avatar-img" data-cms-img="${prefix}${newIndex}_photo">
+        </div>
+        <span class="dev-year-badge cms-modified" data-cms-key="${prefix}${newIndex}_year" contenteditable="true" spellcheck="false" title="Generación / Año">Gen 2026</span>
+      </div>
+
+      <div class="dev-info">
+        <h3 class="dev-name cms-modified" data-cms-key="${prefix}${newIndex}_name" contenteditable="true" spellcheck="false">Nombre del Desarrollador</h3>
+        <span class="dev-role cms-modified" data-cms-key="${prefix}${newIndex}_role" contenteditable="true" spellcheck="false">Rol / Especialidad</span>
+        <p class="dev-bio cms-modified" data-cms-key="${prefix}${newIndex}_bio" contenteditable="true" spellcheck="false">Biografía breve o aportes destacados en la plataforma web...</p>
+
+        <div class="dev-social-links">
+          <!-- Se actualizarán al presionar Configurar Redes Sociales -->
+        </div>
+
+        <div class="dev-admin-links-editor">
+          <button type="button" class="btn btn-outline btn-sm dev-edit-links-btn" onclick="openDevLinksModal('${newIndex}', 'Nombre del Desarrollador')">
+            🔗 Configurar Redes Sociales
+          </button>
+          <input type="hidden" data-cms-key="${prefix}${newIndex}_github" id="devGithub-${newIndex}" value="">
+          <input type="hidden" data-cms-key="${prefix}${newIndex}_linkedin" id="devLinkedin-${newIndex}" value="">
+          <input type="hidden" data-cms-key="${prefix}${newIndex}_instagram" id="devInstagram-${newIndex}" value="">
+          <input type="hidden" data-cms-key="${prefix}${newIndex}_email" id="devEmail-${newIndex}" value="">
+        </div>
+      </div>
+    `;
+    parent.appendChild(newElement);
+
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_name`] = "Nombre del Desarrollador";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_role`] = "Rol / Especialidad";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_year`] = "Gen 2026";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_bio`] = "Biografía breve o aportes destacados en la plataforma web...";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_photo`] = defaultAvatar;
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_github`] = "";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_linkedin`] = "";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_instagram`] = "";
+    CMS_STATE.modifiedItems[`${prefix}${newIndex}_email`] = "";
+
+    // Habilitar selección de imagen en el nuevo elemento
+    const imgWrapper = newElement.querySelector('.cms-image-wrapper');
+    if (imgWrapper) {
+      imgWrapper.style.cursor = 'pointer';
+      imgWrapper.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const key = imgWrapper.getAttribute('data-cms-img');
+        const img = imgWrapper.querySelector('img');
+        openImageEditModal(key, img ? img.src : '');
+      });
+    }
   }
 
   updateModifiedCounter();
@@ -762,6 +848,96 @@ function reindexDynamicList(container, listType, prefix, previousCount) {
           delete CMS_STATE.modifiedItems[oldDescKey];
         }
       }
+    } else if (listType === 'developers') {
+      const yearEl = el.querySelector('.dev-year-badge');
+      const nameEl = el.querySelector('.dev-name');
+      const roleEl = el.querySelector('.dev-role');
+      const bioEl = el.querySelector('.dev-bio');
+      const photoBox = el.querySelector('.dev-avatar-img-box');
+      const photoImg = el.querySelector('.dev-avatar-img');
+      const ghInput = el.querySelector(`input[data-cms-key$="_github"]`);
+      const liInput = el.querySelector(`input[data-cms-key$="_linkedin"]`);
+      const igInput = el.querySelector(`input[data-cms-key$="_instagram"]`);
+      const emInput = el.querySelector(`input[data-cms-key$="_email"]`);
+      const editLinksBtn = el.querySelector('.dev-edit-links-btn');
+
+      el.id = `devCard-${newIdx}`;
+      if (editLinksBtn) {
+        editLinksBtn.setAttribute('onclick', `openDevLinksModal('${newIdx}', '${(nameEl?.innerText || 'Desarrollador').replace(/'/g, "\\'")}')`);
+      }
+
+      if (yearEl) {
+        const oldKey = yearEl.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}_year`;
+        yearEl.setAttribute('data-cms-key', newKey);
+        yearEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newKey] = yearEl.innerText.trim();
+        if (oldKey && oldKey !== newKey) delete CMS_STATE.modifiedItems[oldKey];
+      }
+      if (nameEl) {
+        const oldKey = nameEl.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}_name`;
+        nameEl.setAttribute('data-cms-key', newKey);
+        nameEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newKey] = nameEl.innerText.trim();
+        if (oldKey && oldKey !== newKey) delete CMS_STATE.modifiedItems[oldKey];
+      }
+      if (roleEl) {
+        const oldKey = roleEl.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}_role`;
+        roleEl.setAttribute('data-cms-key', newKey);
+        roleEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newKey] = roleEl.innerText.trim();
+        if (oldKey && oldKey !== newKey) delete CMS_STATE.modifiedItems[oldKey];
+      }
+      if (bioEl) {
+        const oldKey = bioEl.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}_bio`;
+        bioEl.setAttribute('data-cms-key', newKey);
+        bioEl.classList.add('cms-modified');
+        CMS_STATE.modifiedItems[newKey] = bioEl.innerText.trim();
+        if (oldKey && oldKey !== newKey) delete CMS_STATE.modifiedItems[oldKey];
+      }
+      if (photoBox && photoImg) {
+        const oldKey = photoBox.getAttribute('data-cms-img');
+        const newKey = `${prefix}${newIdx}_photo`;
+        photoBox.setAttribute('data-cms-img', newKey);
+        photoImg.setAttribute('data-cms-img', newKey);
+        CMS_STATE.modifiedItems[newKey] = photoImg.src;
+        if (oldKey && oldKey !== newKey) delete CMS_STATE.modifiedItems[oldKey];
+      }
+      if (ghInput) {
+        const oldKey = ghInput.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}_github`;
+        ghInput.id = `devGithub-${newIdx}`;
+        ghInput.setAttribute('data-cms-key', newKey);
+        CMS_STATE.modifiedItems[newKey] = ghInput.value;
+        if (oldKey && oldKey !== newKey) delete CMS_STATE.modifiedItems[oldKey];
+      }
+      if (liInput) {
+        const oldKey = liInput.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}_linkedin`;
+        liInput.id = `devLinkedin-${newIdx}`;
+        liInput.setAttribute('data-cms-key', newKey);
+        CMS_STATE.modifiedItems[newKey] = liInput.value;
+        if (oldKey && oldKey !== newKey) delete CMS_STATE.modifiedItems[oldKey];
+      }
+      if (igInput) {
+        const oldKey = igInput.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}_instagram`;
+        igInput.id = `devInstagram-${newIdx}`;
+        igInput.setAttribute('data-cms-key', newKey);
+        CMS_STATE.modifiedItems[newKey] = igInput.value;
+        if (oldKey && oldKey !== newKey) delete CMS_STATE.modifiedItems[oldKey];
+      }
+      if (emInput) {
+        const oldKey = emInput.getAttribute('data-cms-key');
+        const newKey = `${prefix}${newIdx}_email`;
+        emInput.id = `devEmail-${newIdx}`;
+        emInput.setAttribute('data-cms-key', newKey);
+        CMS_STATE.modifiedItems[newKey] = emInput.value;
+        if (oldKey && oldKey !== newKey) delete CMS_STATE.modifiedItems[oldKey];
+      }
     }
   });
 
@@ -777,6 +953,16 @@ function reindexDynamicList(container, listType, prefix, previousCount) {
       CMS_STATE.modifiedItems[`${prefix}${idx}_icon`] = '';
       CMS_STATE.modifiedItems[`${prefix}${idx}_title`] = '';
       CMS_STATE.modifiedItems[`${prefix}${idx}_desc`] = '';
+    } else if (listType === 'developers') {
+      CMS_STATE.modifiedItems[`${prefix}${idx}_name`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_role`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_year`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_bio`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_photo`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_github`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_linkedin`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_instagram`] = '';
+      CMS_STATE.modifiedItems[`${prefix}${idx}_email`] = '';
     } else {
       CMS_STATE.modifiedItems[`${prefix}${idx}`] = '';
     }
@@ -785,6 +971,15 @@ function reindexDynamicList(container, listType, prefix, previousCount) {
   updateModifiedCounter();
   showToast('🗑️ Elemento eliminado. Presione "💾 Guardar Cambios" para confirmar en la base de datos.', 'info');
 }
+
+// Exponer función de adición para botones directos de interfaz
+window.handleAddNewDynamicItem = function(listType, prefix) {
+  const container = document.querySelector(`[data-cms-list="${listType}"][data-cms-prefix="${prefix}"]`) ||
+                    document.querySelector(`[data-cms-list="${listType}"]`);
+  if (container) {
+    handleAddDynamicItem(container, listType, prefix);
+  }
+};
 
 /**
  * ============================================================================

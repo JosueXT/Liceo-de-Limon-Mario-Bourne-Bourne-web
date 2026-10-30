@@ -1021,6 +1021,20 @@
                 ✏️ Abrir y Editar Subpágina Regular
               </a>
             </div>
+
+            <!-- Equipo de Desarrolladores -->
+            <div class="visual-page-card" style="border: 2px solid #38bdf8;">
+              <div>
+                <span class="admin-badge-pill" style="background: #0284c7; margin-bottom: 0.8rem; display: inline-block;">Subpágina Desarrolladores</span>
+                <h3 class="visual-page-title">💻 Equipo de Desarrolladores</h3>
+                <p class="visual-page-desc">
+                  Edita la subpágina del equipo de desarrollo: agrega o elimina programadores, fotos, roles, promociones/año, biografías y enlaces a redes sociales.
+                </p>
+              </div>
+              <a href="/desarrolladores" class="btn btn-azul" style="width: 100%; text-align: center; background: #0284c7;">
+                ✏️ Abrir y Editar Desarrolladores
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -1194,6 +1208,14 @@
               </div>
 
               <div class="form-group">
+                <label class="form-label">🎬 URL de Video (YouTube, Google Drive o Enlace Directo .mp4)</label>
+                <input type="url" id="editNewsVideo" class="form-control" placeholder="https://www.youtube.com/watch?v=... o https://drive.google.com/file/d/.../view">
+                <small style="color: #64748b; font-size: 0.78rem; display: block; margin-top: 0.3rem;">
+                  💡 Opcional. Soporta enlaces de <strong>YouTube</strong>, <strong>Google Drive</strong> (archivo compartido con 'Cualquier persona con el enlace') o videos MP4 directos.
+                </small>
+              </div>
+
+              <div class="form-group">
                 <label class="form-label">Resumen Breve (Para tarjeta en portada)</label>
                 <textarea id="editNewsSummary" class="form-control" style="min-height: 75px;" required></textarea>
               </div>
@@ -1297,6 +1319,14 @@
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">🎬 URL de Video (YouTube, Google Drive o Enlace Directo .mp4)</label>
+                <input type="url" id="pNewsVideo" class="form-control" placeholder="https://www.youtube.com/watch?v=... o https://drive.google.com/file/d/.../view">
+                <small style="color: #64748b; font-size: 0.78rem; display: block; margin-top: 0.3rem;">
+                  💡 Opcional. Soporta enlaces de <strong>YouTube</strong>, <strong>Google Drive</strong> (archivo compartido con 'Cualquier persona con el enlace') o videos MP4 directos.
+                </small>
               </div>
 
               <div class="form-group">
@@ -2141,12 +2171,27 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function parseDriveImageUrl(url) {
+      if (!url) return '';
+      const trimmed = url.trim();
+      const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+                         trimmed.match(/id=([a-zA-Z0-9_-]+)/);
+      if (driveMatch && (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com'))) {
+        return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+      }
+      return trimmed;
+    }
+
     // 2. Previsualización Universal de Imágenes en Tiempo Real (Escribir, Pegar o Modificar)
     function bindLiveImagePreview(inputId, previewImgId) {
       const input = document.getElementById(inputId);
       const img = document.getElementById(previewImgId);
       if (input && img) {
         const update = () => {
+          const parsed = parseDriveImageUrl(input.value);
+          if (parsed !== input.value) {
+            input.value = parsed;
+          }
           const val = input.value.trim();
           if (val) {
             img.src = val;
@@ -2414,6 +2459,9 @@
         }
         syncFocalControls('editNews', item.image_position || 'center center');
 
+        const videoInput = document.getElementById('editNewsVideo');
+        if (videoInput) videoInput.value = item.video_url || '';
+
         document.getElementById('editNewsSummary').value = item.summary || '';
         document.getElementById('editNewsContent').value = item.content || '';
 
@@ -2512,13 +2560,14 @@
       const content = document.getElementById('editNewsContent').value.trim();
       const image = document.getElementById('editNewsImage').value.trim();
       const image_position = document.getElementById('editNewsImagePosition')?.value || 'center center';
+      const video_url = document.getElementById('editNewsVideo')?.value.trim() || '';
       const author = document.getElementById('editNewsAuthor').value.trim() || 'Liceo de Limón MEP';
 
       try {
         const res = await fetch(`/api/cms/news/${id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author, image_position })
+          body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author, image_position, video_url })
         });
 
         const data = await res.json();
@@ -2547,13 +2596,14 @@
       const content = document.getElementById('pNewsContent').value.trim();
       const image = document.getElementById('pNewsImage').value.trim();
       const image_position = document.getElementById('pNewsImagePosition')?.value || 'center center';
+      const video_url = document.getElementById('pNewsVideo')?.value.trim() || '';
       const author = document.getElementById('pNewsAuthor').value.trim() || 'Liceo de Limón MEP';
 
       try {
         const res = await fetch('/api/cms/news', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author, image_position })
+          body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author, image_position, video_url })
         });
 
         const data = await res.json();

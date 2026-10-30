@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- =====================================================================
+       METADATOS PRINCIPALES Y TÍTULO DE LA PÁGINA
+       ===================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-cms-key="devs_page_title">{{ cms.get('devs_page_title', 'Equipo de Desarrollo Web | Liceo de Limón Mario Bourne Bourne') }}</title>
+  <meta name="description" content="Conozca al equipo de estudiantes, egresados y colaboradores que diseñaron, programaron y mantienen la plataforma web oficial del Liceo de Limón Mario Bourne Bourne (MEP).">
+
+  <!-- Favicon e Íconos de Navegador -->
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="icon" type="image/png" sizes="64x64" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/escudo_liceo.jpg') }}">
+
+  <!-- Open Graph / Meta etiquetas para WhatsApp y Redes -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://liceomariobourne.dpdns.org/desarrolladores">
+  <meta property="og:site_name" content="Liceo de Limón Mario Bourne Bourne">
+  <meta property="og:title" content="{{ cms.get('devs_page_title', 'Equipo de Desarrollo Web | Liceo de Limón') }}">
+  <meta property="og:description" content="Conozca a los creadores de la plataforma digital del Liceo de Limón Mario Bourne Bourne.">
+  <meta property="og:image" content="{{ url_for('static', filename='img/og_preview.jpg', _external=True) }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="es_CR">
+
+  <!-- Tipografías de Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Hojas de Estilo CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+  {% if is_admin %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  {% endif %}
+</head>
+<body data-is-admin="{{ 'true' if is_admin else 'false' }}" class="devs-page-body">
+
+  <!-- Fondo dinámico con gradiente radial de brillo sutil -->
+  <div class="devs-bg-glow"></div>
+
+  <!-- =====================================================================
+       1. BARRA INSTITUCIONAL SUPERIOR (MEP)
+       ===================================================================== -->
+  <aside class="top-mep-bar">
+    <div class="container">
+      <div class="mep-entity">
+        <span class="mep-flag-strip cms-image-wrapper" data-cms-img="header_mep_flag" title="Bandera Institucional">
+          <img src="{{ cms.header_mep_flag or '/static/img/bandera_costa_rica.svg' }}" alt="Bandera" class="mep-flag-img" data-cms-img="header_mep_flag">
+        </span>
+        <span data-cms-key="header_mep_tag">{{ cms.header_mep_tag }}</span>
+      </div>
+      <div class="mep-quick-links">
+        <span class="mep-link" style="color: #cbd5e1;" data-cms-key="header_mep_location">{{ cms.header_mep_location }}</span>
+        <a href="/#redes" class="mep-link" data-cms-key="header_social_link_text">{{ cms.header_social_link_text }}</a>
+        <a href="/#contacto" class="mep-link" data-cms-key="header_contact_link_text">{{ cms.header_contact_link_text }}</a>
+        {% if is_admin %}
+        <a href="/admin/panel" class="admin-portal-badge" style="background: var(--azul);" title="Ir al Panel de Control">
+          ⚙️ Panel Admin
+        </a>
+        {% else %}
+        <a href="/login" class="admin-portal-badge" title="Iniciar sesión de administración">
+          🔒 Iniciar Sesión
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </aside>
+
+  <!-- =====================================================================
+       2. ENCABEZADO PRINCIPAL (NAVBAR)
+       ===================================================================== -->
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/" class="brand-wrapper">
+          <div class="brand-logo-container cms-image-wrapper">
+            <img src="{{ cms.site_logo }}" alt="Logotipo Liceo de Limón" class="brand-logo-img" data-cms-img="site_logo">
+          </div>
+          <div class="brand-text">
+            <span class="brand-name" data-cms-key="header_institution_name">{{ cms.header_institution_name }}</span>
+            <span class="brand-subname" data-cms-key="header_subname">{{ cms.header_subname }}</span>
+            <span class="brand-subtitle" data-cms-key="mep_badge">{{ cms.mep_badge }}</span>
+          </div>
+        </a>
+
+        <ul class="nav-menu" id="navMenu">
+          <li class="nav-item"><a href="/" class="nav-link">Inicio</a></li>
+          <li class="nav-item"><a href="/#modalidades" class="nav-link">Modalidades</a></li>
+          <li class="nav-item"><a href="/modalidad/ib" class="nav-link">Bachillerato IB</a></li>
+          <li class="nav-item"><a href="/#noticias" class="nav-link">Noticias</a></li>
+          <li class="nav-item"><a href="/#contacto" class="nav-link">Contacto</a></li>
+          <li class="nav-item"><a href="/desarrolladores" class="nav-link active" style="color: #38bdf8;">Desarrolladores</a></li>
+          <li class="nav-item mobile-only-nav-item">
+            <a href="/modalidad/ib" class="btn btn-vino btn-sm mobile-nav-btn">Bachillerato IB</a>
+          </li>
+        </ul>
+
+        <div class="nav-actions">
+          <a href="/modalidad/ib" class="btn btn-vino btn-sm desktop-only-btn">Bachillerato IB</a>
+          <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Abrir menú de navegación" aria-expanded="false">
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       3. SECCIÓN HERO DE PRESENTACIÓN DE DESARROLLADORES
+       ===================================================================== -->
+  <section class="devs-hero-section">
+    <div class="container">
+      <span class="devs-hero-tag reveal" data-cms-key="devs_hero_tag">{{ cms.get('devs_hero_tag', '💻 Innovación & Talento Digital Liceísta') }}</span>
+      <h1 class="devs-hero-title reveal delay-100">
+        <span class="title-accent" data-cms-key="devs_hero_title">{{ cms.get('devs_hero_title', 'Desarrolladores de la Plataforma Institucional') }}</span>
+      </h1>
+      <p class="devs-hero-subtitle reveal delay-200" data-cms-key="devs_hero_subtitle">
+        {{ cms.get('devs_hero_subtitle', 'Estudiantes, egresados y colaboradores que diseñaron, programaron y desplegaron el sitio web oficial del Liceo de Limón Mario Bourne Bourne.') }}
+      </p>
+
+      {% if is_admin %}
+      <!-- Botón de administración para añadir nuevos integrantes -->
+      <div class="devs-admin-bar reveal delay-300">
+        <button type="button" class="btn-add-dev" onclick="handleAddNewDynamicItem('developers', 'dev_item_')">
+          ➕ Agregar Desarrollador
+        </button>
+      </div>
+      {% endif %}
+
+      <!-- =====================================================================
+           4. CUADRÍCULA DINÁMICA DE DESARROLLADORES
+           ===================================================================== -->
+      <div class="devs-grid" id="developersGrid" data-cms-list="developers" data-cms-prefix="dev_item_">
+        {% for dev in developers %}
+        <div class="dev-card reveal-scale" data-cms-item-index="{{ dev.index }}" id="devCard-{{ dev.index }}">
+          {% if is_admin %}
+          <button type="button" class="cms-delete-item-btn" title="Eliminar a este desarrollador" aria-label="Eliminar desarrollador">✕</button>
+          {% endif %}
+
+          <div class="dev-avatar-wrapper">
+            <div class="dev-avatar-img-box cms-image-wrapper" data-cms-img="{{ dev.photo_key }}" title="Haga clic en modo edición para cambiar la fotografía">
+              <img src="{{ dev.photo }}" alt="{{ dev.name }}" class="dev-avatar-img" data-cms-img="{{ dev.photo_key }}">
+            </div>
+            <span class="dev-year-badge cms-modified" data-cms-key="{{ dev.year_key }}" contenteditable="{{ 'true' if is_admin else 'false' }}" spellcheck="false" title="Generación / Año">{{ dev.year }}</span>
+          </div>
+
+          <div class="dev-info">
+            <h3 class="dev-name cms-modified" data-cms-key="{{ dev.name_key }}" contenteditable="{{ 'true' if is_admin else 'false' }}" spellcheck="false">{{ dev.name }}</h3>
+            <span class="dev-role cms-modified" data-cms-key="{{ dev.role_key }}" contenteditable="{{ 'true' if is_admin else 'false' }}" spellcheck="false">{{ dev.role }}</span>
+            <p class="dev-bio cms-modified" data-cms-key="{{ dev.bio_key }}" contenteditable="{{ 'true' if is_admin else 'false' }}" spellcheck="false">{{ dev.bio }}</p>
+
+            <!-- Vínculos directos a Redes Sociales -->
+            <div class="dev-social-links">
+              {% if dev.github %}
+              <a href="{{ dev.github }}" target="_blank" rel="noopener noreferrer" class="dev-social-btn dev-github-btn" title="GitHub de {{ dev.name }}">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              </a>
+              {% endif %}
+
+              {% if dev.linkedin %}
+              <a href="{{ dev.linkedin }}" target="_blank" rel="noopener noreferrer" class="dev-social-btn dev-linkedin-btn" title="LinkedIn de {{ dev.name }}">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              </a>
+              {% endif %}
+
+              {% if dev.instagram %}
+              <a href="{{ dev.instagram }}" target="_blank" rel="noopener noreferrer" class="dev-social-btn dev-instagram-btn" title="Instagram de {{ dev.name }}">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              </a>
+              {% endif %}
+
+              {% if dev.email %}
+              <a href="mailto:{{ dev.email }}" class="dev-social-btn dev-email-btn" title="Contactar por correo a {{ dev.name }}">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M0 3v18h24v-18h-24zm21.518 2l-9.518 7.713-9.518-7.713h19.036zm-19.518 14v-11.817l9.518 7.712 9.518-7.712v11.817h-19.036z"/></svg>
+              </a>
+              {% endif %}
+            </div>
+
+            {% if is_admin %}
+            <!-- Editor de Enlaces en Modo Administrador -->
+            <div class="dev-admin-links-editor">
+              <button type="button" class="btn btn-outline btn-sm dev-edit-links-btn" onclick="openDevLinksModal('{{ dev.index }}', '{{ dev.name }}')">
+                🔗 Configurar Redes Sociales
+              </button>
+              <input type="hidden" data-cms-key="{{ dev.github_key }}" id="devGithub-{{ dev.index }}" value="{{ dev.github }}">
+              <input type="hidden" data-cms-key="{{ dev.linkedin_key }}" id="devLinkedin-{{ dev.index }}" value="{{ dev.linkedin }}">
+              <input type="hidden" data-cms-key="{{ dev.instagram_key }}" id="devInstagram-{{ dev.index }}" value="{{ dev.instagram }}">
+              <input type="hidden" data-cms-key="{{ dev.email_key }}" id="devEmail-{{ dev.index }}" value="{{ dev.email }}">
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       5. MODAL DE CONFIGURACIÓN DE REDES SOCIALES PARA DESARROLLADORES (ADMIN)
+       ===================================================================== -->
+  {% if is_admin %}
+  <div class="modal-backdrop" id="devLinksModal" style="display: none;">
+    <div class="modal-dialog" style="max-width: 520px; background: #0f172a; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px;">
+      <button class="modal-close-btn" onclick="closeDevLinksModal()" style="color: #ffffff;">&times;</button>
+      <div class="modal-body" style="padding: 2rem;">
+        <h3 id="devModalHeader" style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #ffffff;">🔗 Redes Sociales del Desarrollador</h3>
+        <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.5rem;">Actualice los enlaces a las plataformas de contacto y recuerde guardar cambios.</p>
+        
+        <input type="hidden" id="modalDevIndex">
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" style="color: #cbd5e1; font-size: 0.85rem;">GitHub (URL)</label>
+          <input type="url" id="modalDevGithub" class="form-control" placeholder="https://github.com/usuario" style="background: #1e293b; color: #ffffff; border-color: #334155;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" style="color: #cbd5e1; font-size: 0.85rem;">LinkedIn (URL)</label>
+          <input type="url" id="modalDevLinkedin" class="form-control" placeholder="https://linkedin.com/in/usuario" style="background: #1e293b; color: #ffffff; border-color: #334155;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" style="color: #cbd5e1; font-size: 0.85rem;">Instagram (URL)</label>
+          <input type="url" id="modalDevInstagram" class="form-control" placeholder="https://instagram.com/usuario" style="background: #1e293b; color: #ffffff; border-color: #334155;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label class="form-label" style="color: #cbd5e1; font-size: 0.85rem;">Correo de Contacto</label>
+          <input type="email" id="modalDevEmail" class="form-control" placeholder="desarrollador@ejemplo.com" style="background: #1e293b; color: #ffffff; border-color: #334155;">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.8rem;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="closeDevLinksModal()" style="border-color: #475569; color: #cbd5e1;">Cancelar</button>
+          <button type="button" class="btn btn-vino btn-sm" onclick="saveDevLinksFromModal()">Aplicar Enlaces</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openDevLinksModal(idx, name) {
+      document.getElementById('modalDevIndex').value = idx;
+      document.getElementById('devModalHeader').innerText = `🔗 Redes de: ${name || 'Desarrollador #' + idx}`;
+      document.getElementById('modalDevGithub').value = document.getElementById(`devGithub-${idx}`)?.value || '';
+      document.getElementById('modalDevLinkedin').value = document.getElementById(`devLinkedin-${idx}`)?.value || '';
+      document.getElementById('modalDevInstagram').value = document.getElementById(`devInstagram-${idx}`)?.value || '';
+      document.getElementById('modalDevEmail').value = document.getElementById(`devEmail-${idx}`)?.value || '';
+
+      const modal = document.getElementById('devLinksModal');
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
+
+    function closeDevLinksModal() {
+      const modal = document.getElementById('devLinksModal');
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+    }
+
+    function saveDevLinksFromModal() {
+      const idx = document.getElementById('modalDevIndex').value;
+      const gh = document.getElementById('modalDevGithub').value.trim();
+      const li = document.getElementById('modalDevLinkedin').value.trim();
+      const ig = document.getElementById('modalDevInstagram').value.trim();
+      const em = document.getElementById('modalDevEmail').value.trim();
+
+      const elGh = document.getElementById(`devGithub-${idx}`);
+      const elLi = document.getElementById(`devLinkedin-${idx}`);
+      const elIg = document.getElementById(`devInstagram-${idx}`);
+      const elEm = document.getElementById(`devEmail-${idx}`);
+
+      if (elGh) { elGh.value = gh; CMS_STATE.modifiedItems[`dev_item_${idx}_github`] = gh; }
+      if (elLi) { elLi.value = li; CMS_STATE.modifiedItems[`dev_item_${idx}_linkedin`] = li; }
+      if (elIg) { elIg.value = ig; CMS_STATE.modifiedItems[`dev_item_${idx}_instagram`] = ig; }
+      if (elEm) { elEm.value = em; CMS_STATE.modifiedItems[`dev_item_${idx}_email`] = em; }
+
+      closeDevLinksModal();
+      if (typeof updateModifiedCounter === 'function') updateModifiedCounter();
+      if (typeof showToast === 'function') showToast('✓ Enlaces de redes actualizados. Recuerde hacer clic en "💾 Guardar Cambios" para confirmar.', 'info');
+    }
+  </script>
+  {% endif %}
+
+  <!-- =====================================================================
+       6. PIE DE PÁGINA INSTITUCIONAL (FOOTER)
+       ===================================================================== -->
+  <footer class="main-footer" style="background: #050811; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col-brand">
+          <span class="footer-brand-title" data-cms-key="header_institution_name">{{ cms.header_institution_name }}</span>
+          <span class="footer-brand-subtitle" data-cms-key="header_subname">{{ cms.header_subname }}</span>
+          <p class="footer-brand-desc" data-cms-key="footer_brand_desc">{{ cms.footer_brand_desc }}</p>
+          <div class="mep-entity">
+            <span class="mep-flag-strip cms-image-wrapper" data-cms-img="header_mep_flag" title="Bandera Institucional">
+              <img src="{{ cms.header_mep_flag or '/static/img/bandera_costa_rica.svg' }}" alt="Bandera" class="mep-flag-img" data-cms-img="header_mep_flag">
+            </span>
+            <span style="font-size: 0.8rem; color: var(--gris-300);" data-cms-key="footer_flag_text">{{ cms.footer_flag_text }}</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title" data-cms-key="footer_col1_title">{{ cms.footer_col1_title }}</h4>
+          <div class="footer-links-list">
+            <a href="/modalidad/regular" class="footer-link-item" data-cms-key="footer_col1_link1">{{ cms.footer_col1_link1 }}</a>
+            <a href="/modalidad/frances" class="footer-link-item" data-cms-key="footer_col1_link2">{{ cms.footer_col1_link2 }}</a>
+            <a href="/modalidad/ib" class="footer-link-item" data-cms-key="footer_col1_link3">{{ cms.footer_col1_link3 }}</a>
+            <a href="/#instalaciones" class="footer-link-item" data-cms-key="footer_col1_link4">{{ cms.footer_col1_link4 }}</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title" data-cms-key="footer_col2_title">{{ cms.footer_col2_title }}</h4>
+          <div class="footer-links-list">
+            <a href="{{ cms.facebook_url }}" target="_blank" rel="noopener" class="footer-link-item" data-cms-key="footer_col2_link1">{{ cms.footer_col2_link1 }}</a>
+            <a href="{{ cms.instagram_url }}" target="_blank" rel="noopener" class="footer-link-item" data-cms-key="footer_col2_link2">{{ cms.footer_col2_link2 }}</a>
+            <a href="{{ cms.whatsapp_url }}" target="_blank" rel="noopener" class="footer-link-item" data-cms-key="footer_col2_link3">{{ cms.footer_col2_link3 }}</a>
+            <a href="/#redes" class="footer-link-item" data-cms-key="footer_col2_link4">{{ cms.footer_col2_link4 }}</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title" data-cms-key="footer_col3_title">{{ cms.footer_col3_title }}</h4>
+          <div class="footer-links-list">
+            <a href="/#contacto" class="footer-link-item" data-cms-key="footer_col3_link1">{{ cms.footer_col3_link1 }}</a>
+            <a href="https://www.mep.go.cr" target="_blank" rel="noopener" class="footer-link-item" data-cms-key="footer_col3_link2">{{ cms.footer_col3_link2 }}</a>
+            <a href="/desarrolladores" class="footer-link-item" style="color: #38bdf8; font-weight: 600;">💻 Equipo de Desarrollo</a>
+            <a href="/" class="footer-link-item" data-cms-key="footer_col3_link3">{{ cms.footer_col3_link3 }}</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom" style="border-top-color: rgba(255, 255, 255, 0.08);">
+        <p data-cms-key="footer_copy">{{ cms.footer_copy }}</p>
+        <p data-cms-key="footer_mep_notice">{{ cms.footer_mep_notice }}</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts JavaScript Vanilla Públicos -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  <!-- Script del Gestor CMS (Solo se ejecuta si hay sesión administrativa activa) -->
+  {% if is_admin %}
+  <script src="{{ url_for('static', filename='js/admin_cms.js') }}"></script>
+  {% endif %}
+</body>
+</html>

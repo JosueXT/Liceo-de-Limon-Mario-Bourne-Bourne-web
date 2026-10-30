@@ -217,6 +217,8 @@ def init_db(force=False):
         cursor.execute("ALTER TABLE news_articles ADD COLUMN subcategory TEXT DEFAULT ''")
     if 'image_position' not in columns:
         cursor.execute("ALTER TABLE news_articles ADD COLUMN image_position TEXT DEFAULT 'center center'")
+    if 'video_url' not in columns:
+        cursor.execute("ALTER TABLE news_articles ADD COLUMN video_url TEXT DEFAULT ''")
 
     # 3. Tabla para consultas de contacto
     cursor.execute('''
@@ -318,7 +320,7 @@ def init_db(force=False):
     if _is_empty():
         cursor.execute('SELECT key, value FROM cms_content')
         content_dict = {row['key']: row['value'] for row in cursor.fetchall()}
-        cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author FROM news_articles')
+        cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url FROM news_articles')
         news_list = [dict(row) for row in cursor.fetchall()]
         cursor.execute('''
             INSERT INTO cms_snapshots (name, content_json, news_json)
@@ -347,8 +349,8 @@ def seed_news(conn):
     cursor = conn.cursor()
     for item in DEFAULT_NEWS:
         cursor.execute('''
-            INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             item['title'],
             item['category'],
@@ -358,7 +360,9 @@ def seed_news(conn):
             item['summary'],
             item['content'],
             item['image'],
-            item['author']
+            item['author'],
+            item.get('image_position', 'center center'),
+            item.get('video_url', '')
         ))
     conn.commit()
 
@@ -475,27 +479,27 @@ def get_news_by_id(news_id):
     conn.close()
     return dict(row) if row else None
 
-def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center'):
+def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url=''):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center'))
+        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or ''))
     new_id = cursor.lastrowid
     conn.commit()
     conn.close()
     invalidate_cms_cache()
     return new_id
 
-def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center'):
+def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url=''):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE news_articles
-        SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?
+        SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?, video_url = ?
         WHERE id = ?
-    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', news_id))
+    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', news_id))
     conn.commit()
     conn.close()
     invalidate_cms_cache()
@@ -580,7 +584,7 @@ def create_snapshot(name="Copia de Seguridad"):
     content_dict = get_all_content()
 
     # Obtener todas las noticias actuales
-    cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author FROM news_articles')
+    cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url FROM news_articles')
     news_rows = [dict(row) for row in cursor.fetchall()]
 
     cursor.execute('''
@@ -654,8 +658,8 @@ def restore_snapshot(snapshot_id):
     cursor.execute('DELETE FROM news_articles')
     for item in news_list:
         cursor.execute('''
-            INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             item.get('title', ''),
             item.get('category', 'Institucionales'),
@@ -665,7 +669,9 @@ def restore_snapshot(snapshot_id):
             item.get('summary', ''),
             item.get('content', ''),
             item.get('image', ''),
-            item.get('author', 'Liceo de Limón MEP')
+            item.get('author', 'Liceo de Limón MEP'),
+            item.get('image_position', 'center center'),
+            item.get('video_url', '')
         ))
 
     conn.commit()

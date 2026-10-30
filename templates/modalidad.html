@@ -539,6 +539,73 @@
   </section>
   {% endif %}
 
+  {% if modalidad.slug == 'ib' %}
+  <!-- =====================================================================
+       8.1 SECCIÓN DE NOTICIAS Y PROYECTOS DEL BACHILLERATO INTERNACIONAL (IB)
+       ===================================================================== -->
+  <section class="section ib-news-section reveal" id="ib-noticias">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag section-tag-blue" data-cms-key="ib_news_section_tag">{{ cms.get('ib_news_section_tag', 'Comunidad y Proyectos IB') }}</span>
+        <h2 class="section-title" data-cms-key="ib_news_section_title">{{ cms.get('ib_news_section_title', 'Noticias y Avisos del Programa del Diploma') }}</h2>
+        <p class="section-subtitle" data-cms-key="ib_news_section_subtitle">{{ cms.get('ib_news_section_subtitle', 'Publicaciones oficiales sobre CAS, Teoría del Conocimiento (TOK), Monografías y convocatorias del Bachillerato Internacional.') }}</p>
+      </div>
+
+      <!-- Filtros Dinámicos de Subcategorías IB -->
+      <div class="ib-news-subfilters reveal">
+        <button type="button" class="ib-subfilter-btn active" data-subfilter="all">Todas las Publicaciones IB</button>
+        <button type="button" class="ib-subfilter-btn" data-subfilter="CAS">🌿 CAS (Creatividad, Actividad, Servicio)</button>
+        <button type="button" class="ib-subfilter-btn" data-subfilter="TOK">🧠 TOK (Teoría del Conocimiento)</button>
+        <button type="button" class="ib-subfilter-btn" data-subfilter="Actividades">📋 Admisión & Actividades</button>
+      </div>
+
+      <!-- Cuadrícula de Noticias IB -->
+      <div class="news-grid" id="ibNewsGridContainer">
+        {% set ib_items = [] %}
+        {% for item in news %}
+          {% if item.category_slug == 'ib' %}
+            {% set _ = ib_items.append(item) %}
+            <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}" data-image-position="{{ item.image_position or 'center center' }}" data-video-url="{{ item.video_url or '' }}">
+              <div class="news-image-container">
+                <span class="news-tag-overlay tag-ib">
+                  {{ item.category }}
+                  {% if item.subcategory %}
+                    <span class="news-subcategory-tag">{{ item.subcategory }}</span>
+                  {% endif %}
+                </span>
+                {% if item.video_url %}
+                <span class="news-video-badge">▶ Video</span>
+                {% endif %}
+                <img src="{{ item.image }}" alt="{{ item.title }}" class="news-image" data-position="{{ item.image_position or 'center center' }}">
+              </div>
+
+              <div class="news-body">
+                <div class="news-meta">
+                  <span class="news-meta-item news-meta-date">📅 {{ item.date }}</span>
+                  <span class="news-meta-item news-meta-author">✍️ {{ item.author }}</span>
+                </div>
+                <h3 class="news-title">{{ item.title }}</h3>
+                <p class="news-summary">{{ item.summary }}</p>
+                <div class="news-footer">
+                  <a href="#" class="btn-read-more">Leer Comunicado Completo →</a>
+                </div>
+              </div>
+            </article>
+          {% endif %}
+        {% endfor %}
+
+        {% if ib_items|length == 0 %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--gris-600);">
+          <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">📰</div>
+          <h3>Próximamente nuevas noticias del Bachillerato Internacional</h3>
+          <p>La coordinación publicará comunicados sobre las convocatorias y proyectos CAS.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
   <!-- =====================================================================
        9. PIE DE PÁGINA INSTITUCIONAL (FOOTER)
        ===================================================================== -->
@@ -582,6 +649,7 @@
           <div class="footer-links-list">
             <a href="/#contacto" class="footer-link-item" data-cms-key="footer_col3_link1">{{ cms.footer_col3_link1 }}</a>
             <a href="https://www.mep.go.cr" target="_blank" rel="noopener" class="footer-link-item" data-cms-key="footer_col3_link2">{{ cms.footer_col3_link2 }}</a>
+            <a href="/desarrolladores" class="footer-link-item" style="color: #38bdf8; font-weight: 600;">💻 Equipo de Desarrollo</a>
             <a href="/" class="footer-link-item" data-cms-key="footer_col3_link3">{{ cms.footer_col3_link3 }}</a>
           </div>
         </div>
@@ -593,6 +661,25 @@
       </div>
     </div>
   </footer>
+
+  <!-- Modal para Lectura de Noticias IB -->
+  <div class="modal-backdrop" id="newsDetailModal">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" id="closeNewsModalBtn">&times;</button>
+      <div id="modalNewsVideoContainer" class="modal-video-wrapper" style="display: none;"></div>
+      <img src="" alt="Noticia" id="modalNewsImage" class="modal-image">
+      <div class="modal-body">
+        <h2 class="modal-title" id="modalNewsTitle">Título de la Noticia</h2>
+        <div class="modal-meta">
+          <span id="modalNewsDate">📅 Fecha</span>
+          <span id="modalNewsAuthor">✍️ Autor</span>
+        </div>
+        <div class="modal-text" id="modalNewsBody">
+          Contenido detallado de la noticia...
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts JavaScript Vanilla Públicos -->
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>

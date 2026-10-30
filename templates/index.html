@@ -429,7 +429,7 @@
       <!-- Cuadrícula Dinámica de Comunicados -->
       <div class="news-grid" id="newsGridContainer">
         {% for item in news %}
-        <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}" data-image-position="{{ item.image_position or 'center center' }}">
+        <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}" data-image-position="{{ item.image_position or 'center center' }}" data-video-url="{{ item.video_url or '' }}">
           <div class="news-image-container">
             <span class="news-tag-overlay tag-{{ item.category_slug }}">
               {{ item.category }}
@@ -437,6 +437,9 @@
                 <span class="news-subcategory-tag">{{ item.subcategory }}</span>
               {% endif %}
             </span>
+            {% if item.video_url %}
+            <span class="news-video-badge">▶ Video</span>
+            {% endif %}
             <img src="{{ item.image }}" alt="{{ item.title }}" class="news-image" data-position="{{ item.image_position or 'center center' }}">
           </div>
 
@@ -811,6 +814,7 @@
           <div class="footer-links-list">
             <a href="#contacto" class="footer-link-item" data-cms-key="footer_col3_link1">{{ cms.footer_col3_link1 }}</a>
             <a href="https://www.mep.go.cr" target="_blank" rel="noopener" class="footer-link-item" data-cms-key="footer_col3_link2">{{ cms.footer_col3_link2 }}</a>
+            <a href="/desarrolladores" class="footer-link-item" style="color: #38bdf8; font-weight: 600;">💻 Equipo de Desarrollo</a>
             <a href="#inicio" class="footer-link-item" data-cms-key="footer_col3_link3">{{ cms.footer_col3_link3 }}</a>
           </div>
         </div>
@@ -829,6 +833,7 @@
   <div class="modal-backdrop" id="newsDetailModal">
     <div class="modal-dialog">
       <button class="modal-close-btn" id="closeNewsModalBtn">&times;</button>
+      <div id="modalNewsVideoContainer" class="modal-video-wrapper" style="display: none;"></div>
       <img src="" alt="Noticia" id="modalNewsImage" class="modal-image">
       <div class="modal-body">
         <h2 class="modal-title" id="modalNewsTitle">Título de la Noticia</h2>

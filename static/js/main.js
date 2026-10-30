@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initAnimatedCounters();
   initNewsFilters();
   initNewsModal();
+  initIbNewsFilters();
   initContactForm();
   initMobileMenu();
   initNewsImagePositions();
@@ -304,7 +305,69 @@ function initNewsFilters() {
 }
 
 /**
- * 6. Modal de Lectura Completa de Comunicados
+ * Parsea y formatea enlaces multimedia (Google Drive, YouTube, Vimeo, MP4 directo)
+ */
+function parseMediaVideoUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  url = url.trim();
+  if (!url) return null;
+
+  // 1. Google Drive (Compartir enlace: /file/d/ID/view o id=ID)
+  const driveMatch = url.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]{20,})/);
+  if (driveMatch) {
+    const fileId = driveMatch[1];
+    return {
+      type: 'drive',
+      embedUrl: `https://drive.google.com/file/d/${fileId}/preview`,
+      original: url
+    };
+  }
+
+  // 2. YouTube (Enlaces normales, youtu.be, shorts o embed)
+  const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) {
+    const videoId = ytMatch[1];
+    return {
+      type: 'youtube',
+      embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`,
+      original: url
+    };
+  }
+
+  // 3. Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vimeoMatch) {
+    const vimeoId = vimeoMatch[1];
+    return {
+      type: 'vimeo',
+      embedUrl: `https://player.vimeo.com/video/${vimeoId}?autoplay=1`,
+      original: url
+    };
+  }
+
+  // 4. Archivo directo MP4 / WebM / OGG
+  if (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url)) {
+    return {
+      type: 'direct',
+      videoUrl: url,
+      original: url
+    };
+  }
+
+  // 5. Enlace web o embed genérico
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return {
+      type: 'embed',
+      embedUrl: url,
+      original: url
+    };
+  }
+
+  return null;
+}
+
+/**
+ * 6. Modal para Lectura de Noticias Completas y Reproducción de Videos
  */
 function initNewsModal() {
   const modal = document.getElementById('newsDetailModal');
@@ -319,10 +382,48 @@ function initNewsModal() {
     const imageEl = card.querySelector('.news-image');
     const imageSrc = imageEl ? imageEl.getAttribute('src') : '';
     const imagePos = (imageEl && imageEl.style.objectPosition) || card.getAttribute('data-image-position') || 'center center';
+    const videoUrl = card.getAttribute('data-video-url') || '';
     const rawContent = card.getAttribute('data-content') || card.querySelector('.news-summary')?.innerText.trim() || '';
 
+    const modalVideo = document.getElementById('modalNewsVideoContainer');
     const modalImg = document.getElementById('modalNewsImage');
-    if (modalImg) {
+
+    // Manejo de Video
+    if (modalVideo) {
+      const parsedVideo = parseMediaVideoUrl(videoUrl);
+      if (parsedVideo) {
+        if (parsedVideo.type === 'direct') {
+          modalVideo.innerHTML = `
+            <video controls autoplay playsinline style="width:100%; height:100%; object-fit:contain; background:#000;">
+              <source src="${parsedVideo.videoUrl}">
+              Su navegador no soporta reproducción de video HTML5.
+            </video>
+          `;
+        } else {
+          modalVideo.innerHTML = `
+            <iframe src="${parsedVideo.embedUrl}" 
+                    allow="autoplay; fullscreen; picture-in-picture" 
+                    allowfullscreen
+                    style="width:100%; height:100%; border:none; min-height:360px;">
+            </iframe>
+          `;
+        }
+        modalVideo.style.display = 'block';
+        if (modalImg) modalImg.style.display = 'none';
+      } else {
+        modalVideo.innerHTML = '';
+        modalVideo.style.display = 'none';
+        if (modalImg) {
+          if (imageSrc) {
+            modalImg.src = imageSrc;
+            modalImg.style.objectPosition = imagePos;
+            modalImg.style.display = 'block';
+          } else {
+            modalImg.style.display = 'none';
+          }
+        }
+      }
+    } else if (modalImg) {
       if (imageSrc) {
         modalImg.src = imageSrc;
         modalImg.style.objectPosition = imagePos;
@@ -343,7 +444,6 @@ function initNewsModal() {
 
     const modalBody = document.getElementById('modalNewsBody');
     if (modalBody) {
-      // Reemplazar saltos de línea para mostrar párrafos con buen espaciado
       modalBody.innerHTML = rawContent
         .split('\n\n')
         .filter(p => p.trim())
@@ -352,7 +452,6 @@ function initNewsModal() {
     }
 
     modal.style.display = 'flex';
-    // Forzar reflow para animación suave
     void modal.offsetWidth;
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -361,6 +460,14 @@ function initNewsModal() {
   function closeNewsModal() {
     modal.classList.remove('active');
     document.body.style.overflow = '';
+
+    // Detener reproducción de video inmediatamente al cerrar
+    const modalVideo = document.getElementById('modalNewsVideoContainer');
+    if (modalVideo) {
+      modalVideo.innerHTML = '';
+      modalVideo.style.display = 'none';
+    }
+
     setTimeout(() => {
       if (!modal.classList.contains('active')) {
         modal.style.display = 'none';
@@ -390,6 +497,36 @@ function initNewsModal() {
     if (e.key === 'Escape' && modal.classList.contains('active')) {
       closeNewsModal();
     }
+  });
+}
+
+/**
+ * 6.1 Filtros Dinámicos para Noticias IB en /modalidad/ib
+ */
+function initIbNewsFilters() {
+  const container = document.getElementById('ibNewsGridContainer');
+  if (!container) return;
+
+  const subfilterBtns = document.querySelectorAll('.ib-subfilter-btn');
+  const cards = container.querySelectorAll('.news-card');
+
+  subfilterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      subfilterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filter = (btn.getAttribute('data-subfilter') || 'all').toLowerCase().trim();
+
+      cards.forEach(card => {
+        const subcat = (card.getAttribute('data-subcategory') || '').toLowerCase().trim();
+        if (filter === 'all' || subcat.includes(filter) || (filter === 'general' && !subcat)) {
+          card.style.display = 'flex';
+          card.classList.add('reveal-scale');
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
   });
 }
 

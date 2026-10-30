@@ -666,6 +666,132 @@ class LiceoLimonTestCase(unittest.TestCase):
         locked_after, _ = security_shield.is_locked(fake_ip, 'api_login', max_attempts=5)
         self.assertFalse(locked_after)
 
+    def test_16_developers_page_and_visual_editing(self):
+        """Verifica la subpágina de Desarrolladores, lista dinámica, editor visual y copia de seguridad"""
+        # 1. Acceso público
+        res_dev = self.client.get('/desarrolladores')
+        self.assertEqual(res_dev.status_code, 200)
+        html_dev = res_dev.get_data(as_text=True)
+        self.assertIn('Desarrolladores de la Plataforma Institucional', html_dev)
+        self.assertIn('Josué', html_dev)
+        self.assertNotIn('admin_cms.js', html_dev)
+
+        # Rutas alias
+        self.assertEqual(self.client.get('/creditos').status_code, 200)
+        self.assertEqual(self.client.get('/equipo').status_code, 200)
+
+        # 2. Acceso como Administrador
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+        res_admin = self.client.get('/desarrolladores')
+        self.assertEqual(res_admin.status_code, 200)
+        html_admin = res_admin.get_data(as_text=True)
+        self.assertIn('admin_cms.js', html_admin)
+        self.assertIn('data-cms-list="developers"', html_admin)
+        self.assertIn('btn-add-dev', html_admin)
+
+        # 3. Guardar un segundo desarrollador mediante CMS
+        update_devs = {
+            'items': {
+                'dev_item_2_name': 'Carlos Alvarado',
+                'dev_item_2_role': 'Diseñador UI/UX & Frontend',
+                'dev_item_2_year': 'Gen 2026',
+                'dev_item_2_bio': 'Especialista en diseño de interfaz visual y branding liceísta.',
+                'dev_item_2_photo': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
+                'dev_item_2_github': 'https://github.com/carlos',
+                'dev_item_2_instagram': 'https://instagram.com/carlos'
+            }
+        }
+        res_save = self.client.post('/api/cms/content',
+            data=json.dumps(update_devs),
+            content_type='application/json'
+        )
+        self.assertEqual(res_save.status_code, 200)
+
+        # Verificar persistencia en base de datos y página pública
+        content = get_all_content()
+        self.assertEqual(content['dev_item_2_name'], 'Carlos Alvarado')
+
+        res_check = self.client.get('/desarrolladores')
+        self.assertIn('Carlos Alvarado', res_check.get_data(as_text=True))
+        self.assertIn('Diseñador UI/UX', res_check.get_data(as_text=True))
+
+        # 4. Verificar soporte en Copia de Seguridad (Snapshot)
+        from database import create_snapshot, restore_snapshot
+        snap_id = create_snapshot('Backup Desarrolladores Test')
+        self.assertIsNotNone(snap_id)
+
+        # Modificar temporalmente
+        database.update_bulk_content({'dev_item_2_name': 'Nombre Alterado'})
+        self.assertEqual(get_all_content()['dev_item_2_name'], 'Nombre Alterado')
+
+        # Restaurar copia
+        ok_restore = restore_snapshot(snap_id)
+        self.assertTrue(ok_restore)
+        self.assertEqual(get_all_content()['dev_item_2_name'], 'Carlos Alvarado')
+
+    def test_17_news_video_support_and_ib_section(self):
+        """Verifica soporte de videos en noticias (Drive/YouTube), persistencia y sección IB"""
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+
+        # 1. Publicar noticia con Video de Google Drive
+        drive_video = 'https://drive.google.com/file/d/1A2B3C4D5E6F7G8H9/view?usp=sharing'
+        payload_news = {
+            'title': 'Proyecto Ambiental Comunitario CAS 2026',
+            'category': 'Bachillerato Internacional',
+            'category_slug': 'ib',
+            'subcategory': 'CAS',
+            'date': '30 de Octubre, 2026',
+            'summary': 'Estudiantes de IB presentan su video documental sobre el ecosistema costero de Limón.',
+            'content': 'Detalle completo del proyecto con video demostrativo.',
+            'image': 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800',
+            'author': 'Coordinación CAS - Liceo de Limón',
+            'image_position': '50% 50%',
+            'video_url': drive_video
+        }
+
+        res_add = self.client.post('/api/cms/news',
+            data=json.dumps(payload_news),
+            content_type='application/json'
+        )
+        self.assertEqual(res_add.status_code, 200)
+        data_add = json.loads(res_add.get_data(as_text=True))
+        self.assertTrue(data_add.get('success'))
+        news_id = data_add.get('id')
+
+        # 2. Verificar que se guardó el video_url en la base de datos
+        all_news = get_all_news()
+        created_item = next((n for n in all_news if n['id'] == news_id), None)
+        self.assertIsNotNone(created_item)
+        self.assertEqual(created_item['video_url'], drive_video)
+
+        # 3. Actualizar noticia con video de YouTube
+        yt_video = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        payload_news['video_url'] = yt_video
+        res_upd = self.client.post(f'/api/cms/news/{news_id}',
+            data=json.dumps(payload_news),
+            content_type='application/json'
+        )
+        self.assertEqual(res_upd.status_code, 200)
+        upd_item = next((n for n in get_all_news() if n['id'] == news_id), None)
+        self.assertEqual(upd_item['video_url'], yt_video)
+
+        # 4. Verificar sección de Noticias de IB en /modalidad/ib
+        res_ib = self.client.get('/modalidad/ib')
+        self.assertEqual(res_ib.status_code, 200)
+        html_ib = res_ib.get_data(as_text=True)
+        self.assertIn('ib-noticias', html_ib)
+        self.assertIn('Noticias y Avisos del Programa del Diploma', html_ib)
+        self.assertIn('Proyecto Ambiental Comunitario CAS 2026', html_ib)
+        self.assertIn('news-video-badge', html_ib)
+        self.assertIn('modalNewsVideoContainer', html_ib)
+        self.assertIn(yt_video, html_ib)
+
 if __name__ == '__main__':
     unittest.main()
 

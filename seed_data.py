@@ -397,7 +397,26 @@ DEFAULT_CMS_CONTENT = {
     "ib_contact_email": "ib.lic.delimon@mep.go.cr",
     "ib_contact_email_sub": "Respuesta en un plazo de 24 a 48 horas hábiles",
     "ib_contact_office_label": "Oficina de Coordinación",
-    "ib_contact_office": "Pabellón Académico IB • Liceo de Limón Mario Bourne Bourne"
+    "ib_contact_office": "Pabellón Académico IB • Liceo de Limón Mario Bourne Bourne",
+
+    # -------------------------------------------------------------------------
+    # 10. SUBPÁGINA DE EQUIPO DE DESARROLLO WEB & CRÉDITOS
+    # -------------------------------------------------------------------------
+    "devs_page_title": "Equipo de Desarrollo Web | Liceo de Limón Mario Bourne Bourne",
+    "devs_hero_tag": "💻 Innovación & Talento Digital Liceísta",
+    "devs_hero_title": "Desarrolladores de la Plataforma Institucional",
+    "devs_hero_subtitle": "Estudiantes, egresados y colaboradores que diseñaron, programaron y desplegaron el sitio web oficial del Liceo de Limón Mario Bourne Bourne.",
+    
+    # Desarrollador 1 por defecto
+    "dev_item_1_name": "Josué",
+    "dev_item_1_role": "Desarrollador Principal & Arquitectura Web",
+    "dev_item_1_year": "Generación 2026",
+    "dev_item_1_bio": "Diseño y desarrollo de la plataforma, integración con base de datos en la nube Turso, sistema de gestión de contenidos (CMS) in-situ y despliegue continuo.",
+    "dev_item_1_photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+    "dev_item_1_github": "https://github.com/JosueXT",
+    "dev_item_1_linkedin": "",
+    "dev_item_1_instagram": "",
+    "dev_item_1_email": "soporte@liceomariobourne.dpdns.org"
 }
 
 # -----------------------------------------------------------------------------

@@ -246,6 +246,61 @@ def get_campus_dynamic_list(cms):
             })
     return items
 
+def get_developers_dynamic_list(cms):
+    """Extrae la lista dinámica de desarrolladores para la subpágina /desarrolladores."""
+    items = []
+    for i in range(1, 60):
+        name = cms.get(f"dev_item_{i}_name", "").strip()
+        role = cms.get(f"dev_item_{i}_role", "").strip()
+        if name or role:
+            c_idx = len(items) + 1
+            items.append({
+                'index': c_idx,
+                'name_key': f"dev_item_{c_idx}_name",
+                'name': name or f"Desarrollador {c_idx}",
+                'role_key': f"dev_item_{c_idx}_role",
+                'role': role or "Desarrollador Web",
+                'year_key': f"dev_item_{c_idx}_year",
+                'year': cms.get(f"dev_item_{i}_year", "Generación 2026").strip() or "Generación 2026",
+                'bio_key': f"dev_item_{c_idx}_bio",
+                'bio': cms.get(f"dev_item_{i}_bio", "").strip(),
+                'photo_key': f"dev_item_{c_idx}_photo",
+                'photo': cms.get(f"dev_item_{i}_photo", "").strip() or "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+                'github_key': f"dev_item_{c_idx}_github",
+                'github': cms.get(f"dev_item_{i}_github", "").strip(),
+                'linkedin_key': f"dev_item_{c_idx}_linkedin",
+                'linkedin': cms.get(f"dev_item_{i}_linkedin", "").strip(),
+                'instagram_key': f"dev_item_{c_idx}_instagram",
+                'instagram': cms.get(f"dev_item_{i}_instagram", "").strip(),
+                'email_key': f"dev_item_{c_idx}_email",
+                'email': cms.get(f"dev_item_{i}_email", "").strip(),
+            })
+
+    if not items:
+        # Miembro inicial por defecto
+        items.append({
+            'index': 1,
+            'name_key': "dev_item_1_name",
+            'name': cms.get("dev_item_1_name", "Josué"),
+            'role_key': "dev_item_1_role",
+            'role': cms.get("dev_item_1_role", "Desarrollador Principal & Arquitectura Web"),
+            'year_key': "dev_item_1_year",
+            'year': cms.get("dev_item_1_year", "Generación 2026"),
+            'bio_key': "dev_item_1_bio",
+            'bio': cms.get("dev_item_1_bio", "Diseño, desarrollo integral y despliegue del portal institucional."),
+            'photo_key': "dev_item_1_photo",
+            'photo': cms.get("dev_item_1_photo", "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"),
+            'github_key': "dev_item_1_github",
+            'github': cms.get("dev_item_1_github", "https://github.com/JosueXT"),
+            'linkedin_key': "dev_item_1_linkedin",
+            'linkedin': cms.get("dev_item_1_linkedin", ""),
+            'instagram_key': "dev_item_1_instagram",
+            'instagram': cms.get("dev_item_1_instagram", ""),
+            'email_key': "dev_item_1_email",
+            'email': cms.get("dev_item_1_email", "soporte@liceomariobourne.dpdns.org"),
+        })
+    return items
+
 # =============================================================================
 # 1. RUTAS PÚBLICAS
 # =============================================================================
@@ -283,6 +338,7 @@ def modalidad_detalle(slug):
 
     modalidad_info = MODALIDADES_DETALLE[slug]
     cms = get_all_content()
+    news = get_all_news()
     is_admin = session.get('is_admin', False)
     dynamic_lists = get_modality_dynamic_lists(slug, cms)
 
@@ -291,7 +347,23 @@ def modalidad_detalle(slug):
         modalidad=modalidad_info,
         cms=cms,
         is_admin=is_admin,
-        dynamic_lists=dynamic_lists
+        dynamic_lists=dynamic_lists,
+        news=news
+    )
+
+@app.route('/desarrolladores')
+@app.route('/creditos')
+@app.route('/equipo')
+def desarrolladores():
+    """Subpágina dedicada del Equipo de Desarrolladores de la página web."""
+    cms = get_all_content()
+    is_admin = session.get('is_admin', False)
+    developers = get_developers_dynamic_list(cms)
+    return render_template(
+        'desarrolladores.html',
+        cms=cms,
+        is_admin=is_admin,
+        developers=developers
     )
 
 # =============================================================================
@@ -664,15 +736,17 @@ def api_add_news():
     content = data.get('content', '').strip()
     image = data.get('image', 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80').strip()
     image_position = data.get('image_position', 'center center').strip() or 'center center'
+    video_url = data.get('video_url', '').strip()
     author = data.get('author', 'Liceo de Limón MEP').strip()
 
     if not title or not summary:
         return jsonify({'success': False, 'message': 'El título y el resumen son obligatorios.'}), 400
 
-    new_id = add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position)
+    new_id = add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
     return jsonify({
         'success': True,
         'message': 'Comunicado institucional publicado exitosamente.',
+        'id': new_id,
         'news_id': new_id
     })
 
@@ -700,12 +774,13 @@ def api_update_news(news_id):
     content = data.get('content', '').strip()
     image = data.get('image', '').strip()
     image_position = data.get('image_position', 'center center').strip() or 'center center'
+    video_url = data.get('video_url', '').strip()
     author = data.get('author', 'Liceo de Limón MEP').strip()
 
     if not title or not summary:
         return jsonify({'success': False, 'message': 'El título y el resumen son obligatorios.'}), 400
 
-    update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position)
+    update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
     return jsonify({
         'success': True,
         'message': f'Comunicado #{news_id} actualizado exitosamente.'
