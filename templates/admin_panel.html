@@ -3941,6 +3941,19 @@
         if (res.ok && data.success) {
           const latEl = document.getElementById('healthDbLatency');
           if (latEl) latEl.innerText = `${data.database.latency_ms} ms`;
+          const smtpBadge = document.getElementById('badgeSmtpStatus');
+          if (smtpBadge && data.smtp) {
+            if (data.smtp.connected) {
+              smtpBadge.className = 'admin-badge-pill badge-health-ok';
+              smtpBadge.innerText = '🟢 SMTP Autenticado';
+            } else if (data.smtp.configured) {
+              smtpBadge.className = 'admin-badge-pill badge-health-warn';
+              smtpBadge.innerText = '🟡 Configurado';
+            } else {
+              smtpBadge.className = 'admin-badge-pill badge-health-err';
+              smtpBadge.innerText = '🔴 No Configurado';
+            }
+          }
           const gemModel = document.getElementById('healthGeminiModel');
           if (gemModel && data.gemini) gemModel.innerText = data.gemini.model;
           const gemLat = document.getElementById('healthGeminiLatency');

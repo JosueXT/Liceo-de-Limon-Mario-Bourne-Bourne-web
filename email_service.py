@@ -685,7 +685,7 @@ def check_smtp_health():
         }
     t0 = time.time()
     try:
-        server = smtplib.SMTP(host, port, timeout=5)
+        server = smtplib.SMTP(host, port, timeout=10)
         if use_tls:
             server.starttls()
         server.login(user, password)
