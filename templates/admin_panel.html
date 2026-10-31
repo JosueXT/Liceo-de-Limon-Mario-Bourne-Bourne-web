@@ -2898,6 +2898,11 @@
       const image_position = document.getElementById('editNewsImagePosition')?.value || 'center center';
       const video_url = document.getElementById('editNewsVideo')?.value.trim() || '';
       const author = document.getElementById('editNewsAuthor').value.trim() || 'Liceo de Limón MEP';
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Guardando cambios...';
+      }
 
       try {
         const res = await fetch(`/api/cms/news/${id}`, {
@@ -2906,16 +2911,27 @@
           body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author, image_position, video_url })
         });
 
-        const data = await res.json();
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (parseErr) {
+          data = { message: `Respuesta del servidor (${res.status} ${res.statusText})` };
+        }
 
         if (res.ok && data.success) {
           showToast('✓ Comunicado modificado exitosamente.', 'success');
           setTimeout(() => window.location.reload(), 700);
         } else {
-          showToast('Error al actualizar: ' + data.message, 'error');
+          showToast('Error al actualizar: ' + (data.message || `Código ${res.status}`), 'error');
         }
       } catch (err) {
-        showToast('Error de conexión al guardar cambios de la noticia.', 'error');
+        console.error('Error al guardar cambios de la noticia:', err);
+        showToast('Error de conexión al guardar cambios de la noticia: ' + (err.message || ''), 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Guardar Cambios';
+        }
       }
     });
 
@@ -2925,7 +2941,7 @@
       const title = document.getElementById('pNewsTitle').value.trim();
       const selectCat = document.getElementById('pNewsCategory');
       const category = selectCat.value;
-      const categorySlug = selectCat.options[selectCat.selectedIndex].getAttribute('data-slug') || 'institucionales';
+      const categorySlug = (selectCat.options[selectCat.selectedIndex] && selectCat.options[selectCat.selectedIndex].getAttribute('data-slug')) || 'institucionales';
       const subcategory = document.getElementById('pNewsSubcategory').value.trim();
       const date = document.getElementById('pNewsDate').value.trim() || new Date().toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' });
       const summary = document.getElementById('pNewsSummary').value.trim();
@@ -2935,6 +2951,12 @@
       const video_url = document.getElementById('pNewsVideo')?.value.trim() || '';
       const author = document.getElementById('pNewsAuthor').value.trim() || 'Liceo de Limón MEP';
 
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Publicando comunicado...';
+      }
+
       try {
         const res = await fetch('/api/cms/news', {
           method: 'POST',
@@ -2942,16 +2964,27 @@
           body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author, image_position, video_url })
         });
 
-        const data = await res.json();
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (parseErr) {
+          data = { message: `Respuesta del servidor (${res.status} ${res.statusText})` };
+        }
 
         if (res.ok && data.success) {
-          showToast('✓ Comunicado publicado exitosamente con subcategoría.', 'success');
+          showToast('✓ Comunicado publicado exitosamente.', 'success');
           setTimeout(() => window.location.reload(), 800);
         } else {
-          showToast('Error al publicar noticia: ' + data.message, 'error');
+          showToast('Error al publicar noticia: ' + (data.message || `Código ${res.status}`), 'error');
         }
       } catch (err) {
-        showToast('Error de conexión al publicar noticia.', 'error');
+        console.error('Error al publicar noticia:', err);
+        showToast('Error de conexión al publicar noticia: ' + (err.message || ''), 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Publicar Comunicado';
+        }
       }
     });
 

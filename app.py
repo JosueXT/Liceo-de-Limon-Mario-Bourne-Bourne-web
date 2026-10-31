@@ -859,13 +859,16 @@ def api_add_news():
     if not title or not summary:
         return jsonify({'success': False, 'message': 'El título y el resumen son obligatorios.'}), 400
 
-    new_id = add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
-    return jsonify({
-        'success': True,
-        'message': 'Comunicado institucional publicado exitosamente.',
-        'id': new_id,
-        'news_id': new_id
-    })
+    try:
+        new_id = add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
+        return jsonify({
+            'success': True,
+            'message': 'Comunicado institucional publicado exitosamente.',
+            'id': new_id,
+            'news_id': new_id
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error al guardar en base de datos: {str(e)}'}), 500
 
 @app.route('/api/cms/news/<int:news_id>', methods=['GET'])
 def api_get_single_news(news_id):
@@ -897,11 +900,14 @@ def api_update_news(news_id):
     if not title or not summary:
         return jsonify({'success': False, 'message': 'El título y el resumen son obligatorios.'}), 400
 
-    update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
-    return jsonify({
-        'success': True,
-        'message': f'Comunicado #{news_id} actualizado exitosamente.'
-    })
+    try:
+        update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
+        return jsonify({
+            'success': True,
+            'message': f'Comunicado #{news_id} actualizado exitosamente.'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error al actualizar en base de datos: {str(e)}'}), 500
 
 @app.route('/api/cms/news/<int:news_id>', methods=['DELETE'])
 def api_delete_news(news_id):

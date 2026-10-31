@@ -161,25 +161,11 @@ def get_db_connection():
 _DB_ALREADY_INITIALIZED = False
 
 def init_db(force=False):
-    """Inicializa la base de datos con optimización de arranque rápido (evita timeouts en Render/Gunicorn)."""
+    """Inicializa la base de datos y ejecuta migraciones de esquema necesarias."""
     global _DB_ALREADY_INITIALIZED
     is_testing = os.environ.get('TESTING') == 'True'
     if not is_testing and _DB_ALREADY_INITIALIZED and not force:
         return
-
-    # Si la base de datos ya está inicializada en la nube (Turso), saltar consultas redundantes
-    if not is_testing and not force:
-        try:
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT 1 FROM cms_content LIMIT 1")
-            row = cursor.fetchone()
-            conn.close()
-            if row:
-                _DB_ALREADY_INITIALIZED = True
-                return
-        except Exception as e:
-            print(f"[INFO] Comprobación inicial de BD: {e}")
 
     conn = get_db_connection()
     cursor = conn.cursor()
