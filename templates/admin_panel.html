@@ -753,6 +753,36 @@
       border: 1px solid #86efac;
       font-weight: 700;
     }
+
+    /* Tarjetas e indicadores de diagnóstico de servicios */
+    .health-card {
+      background: var(--gris-50);
+      border: 1.5px solid var(--gris-300);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      position: relative;
+    }
+    .health-card.border-ok {
+      border-color: #86efac;
+    }
+    .health-card.border-warn {
+      border-color: #fde047;
+    }
+    .health-card.border-err {
+      border-color: #fca5a5;
+    }
+    .badge-health-ok {
+      background: #16a34a;
+      color: #ffffff;
+    }
+    .badge-health-warn {
+      background: #ca8a04;
+      color: #ffffff;
+    }
+    .badge-health-err {
+      background: #dc2626;
+      color: #ffffff;
+    }
   </style>
 </head>
 <body class="admin-dashboard-body">
@@ -911,10 +941,10 @@
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
             
             <!-- Tarjeta 1: Base de Datos en la Nube -->
-            <div style="background: var(--gris-50); border: 1.5px solid {% if system_health.connected %}#86efac{% else %}#fca5a5{% endif %}; border-radius: var(--radius-md); padding: 1.1rem; position: relative;">
+            <div class="health-card {{ 'border-ok' if system_health.connected else 'border-err' }}">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                 <span style="font-size: 1.4rem;">☁️</span>
-                <span class="admin-badge-pill" style="background: {% if system_health.connected %}#16a34a{% else %}#dc2626{% endif %}; font-size: 0.72rem;">
+                <span class="admin-badge-pill {{ 'badge-health-ok' if system_health.connected else 'badge-health-err' }}" style="font-size: 0.72rem;">
                   {% if system_health.is_cloud %}🟢 Nube Turso Conectada{% else %}🟡 SQLite Local Activo{% endif %}
                 </span>
               </div>
@@ -935,10 +965,10 @@
             </div>
 
             <!-- Tarjeta 2: Servidor SMTP / Correo -->
-            <div style="background: var(--gris-50); border: 1.5px solid {% if smtp_status.connected %}#86efac{% elif smtp_status.configured %}#fde047{% else %}#fca5a5{% endif %}; border-radius: var(--radius-md); padding: 1.1rem;">
+            <div class="health-card {{ 'border-ok' if smtp_status.connected else ('border-warn' if smtp_status.configured else 'border-err') }}">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                 <span style="font-size: 1.4rem;">✉️</span>
-                <span class="admin-badge-pill" id="badgeSmtpStatus" style="background: {% if smtp_status.connected %}#16a34a{% elif smtp_status.configured %}#ca8a04{% else %}#dc2626{% endif %}; font-size: 0.72rem;">
+                <span class="admin-badge-pill {{ 'badge-health-ok' if smtp_status.connected else ('badge-health-warn' if smtp_status.configured else 'badge-health-err') }}" id="badgeSmtpStatus" style="font-size: 0.72rem;">
                   {% if smtp_status.connected %}🟢 SMTP Autenticado{% elif smtp_status.configured %}🟡 Configurado{% else %}🔴 No Configurado{% endif %}
                 </span>
               </div>
@@ -3895,7 +3925,7 @@
           showToast(`✓ Conexión SMTP exitosa con ${data.result.provider} (${data.result.latency_ms} ms).`, 'success');
           const badge = document.getElementById('badgeSmtpStatus');
           if (badge) {
-            badge.style.background = '#16a34a';
+            badge.className = 'admin-badge-pill badge-health-ok';
             badge.innerText = '🟢 SMTP Autenticado';
           }
         } else {
