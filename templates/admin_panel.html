@@ -1021,6 +1021,25 @@
               </a>
             </div>
 
+            <!-- Tarjeta 5: Inteligencia Artificial Gemini -->
+            <div class="health-card {{ 'border-ok' if gemini_status.active else 'border-warn' }}">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.4rem;">🤖</span>
+                <span class="admin-badge-pill {{ 'badge-health-ok' if gemini_status.active else 'badge-health-warn' }}" style="font-size: 0.72rem;" id="badgeGeminiStatus">
+                  {% if gemini_status.active %}🟢 IA Gemini Conectada{% else %}🟡 IA Inactiva{% endif %}
+                </span>
+              </div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--azul-dark); margin: 0 0 0.2rem 0;">Inteligencia Artificial (Gemini)</h4>
+              <p style="font-size: 0.78rem; color: var(--gris-600); margin-bottom: 0.6rem;">
+                <strong>Modelo:</strong> <span id="healthGeminiModel">{{ gemini_status.model }}</span><br>
+                <strong>Latencia en vivo:</strong> <span id="healthGeminiLatency">{{ gemini_status.latency_ms }} ms</span><br>
+                <strong>Función:</strong> Títulos automáticos de respaldo al guardar
+              </p>
+              <div style="font-size: 0.73rem; color: #15803d; background: #dcfce7; padding: 0.3rem 0.55rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <span>✓</span> <span>Google AI Studio Activo</span>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -2891,7 +2910,8 @@
           const data = await res.json();
 
           if (res.ok && data.success) {
-            showToast('✓ Cambios guardados correctamente en la base de datos.', 'success');
+            const backupMsg = data.backup && data.backup.title ? ` (Respaldo: ${data.backup.title})` : '';
+            showToast('✓ Cambios guardados correctamente en la base de datos.' + backupMsg, 'success');
           } else {
             showToast('Error al guardar: ' + (data.message || 'Desconocido'), 'error');
           }
@@ -3901,6 +3921,10 @@
         if (res.ok && data.success) {
           const latEl = document.getElementById('healthDbLatency');
           if (latEl) latEl.innerText = `${data.database.latency_ms} ms`;
+          const gemModel = document.getElementById('healthGeminiModel');
+          if (gemModel && data.gemini) gemModel.innerText = data.gemini.model;
+          const gemLat = document.getElementById('healthGeminiLatency');
+          if (gemLat && data.gemini) gemLat.innerText = `${data.gemini.latency_ms} ms`;
           showToast('✓ Diagnóstico en tiempo real actualizado.', 'success');
         } else {
           showToast('No fue posible consultar el diagnóstico.', 'error');

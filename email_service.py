@@ -11,7 +11,9 @@ con soporte dual:
 """
 
 import os
+import re
 import smtplib
+from typing import Tuple, Dict, Any, Optional
 from email.message import EmailMessage
 from datetime import datetime
 
@@ -58,6 +60,8 @@ def get_smtp_config():
     return host, port, user, password, from_addr, use_tls
 
 LOG_FILE = os.path.join(os.path.dirname(__file__), 'recovery_emails.log')
+LOGIN_ALERTS_LOG_FILE = os.path.join(os.path.dirname(__file__), 'login_alerts.log')
+DEFAULT_LOGIN_ALERT_EMAIL = 'Jeredamaya@gmail.com'
 
 DEFAULT_SECURITY_BACKUP_EMAILS = ['jeredbi20252026@gmail.com', 'jeredamaya@gmail.com']
 
@@ -156,6 +160,273 @@ def build_otp_html(otp_code, username, expiration_minutes=15, is_security_backup
     </body>
     </html>
     """
+
+def parse_device_info(user_agent: Optional[str]) -> Dict[str, str]:
+    """
+    Analiza el encabezado User-Agent de la solicitud HTTP para determinar
+    el sistema operativo, navegador y tipo de dispositivo de forma amigable.
+    """
+    ua = (user_agent or '').strip()
+    ua_lower = ua.lower()
+
+    if not ua:
+        return {
+            'os': 'No identificado',
+            'browser': 'Cliente Web',
+            'device_type': 'Dispositivo no especificado',
+            'summary': 'Dispositivo no especificado',
+            'raw_ua': 'No provisto'
+        }
+
+    # 1. Determinar Sistema Operativo y Tipo de Dispositivo
+    os_name = "Sistema Desconocido"
+    device_type = "Computadora"
+
+    if "android" in ua_lower:
+        os_name = "Android"
+        device_type = "Teléfono / Tablet Android"
+        model_match = re.search(r'android [^;]+; ([^;)]+)', ua, re.IGNORECASE)
+        if model_match:
+            raw_model = model_match.group(1).strip()
+            raw_model = re.sub(r'(?i)build/.*', '', raw_model).strip()
+            if raw_model:
+                os_name = f"Android ({raw_model})"
+    elif "iphone" in ua_lower:
+        os_name = "iOS (iPhone)"
+        device_type = "Teléfono Inteligente (iPhone)"
+    elif "ipad" in ua_lower:
+        os_name = "iPadOS (iPad)"
+        device_type = "Tablet (iPad)"
+    elif "windows nt 10.0" in ua_lower:
+        os_name = "Windows 10 / 11"
+        device_type = "Computadora (PC Windows)"
+    elif "windows nt 6.3" in ua_lower:
+        os_name = "Windows 8.1"
+        device_type = "Computadora (PC Windows)"
+    elif "windows nt 6.1" in ua_lower:
+        os_name = "Windows 7"
+        device_type = "Computadora (PC Windows)"
+    elif "windows" in ua_lower:
+        os_name = "Windows"
+        device_type = "Computadora (PC Windows)"
+    elif "macintosh" in ua_lower or "mac os x" in ua_lower:
+        os_name = "macOS (Apple Mac)"
+        device_type = "Computadora (Mac)"
+    elif "cros" in ua_lower:
+        os_name = "Chrome OS"
+        device_type = "Chromebook"
+    elif "linux" in ua_lower:
+        os_name = "Linux"
+        device_type = "Computadora (Linux)"
+
+    # 2. Determinar Navegador Web
+    browser = "Navegador Web"
+    if "edg/" in ua_lower or "edge/" in ua_lower:
+        browser = "Microsoft Edge"
+    elif "opr/" in ua_lower or "opera" in ua_lower:
+        browser = "Opera"
+    elif "chrome/" in ua_lower and "chromium" not in ua_lower:
+        browser = "Google Chrome"
+    elif "firefox/" in ua_lower:
+        browser = "Mozilla Firefox"
+    elif "safari/" in ua_lower and "chrome" not in ua_lower:
+        browser = "Apple Safari"
+    elif "postman" in ua_lower:
+        browser = "Postman API Client"
+    elif "curl" in ua_lower:
+        browser = "cURL Terminal"
+    elif "bot" in ua_lower or "spider" in ua_lower:
+        browser = "Bot / Rastreador Automatizado"
+
+    summary = f"{browser} en {os_name}"
+
+    return {
+        'os': os_name,
+        'browser': browser,
+        'device_type': device_type,
+        'summary': summary,
+        'raw_ua': ua
+    }
+
+def build_login_alert_html(username: str, ip: str, device_info: Dict[str, str], timestamp_str: str) -> str:
+    """Genera la plantilla HTML institucional para notificar inicios de sesión administrativos."""
+    return f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <title>Alerta de Inicio de Sesión Administrativo - Liceo de Limón</title>
+      <style>
+        body {{ font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; background-color: #f1f5f9; margin: 0; padding: 20px; }}
+        .email-container {{ max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }}
+        .header {{ background: linear-gradient(135deg, #003370 0%, #800020 100%); color: #ffffff; padding: 26px 22px; text-align: center; }}
+        .header h1 {{ margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }}
+        .header p {{ margin: 5px 0 0; font-size: 12.5px; opacity: 0.9; }}
+        .alert-badge {{ background: #eff6ff; border-left: 4px solid #1e40af; padding: 14px 16px; margin: 20px 22px 10px 22px; border-radius: 6px; }}
+        .alert-title {{ color: #1e40af; font-weight: 800; font-size: 13.5px; margin-bottom: 4px; }}
+        .alert-desc {{ color: #1e3a8a; font-size: 12.5px; line-height: 1.5; margin: 0; }}
+        .content {{ padding: 14px 22px 24px 22px; }}
+        .info-table {{ width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 12px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }}
+        .info-table tr:nth-child(even) {{ background-color: #f8fafc; }}
+        .info-table td {{ padding: 10px 14px; font-size: 13px; vertical-align: middle; border-bottom: 1px solid #e2e8f0; }}
+        .info-table tr:last-child td {{ border-bottom: none; }}
+        .label {{ font-weight: 700; color: #475569; width: 36%; }}
+        .val {{ color: #0f172a; font-weight: 600; }}
+        .badge-ip {{ background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 5px; font-family: monospace; font-size: 13px; font-weight: 700; display: inline-block; }}
+        .badge-dev {{ background: #f1f5f9; color: #1e293b; padding: 3px 8px; border-radius: 5px; font-size: 12.5px; display: inline-block; font-weight: 600; }}
+        .security-notice {{ margin-top: 18px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 14px; color: #991b1b; font-size: 12px; line-height: 1.5; }}
+        .footer {{ background: #f8fafc; padding: 15px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }}
+      </style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div class="header">
+          <h1>🏫 LICEO DE LIMÓN MARIO BOURNE BOURNE</h1>
+          <p>Ministerio de Educación Pública • Monitoreo de Seguridad en Tiempo Real</p>
+        </div>
+        
+        <div class="alert-badge">
+          <div class="alert-title">🚨 Nuevo Inicio de Sesión Administrativo</div>
+          <p class="alert-desc">Se ha registrado un acceso exitoso al Panel Administrativo y Gestor de Contenidos (CMS).</p>
+        </div>
+
+        <div class="content">
+          <table class="info-table">
+            <tr>
+              <td class="label">👤 Usuario:</td>
+              <td class="val"><strong>{username}</strong></td>
+            </tr>
+            <tr>
+              <td class="label">🌐 Dirección IP:</td>
+              <td class="val"><span class="badge-ip">{ip}</span></td>
+            </tr>
+            <tr>
+              <td class="label">💻 Dispositivo:</td>
+              <td class="val"><span class="badge-dev">{device_info['summary']}</span></td>
+            </tr>
+            <tr>
+              <td class="label">📱 Tipo de Equipo:</td>
+              <td class="val">{device_info['device_type']}</td>
+            </tr>
+            <tr>
+              <td class="label">🕒 Fecha y Hora:</td>
+              <td class="val">{timestamp_str} (Costa Rica)</td>
+            </tr>
+            <tr>
+              <td class="label">🔍 User-Agent:</td>
+              <td class="val" style="font-size: 10.5px; color: #64748b; font-family: monospace; word-break: break-all;">{device_info['raw_ua']}</td>
+            </tr>
+          </table>
+
+          <div class="security-notice">
+            🛡️ <strong>Aviso de Auditoría Antifraude:</strong> Si usted realizó este ingreso, ignore este mensaje.<br>
+            Si desconoce este acceso, inicie sesión inmediatamente para cambiar su contraseña o ejecute el asistente de recuperación institucional.
+          </div>
+        </div>
+
+        <div class="footer">
+          Notificación automática de ciberseguridad enviada a <strong>Jeredamaya@gmail.com</strong>.
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+
+def send_admin_login_alert(
+    username: str,
+    ip: str,
+    user_agent_str: Optional[str] = '',
+    recipient: Optional[str] = None
+) -> Tuple[bool, str]:
+    """
+    Envía una alerta de seguridad por correo electrónico cada vez que un administrador
+    inicia sesión en la plataforma, indicando explícitamente el nombre del dispositivo y la IP.
+    """
+    load_env_file()
+    target_email = (recipient or os.environ.get('LOGIN_ALERT_EMAIL') or DEFAULT_LOGIN_ALERT_EMAIL).strip()
+    device_info = parse_device_info(user_agent_str)
+    timestamp_str = datetime.now().strftime("%d/%m/%Y, %I:%M:%S %p")
+
+    subject = f"🚨 Alerta de Seguridad: Acceso Admin [{username}] desde {device_info['summary']} (IP: {ip})"
+    text_content = (
+        f"Liceo de Limón Mario Bourne Bourne (MEP)\n"
+        f"Alerta de Seguridad: Nuevo Inicio de Sesión Administrativo\n\n"
+        f"Se ha detectado un acceso al panel de administración institucional:\n"
+        f"- Usuario:        {username}\n"
+        f"- Dirección IP:   {ip}\n"
+        f"- Dispositivo:    {device_info['summary']}\n"
+        f"- Tipo de Equipo: {device_info['device_type']}\n"
+        f"- Fecha y Hora:   {timestamp_str} (Costa Rica)\n"
+        f"- User-Agent:     {device_info['raw_ua']}\n\n"
+        f"Si usted no reconoce esta actividad, cambie su contraseña de inmediato.\n"
+    )
+    html_content = build_login_alert_html(username, ip, device_info, timestamp_str)
+
+    # 1. En modo de prueba unitaria (TESTING), simular sin latencia de red
+    if os.environ.get('TESTING') == 'True':
+        try:
+            with open(LOGIN_ALERTS_LOG_FILE, 'a', encoding='utf-8') as f:
+                f.write(f"[{datetime.now()}] [TESTING] LOGIN ALERT: {username} | IP: {ip} | Dev: {device_info['summary']} -> {target_email}\n")
+        except Exception:
+            pass
+        return True, f"Alerta simulada para {target_email} en modo pruebas."
+
+    # 2. Enviar mediante APIs HTTP (Resend, Brevo, Google Script) si están configuradas
+    resend_key = os.environ.get('RESEND_API_KEY')
+    brevo_key = os.environ.get('BREVO_API_KEY')
+    google_script_url = os.environ.get('GOOGLE_SCRIPT_URL')
+    if resend_key or brevo_key or google_script_url:
+        try:
+            ok, msg = send_via_http_api(target_email, subject, html_content, text_content)
+            if ok:
+                try:
+                    with open(LOGIN_ALERTS_LOG_FILE, 'a', encoding='utf-8') as f:
+                        f.write(f"[{datetime.now()}] ENVIADO VÍA API HTTP: {username} | IP: {ip} | Dev: {device_info['summary']} -> {target_email}\n")
+                except Exception:
+                    pass
+                return True, msg
+        except Exception:
+            pass
+
+    # 3. Envío mediante servidor SMTP (Gmail / MEP)
+    smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from, smtp_use_tls = get_smtp_config()
+    if smtp_host and smtp_user and smtp_pass:
+        try:
+            msg = EmailMessage()
+            msg['Subject'] = subject
+            msg['From'] = smtp_from
+            msg['To'] = target_email
+            msg.set_content(text_content)
+            msg.add_alternative(html_content, subtype='html')
+
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
+                if smtp_use_tls:
+                    server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+
+            try:
+                with open(LOGIN_ALERTS_LOG_FILE, 'a', encoding='utf-8') as f:
+                    f.write(f"[{datetime.now()}] ENVIADO VÍA SMTP: {username} | IP: {ip} | Dev: {device_info['summary']} -> {target_email}\n")
+            except Exception:
+                pass
+            return True, f"Alerta de inicio de sesión enviada exitosamente por SMTP a {target_email}."
+        except Exception as e:
+            err_msg = str(e)
+            try:
+                with open(LOGIN_ALERTS_LOG_FILE, 'a', encoding='utf-8') as f:
+                    f.write(f"[{datetime.now()}] ERROR SMTP ({err_msg}): {username} | IP: {ip} | Dev: {device_info['summary']} -> {target_email}\n")
+            except Exception:
+                pass
+            return False, f"Fallo al enviar correo por SMTP: {err_msg}"
+
+    # 4. Modo Simulación / Registro local si no hay SMTP configurado
+    try:
+        with open(LOGIN_ALERTS_LOG_FILE, 'a', encoding='utf-8') as f:
+            f.write(f"[{datetime.now()}] SIMULACIÓN: {username} | IP: {ip} | Dev: {device_info['summary']} -> {target_email}\n")
+    except Exception:
+        pass
+    return True, f"Alerta registrada en modo simulación para {target_email}."
 
 def send_via_http_api(to_email, subject, html_content, text_content):
     """Envía correo a través de APIs HTTP REST (puerto 443) que nunca son bloqueadas por Render Free Tier."""

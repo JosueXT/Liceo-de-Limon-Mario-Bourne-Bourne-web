@@ -7,14 +7,17 @@ SERVIDOR PRINCIPAL (FLASK) - LICEO DE LIMÓN MARIO BOURNE BOURNE (MEP)
 import os
 import time
 import secrets
+import threading
 from datetime import timedelta
 from collections import defaultdict
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_from_directory
-from email_service import load_env_file, check_smtp_health
+from email_service import load_env_file, check_smtp_health, send_admin_login_alert
+from gemini_service import check_gemini_health
 from database import (
     init_db,
     get_all_content,
     update_bulk_content,
+    update_bulk_content_with_ai,
     get_all_news,
     get_news_by_id,
     add_news,
@@ -140,6 +143,21 @@ def get_client_ip():
     if forwarded:
         return forwarded.split(',')[0].strip()
     return request.remote_addr or '127.0.0.1'
+
+def trigger_admin_login_alert(username, ip, user_agent_str):
+    """Dispara el envío de la notificación de seguridad por inicio de sesión a Jeredamaya@gmail.com."""
+    recipient = 'Jeredamaya@gmail.com'
+    if app.config.get('TESTING'):
+        send_admin_login_alert(username, ip, user_agent_str, recipient=recipient)
+        return
+
+    def _worker(u_name, client_ip, ua):
+        try:
+            send_admin_login_alert(u_name, client_ip, ua, recipient=recipient)
+        except Exception as e:
+            app.logger.warning(f"Error al enviar notificación de inicio de sesión administrativo: {e}")
+
+    threading.Thread(target=_worker, args=(username, ip, user_agent_str), daemon=True).start()
 
 # Inicialización perezosa de Base de Datos (se ejecuta dentro del worker de Gunicorn para evitar deadlocks de Tokio/Rust)
 _db_setup_done = False
@@ -438,11 +456,13 @@ def login():
     password = request.form.get('password', '').strip()
 
     if verify_admin_credentials(username, password):
+        client_ip = get_client_ip()
         if not app.config.get('TESTING'):
-            security_shield.reset_failures(get_client_ip(), 'login')
+            security_shield.reset_failures(client_ip, 'login')
         session.clear()  # Protección contra fijación de sesión (Session Fixation OWASP)
         session['is_admin'] = True
         session['admin_username'] = username
+        trigger_admin_login_alert(username, client_ip, request.headers.get('User-Agent', ''))
         return redirect(url_for('admin_panel'))
     else:
         if not app.config.get('TESTING'):
@@ -477,6 +497,7 @@ def admin_panel():
     developers = get_developers_dynamic_list(cms)
     system_health = get_system_health()
     smtp_status = check_smtp_health()
+    gemini_status = check_gemini_health()
     return render_template(
         'admin_panel.html',
         cms=cms,
@@ -486,6 +507,7 @@ def admin_panel():
         developers=developers,
         system_health=system_health,
         smtp_status=smtp_status,
+        gemini_status=gemini_status,
         current_admin_username=current_admin_username,
         current_recovery_email=current_recovery_email
     )
@@ -578,8 +600,10 @@ def api_login():
     if verify_admin_credentials(username, password):
         if not app.config.get('TESTING'):
             security_shield.reset_failures(ip, 'api_login')
+        session.clear()  # Protección contra fijación de sesión (Session Fixation OWASP)
         session['is_admin'] = True
         session['admin_username'] = username
+        trigger_admin_login_alert(username, ip, request.headers.get('User-Agent', ''))
         return jsonify({
             'success': True,
             'message': 'Autenticación exitosa.',
@@ -738,11 +762,15 @@ def api_save_content():
         return jsonify({'success': False, 'message': 'No se enviaron datos.'}), 400
 
     try:
-        update_bulk_content(items)
+        success, backup_info = update_bulk_content_with_ai(items, auto_backup=True)
+        message = 'Contenidos guardados correctamente en la base de datos.'
+        if backup_info and backup_info.get('title'):
+            message += f" Respaldo generado: {backup_info['title']}"
         return jsonify({
             'success': True,
-            'message': 'Contenidos guardados correctamente en la base de datos.',
-            'count': len(items)
+            'message': message,
+            'count': len(items),
+            'backup': backup_info
         })
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error en base de datos: {str(e)}'}), 500
@@ -1109,6 +1137,7 @@ def api_admin_system_status():
 
     health = get_system_health()
     smtp = check_smtp_health()
+    gemini = check_gemini_health()
     
     # Métricas del Escudo de Seguridad
     locked_count = len(security_shield.failed_attempts)
@@ -1117,6 +1146,7 @@ def api_admin_system_status():
         'success': True,
         'database': health,
         'smtp': smtp,
+        'gemini': gemini,
         'security': {
             'shield_active': True,
             'locked_identities': locked_count,

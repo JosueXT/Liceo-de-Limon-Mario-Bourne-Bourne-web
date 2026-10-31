@@ -10,6 +10,7 @@ import re
 import json
 import time
 import secrets
+from typing import Any, Optional, Dict, List, Tuple
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from seed_data import DEFAULT_CMS_CONTENT, DEFAULT_NEWS
@@ -398,21 +399,21 @@ def seed_inquiries(conn):
 # =============================================================================
 # CACHÉ EN MEMORIA PARA MÁXIMA VELOCIDAD (SUB-MILISEGUNDO)
 # =============================================================================
-_CACHE_CONTENT = None
-_CACHE_CONTENT_TIME = 0
-_CACHE_NEWS = None
-_CACHE_NEWS_TIME = 0
+_CACHE_CONTENT: Optional[Dict[str, Any]] = None
+_CACHE_CONTENT_TIME: float = 0.0
+_CACHE_NEWS: Optional[List[Dict[str, Any]]] = None
+_CACHE_NEWS_TIME: float = 0.0
 CACHE_TTL_SECONDS = 2  # TTL breve en RAM para rendimiento sin desincronización entre procesos/recargas
 
 def invalidate_cms_cache():
     """Invalida la memoria caché para forzar lectura fresca desde la base de datos."""
     global _CACHE_CONTENT, _CACHE_CONTENT_TIME, _CACHE_NEWS, _CACHE_NEWS_TIME
     _CACHE_CONTENT = None
-    _CACHE_CONTENT_TIME = 0
+    _CACHE_CONTENT_TIME = 0.0
     _CACHE_NEWS = None
-    _CACHE_NEWS_TIME = 0
+    _CACHE_NEWS_TIME = 0.0
 
-def get_all_content(force_fresh=False):
+def get_all_content(force_fresh: bool = False) -> Dict[str, Any]:
     """Obtiene todos los contenidos del CMS utilizando caché en RAM ultra-rápida."""
     global _CACHE_CONTENT, _CACHE_CONTENT_TIME
     now = time.time()
@@ -434,7 +435,18 @@ def get_all_content(force_fresh=False):
     _CACHE_CONTENT_TIME = now
     return dict(content)
 
-def update_bulk_content(items_dict):
+def update_bulk_content_with_ai(items_dict, auto_backup=True):
+    """
+    Actualiza contenidos del CMS y genera automáticamente un punto de restauración
+    con título semántico descriptivo generado por Google Gemini si hubo cambios reales.
+    """
+    old_content = get_all_content(force_fresh=True)
+    changed_items = {}
+    for key, value in items_dict.items():
+        val_str = '' if value is None else str(value)
+        if old_content.get(key) != val_str:
+            changed_items[key] = {'old': old_content.get(key, ''), 'new': val_str}
+
     conn = get_db_connection()
     cursor = conn.cursor()
     for key, value in items_dict.items():
@@ -447,9 +459,25 @@ def update_bulk_content(items_dict):
     conn.commit()
     conn.close()
     invalidate_cms_cache()
-    return True
 
-def get_all_news(force_fresh=False):
+    backup_info = None
+    if auto_backup and changed_items:
+        try:
+            from gemini_service import generate_backup_title
+            ai_title = generate_backup_title(changed_items)
+            new_id = create_snapshot(ai_title)
+            backup_info = {'id': new_id, 'title': ai_title}
+        except Exception:
+            pass
+
+    return True, backup_info
+
+def update_bulk_content(items_dict):
+    """Actualiza contenidos del CMS de forma compatible hacia atrás."""
+    success, _ = update_bulk_content_with_ai(items_dict, auto_backup=True)
+    return success
+
+def get_all_news(force_fresh: bool = False) -> List[Dict[str, Any]]:
     """Obtiene todas las noticias utilizando caché en RAM ultra-rápida."""
     global _CACHE_NEWS, _CACHE_NEWS_TIME
     now = time.time()
@@ -781,25 +809,34 @@ def get_system_health():
         'db_backend': 'Turso LibSQL Cloud (AWS US-East)' if is_turso else 'SQLite Local',
         'is_cloud': is_turso,
         'connected': False,
-        'latency_ms': 0,
+        'latency_ms': 0.0,
         'cms_count': 0,
         'news_count': 0,
         'inquiries_count': 0,
         'snapshots_count': 0,
         'cloud_persistence_safe': is_turso,
-        'error': None
+        'error': ''
     }
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        
         cursor.execute('SELECT COUNT(*) FROM cms_content')
-        health['cms_count'] = cursor.fetchone()[0]
+        r_cms = cursor.fetchone()
+        health['cms_count'] = int(r_cms[0]) if r_cms else 0
+        
         cursor.execute('SELECT COUNT(*) FROM news_articles')
-        health['news_count'] = cursor.fetchone()[0]
+        r_news = cursor.fetchone()
+        health['news_count'] = int(r_news[0]) if r_news else 0
+        
         cursor.execute('SELECT COUNT(*) FROM contact_inquiries')
-        health['inquiries_count'] = cursor.fetchone()[0]
+        r_inq = cursor.fetchone()
+        health['inquiries_count'] = int(r_inq[0]) if r_inq else 0
+        
         cursor.execute('SELECT COUNT(*) FROM cms_snapshots')
-        health['snapshots_count'] = cursor.fetchone()[0]
+        r_snap = cursor.fetchone()
+        health['snapshots_count'] = int(r_snap[0]) if r_snap else 0
+        
         conn.close()
         health['connected'] = True
         health['latency_ms'] = round((time.time() - t0) * 1000, 1)

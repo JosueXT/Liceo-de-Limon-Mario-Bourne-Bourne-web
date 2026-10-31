@@ -263,19 +263,24 @@ async function saveAllCmsChanges(showFeedback = true) {
     const data = await res.json();
 
     if (res.ok && data.success) {
+      const backupTitle = data.backup && data.backup.title ? data.backup.title : null;
       if (showFeedback) {
-        showToast('✓ ¡Todos los cambios han sido guardados en la base de datos!', 'success');
+        if (backupTitle) {
+          showToast(`✓ Guardado. Respaldo creado: ${backupTitle}`, 'success');
+        } else {
+          showToast('✓ ¡Todos los cambios han sido guardados en la base de datos!', 'success');
+        }
       }
       CMS_STATE.modifiedItems = {};
       updateModifiedCounter();
       document.querySelectorAll('.cms-modified').forEach(el => el.classList.remove('cms-modified'));
       if (statusText) {
-        statusText.innerText = '✓ Guardado en base de datos';
+        statusText.innerText = backupTitle ? `✓ ${backupTitle}` : '✓ Guardado en base de datos';
         setTimeout(() => {
-          if (statusText && statusText.innerText === '✓ Guardado en base de datos') {
+          if (statusText) {
             statusText.innerText = 'Modo Edición Activo';
           }
-        }, 3000);
+        }, 3500);
       }
     } else {
       if (showFeedback) {

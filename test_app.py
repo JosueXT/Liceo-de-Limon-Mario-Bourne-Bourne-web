@@ -703,7 +703,7 @@ class LiceoLimonTestCase(unittest.TestCase):
 
         # 2. Verificar que se guardó el video_url en la base de datos
         all_news = get_all_news()
-        created_item = next((n for n in all_news if n['id'] == news_id), None)
+        created_item = next((n for n in all_news if n and n.get('id') == news_id), None)
         self.assertIsNotNone(created_item)
         assert created_item is not None
         self.assertEqual(created_item['video_url'], drive_video)
@@ -716,7 +716,7 @@ class LiceoLimonTestCase(unittest.TestCase):
             content_type='application/json'
         )
         self.assertEqual(res_upd.status_code, 200)
-        upd_item = next((n for n in get_all_news() if n['id'] == news_id), None)
+        upd_item = next((n for n in get_all_news() if n and n.get('id') == news_id), None)
         self.assertIsNotNone(upd_item)
         assert upd_item is not None
         self.assertEqual(upd_item['video_url'], yt_video)
@@ -954,6 +954,57 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertEqual(res_smtp.status_code, 200)
         smtp_data = json.loads(res_smtp.get_data(as_text=True))
         self.assertIn('result', smtp_data)
+
+    def test_21_admin_login_security_alert_email(self):
+        """Verifica la generación y envío de alertas de seguridad con IP y dispositivo a Jeredamaya@gmail.com"""
+        from email_service import parse_device_info, send_admin_login_alert, LOGIN_ALERTS_LOG_FILE
+
+        # 1. Verificar análisis inteligente de dispositivos y User-Agents
+        ua_win = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+        dev_win = parse_device_info(ua_win)
+        self.assertIn('Windows', dev_win['os'])
+        self.assertEqual(dev_win['browser'], 'Google Chrome')
+        self.assertIn('Google Chrome en Windows', dev_win['summary'])
+
+        ua_iphone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1'
+        dev_iphone = parse_device_info(ua_iphone)
+        self.assertIn('iPhone', dev_iphone['os'])
+        self.assertEqual(dev_iphone['browser'], 'Apple Safari')
+
+        ua_android = 'Mozilla/5.0 (Linux; Android 14; SM-S928B Build/UP1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.64 Mobile Safari/537.36'
+        dev_android = parse_device_info(ua_android)
+        self.assertIn('Android', dev_android['os'])
+        self.assertIn('SM-S928B', dev_android['os'])
+        self.assertEqual(dev_android['browser'], 'Google Chrome')
+
+        # 2. Verificar función de envío de alerta
+        success, msg = send_admin_login_alert(
+            username='Admin',
+            ip='201.200.45.10',
+            user_agent_str=ua_win,
+            recipient='Jeredamaya@gmail.com'
+        )
+        self.assertTrue(success)
+        self.assertIn('Jeredamaya@gmail.com', msg)
+
+        # 3. Verificar integración con el endpoint /api/auth/login
+        res_login = self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json',
+            headers={
+                'User-Agent': ua_android,
+                'X-Forwarded-For': '190.113.120.40'
+            }
+        )
+        self.assertEqual(res_login.status_code, 200)
+
+        # 4. Comprobar que se registró en el archivo de auditoría
+        self.assertTrue(os.path.exists(LOGIN_ALERTS_LOG_FILE))
+        with open(LOGIN_ALERTS_LOG_FILE, 'r', encoding='utf-8') as f:
+            log_content = f.read()
+        self.assertIn('Jeredamaya@gmail.com', log_content)
+        self.assertIn('190.113.120.40', log_content)
+        self.assertIn('SM-S928B', log_content)
 
 if __name__ == '__main__':
     unittest.main()
