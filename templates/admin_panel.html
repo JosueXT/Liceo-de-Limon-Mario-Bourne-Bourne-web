@@ -704,6 +704,55 @@
         justify-content: space-between;
       }
     }
+
+    /* Estados de Mantenimiento de Subpáginas */
+    .global-maint-box {
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.8rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      transition: all 0.3s ease;
+    }
+    .global-maint-box.is-active {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.14));
+      border: 2px solid #fca5a5;
+    }
+    .global-maint-box.is-normal {
+      background: var(--azul-soft);
+      border: 2px solid #93c5fd;
+    }
+
+    .badge-maint-active {
+      background: #fee2e2;
+      color: #991b1b;
+      font-weight: 700;
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-full);
+    }
+    .badge-maint-normal {
+      background: #dcfce7;
+      color: #166534;
+      font-weight: 700;
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-full);
+    }
+
+    .badge-subpage-maint {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+      font-weight: 700;
+    }
+    .badge-subpage-online {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body class="admin-dashboard-body">
@@ -2119,7 +2168,7 @@
 
           <!-- Caja 1: Mantenimiento Global (Master Switch) -->
           {% set is_global_maint = (cms.get('subpages_global_maintenance') == 'true') %}
-          <div style="background: {% if is_global_maint %}linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.14)){% else %}var(--azul-soft){% endif %}; border: 2px solid {% if is_global_maint %}#fca5a5{% else %}#93c5fd{% endif %}; border-radius: var(--radius-lg); padding: 1.5rem 1.8rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+          <div id="globalMaintBox" class="global-maint-box {% if is_global_maint %}is-active{% else %}is-normal{% endif %}">
             <div style="flex: 1; min-width: 260px;">
               <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                 <span style="font-size: 1.4rem;">🚨</span>
@@ -2130,7 +2179,7 @@
               </p>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
-              <span id="globalMaintBadge" class="status-badge" style="background: {% if is_global_maint %}#fee2e2; color: #991b1b;{% else %}#dcfce7; color: #166534;{% endif %} font-weight: 700; padding: 0.4rem 0.85rem; border-radius: var(--radius-full);">
+              <span id="globalMaintBadge" class="status-badge {% if is_global_maint %}badge-maint-active{% else %}badge-maint-normal{% endif %}">
                 {% if is_global_maint %}⚠️ MANTENIMIENTO GLOBAL ACTIVO{% else %}🟢 Todas Activas (Normal){% endif %}
               </span>
               <button type="button" id="btnToggleGlobalMaint" class="btn {% if is_global_maint %}btn-azul{% else %}btn-vino{% endif %} btn-sm" onclick="toggleSubpageStatus('global')">
@@ -2152,7 +2201,7 @@
               <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
                   <span style="font-size: 1.75rem;">🎓</span>
-                  <span id="badge-subpage-ib" class="status-badge" style="background: {% if is_ib_maint %}#fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}#dcfce7; color: #166534; border: 1px solid #86efac;{% endif %} font-weight: 700;">
+                  <span id="badge-subpage-ib" class="status-badge {% if is_ib_maint %}badge-subpage-maint{% else %}badge-subpage-online{% endif %}">
                     {% if is_ib_maint %}🟡 En Mantenimiento{% else %}🟢 Activa / En Línea{% endif %}
                   </span>
                 </div>
@@ -2175,7 +2224,7 @@
               <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
                   <span style="font-size: 1.75rem;">🇫🇷</span>
-                  <span id="badge-subpage-frances" class="status-badge" style="background: {% if is_frances_maint %}#fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}#dcfce7; color: #166534; border: 1px solid #86efac;{% endif %} font-weight: 700;">
+                  <span id="badge-subpage-frances" class="status-badge {% if is_frances_maint %}badge-subpage-maint{% else %}badge-subpage-online{% endif %}">
                     {% if is_frances_maint %}🟡 En Mantenimiento{% else %}🟢 Activa / En Línea{% endif %}
                   </span>
                 </div>
@@ -2198,7 +2247,7 @@
               <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
                   <span style="font-size: 1.75rem;">🏛️</span>
-                  <span id="badge-subpage-regular" class="status-badge" style="background: {% if is_regular_maint %}#fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}#dcfce7; color: #166534; border: 1px solid #86efac;{% endif %} font-weight: 700;">
+                  <span id="badge-subpage-regular" class="status-badge {% if is_regular_maint %}badge-subpage-maint{% else %}badge-subpage-online{% endif %}">
                     {% if is_regular_maint %}🟡 En Mantenimiento{% else %}🟢 Activa / En Línea{% endif %}
                   </span>
                 </div>
@@ -2221,7 +2270,7 @@
               <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
                   <span style="font-size: 1.75rem;">💻</span>
-                  <span id="badge-subpage-developers" class="status-badge" style="background: {% if is_devs_maint %}#fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}#dcfce7; color: #166534; border: 1px solid #86efac;{% endif %} font-weight: 700;">
+                  <span id="badge-subpage-developers" class="status-badge {% if is_devs_maint %}badge-subpage-maint{% else %}badge-subpage-online{% endif %}">
                     {% if is_devs_maint %}🟡 En Mantenimiento{% else %}🟢 Activa / En Línea{% endif %}
                   </span>
                 </div>
@@ -2232,6 +2281,7 @@
               </div>
               <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 <button type="button" id="btn-subpage-developers" class="btn {% if is_devs_maint %}btn-azul{% else %}btn-outline{% endif %} btn-sm" style="flex: 1;" onclick="toggleSubpageStatus('developers')">
+                  {% if is_devs_maint %}✅ Activar Subpágina{% else %}🛑 Desactivar (Mantenimiento){% endif %}
                   {% if is_devs_maint %}✅ Activar Subpágina{% else %}🛑 Desactivar (Mantenimiento){% endif %}
                 </button>
                 <a href="/desarrolladores" target="_blank" class="btn btn-outline btn-sm" title="Abrir en pestaña nueva">↗</a>
@@ -3472,12 +3522,13 @@
 
     function updateSubpageUI(subpage, status, globalMaint) {
       if (subpage === 'global') {
+        const box = document.getElementById('globalMaintBox');
         const badge = document.getElementById('globalMaintBadge');
         const btn = document.getElementById('btnToggleGlobalMaint');
         if (status === 'maintenance') {
+          if (box) box.className = 'global-maint-box is-active';
           if (badge) {
-            badge.style.background = '#fee2e2';
-            badge.style.color = '#991b1b';
+            badge.className = 'status-badge badge-maint-active';
             badge.innerHTML = '⚠️ MANTENIMIENTO GLOBAL ACTIVO';
           }
           if (btn) {
@@ -3485,9 +3536,9 @@
             btn.innerHTML = '✅ Reanudar Acceso a Todas';
           }
         } else {
+          if (box) box.className = 'global-maint-box is-normal';
           if (badge) {
-            badge.style.background = '#dcfce7';
-            badge.style.color = '#166534';
+            badge.className = 'status-badge badge-maint-normal';
             badge.innerHTML = '🟢 Todas Activas (Normal)';
           }
           if (btn) {
@@ -3500,9 +3551,7 @@
         const btn = document.getElementById(`btn-subpage-${subpage}`);
         if (status === 'maintenance') {
           if (badge) {
-            badge.style.background = '#fef3c7';
-            badge.style.color = '#92400e';
-            badge.style.borderColor = '#fcd34d';
+            badge.className = 'status-badge badge-subpage-maint';
             badge.innerHTML = '🟡 En Mantenimiento';
           }
           if (btn) {
@@ -3512,9 +3561,7 @@
           }
         } else {
           if (badge) {
-            badge.style.background = '#dcfce7';
-            badge.style.color = '#166534';
-            badge.style.borderColor = '#86efac';
+            badge.className = 'status-badge badge-subpage-online';
             badge.innerHTML = '🟢 Activa / En Línea';
           }
           if (btn) {
