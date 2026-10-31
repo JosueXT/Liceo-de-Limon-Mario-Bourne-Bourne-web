@@ -1246,8 +1246,13 @@
 
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">Fecha</label>
-                  <input type="text" id="editNewsDate" class="form-control">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <label class="form-label" style="margin-bottom: 0;">Fecha</label>
+                    <button type="button" class="btn btn-outline btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.75rem;" onclick="setNewsTodayDate('editNewsDate')" title="Poner la fecha de hoy">
+                      📅 Hoy
+                    </button>
+                  </div>
+                  <input type="text" id="editNewsDate" class="form-control" placeholder="Ej. 30 de Octubre, 2026">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Autor / Departamento</label>
@@ -1360,8 +1365,16 @@
 
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">Fecha</label>
-                  <input type="text" id="pNewsDate" class="form-control" placeholder="17 de Agosto, 2026">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <label class="form-label" style="margin-bottom: 0;">Fecha</label>
+                    <button type="button" class="btn btn-outline btn-sm" style="padding: 0.1rem 0.5rem; font-size: 0.75rem;" onclick="setNewsTodayDate('pNewsDate')" title="Poner la fecha de hoy">
+                      📅 Hoy
+                    </button>
+                  </div>
+                  <input type="text" id="pNewsDate" class="form-control" placeholder="Ej. 30 de Octubre, 2026">
+                  <small style="color: #64748b; font-size: 0.75rem; display: block; margin-top: 0.25rem;">
+                    💡 Se rellena automáticamente con la fecha de hoy, pero puedes modificarla libremente.
+                  </small>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Autor / Departamento</label>
@@ -2749,12 +2762,31 @@
     }
 
     // 5. Gestión y Edición de Noticias & Subcategorías
+    function getFormattedCurrentDate() {
+      const d = new Date();
+      const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      return `${d.getDate()} de ${months[d.getMonth()]}, ${d.getFullYear()}`;
+    }
+
+    function setNewsTodayDate(inputId) {
+      const input = document.getElementById(inputId);
+      if (input) {
+        input.value = getFormattedCurrentDate();
+        input.focus();
+      }
+    }
+
     function toggleAddNewsForm() {
       const addBox = document.getElementById('addNewsBox');
       const editBox = document.getElementById('editNewsBox');
       if (editBox) editBox.style.display = 'none';
-      addBox.style.display = addBox.style.display === 'none' ? 'block' : 'none';
-      if (addBox.style.display === 'block') {
+      const isOpening = (addBox.style.display === 'none');
+      addBox.style.display = isOpening ? 'block' : 'none';
+      if (isOpening) {
+        const pDate = document.getElementById('pNewsDate');
+        if (pDate && !pDate.value.trim()) {
+          pDate.value = getFormattedCurrentDate();
+        }
         addBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
@@ -3658,6 +3690,12 @@
           btn.innerText = '💾 Guardar Textos de Mantenimiento';
         }
       }
+    }
+
+    // Inicializar fecha de hoy por defecto en el formulario de nuevas noticias
+    const initialNewsDate = document.getElementById('pNewsDate');
+    if (initialNewsDate && !initialNewsDate.value.trim()) {
+      initialNewsDate.value = getFormattedCurrentDate();
     }
   </script>
 </body>

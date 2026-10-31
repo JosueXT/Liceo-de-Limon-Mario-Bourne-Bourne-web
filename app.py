@@ -849,6 +849,12 @@ def api_add_news():
     category_slug = data.get('category_slug', 'institucionales').strip()
     subcategory = data.get('subcategory', '').strip()
     date = data.get('date', '').strip()
+    if not date:
+        from datetime import datetime
+        meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        now = datetime.now()
+        date = f"{now.day} de {meses[now.month]}, {now.year}"
+
     summary = data.get('summary', '').strip()
     content = data.get('content', '').strip()
     image = data.get('image', 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80').strip()
@@ -890,6 +896,12 @@ def api_update_news(news_id):
     category_slug = data.get('category_slug', 'institucionales').strip()
     subcategory = data.get('subcategory', '').strip()
     date = data.get('date', '').strip()
+    if not date:
+        from datetime import datetime
+        meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        now = datetime.now()
+        date = f"{now.day} de {meses[now.month]}, {now.year}"
+
     summary = data.get('summary', '').strip()
     content = data.get('content', '').strip()
     image = data.get('image', '').strip()
