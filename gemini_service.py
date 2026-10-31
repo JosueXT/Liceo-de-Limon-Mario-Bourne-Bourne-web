@@ -14,8 +14,10 @@ import urllib.request
 import urllib.error
 from email_service import load_env_file
 
-# Modelos recomendados en orden de prioridad para baja latencia
+# Modelos recomendados en orden de prioridad para baja latencia y disponibilidad de cuota
 GEMINI_MODELS = [
+    'gemini-3.5-flash-lite',
+    'gemini-flash-lite-latest',
     'gemini-3.5-flash',
     'gemini-3.7-flash',
     'gemini-3.8-flash',
@@ -54,10 +56,10 @@ def check_gemini_health():
         with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read().decode('utf-8'))
             latency = (time.time() - t0) * 1000
-            has_flash = any('3.5-flash' in m.get('name', '') or 'flash' in m.get('name', '') for m in data.get('models', []))
+            has_flash_lite = any('3.5-flash-lite' in m.get('name', '') or 'flash-lite' in m.get('name', '') for m in data.get('models', []))
             return {
                 'active': True,
-                'model': 'gemini-3.5-flash' if has_flash else 'gemini-flash-latest',
+                'model': 'gemini-3.5-flash-lite' if has_flash_lite else 'gemini-flash-lite-latest',
                 'latency_ms': round(latency, 1),
                 'total_models': len(data.get('models', [])),
                 'message': 'Conexión activa con Google Gemini.'
