@@ -560,49 +560,15 @@ def api_logout():
 
 @app.route('/api/auth/reset-password', methods=['POST'])
 def api_reset_password():
-    """Permite al personal directivo restablecer la contraseña en caso de olvido validando la clave de recuperación institucional."""
-    ip = get_client_ip()
-    if not app.config.get('TESTING'):
-        locked, remaining = security_shield.is_locked(ip, 'reset_key', max_attempts=5, window_seconds=600)
-        if locked:
-            mins = (remaining + 59) // 60
-            return jsonify({
-                'success': False,
-                'message': f'Demasiados intentos fallidos con la clave institucional. Bloqueado temporalmente por {mins} minuto(s).'
-            }), 429
-
-    data = request.get_json() or {}
-    username = data.get('username', '').strip()
-    recovery_key = data.get('recovery_key', '').strip()
-    new_password = data.get('new_password', '').strip()
-
-    if not recovery_key:
-        return jsonify({
-            'success': False,
-            'message': 'Debe ingresar la Clave Maestra de Recuperación Institucional (o código de rescate).'
-        }), 400
-
-    if not new_password or len(new_password) < 4:
-        return jsonify({
-            'success': False,
-            'message': 'La nueva contraseña debe contener un mínimo de 4 caracteres.'
-        }), 400
-
-    success, message = reset_admin_password_with_recovery(username, recovery_key, new_password)
-    if success:
-        if not app.config.get('TESTING'):
-            security_shield.reset_failures(ip, 'reset_key')
-        return jsonify({
-            'success': True,
-            'message': message
-        })
-    else:
-        if not app.config.get('TESTING'):
-            security_shield.record_failure(ip, 'reset_key')
-        return jsonify({
-            'success': False,
-            'message': message
-        }), 401
+    """
+    Ruta deshabilitada: la clave maestra estática ha sido eliminada por completo por seguridad.
+    La recuperación de contraseña se realiza exclusivamente mediante código OTP enviado al correo institucional
+    o mediante acceso a terminal con 'python restablecer_password.py'.
+    """
+    return jsonify({
+        'success': False,
+        'message': 'El método de clave maestra ha sido deshabilitado. La recuperación se realiza exclusivamente vía código OTP por correo institucional (/api/auth/reset-password-otp) o mediante terminal de servidor.'
+    }), 400
 
 @app.route('/api/auth/request-otp', methods=['POST'])
 def api_request_otp():
@@ -695,15 +661,10 @@ def api_change_credentials():
     if not new_password or len(new_password) < 4:
         return jsonify({'success': False, 'message': 'La nueva contraseña debe tener un mínimo de 4 caracteres.'}), 400
 
-    new_recovery_key = data.get('new_recovery_key', '').strip()
-    if new_recovery_key and len(new_recovery_key) < 4:
-        return jsonify({'success': False, 'message': 'La nueva clave maestra institucional debe tener un mínimo de 4 caracteres.'}), 400
-
     success = update_admin_credentials(
         new_username,
         new_password,
-        new_recovery_email if new_recovery_email else None,
-        new_recovery_key if new_recovery_key else None
+        new_recovery_email if new_recovery_email else None
     )
     if success:
         session['admin_username'] = new_username
@@ -711,8 +672,7 @@ def api_change_credentials():
             'success': True,
             'message': '¡Credenciales actualizadas exitosamente! Se utilizarán en los próximos inicios de sesión.',
             'new_username': new_username,
-            'new_recovery_email': new_recovery_email or (admin_user.get('recovery_email') if admin_user else 'jeredamaya@gmail.com'),
-            'updated_recovery_key': bool(new_recovery_key)
+            'new_recovery_email': new_recovery_email or (admin_user.get('recovery_email') if admin_user else 'jeredamaya@gmail.com')
         })
     else:
         return jsonify({'success': False, 'message': 'Error al actualizar credenciales en base de datos.'}), 500

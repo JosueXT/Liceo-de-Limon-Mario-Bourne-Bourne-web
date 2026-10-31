@@ -2470,24 +2470,6 @@
               </span>
             </div>
 
-            <!-- Clave Maestra Institucional -->
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-              <label class="form-label" for="adminNewRecoveryKey">
-                <strong>🔑 Clave Maestra Institucional de Rescate</strong>
-              </label>
-              <div class="password-field-wrapper" style="position: relative; display: flex; align-items: center;">
-                <input type="password" id="adminNewRecoveryKey" class="form-control" autocomplete="new-password" placeholder="Dejar en blanco para conservar la clave actual (por defecto: MEP-LIMON-2026)">
-                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('adminNewRecoveryKey', this)" title="Ver u ocultar clave maestra" style="position: absolute; right: 0.75rem; background: none; border: none; cursor: pointer; color: var(--gris-500); padding: 0.35rem; font-size: 1rem;">
-                  👁️
-                </button>
-              </div>
-              <span style="font-size: 0.8rem; color: var(--gris-500); display: block; margin-top: 0.35rem;">
-                Esta clave permite el rescate inmediato desde la pantalla de inicio de sesión sin necesidad de correo electrónico.
-              </span>
-            </div>
-
-
-
             <div id="credentialsErrorAlert" style="display: none; background: #fee2e2; border: 1px solid #f87171; color: #991b1b; padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; margin-bottom: 1.4rem;"></div>
 
             <div style="display: flex; gap: 1rem; align-items: center;">
@@ -3177,8 +3159,6 @@
 
         const recoveryEmailInput = document.getElementById('adminRecoveryEmail');
         const newRecoveryEmail = recoveryEmailInput ? recoveryEmailInput.value.trim() : '';
-        const recoveryKeyInput = document.getElementById('adminNewRecoveryKey');
-        const newRecoveryKey = recoveryKeyInput ? recoveryKeyInput.value.trim() : '';
 
         submitBtn.disabled = true;
         submitBtn.innerText = 'Guardando credenciales...';
@@ -3191,8 +3171,7 @@
               current_password: currentPassword,
               new_username: newUsername,
               new_password: newPassword,
-              new_recovery_email: newRecoveryEmail,
-              new_recovery_key: newRecoveryKey
+              new_recovery_email: newRecoveryEmail
             })
           });
 
@@ -3211,7 +3190,6 @@
             document.getElementById('adminCurrentPassword').value = '';
             document.getElementById('adminNewPassword').value = '';
             document.getElementById('adminConfirmPassword').value = '';
-            if (recoveryKeyInput) recoveryKeyInput.value = '';
             errorAlert.style.display = 'none';
           } else {
             errorAlert.innerText = data.message || 'Error al actualizar las credenciales.';

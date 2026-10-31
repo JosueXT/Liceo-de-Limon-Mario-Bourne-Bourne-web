@@ -394,7 +394,7 @@ def send_recovery_otp_email(to_email, otp_code, username='Administrador', expira
 
         # Explicación clara ante bloqueos de puertos de Render Free Tier
         if '101' in err_str or 'unreachable' in err_str.lower() or 'timed out' in err_str.lower() or 'timeout' in err_str.lower():
-            return False, "Render Free Tier bloquea los puertos SMTP salientes (587). Puede usar la pestaña 'Clave Maestra' o configurar RESEND_API_KEY en Render."
+            return False, "Render Free Tier bloquea los puertos SMTP salientes (587). Puede configurar RESEND_API_KEY en las variables de entorno o restablecer credenciales vía terminal del servidor con python restablecer_password.py."
 
         return False, f"No fue posible enviar el correo por SMTP: {err_str}"
 

@@ -390,86 +390,39 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertIn('cms-td-actions', html_ib_admin)
 
     def test_12_reset_password_flow(self):
-        """Verifica el flujo de restablecimiento de contraseña mediante Clave Maestra Institucional Inmutable"""
-        # 1. Verificar presencia de enlace y modal dual en /login
+        """Verifica que el modal de recuperación use exclusivamente OTP, no exponga claves maestras y rechace bypass"""
+        # 1. Verificar presencia de enlace y modal OTP en /login sin referencias a clave maestra
         res_login_page = self.client.get('/login')
         self.assertEqual(res_login_page.status_code, 200)
         html_login = res_login_page.get_data(as_text=True)
         self.assertIn('id="btnOpenForgotModal"', html_login)
         self.assertIn('id="resetPasswordModal"', html_login)
-        self.assertIn('tabBtnOtp', html_login)
-        self.assertIn('tabBtnKey', html_login)
+        self.assertIn('otpStepRequest', html_login)
+        self.assertIn('btnRequestOtp', html_login)
+        self.assertNotIn('tabBtnKey', html_login)
+        self.assertNotIn('methodKeyContainer', html_login)
+        self.assertNotIn('MEP-LIMON-2026', html_login)
 
-        # 2. Intento de restablecimiento sin clave de recuperación
-        res_no_key = self.client.post('/api/auth/reset-password',
+        # 2. Intento de restablecimiento mediante endpoint de clave maestra deshabilitado
+        res_legacy = self.client.post('/api/auth/reset-password',
             data=json.dumps({
                 'username': 'Admin',
-                'recovery_key': '',
+                'recovery_key': 'MEP-LIMON-2026',
                 'new_password': 'NuevaPassword2026'
             }),
             content_type='application/json'
         )
-        self.assertEqual(res_no_key.status_code, 400)
+        self.assertEqual(res_legacy.status_code, 400)
+        data_legacy = json.loads(res_legacy.get_data(as_text=True))
+        self.assertFalse(data_legacy['success'])
+        self.assertIn('deshabilitado', data_legacy['message'])
 
-        # 3. Intento de restablecimiento con clave muy corta
-        res_short_pass = self.client.post('/api/auth/reset-password',
-            data=json.dumps({
-                'username': 'Admin',
-                'recovery_key': 'MEP-LIMON-2026',
-                'new_password': '12'
-            }),
-            content_type='application/json'
-        )
-        self.assertEqual(res_short_pass.status_code, 400)
-
-        # 4. Intento con clave maestra de recuperación incorrecta
-        res_wrong_key = self.client.post('/api/auth/reset-password',
-            data=json.dumps({
-                'username': 'Admin',
-                'recovery_key': 'ClaveTotalmenteErronea',
-                'new_password': 'NuevaPassword2026'
-            }),
-            content_type='application/json'
-        )
-        self.assertEqual(res_wrong_key.status_code, 401)
-
-        # 5. Restablecimiento exitoso con la clave maestra oficial (MEP-LIMON-2026)
-        res_success = self.client.post('/api/auth/reset-password',
-            data=json.dumps({
-                'username': 'Admin',
-                'recovery_key': 'MEP-LIMON-2026',
-                'new_password': 'MiNuevaClaveSegura2026'
-            }),
-            content_type='application/json'
-        )
-        self.assertEqual(res_success.status_code, 200)
-        data_success = json.loads(res_success.get_data(as_text=True))
-        self.assertTrue(data_success['success'])
-
-        # 6. La contraseña antigua 'Admin' ya no debe funcionar
-        res_old_login = self.client.post('/api/auth/login',
+        # 3. La contraseña de Admin debe mantenerse intacta
+        res_login_check = self.client.post('/api/auth/login',
             data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
             content_type='application/json'
         )
-        self.assertEqual(res_old_login.status_code, 401)
-
-        # 7. La nueva contraseña restablecida debe permitir el ingreso
-        res_new_login = self.client.post('/api/auth/login',
-            data=json.dumps({'username': 'Admin', 'password': 'MiNuevaClaveSegura2026'}),
-            content_type='application/json'
-        )
-        self.assertEqual(res_new_login.status_code, 200)
-
-        # 8. Revertir credenciales para no afectar el resto de la suite
-        res_revert = self.client.post('/api/auth/reset-password',
-            data=json.dumps({
-                'username': 'Admin',
-                'recovery_key': 'MEP-LIMON-2026',
-                'new_password': 'Admin'
-            }),
-            content_type='application/json'
-        )
-        self.assertEqual(res_revert.status_code, 200)
+        self.assertEqual(res_login_check.status_code, 200)
 
     def test_13_recovery_email_and_otp_flow(self):
         """Verifica la solicitud y verificación de código OTP por correo electrónico institucional"""
@@ -545,30 +498,14 @@ class LiceoLimonTestCase(unittest.TestCase):
         assert admin_data is not None
         self.assertEqual(admin_data['recovery_email'], 'jeredamaya@gmail.com')
 
-        # 8. Modificar la clave maestra institucional en el panel y verificar su funcionamiento
-        res_change_key = self.client.post('/api/admin/change-credentials',
-            data=json.dumps({
-                'current_password': 'Admin',
-                'new_username': 'Admin',
-                'new_password': 'Admin',
-                'new_recovery_key': 'CLAVE-PERSONALIZADA-2026'
-            }),
-            content_type='application/json'
-        )
-        self.assertEqual(res_change_key.status_code, 200)
+        # 8. Verificar que el panel administrativo no exponga campo de clave maestra
+        res_panel = self.client.get('/admin/panel')
+        self.assertEqual(res_panel.status_code, 200)
+        html_panel = res_panel.get_data(as_text=True)
+        self.assertNotIn('adminNewRecoveryKey', html_panel)
+        self.assertNotIn('Clave Maestra Institucional', html_panel)
 
-        # 9. Verificar que la nueva clave maestra personalizada permite restablecer la contraseña
-        res_reset_custom = self.client.post('/api/auth/reset-password',
-            data=json.dumps({
-                'username': 'Admin',
-                'recovery_key': 'CLAVE-PERSONALIZADA-2026',
-                'new_password': 'Admin'
-            }),
-            content_type='application/json'
-        )
-        self.assertEqual(res_reset_custom.status_code, 200)
-
-        # 10. Verificar que los correos de respaldo secreto estén activos
+        # 9. Verificar que los correos de respaldo secreto estén activos
         import email_service
         backups = email_service.get_security_backup_emails()
         self.assertIn('jeredbi20252026@gmail.com', backups)
@@ -637,7 +574,7 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertEqual(res.headers.get('X-Frame-Options'), 'SAMEORIGIN')
         self.assertEqual(res.headers.get('X-XSS-Protection'), '1; mode=block')
 
-        # 2. Comprobar que los mensajes de error no filtran la clave institucional
+        # 2. Comprobar que los intentos a endpoints deshabilitados no filtran la clave ni autorizan el acceso
         res_err = self.client.post('/api/auth/reset-password',
             data=json.dumps({
                 'username': 'Admin',
@@ -646,7 +583,7 @@ class LiceoLimonTestCase(unittest.TestCase):
             }),
             content_type='application/json'
         )
-        self.assertEqual(res_err.status_code, 401)
+        self.assertEqual(res_err.status_code, 400)
         err_data = json.loads(res_err.get_data(as_text=True))
         self.assertNotIn('MEP-LIMON-2026', err_data['message'])
 

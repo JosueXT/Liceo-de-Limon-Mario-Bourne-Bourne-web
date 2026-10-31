@@ -306,9 +306,10 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
     story.append(Paragraph("• En la parte de abajo de la pantalla aparece una <b>barrita flotante negra</b> con botones para guardar o previsualizar tus cambios.", bullet_style))
 
     story.append(Paragraph("3. ¿Olvidaste tu contraseña? ¡Cero pánico!", h2_style))
-    story.append(Paragraph("En la misma pantalla de login tienes el botón <b>🔑 ¿Olvidó su contraseña?</b>. Te da dos opciones sencillas:", body_style))
-    story.append(Paragraph("• <b>Opción A (Código por correo):</b> Pides un código de 6 números que llega al correo del colegio. Lo escribes y pones tu nueva clave.", bullet_style))
-    story.append(Paragraph("• <b>Opción B (Clave Maestra de Rescate):</b> Si no tienes acceso al correo, usas la clave fija del colegio: <code>MEP-LIMON-2026</code>. Esta clave nunca cambia y siempre te salvará.", bullet_style))
+    story.append(Paragraph("En la pantalla de inicio de sesión tienes el botón <b>🔑 ¿Olvidó su contraseña?</b>. Funciona de manera rápida y segura:", body_style))
+    story.append(Paragraph("• <b>Código de Verificación por Correo (OTP):</b> Escribe tu usuario (por defecto: <i>Admin</i>) y presiona <b>Enviar Código</b>. Recibirás de inmediato un código de 6 dígitos en el correo institucional registrado (<code>jeredamaya@gmail.com</code>).", bullet_style))
+    story.append(Paragraph("• <b>Validar y Crear Nueva Contraseña:</b> Escribe el código recibido de 6 dígitos y define tu nueva contraseña. Al confirmar, tu acceso queda actualizado al instante.", bullet_style))
+    story.append(Paragraph("• <b>Rescate Técnico por Terminal:</b> Como administrador técnico con acceso al servidor, también puedes ejecutar en cualquier momento el comando <code>python restablecer_password.py</code> en la terminal para restaurar los accesos de fábrica.", bullet_style))
 
     story.append(Spacer(1, 8))
     story.append(create_callout(

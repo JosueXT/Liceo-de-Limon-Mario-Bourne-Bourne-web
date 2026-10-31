@@ -144,7 +144,7 @@ Este proyecto fue ideado, liderado e impulsado con la visión de **estudiantes d
 ### 🔐 Seguridad y Gestión de Credenciales
 - **Cambio de Usuario y Contraseña:** Formulario protegido dentro del panel administrativo para actualizar las credenciales en cualquier momento.
 - **Confirmación Obligatoria:** Requiere autenticar la contraseña actual antes de aplicar cambios para evitar modificaciones no autorizadas.
-- **Restablecimiento Asistido ante Olvido (Web):** Enlace interactivo `🔑 ¿Olvidó su contraseña?` en la pantalla `/login` con modal protegido mediante **Clave Maestra Institucional** (`MEP-LIMON-2026`).
+- **Restablecimiento Asistido ante Olvido (Web OTP):** Enlace interactivo `🔑 ¿Olvidó su contraseña?` en la pantalla `/login` con envío seguro de código de 6 dígitos OTP al correo institucional verificado.
 - **Herramienta de Rescate de Emergencia (Terminal):** Script `restablecer_password.py` para administradores con acceso a la consola o servidor, permitiendo restaurar las credenciales al instante a valores de fábrica o personalizadas.
 - **Contraseñas Seguras:** Almacenadas con hash criptográfico moderno (Werkzeug Security Scrypt/PBKDF2).
 - **Alternar Visibilidad:** Botones interactivos (`👁️ / 🙈`) para verificar visualmente lo que se escribe antes de guardar.
@@ -204,30 +204,22 @@ Para apagar el servidor, presione `Ctrl + C` en la terminal o cierre la ventana.
 | **URL de Inicio de Sesión** | `http://localhost:5000/login` | Portal de acceso administrativo |
 | **Usuario Inicial** | `Admin` | Nombre de usuario inicial del sistema |
 | **Contraseña Inicial** | `Admin` | Contraseña predeterminada |
-| **Correo de Recuperación** | `liceo.limon@mep.go.cr` | Correo donde se envían los códigos temporales OTP (configurable en el panel) |
-| **Clave Maestra Institucional** | `MEP-LIMON-2026` | Código permanente e inmutable de rescate ante emergencias |
+| **Correo de Recuperación** | `jeredamaya@gmail.com` | Correo donde se envían los códigos temporales OTP (configurable en el panel) |
 
 ### 🔄 ¿Cómo restablecer la contraseña en caso de olvido?
 
-La plataforma incluye un sistema de rescate integral con **tres alternativas**:
+La plataforma incluye un sistema de rescate integral con dos métodos oficiales y seguros:
 
-#### Método 1: Código de 6 Dígitos por Correo Institucional (OTP) - Recomendado
+#### Método 1: Código de 6 Dígitos por Correo Institucional (OTP) - Vía Web
 1. Diríjase a **`http://localhost:5000/login`** y presione **`🔑 ¿Olvidó su contraseña?`**.
-2. En la pestaña **`📨 Código por Correo (OTP)`**, escriba su usuario y presione **`📨 Enviar Código al Correo Institucional`**.
+2. Escriba su usuario administrativo y presione **`📨 Enviar Código al Correo Institucional`**.
 3. El sistema generará un código numérico seguro de 6 dígitos con validez de 15 minutos:
-   - Si tiene configurado SMTP en su servidor, se enviará directamente a su bandeja de entrada con el diseño oficial del MEP.
+   - Si tiene configurado servicio de correo en producción, se enviará directamente a su bandeja con el diseño institucional.
    - Si está ejecutando localmente en modo desarrollo/pruebas, el código se registrará automáticamente en la consola y en el archivo `recovery_emails.log`.
 4. Ingrese el código de 6 dígitos recibido, defina su nueva contraseña y presione **`💾 Validar y Cambiar Contraseña`**.
 
-#### Método 2: Mediante la Clave Maestra Institucional Inmutable
-1. En el mismo modal de recuperación, seleccione la pestaña **`🛡️ Clave Maestra Fija`**.
-2. Ingrese su usuario y la clave maestra fija del colegio: **`MEP-LIMON-2026`**.
-3. Escriba su nueva contraseña y confirme para ingresar de inmediato.
-> [!NOTE]
-> Para evitar accidentes y bloqueos involuntarios del personal, la Clave Maestra Institucional es **fija e inmutable** desde la interfaz web.
-
-#### Método 3: Por Terminal con el Script de Emergencia
-Si administra directamente el servidor, ejecute:
+#### Método 2: Por Terminal con el Script de Emergencia (Servidor)
+Si administra directamente el servidor o consola:
 ```bash
 python restablecer_password.py
 ```
@@ -329,7 +321,7 @@ python test_app.py
 12. `test_12_dynamic_lists_persistence`: Comprueba la persistencia de inserción y eliminación dinámica de elementos de listas.
 13. `test_13_curriculum_tables_persistence`: Verifica la actualización de mallas curriculares y tablas de asignaturas.
 14. `test_14_password_reset_otp_workflow`: Prueba la generación, validación y consumo único del código de rescate OTP por correo.
-15. `test_15_password_reset_recovery_key`: Valida el restablecimiento de contraseñas mediante la Clave Maestra Institucional inmutable.
+15. `test_15_password_reset_security_and_master_key_rejection`: Valida que el formulario de recuperación no exponga claves maestras y rechace intentos de bypass por clave fija.
 16. `test_16_news_video_support_and_ib_filter`: Comprueba la compatibilidad con videos incrustados (YouTube, Drive y MP4) y filtros IB.
 17. `test_17_developers_page_and_aliases`: Valida las rutas públicas del equipo (`/desarrolladores`, `/creditos`, `/equipo`).
 18. `test_18_admin_panel_developers_management`: Verifica el CRUD completo de desarrolladores desde el panel de control.

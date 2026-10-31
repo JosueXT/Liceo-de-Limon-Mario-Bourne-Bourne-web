@@ -76,11 +76,10 @@ def main():
         reset_admin_password_direct('Admin', 'Admin')
         print("\n✅ ¡CREDENTIALES RESTABLECIDAS EXITOSAMENTE A VALORES DE FÁBRICA!")
         print("   ┌─────────────────────────────────────────────────────────────┐")
-        print("   │  👤 Usuario:      Admin                                     │")
-        print("   │  🔑 Contraseña:   Admin                                     │")
-        print("   │  🛡️ Clave Maestra: MEP-LIMON-2026 (Inmutable)                │")
-        print("   │  📧 Correo Rescate: liceo.limon@mep.go.cr                   │")
-        print("   │  🌐 Acceso web:    http://localhost:5000/login              │")
+        print("   │  👤 Usuario:        Admin                                   │")
+        print("   │  🔑 Contraseña:     Admin                                   │")
+        print("   │  📧 Correo Rescate: jeredamaya@gmail.com                    │")
+        print("   │  🌐 Acceso web:     http://localhost:5000/login            │")
         print("   └─────────────────────────────────────────────────────────────┘\n")
         return
 
@@ -97,7 +96,6 @@ def main():
         print(f"\n✅ ¡Credenciales actualizadas exitosamente para '{usuario}'!")
         print(f"   👤 Usuario:          {usuario}")
         print(f"   🔑 Nueva Contraseña: {password}")
-        print(f"   🛡️ Clave Maestra:   {DEFAULT_RECOVERY_KEY} (Inmutable)")
         print("   🌐 Acceso web:       http://localhost:5000/login\n")
         return
 
@@ -106,7 +104,6 @@ def main():
     if current:
         print(f"  • Usuario registrado actual: '{current['username']}'")
         print(f"  • Correo de recuperación:   '{current.get('recovery_email', 'jeredamaya@gmail.com')}'")
-        print(f"  • Clave Maestra Oficial:    '{DEFAULT_RECOVERY_KEY}' (Fija e inmutable)")
     else:
         print("  • Ningún usuario encontrado (se creará uno nuevo).")
 
@@ -125,11 +122,10 @@ def main():
         reset_admin_password_direct('Admin', 'Admin')
         print("\n✅ ¡CREDENTIALES RESTABLECIDAS EXITOSAMENTE A VALORES DE FÁBRICA!")
         print("   ┌─────────────────────────────────────────────────────────────┐")
-        print("   │  👤 Usuario:      Admin                                     │")
-        print("   │  🔑 Contraseña:   Admin                                     │")
-        print("   │  🛡️ Clave Maestra: MEP-LIMON-2026 (Inmutable)                │")
-        print("   │  📧 Correo Rescate: liceo.limon@mep.go.cr                   │")
-        print("   │  🌐 Acceso web:    http://localhost:5000/login              │")
+        print("   │  👤 Usuario:        Admin                                   │")
+        print("   │  🔑 Contraseña:     Admin                                   │")
+        print("   │  📧 Correo Rescate: jeredamaya@gmail.com                    │")
+        print("   │  🌐 Acceso web:     http://localhost:5000/login            │")
         print("   └─────────────────────────────────────────────────────────────┘\n")
 
     elif opcion == "2":
@@ -148,7 +144,6 @@ def main():
         print(f"\n✅ ¡Nuevas credenciales guardadas exitosamente!")
         print(f"   👤 Usuario:          {nuevo_user}")
         print(f"   🔑 Nueva Contraseña: {nuevo_pass}")
-        print(f"   🛡️ Clave Maestra:   {DEFAULT_RECOVERY_KEY} (Inmutable)")
         print("   🌐 Inicie sesión en: http://localhost:5000/login\n")
 
     else:

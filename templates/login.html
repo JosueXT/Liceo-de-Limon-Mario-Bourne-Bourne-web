@@ -438,29 +438,19 @@
       <button type="button" class="reset-modal-close-btn" id="btnCloseResetModal" aria-label="Cerrar modal">&times;</button>
       
       <div class="reset-modal-header">
-        <div class="reset-modal-icon">🔐</div>
+        <div class="reset-modal-icon">📨</div>
         <div>
-          <h2 class="reset-modal-title" id="resetModalTitle">Restablecer Contraseña</h2>
-          <p class="reset-modal-subtitle">Sistema Institucional de Rescate MEP</p>
+          <h2 class="reset-modal-title" id="resetModalTitle">Recuperar Contraseña</h2>
+          <p class="reset-modal-subtitle">Código de Verificación Institucional (OTP)</p>
         </div>
-      </div>
-
-      <!-- Selector de Método: Pestañas -->
-      <div class="reset-nav-tabs">
-        <button type="button" class="reset-tab-btn active" id="tabBtnOtp" onclick="switchResetMethod('otp')">
-          <span>📨</span> Código por Correo (OTP)
-        </button>
-        <button type="button" class="reset-tab-btn" id="tabBtnKey" onclick="switchResetMethod('key')">
-          <span>🛡️</span> Clave Maestra Fija
-        </button>
       </div>
 
       <div class="reset-alert" id="resetModalAlert"></div>
 
-      <!-- ================= MÉTODO 1: CÓDIGO POR CORREO ELECTRÓNICO (OTP) ================= -->
+      <!-- ================= MÉTODO EXCLUSIVO: CÓDIGO POR CORREO ELECTRÓNICO (OTP) ================= -->
       <div id="methodOtpContainer">
         <div class="reset-info-box">
-          <strong>📨 Envío de Código de Un Solo Uso:</strong><br>
+          <strong>📨 Envío de Código de Seguridad:</strong><br>
           Enviaremos un código numérico temporal de 6 dígitos (válido por 15 minutos) al correo institucional oficial configurado en el sistema.
         </div>
 
@@ -514,56 +504,6 @@
         </form>
       </div>
 
-      <!-- ================= MÉTODO 2: CLAVE MAESTRA INSTITUCIONAL INMUTABLE ================= -->
-      <div id="methodKeyContainer" style="display: none;">
-        <div class="reset-info-box">
-          <strong>🛡️ Clave Maestra Institucional:</strong><br>
-          Para emergencias o rescate sin acceso a correo electrónico, ingrese la Clave Maestra Institucional asignada a la administración.
-        </div>
-
-        <form id="keyResetForm" autocomplete="off">
-          <div class="form-group" style="text-align: left; margin-bottom: 1.1rem;">
-            <label class="form-label" for="keyUsername">Usuario a Restablecer</label>
-            <input type="text" id="keyUsername" class="form-control" required placeholder="Ej: Admin" autocomplete="off">
-          </div>
-
-          <div class="form-group" style="text-align: left; margin-bottom: 1.1rem;">
-            <label class="form-label" for="keyRecoveryKey">Clave Maestra Institucional</label>
-            <div class="password-field-wrapper">
-              <input type="password" id="keyRecoveryKey" class="form-control" required placeholder="Ingrese clave maestra" autocomplete="off">
-              <button type="button" class="password-toggle-btn" onclick="toggleFieldVis('keyRecoveryKey', this)" title="Ver u ocultar clave" tabindex="-1">
-                👁️
-              </button>
-
-          </div>
-
-          <div class="form-group" style="text-align: left; margin-bottom: 1.1rem;">
-            <label class="form-label" for="keyNewPass">Nueva Contraseña</label>
-            <div class="password-field-wrapper">
-              <input type="password" id="keyNewPass" class="form-control" required placeholder="Mínimo 4 caracteres" autocomplete="new-password">
-              <button type="button" class="password-toggle-btn" onclick="toggleFieldVis('keyNewPass', this)" title="Ver u ocultar contraseña" tabindex="-1">
-                👁️
-              </button>
-            </div>
-          </div>
-
-          <div class="form-group" style="text-align: left; margin-bottom: 1.35rem;">
-            <label class="form-label" for="keyConfirmPass">Confirmar Nueva Contraseña</label>
-            <div class="password-field-wrapper">
-              <input type="password" id="keyConfirmPass" class="form-control" required placeholder="Repita la nueva contraseña" autocomplete="new-password">
-              <button type="button" class="password-toggle-btn" onclick="toggleFieldVis('keyConfirmPass', this)" title="Ver u ocultar contraseña" tabindex="-1">
-                👁️
-              </button>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 0.75rem; align-items: center; justify-content: flex-end;">
-            <button type="button" class="btn btn-outline" onclick="closeResetModal()">Cancelar</button>
-            <button type="submit" id="btnSubmitKeyReset" class="btn btn-vino">💾 Restablecer Contraseña</button>
-          </div>
-        </form>
-      </div>
-
     </div>
   </div>
 
@@ -575,29 +515,6 @@
       const isPass = field.type === 'password';
       field.type = isPass ? 'text' : 'password';
       btn.innerText = isPass ? '🙈' : '👁️';
-    }
-
-    // Alternar entre los métodos de recuperación (OTP por correo vs Clave Maestra)
-    function switchResetMethod(method) {
-      const tabOtp = document.getElementById('tabBtnOtp');
-      const tabKey = document.getElementById('tabBtnKey');
-      const containerOtp = document.getElementById('methodOtpContainer');
-      const containerKey = document.getElementById('methodKeyContainer');
-      const alertBox = document.getElementById('resetModalAlert');
-
-      alertBox.style.display = 'none';
-
-      if (method === 'otp') {
-        tabOtp.classList.add('active');
-        tabKey.classList.remove('active');
-        containerOtp.style.display = 'block';
-        containerKey.style.display = 'none';
-      } else {
-        tabKey.classList.add('active');
-        tabOtp.classList.remove('active');
-        containerKey.style.display = 'block';
-        containerOtp.style.display = 'none';
-      }
     }
 
     function closeResetModal() {
@@ -632,14 +549,6 @@
       const otpNewPass = document.getElementById('otpNewPass');
       const otpConfirmPass = document.getElementById('otpConfirmPass');
       const btnSubmitOtp = document.getElementById('btnSubmitOtpReset');
-
-      // Elementos del Método Clave Maestra
-      const keyResetForm = document.getElementById('keyResetForm');
-      const keyUser = document.getElementById('keyUsername');
-      const keyRecoveryKey = document.getElementById('keyRecoveryKey');
-      const keyNewPass = document.getElementById('keyNewPass');
-      const keyConfirmPass = document.getElementById('keyConfirmPass');
-      const btnSubmitKey = document.getElementById('btnSubmitKeyReset');
 
       // Limpiar proactivamente cualquier autocompletado en caché del navegador
       if (userInput) userInput.value = '';
@@ -883,93 +792,6 @@
             resetAlert.style.display = 'block';
             btnSubmitOtp.disabled = false;
             btnSubmitOtp.innerText = '💾 Validar y Cambiar Contraseña';
-          }
-        });
-      }
-
-      // 6. MÉTODO CON CLAVE MAESTRA INSTITUCIONAL INMUTABLE
-      if (keyResetForm) {
-        keyResetForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const username = keyUser.value.trim() || 'Admin';
-          const recovery_key = keyRecoveryKey.value.trim();
-          const new_password = keyNewPass.value.trim();
-          const confirm_password = keyConfirmPass.value.trim();
-
-          resetAlert.style.display = 'none';
-
-          if (!recovery_key) {
-            resetAlert.className = 'reset-alert error';
-            resetAlert.innerText = 'Por favor ingrese la Clave Maestra Institucional.';
-            resetAlert.style.display = 'block';
-            return;
-          }
-
-          if (new_password.length < 4) {
-            resetAlert.className = 'reset-alert error';
-            resetAlert.innerText = 'La nueva contraseña debe tener un mínimo de 4 caracteres.';
-            resetAlert.style.display = 'block';
-            return;
-          }
-
-          if (new_password !== confirm_password) {
-            resetAlert.className = 'reset-alert error';
-            resetAlert.innerText = 'Las nuevas contraseñas no coinciden.';
-            resetAlert.style.display = 'block';
-            return;
-          }
-
-          btnSubmitKey.disabled = true;
-          btnSubmitKey.innerText = 'Validando clave maestra...';
-
-          try {
-            const res = await fetch('/api/auth/reset-password', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                username: username,
-                recovery_key: recovery_key,
-                new_password: new_password
-              })
-            });
-
-            const data = await res.json();
-
-            if (res.ok && data.success) {
-              resetAlert.className = 'reset-alert success';
-              resetAlert.innerText = data.message || '¡Contraseña restablecida exitosamente!';
-              resetAlert.style.display = 'block';
-              btnSubmitKey.innerText = '✓ Restablecida';
-              btnSubmitKey.style.background = '#10b981';
-
-              setTimeout(() => {
-                closeResetModal();
-                if (userInput) userInput.value = username;
-                if (passInput) passInput.value = new_password;
-
-                errorBox.style.display = 'block';
-                errorBox.style.background = '#dcfce7';
-                errorBox.style.borderColor = '#86efac';
-                errorBox.style.color = '#166534';
-                errorBox.innerText = '✓ ¡Contraseña restablecida con éxito! Ya puede iniciar sesión.';
-
-                btnSubmitKey.disabled = false;
-                btnSubmitKey.innerText = '💾 Restablecer Contraseña';
-                btnSubmitKey.style.background = '';
-              }, 1200);
-            } else {
-              resetAlert.className = 'reset-alert error';
-              resetAlert.innerText = data.message || 'Clave maestra institucional incorrecta.';
-              resetAlert.style.display = 'block';
-              btnSubmitKey.disabled = false;
-              btnSubmitKey.innerText = '💾 Restablecer Contraseña';
-            }
-          } catch (err) {
-            resetAlert.className = 'reset-alert error';
-            resetAlert.innerText = 'Error de conexión con el servidor.';
-            resetAlert.style.display = 'block';
-            btnSubmitKey.disabled = false;
-            btnSubmitKey.innerText = '💾 Restablecer Contraseña';
           }
         });
       }
