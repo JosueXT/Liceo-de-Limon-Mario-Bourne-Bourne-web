@@ -51,24 +51,68 @@ function enableVisualEditMode() {
   // Inicializar controles de visibilidad de secciones y bloques (ocultar / mostrar al público)
   initVisibilityToggleControls();
 
-  // Escuchar escritura en cualquier elemento editable
-  document.addEventListener('input', (e) => {
-    const target = e.target;
-    if (target && target.hasAttribute && target.hasAttribute('data-cms-key')) {
-      const key = target.getAttribute('data-cms-key');
-      const newValue = target.innerText.trim();
+  // Escuchar escritura en cualquier elemento editable (con soporte para nodos hijos y formato)
+  let autoSaveTimeout = null;
+  function triggerAutoSave() {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(() => {
+      if (Object.keys(CMS_STATE.modifiedItems).length > 0) {
+        saveAllCmsChanges(false); // auto-guardado en segundo plano
+      }
+    }, 1500);
+  }
 
-      CMS_STATE.modifiedItems[key] = newValue;
-      target.classList.add('cms-modified');
-      updateModifiedCounter();
+  function recordEditableChange(el) {
+    if (!el) return;
+    const key = el.getAttribute('data-cms-key');
+    if (!key) return;
+    const newValue = el.innerText.trim();
+    CMS_STATE.modifiedItems[key] = newValue;
+    el.classList.add('cms-modified');
+    updateModifiedCounter();
+    triggerAutoSave();
+  }
+
+  document.addEventListener('input', (e) => {
+    const el = e.target.closest ? e.target.closest('[data-cms-key]') : null;
+    if (el) {
+      recordEditableChange(el);
     }
   });
 
-  // Escuchar clics en imágenes editables
+  // Escuchar desenfoque (blur / focusout) para asegurar captura inmediata
+  document.addEventListener('focusout', (e) => {
+    const el = e.target.closest ? e.target.closest('[data-cms-key]') : null;
+    if (el) {
+      recordEditableChange(el);
+    }
+  });
+
+  // Atajo de teclado: Ctrl+S o Cmd+S para guardar de inmediato
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      if (CMS_STATE.isAdmin && CMS_STATE.isEditMode) {
+        e.preventDefault();
+        saveAllCmsChanges(true);
+      }
+    }
+  });
+
+  // Prevenir navegación accidental de enlaces al hacer clic para editar botones y textos con enlace
   document.addEventListener('click', (e) => {
     if (!CMS_STATE.isAdmin || !CMS_STATE.isEditMode || document.body.classList.contains('cms-preview-mode')) return;
 
-    const wrapper = e.target.closest('.cms-image-wrapper');
+    const editableChild = e.target.closest ? e.target.closest('[data-cms-key]') : null;
+    if (editableChild) {
+      const parentLink = editableChild.closest('a');
+      if (parentLink) {
+        e.preventDefault();
+        editableChild.focus();
+        return;
+      }
+    }
+
+    const wrapper = e.target.closest ? e.target.closest('.cms-image-wrapper') : null;
     if (wrapper) {
       e.preventDefault();
       const img = wrapper.querySelector('img[data-cms-img]') || wrapper.querySelector('img');
@@ -78,6 +122,15 @@ function enableVisualEditMode() {
       if (key) {
         openImageEditModal(key, currentSrc);
       }
+    }
+  });
+
+  // Advertir al usuario si intenta cerrar o recargar con cambios pendientes
+  window.addEventListener('beforeunload', (e) => {
+    if (CMS_STATE.isAdmin && Object.keys(CMS_STATE.modifiedItems).length > 0) {
+      e.preventDefault();
+      e.returnValue = 'Tiene cambios de contenido pendientes de guardar en la base de datos.';
+      return e.returnValue;
     }
   });
 }
@@ -171,17 +224,33 @@ function updateModifiedCounter() {
 /**
  * 6. Guardar Todos los Cambios en SQLite vía Fetch
  */
-async function saveAllCmsChanges() {
+async function saveAllCmsChanges(showFeedback = true) {
+  // Asegurar que cualquier elemento marcado como modificado en el DOM esté en el payload
+  document.querySelectorAll('[data-cms-key].cms-modified').forEach(el => {
+    const key = el.getAttribute('data-cms-key');
+    if (key && !(key in CMS_STATE.modifiedItems)) {
+      CMS_STATE.modifiedItems[key] = el.innerText.trim();
+    }
+  });
+
   const keys = Object.keys(CMS_STATE.modifiedItems);
   if (keys.length === 0) {
-    showToast('No hay modificaciones pendientes por guardar.', 'info');
+    if (showFeedback) {
+      showToast('No hay modificaciones pendientes por guardar.', 'info');
+    }
     return;
   }
 
   const saveBtn = document.getElementById('btnAdminSaveAll');
+  const statusText = document.getElementById('adminModeStatusText');
+  const originalStatus = statusText ? statusText.innerText : 'Modo Edición Activo';
+
   if (saveBtn) {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '⏳ Guardando...';
+  }
+  if (statusText) {
+    statusText.innerText = 'Guardando cambios en base de datos...';
   }
 
   try {
@@ -194,15 +263,29 @@ async function saveAllCmsChanges() {
     const data = await res.json();
 
     if (res.ok && data.success) {
-      showToast('✓ ¡Todos los cambios han sido guardados en la base de datos!', 'success');
+      if (showFeedback) {
+        showToast('✓ ¡Todos los cambios han sido guardados en la base de datos!', 'success');
+      }
       CMS_STATE.modifiedItems = {};
       updateModifiedCounter();
       document.querySelectorAll('.cms-modified').forEach(el => el.classList.remove('cms-modified'));
+      if (statusText) {
+        statusText.innerText = '✓ Guardado en base de datos';
+        setTimeout(() => {
+          if (statusText && statusText.innerText === '✓ Guardado en base de datos') {
+            statusText.innerText = 'Modo Edición Activo';
+          }
+        }, 3000);
+      }
     } else {
-      showToast('Error al guardar: ' + (data.message || 'Desconocido'), 'error');
+      if (showFeedback) {
+        showToast('Error al guardar: ' + (data.message || 'Desconocido'), 'error');
+      }
     }
   } catch (err) {
-    showToast('Error de conexión al guardar cambios.', 'error');
+    if (showFeedback) {
+      showToast('Error de conexión al guardar cambios.', 'error');
+    }
   } finally {
     if (saveBtn) {
       saveBtn.disabled = false;

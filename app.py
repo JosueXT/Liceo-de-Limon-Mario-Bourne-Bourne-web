@@ -314,9 +314,9 @@ def favicon():
 @app.route('/')
 def home():
     """Ruta Principal Pública: Carga el sitio institucional con los contenidos del CMS"""
-    cms = get_all_content()
-    news = get_all_news()
     is_admin = session.get('is_admin', False)
+    cms = get_all_content(force_fresh=is_admin)
+    news = get_all_news(force_fresh=is_admin)
     pathway_features = get_pathway_features(cms)
     dynamic_campus = get_campus_dynamic_list(cms)
     return render_template(
@@ -337,9 +337,9 @@ def modalidad_detalle(slug):
         return redirect(url_for('home') + '#modalidades')
 
     modalidad_info = MODALIDADES_DETALLE[slug]
-    cms = get_all_content()
-    news = get_all_news()
     is_admin = session.get('is_admin', False)
+    cms = get_all_content(force_fresh=is_admin)
+    news = get_all_news(force_fresh=is_admin)
 
     # Verificación de mantenimiento para visitantes no administradores
     subpage_key = f"subpage_status_{slug}"
@@ -371,8 +371,8 @@ def modalidad_detalle(slug):
 @app.route('/equipo')
 def desarrolladores():
     """Subpágina dedicada del Equipo de Desarrolladores de la página web."""
-    cms = get_all_content()
     is_admin = session.get('is_admin', False)
+    cms = get_all_content(force_fresh=is_admin)
 
     is_deactivated = (cms.get('subpage_status_developers', 'active') == 'maintenance') or (cms.get('subpages_global_maintenance') == 'true')
 
@@ -450,8 +450,8 @@ def admin_panel():
     current_admin_username = session.get('admin_username') or (admin_user['username'] if admin_user else 'Admin')
     current_recovery_email = (admin_user['recovery_email'] if admin_user and admin_user.get('recovery_email') else 'jeredamaya@gmail.com')
 
-    cms = get_all_content()
-    news = get_all_news()
+    cms = get_all_content(force_fresh=True)
+    news = get_all_news(force_fresh=True)
     inquiries = get_all_inquiries()
     snapshots = get_all_snapshots()
     developers = get_developers_dynamic_list(cms)
@@ -680,7 +680,7 @@ def api_change_credentials():
 
 @app.route('/api/cms/content', methods=['GET'])
 def api_get_content():
-    content = get_all_content()
+    content = get_all_content(force_fresh=True)
     return jsonify({'success': True, 'content': content})
 
 @app.route('/api/cms/content', methods=['POST', 'PUT'])
@@ -691,7 +691,7 @@ def api_save_content():
     data = request.get_json() or {}
     items = data.get('items', {})
     if not items and isinstance(data, dict):
-        items = data
+        items = {k: v for k, v in data.items() if k not in ('items', '_csrf_token')}
 
     if not items:
         return jsonify({'success': False, 'message': 'No se enviaron datos.'}), 400

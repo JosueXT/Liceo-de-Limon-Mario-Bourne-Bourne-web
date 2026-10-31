@@ -1502,9 +1502,15 @@
             <button class="btn btn-vino btn-sm btn-save-section" data-section="social">💾 Guardar Cambios</button>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Título de la Sección de Redes Sociales</label>
-            <input type="text" class="form-control" data-cms-field="social_section_title" value="{{ cms.social_section_title }}">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Etiqueta Superior de Sección (Badge)</label>
+              <input type="text" class="form-control" data-cms-field="social_section_tag" value="{{ cms.social_section_tag }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Título de la Sección de Redes Sociales</label>
+              <input type="text" class="form-control" data-cms-field="social_section_title" value="{{ cms.social_section_title }}">
+            </div>
           </div>
 
           <div class="form-group">
@@ -1518,12 +1524,22 @@
           <h3 style="color: #1877F2; margin-bottom: 1rem;">📘 Facebook Institucional</h3>
           <div class="form-grid-2">
             <div class="form-group">
-              <label class="form-label">Nombre / Etiqueta de la Página</label>
+              <label class="form-label">Título / Nombre de la Tarjeta Facebook</label>
               <input type="text" class="form-control" data-cms-field="facebook_name" value="{{ cms.facebook_name }}">
             </div>
             <div class="form-group">
+              <label class="form-label">Subtítulo / Manejador (Handle)</label>
+              <input type="text" class="form-control" data-cms-field="facebook_handle" value="{{ cms.facebook_handle }}">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
               <label class="form-label">Enlace URL Oficial de Facebook</label>
               <input type="url" class="form-control" data-cms-field="facebook_url" value="{{ cms.facebook_url }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Texto del Botón Facebook</label>
+              <input type="text" class="form-control" data-cms-field="facebook_btn_text" value="{{ cms.facebook_btn_text }}">
             </div>
           </div>
           <div class="form-group">
@@ -1537,12 +1553,22 @@
           <h3 style="color: #E1306C; margin-bottom: 1rem;">📷 Instagram Institucional</h3>
           <div class="form-grid-2">
             <div class="form-group">
+              <label class="form-label">Título de la Tarjeta Instagram</label>
+              <input type="text" class="form-control" data-cms-field="instagram_title" value="{{ cms.instagram_title }}">
+            </div>
+            <div class="form-group">
               <label class="form-label">Usuario / Handle de Instagram</label>
               <input type="text" class="form-control" data-cms-field="instagram_name" value="{{ cms.instagram_name }}">
             </div>
+          </div>
+          <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Enlace URL Oficial de Instagram</label>
               <input type="url" class="form-control" data-cms-field="instagram_url" value="{{ cms.instagram_url }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Texto del Botón Instagram</label>
+              <input type="text" class="form-control" data-cms-field="instagram_btn_text" value="{{ cms.instagram_btn_text }}">
             </div>
           </div>
           <div class="form-group">
@@ -1556,17 +1582,31 @@
           <h3 style="color: #25D366; margin-bottom: 1rem;">💬 Canal Oficial de WhatsApp</h3>
           <div class="form-grid-2">
             <div class="form-group">
-              <label class="form-label">Nombre del Canal de WhatsApp</label>
+              <label class="form-label">Título del Canal de WhatsApp</label>
               <input type="text" class="form-control" data-cms-field="whatsapp_name" value="{{ cms.whatsapp_name }}">
             </div>
             <div class="form-group">
+              <label class="form-label">Subtítulo / Manejador (Handle)</label>
+              <input type="text" class="form-control" data-cms-field="whatsapp_handle" value="{{ cms.whatsapp_handle }}">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
               <label class="form-label">Enlace de Invitación al Canal</label>
               <input type="url" class="form-control" data-cms-field="whatsapp_url" value="{{ cms.whatsapp_url }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Texto del Botón WhatsApp</label>
+              <input type="text" class="form-control" data-cms-field="whatsapp_btn_text" value="{{ cms.whatsapp_btn_text }}">
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Descripción del Canal de WhatsApp</label>
             <textarea class="form-control" data-cms-field="whatsapp_desc">{{ cms.whatsapp_desc }}</textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+            <button class="btn btn-vino btn-sm btn-save-section" data-section="social">💾 Guardar Cambios de Redes Sociales</button>
           </div>
 
           <hr style="margin: 2.5rem 0; border: none; border-top: 2px dashed #93c5fd;">

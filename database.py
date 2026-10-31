@@ -395,7 +395,7 @@ _CACHE_CONTENT = None
 _CACHE_CONTENT_TIME = 0
 _CACHE_NEWS = None
 _CACHE_NEWS_TIME = 0
-CACHE_TTL_SECONDS = 120  # 2 minutos de TTL en memoria o invalidación inmediata al editar
+CACHE_TTL_SECONDS = 2  # TTL breve en RAM para rendimiento sin desincronización entre procesos/recargas
 
 def invalidate_cms_cache():
     """Invalida la memoria caché para forzar lectura fresca desde la base de datos."""
@@ -431,11 +431,12 @@ def update_bulk_content(items_dict):
     conn = get_db_connection()
     cursor = conn.cursor()
     for key, value in items_dict.items():
+        val_str = '' if value is None else str(value)
         cursor.execute('''
             INSERT INTO cms_content (key, value)
             VALUES (?, ?)
             ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=CURRENT_TIMESTAMP
-        ''', (key, str(value)))
+        ''', (key, val_str))
     conn.commit()
     conn.close()
     invalidate_cms_cache()
