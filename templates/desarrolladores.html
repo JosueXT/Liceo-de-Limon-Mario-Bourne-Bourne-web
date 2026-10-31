@@ -36,6 +36,14 @@
   {% if is_admin %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
   {% endif %}
+  <script>
+    (function() {
+      var saved = localStorage.getItem('liceo_theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
 </head>
 <body data-is-admin="{{ 'true' if is_admin else 'false' }}" class="devs-page-body">
 
@@ -111,6 +119,10 @@
         </ul>
 
         <div class="nav-actions">
+          <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Cambiar modo de color" title="Alternar tema claro/oscuro">
+            <span class="theme-icon-light" aria-hidden="true">☀️</span>
+            <span class="theme-icon-dark" aria-hidden="true">🌙</span>
+          </button>
           <a href="/modalidad/ib" class="btn btn-vino btn-sm desktop-only-btn">Bachillerato IB</a>
           <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Abrir menú de navegación" aria-expanded="false">
             <span class="hamburger-bar"></span>

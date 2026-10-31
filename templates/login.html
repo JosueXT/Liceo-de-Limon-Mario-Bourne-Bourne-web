@@ -24,6 +24,15 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 
+  <script>
+    (function() {
+      var saved = localStorage.getItem('liceo_theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
   <style>
     /* Estilos dedicados para la página de login completa */
     body.login-page-body {
@@ -366,7 +375,11 @@
         </span>
         <span>{{ (cms and cms.header_mep_tag) or 'Ministerio de Educación Pública • Circuito 01 • Limón' }}</span>
       </div>
-      <div class="mep-quick-links">
+      <div class="mep-quick-links" style="display: flex; align-items: center; gap: 0.75rem;">
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Cambiar modo de color" title="Alternar tema claro/oscuro" style="width: 32px; height: 32px; font-size: 0.95rem; border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.1); color: #ffffff;">
+          <span class="theme-icon-light" aria-hidden="true">☀️</span>
+          <span class="theme-icon-dark" aria-hidden="true">🌙</span>
+        </button>
         <a href="/" class="mep-link">🏠 Volver al Sitio Público</a>
       </div>
     </div>
@@ -797,5 +810,6 @@
       }
     });
   </script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

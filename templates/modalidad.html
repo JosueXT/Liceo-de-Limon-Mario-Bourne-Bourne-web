@@ -40,6 +40,12 @@
   <!-- Hojas de Estilo CSS Puro (Desktop-First) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+  <script>
+    (function(){
+      const t = localStorage.getItem('liceo_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
   {% if is_admin %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
   {% endif %}
@@ -103,6 +109,10 @@
         </ul>
 
         <div class="nav-actions">
+          <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Cambiar a modo oscuro" title="Modo Claro / Oscuro">
+            <span class="theme-icon theme-icon-sun">☀️</span>
+            <span class="theme-icon theme-icon-moon">🌙</span>
+          </button>
           <a href="/#contacto" class="btn btn-vino btn-sm desktop-only-btn" data-cms-key="header_contact_link_text">{{ cms.header_contact_link_text }}</a>
           <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Abrir menú de navegación" aria-expanded="false">
             <span class="hamburger-bar"></span>
@@ -146,8 +156,21 @@
     <div class="modality-hero-bg cms-image-wrapper" data-cms-img="{{ modalidad.slug }}_hero_img" style="background-image: url('{{ hero_img_url }}');"></div>
     <div class="modality-hero-overlay"></div>
 
-    <div class="container">
+    {% if modalidad.slug == 'ib' %}
+    <div class="ib-ambient-glow-container">
+      <div class="ib-orb ib-orb-1 ib-orb-drift-1"></div>
+      <div class="ib-orb ib-orb-2 ib-orb-drift-2"></div>
+    </div>
+    {% endif %}
+
+    <div class="container" style="position: relative; z-index: 2;">
       <div class="modality-hero-content reveal-left">
+        {% if modalidad.slug == 'ib' %}
+        <div class="ib-hero-elite-badge reveal-scale">
+          <span class="ib-pulse-dot"></span>
+          <span>Programa del Diploma Oficial IB • Reconocimiento Mundial</span>
+        </div>
+        {% endif %}
         <span class="modality-badge" data-cms-key="{{ modalidad.slug }}_hero_badge">{{ cms.get(modalidad.slug + '_hero_badge') }}</span>
         <h1 class="modality-hero-title" data-cms-key="{{ modalidad.slug }}_sub_title">{{ cms.get(modalidad.slug + '_sub_title', modalidad.title) }}</h1>
         <p class="modality-hero-subtitle" data-cms-key="{{ modalidad.slug }}_hero_subtitle">{{ cms.get(modalidad.slug + '_hero_subtitle') }}</p>
@@ -178,7 +201,7 @@
         </span>
       </div>
       {% endif %}
-      <div class="ib-accreditation-card">
+      <div class="ib-accreditation-card ib-float">
         <div class="ib-logo-container cms-image-wrapper" data-cms-img="ib_official_logo" title="Haga clic en modo edición para cambiar el logo oficial del IB">
           <img src="{{ cms.get('ib_official_logo', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/International_Baccalaureate_Logo.svg/512px-International_Baccalaureate_Logo.svg.png') }}" alt="Bachillerato Internacional Oficial" class="ib-official-logo-img" data-cms-img="ib_official_logo">
         </div>
@@ -188,7 +211,20 @@
           </div>
           <h2 class="ib-accreditation-title" data-cms-key="ib_official_title">{{ cms.get('ib_official_title', 'Colegio del Mundo del IB (International Baccalaureate)') }}</h2>
           <p class="ib-accreditation-desc" data-cms-key="ib_official_desc">{{ cms.get('ib_official_desc', 'El Liceo de Limón Mario Bourne Bourne está oficialmente acreditado como Colegio del Mundo del IB, ofreciendo el prestigioso Programa del Diploma (PD) con validez y homologación universitaria a nivel internacional.') }}</p>
-          <div class="ib-accreditation-actions">
+          
+          <div class="ib-core-badge-container">
+            <span class="ib-core-pill ib-pill-cas" title="Creatividad, Actividad y Servicio">
+              <span>🌿</span> <strong>CAS:</strong> Creatividad, Actividad y Servicio
+            </span>
+            <span class="ib-core-pill ib-pill-tok" title="Teoría del Conocimiento">
+              <span>🧠</span> <strong>TOK:</strong> Teoría del Conocimiento
+            </span>
+            <span class="ib-core-pill ib-pill-ee" title="Investigación y Monografía Universitaria">
+              <span>📜</span> <strong>Monografía:</strong> 4000 Palabras
+            </span>
+          </div>
+
+          <div class="ib-accreditation-actions" style="margin-top: 1.2rem;">
             <a href="{{ cms.get('ib_official_link', 'https://www.ibo.org/es/') }}" target="_blank" rel="noopener noreferrer" class="btn btn-ib-link" id="ibLinkAnchor">
               <span data-cms-key="ib_official_btn_text">{{ cms.get('ib_official_btn_text', 'Conocer más en el sitio oficial del IB') }}</span> ↗
             </a>

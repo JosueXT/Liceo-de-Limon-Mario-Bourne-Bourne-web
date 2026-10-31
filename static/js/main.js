@@ -14,6 +14,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  initThemeToggle();
   initNavbarScroll();
   initParallaxHero();
   initScrollReveal();
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initMobileMenu();
   initNewsImagePositions();
+  initIBInteractiveEffects();
 });
 
 function initNewsImagePositions() {
@@ -730,6 +732,59 @@ function initMobileMenu() {
     if (window.innerWidth > 992 && navMenu.classList.contains('mobile-open')) {
       toggle(true);
     }
+  });
+}
+
+/**
+ * 9. Alternancia de Modo Claro y Modo Oscuro (Dark / Light Theme Toggle)
+ */
+function initThemeToggle() {
+  const savedTheme = localStorage.getItem('liceo_theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+  // Aplicar tema en el elemento raíz <html>
+  document.documentElement.setAttribute('data-theme', currentTheme);
+
+  // Vincular botones de cambio de tema
+  const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
+  toggleBtns.forEach(btn => {
+    btn.setAttribute('aria-label', currentTheme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const activeTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('liceo_theme', newTheme);
+      toggleBtns.forEach(b => {
+        b.setAttribute('aria-label', newTheme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+      });
+      window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newTheme } }));
+    });
+  });
+}
+
+/**
+ * 10. Efectos Visuales e Interactividad 3D Avanzada para IB
+ */
+function initIBInteractiveEffects() {
+  // 1. Efecto 3D Tilt Reactivo al Cursor en Tarjeta de Acreditación IB
+  const ibCards = document.querySelectorAll('.ib-accreditation-card, .ib-core-card, .pillar-card');
+  ibCards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -4;
+      const rotateY = ((x - centerX) / centerX) * 4;
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
   });
 }
 

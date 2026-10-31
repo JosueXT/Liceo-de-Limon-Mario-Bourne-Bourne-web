@@ -876,7 +876,7 @@ def get_system_health():
     """Diagnóstico en tiempo real de la base de datos, latencia y persistencia en la nube."""
     is_turso = bool(os.environ.get('TURSO_DATABASE_URL') and HAS_LIBSQL)
     t0 = time.time()
-    health = {
+    health: Dict[str, Any] = {
         'db_backend': 'Turso LibSQL Cloud (AWS US-East)' if is_turso else 'SQLite Local',
         'is_cloud': is_turso,
         'connected': False,
@@ -894,19 +894,23 @@ def get_system_health():
         
         cursor.execute('SELECT COUNT(*) FROM cms_content')
         r_cms = cursor.fetchone()
-        health['cms_count'] = int(r_cms[0]) if r_cms else 0
+        if r_cms is not None:
+            health['cms_count'] = int(r_cms[0])
         
         cursor.execute('SELECT COUNT(*) FROM news_articles')
         r_news = cursor.fetchone()
-        health['news_count'] = int(r_news[0]) if r_news else 0
+        if r_news is not None:
+            health['news_count'] = int(r_news[0])
         
         cursor.execute('SELECT COUNT(*) FROM contact_inquiries')
         r_inq = cursor.fetchone()
-        health['inquiries_count'] = int(r_inq[0]) if r_inq else 0
+        if r_inq is not None:
+            health['inquiries_count'] = int(r_inq[0])
         
         cursor.execute('SELECT COUNT(*) FROM cms_snapshots')
         r_snap = cursor.fetchone()
-        health['snapshots_count'] = int(r_snap[0]) if r_snap else 0
+        if r_snap is not None:
+            health['snapshots_count'] = int(r_snap[0])
         
         conn.close()
         health['connected'] = True

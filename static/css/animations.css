@@ -202,3 +202,112 @@
 .modal-dialog {
   animation: modalScaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* --------------------------------------------------------------------------
+   4. ANIMACIONES AVANZADAS DE IMPACTO Y EFECTOS PARA EL BACHILLERATO INTERNACIONAL (IB)
+   -------------------------------------------------------------------------- */
+
+/* Flotación orgánica suave (Levitación 3D) */
+@keyframes ibFloat {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+.ib-float {
+  animation: ibFloat 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.ib-float-reverse {
+  animation: ibFloat 7s ease-in-out infinite reverse;
+  will-change: transform;
+}
+
+/* Resplandor pulsante zafiro/dorado institucional */
+@keyframes ibGlowPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 16px rgba(2, 132, 199, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0);
+  }
+}
+
+.ib-glow-pulse {
+  animation: ibGlowPulse 2.4s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+/* Reflejo metálico de luz (Shimmer Effect) */
+@keyframes ibShimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.ib-shimmer-badge {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: ibShimmer 3.5s infinite;
+}
+
+/* Pulso de onda tipo radar para botones de video y focos de atención */
+@keyframes sonarPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 14px rgba(220, 38, 38, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+.sonar-pulse {
+  animation: sonarPulse 2s infinite;
+}
+
+/* Movimiento lento de orbes de luz en el fondo */
+@keyframes orbDrift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -40px) scale(1.1);
+  }
+  66% {
+    transform: translate(-25px, 20px) scale(0.95);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+.ib-orb-drift-1 {
+  animation: orbDrift 18s ease-in-out infinite alternate;
+}
+
+.ib-orb-drift-2 {
+  animation: orbDrift 22s ease-in-out infinite alternate-reverse;
+}

@@ -4399,3 +4399,392 @@ body.devs-page-body {
   border-color: #38bdf8;
 }
 
+/* ==========================================================================
+   SISTEMA DE MODO CLARO Y MODO OSCURO (THEME SWITCHING SYSTEM)
+   ========================================================================== */
+
+/* Botón de alternancia de tema */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--gris-100);
+  border: 1.5px solid var(--gris-200);
+  color: var(--gris-700);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  padding: 0;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-2px) scale(1.06);
+  border-color: #0284c7;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+}
+
+.theme-toggle-btn .theme-icon {
+  font-size: 1.15rem;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  position: absolute;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.theme-toggle-btn .theme-icon-sun {
+  opacity: 0;
+  transform: translateY(22px) rotate(-90deg);
+}
+
+.theme-toggle-btn .theme-icon-moon {
+  opacity: 1;
+  transform: translateY(0) rotate(0deg);
+}
+
+/* PALETA Y ESTILOS CUANDO ESTÁ ACTIVO EL MODO OSCURO */
+[data-theme="dark"] {
+  /* Sobrescritura semántica de tokens */
+  --blanco: #0f172a;
+  --blanco-trans: rgba(15, 23, 42, 0.94);
+  --gris-50: #070c18;
+  --gris-100: #0b1329;
+  --gris-200: #1e293b;
+  --gris-300: #334155;
+  --gris-400: #64748b;
+  --gris-500: #94a3b8;
+  --gris-600: #cbd5e1;
+  --gris-700: #e2e8f0;
+  --gris-800: #f1f5f9;
+  --gris-900: #ffffff;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.7);
+  --shadow-hover: 0 20px 45px rgba(2, 132, 199, 0.3);
+
+  /* Modalidades en Modo Oscuro */
+  --reg-bg-grad: linear-gradient(145deg, #18090f 0%, #070c18 100%);
+  --fr-bg-grad: linear-gradient(145deg, #091530 0%, #050914 100%);
+  --ib-bg-grad: linear-gradient(145deg, #07132a 0%, #030712 100%);
+}
+
+[data-theme="dark"] body {
+  background-color: #070c18;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .theme-toggle-btn {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fde047;
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+  border-color: #fde047;
+  box-shadow: 0 4px 16px rgba(253, 224, 71, 0.3);
+}
+
+[data-theme="dark"] .theme-toggle-btn .theme-icon-sun {
+  opacity: 1;
+  transform: translateY(0) rotate(0deg);
+}
+
+[data-theme="dark"] .theme-toggle-btn .theme-icon-moon {
+  opacity: 0;
+  transform: translateY(-22px) rotate(90deg);
+}
+
+/* Header & Barra Superior en Modo Oscuro */
+[data-theme="dark"] .main-header {
+  background: rgba(7, 12, 24, 0.94);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .top-bar {
+  background: #040813;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .top-bar-text,
+[data-theme="dark"] .top-bar-link {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .top-bar-link:hover {
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .nav-link {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .nav-link:hover,
+[data-theme="dark"] .nav-link.active {
+  color: #38bdf8;
+}
+
+/* Tarjetas y Contenedores en Modo Oscuro */
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .news-card,
+[data-theme="dark"] .pillar-card,
+[data-theme="dark"] .social-card,
+[data-theme="dark"] .visual-page-card,
+[data-theme="dark"] .requirements-box,
+[data-theme="dark"] .highlight-stat-box {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .news-body {
+  background: #0f172a;
+}
+
+[data-theme="dark"] .news-title,
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .pillar-title,
+[data-theme="dark"] .social-name,
+[data-theme="dark"] .requirements-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .news-summary,
+[data-theme="dark"] .section-subtitle,
+[data-theme="dark"] .pillar-desc,
+[data-theme="dark"] .social-desc,
+[data-theme="dark"] .lead-text,
+[data-theme="dark"] .body-text {
+  color: #94a3b8;
+}
+
+/* Tablas en Modo Oscuro */
+[data-theme="dark"] .curriculum-table {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .curriculum-table thead th {
+  background: #1e293b;
+  color: #38bdf8;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .curriculum-table tbody td {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .curriculum-table tbody tr:hover {
+  background: rgba(2, 132, 199, 0.12);
+}
+
+/* Formularios e Inputs en Modo Oscuro */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .form-control:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+}
+
+/* Modales y Notificaciones */
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .modal-dialog {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .footer {
+  background: #040813;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   MEJORAS VISUALES Y ANIMACIONES DE ALTO IMPACTO PARA IB (BACHILLERATO INTERNACIONAL)
+   ========================================================================== */
+
+/* 1. Insignia Élite de Cabecera IB */
+.ib-hero-elite-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 25px rgba(2, 132, 199, 0.25);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ib-pulse-dot {
+  width: 9px;
+  height: 9px;
+  background: #38bdf8;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+  animation: ibPulseDot 1.8s infinite;
+}
+
+@keyframes ibPulseDot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(56, 189, 248, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+}
+
+/* 2. Orbes de Luz Ambiental para el Hero de IB */
+.ib-ambient-glow-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ib-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.ib-orb-1 {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, #0284c7 0%, rgba(2, 132, 199, 0) 70%);
+  top: -60px;
+  right: 5%;
+}
+
+.ib-orb-2 {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, #4338ca 0%, rgba(67, 56, 202, 0) 70%);
+  bottom: 10%;
+  left: 5%;
+}
+
+/* 3. Tarjeta de Acreditación IB con Efecto 3D y Holográfico */
+.ib-accreditation-card {
+  position: relative;
+  border: 1.5px solid rgba(2, 132, 199, 0.35);
+  box-shadow: 0 20px 45px rgba(2, 132, 199, 0.12);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+.ib-accreditation-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 25px 60px rgba(2, 132, 199, 0.22);
+  border-color: rgba(56, 189, 248, 0.8);
+}
+
+[data-theme="dark"] .ib-accreditation-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 21, 45, 0.95) 100%);
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(2, 132, 199, 0.15);
+}
+
+[data-theme="dark"] .ib-accreditation-card:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(56, 189, 248, 0.3);
+}
+
+/* 4. Tarjetas de Pilares y Malla con Resplandor Reactivo en IB */
+.ib-core-badge-container {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.ib-core-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ib-core-pill:hover {
+  transform: translateY(-3px) scale(1.05);
+}
+
+.ib-pill-cas {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+[data-theme="dark"] .ib-pill-cas {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+.ib-pill-tok {
+  background: rgba(99, 102, 241, 0.15);
+  color: #4f46e5;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+[data-theme="dark"] .ib-pill-tok {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  border-color: rgba(129, 140, 248, 0.4);
+}
+
+.ib-pill-ee {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+[data-theme="dark"] .ib-pill-ee {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+/* 5. Destacado de Botón de Video con Pulso Dinámico */
+.news-video-badge {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+
+.news-play-btn {
+  animation: sonarPulse 2.2s infinite;
+}
+
