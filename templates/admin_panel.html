@@ -783,6 +783,22 @@
       background: #dc2626;
       color: #ffffff;
     }
+    .gemini-subbadge {
+      font-size: 0.73rem;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.55rem;
+    }
+    .gemini-subbadge.badge-ok {
+      color: #15803d;
+      background: #dcfce7;
+    }
+    .gemini-subbadge.badge-warn {
+      color: #9a3412;
+      background: #ffedd5;
+    }
   </style>
 </head>
 <body class="admin-dashboard-body">
@@ -1035,7 +1051,7 @@
                 <strong>Latencia en vivo:</strong> <span id="healthGeminiLatency">{{ gemini_status.latency_ms }} ms</span><br>
                 <strong>Función:</strong> Títulos automáticos de respaldo al guardar
               </p>
-              <div id="geminiStudioStatusBadge" style="font-size: 0.73rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.55rem; {{ 'color: #15803d; background: #dcfce7;' if gemini_status.active else 'color: #9a3412; background: #ffedd5;' }}">
+              <div id="geminiStudioStatusBadge" class="gemini-subbadge {{ 'badge-ok' if gemini_status.active else 'badge-warn' }}">
                 {% if gemini_status.active %}
                   <span>✓</span> <span>Google AI Studio Activo</span>
                 {% else %}
@@ -3946,12 +3962,10 @@
           const gemSubBadge = document.getElementById('geminiStudioStatusBadge');
           if (gemSubBadge && data.gemini) {
             if (data.gemini.active) {
-              gemSubBadge.style.color = '#15803d';
-              gemSubBadge.style.background = '#dcfce7';
+              gemSubBadge.className = 'gemini-subbadge badge-ok';
               gemSubBadge.innerHTML = '<span>✓</span> <span>Google AI Studio Activo</span>';
             } else {
-              gemSubBadge.style.color = '#9a3412';
-              gemSubBadge.style.background = '#ffedd5';
+              gemSubBadge.className = 'gemini-subbadge badge-warn';
               gemSubBadge.innerHTML = `<span>⚠️</span> <span>${data.gemini.message || 'IA Inactiva'}</span>`;
             }
           }
