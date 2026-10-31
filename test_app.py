@@ -705,6 +705,7 @@ class LiceoLimonTestCase(unittest.TestCase):
         all_news = get_all_news()
         created_item = next((n for n in all_news if n['id'] == news_id), None)
         self.assertIsNotNone(created_item)
+        assert created_item is not None
         self.assertEqual(created_item['video_url'], drive_video)
 
         # 3. Actualizar noticia con video de YouTube
@@ -716,6 +717,8 @@ class LiceoLimonTestCase(unittest.TestCase):
         )
         self.assertEqual(res_upd.status_code, 200)
         upd_item = next((n for n in get_all_news() if n['id'] == news_id), None)
+        self.assertIsNotNone(upd_item)
+        assert upd_item is not None
         self.assertEqual(upd_item['video_url'], yt_video)
 
         # 4. Verificar sección de Noticias de IB en /modalidad/ib
