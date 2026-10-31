@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 =============================================================================
-GENERADOR DEL MANUAL DE USUARIO Y GUÍA DE ADMINISTRACIÓN WEB (PDF)
+GENERADOR DEL MANUAL FÁCIL Y VISUAL PARA ADMINISTRADORES (PDF)
 Liceo de Limón Mario Bourne Bourne (MEP)
+Versión amigable, simple y clara (diseñada para jóvenes de 15+ y principiantes)
 =============================================================================
 """
 
@@ -10,18 +11,17 @@ import os
 import sys
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether, HRFlowable
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, HRFlowable
 )
 from reportlab.pdfgen import canvas
 
-# Colores Institucionales
+# Paleta de colores atractiva y moderna
 VINO = colors.HexColor('#720026')
-VINO_LIGHT = colors.HexColor('#9e1b42')
+VINO_SOFT = colors.HexColor('#fdf2f4')
 AZUL_IB = colors.HexColor('#003570')
-AZUL_LIGHT = colors.HexColor('#0284c7')
+AZUL_BRIGHT = colors.HexColor('#0284c7')
 AZUL_BG = colors.HexColor('#f0f9ff')
 GRIS_DARK = colors.HexColor('#0f172a')
 GRIS_BODY = colors.HexColor('#334155')
@@ -29,12 +29,14 @@ GRIS_MUTED = colors.HexColor('#64748b')
 GRIS_LIGHT = colors.HexColor('#f8fafc')
 GRIS_BORDER = colors.HexColor('#e2e8f0')
 AMBAR = colors.HexColor('#d97706')
+AMBAR_BG = colors.HexColor('#fffbeb')
 VERDE = colors.HexColor('#059669')
+VERDE_BG = colors.HexColor('#ecfdf5')
 BLANCO = colors.HexColor('#ffffff')
 
 
 class NumberedCanvas(canvas.Canvas):
-    """Canvas de dos pasos para calcular el total de páginas y pintar cabeceras y pies dinámicos."""
+    """Canvas de dos pasos para numerar páginas dinámicamente: Página X de Y."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._saved_page_states = []
@@ -52,7 +54,7 @@ class NumberedCanvas(canvas.Canvas):
         super().save()
 
     def draw_page_decorations(self, total_pages):
-        # La portada (página 1) no lleva encabezado ni pie estándar
+        # La portada no lleva encabezado ni pie
         if self._pageNumber == 1:
             return
 
@@ -61,15 +63,15 @@ class NumberedCanvas(canvas.Canvas):
         self.setFillColor(GRIS_MUTED)
 
         # Encabezado superior
-        self.drawString(54, letter[1] - 36, "LICEO DE LIMÓN MARIO BOURNE BOURNE · MANUAL OFICIAL DE ADMINISTRACIÓN")
-        self.drawRightString(letter[0] - 54, letter[1] - 36, "MEP · CIRCUITO 01")
+        self.drawString(54, letter[1] - 36, "🏫 LICEO DE LIMÓN MARIO BOURNE BOURNE · GUÍA PRÁCTICA DEL ADMINISTRADOR")
+        self.drawRightString(letter[0] - 54, letter[1] - 36, "MEP · EDICIÓN FÁCIL")
         self.setStrokeColor(GRIS_BORDER)
         self.setLineWidth(0.75)
         self.line(54, letter[1] - 42, letter[0] - 54, letter[1] - 42)
 
         # Pie de página
         self.line(54, 46, letter[0] - 54, 46)
-        self.drawString(54, 32, "Plataforma Web Institucional · Documento Confidencial de Operación")
+        self.drawString(54, 32, "Manual Explicado Paso a Paso para Estudiantes y Administradores")
         page_str = f"Página {self._pageNumber} de {total_pages}"
         self.drawRightString(letter[0] - 54, 32, page_str)
         self.restoreState()
@@ -87,7 +89,7 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
 
     styles = getSampleStyleSheet()
 
-    # Estilos tipográficos personalizados
+    # Estilos tipográficos claros y amigables
     title_cover = ParagraphStyle(
         'CoverTitle',
         parent=styles['Normal'],
@@ -112,11 +114,11 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         'Heading1Custom',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=16,
-        leading=20,
+        fontSize=15,
+        leading=19,
         textColor=AZUL_IB,
-        spaceBefore=16,
-        spaceAfter=10,
+        spaceBefore=14,
+        spaceAfter=8,
         keepWithNext=True
     )
 
@@ -124,23 +126,11 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         'Heading2Custom',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=12,
+        fontSize=11.5,
         leading=15,
         textColor=VINO,
-        spaceBefore=12,
-        spaceAfter=6,
-        keepWithNext=True
-    )
-
-    h3_style = ParagraphStyle(
-        'Heading3Custom',
-        parent=styles['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=10,
-        leading=13,
-        textColor=GRIS_DARK,
-        spaceBefore=8,
-        spaceAfter=4,
+        spaceBefore=10,
+        spaceAfter=5,
         keepWithNext=True
     )
 
@@ -148,8 +138,8 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         'BodyCustom',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=9,
-        leading=14,
+        fontSize=9.5,
+        leading=14.5,
         textColor=GRIS_BODY,
         spaceAfter=6
     )
@@ -158,8 +148,8 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         'BulletCustom',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=9,
-        leading=13.5,
+        fontSize=9.5,
+        leading=14,
         textColor=GRIS_BODY,
         leftIndent=14,
         spaceAfter=4
@@ -169,8 +159,8 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         'CalloutText',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8.5,
-        leading=13,
+        fontSize=9,
+        leading=13.5,
         textColor=GRIS_DARK
     )
 
@@ -178,8 +168,8 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         'TableCell',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8,
-        leading=11.5,
+        fontSize=8.5,
+        leading=12,
         textColor=GRIS_BODY
     )
 
@@ -187,12 +177,12 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         'TableHeader',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=8.5,
-        leading=11.5,
+        fontSize=9,
+        leading=12,
         textColor=BLANCO
     )
 
-    def create_callout(text, title="NOTA IMPORTANTE", border_color=AZUL_IB, bg_color=AZUL_BG):
+    def create_callout(text, title="TIP PRO", border_color=AZUL_BRIGHT, bg_color=AZUL_BG):
         content = [
             Paragraph(f"<b>{title}:</b> {text}", callout_style)
         ]
@@ -211,33 +201,34 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
     story = []
 
     # =========================================================================
-    # 1. PORTADA INSTITUCIONAL
+    # 1. PORTADA MODERNA Y AMIGABLE
     # =========================================================================
-    story.append(Spacer(1, 15))
-    story.append(Paragraph("MINISTERIO DE EDUCACIÓN PÚBLICA · DIRECCIÓN REGIONAL DE LIMÓN · CIRCUITO 01", ParagraphStyle('CoverMEP', fontName='Helvetica-Bold', fontSize=8.5, textColor=GRIS_MUTED, spaceAfter=15)))
+    story.append(Spacer(1, 10))
+    story.append(Paragraph("MINISTERIO DE EDUCACIÓN PÚBLICA · LICEO DE LIMÓN MARIO BOURNE BOURNE", ParagraphStyle('CoverMEP', fontName='Helvetica-Bold', fontSize=8.5, textColor=GRIS_MUTED, spaceAfter=12)))
     
-    # Barra decorativa tricolor MEP/Liceo
     dec_bar = Table([['']], colWidths=[letter[0] - 108], rowHeights=[4])
     dec_bar.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, -1), VINO)]))
     story.append(dec_bar)
-    story.append(Spacer(1, 20))
+    story.append(Spacer(1, 18))
 
-    story.append(Paragraph("MANUAL OFICIAL DE ADMINISTRACIÓN Y GUÍA DEL SISTEMA WEB", title_cover))
-    story.append(Paragraph("Plataforma Institucional y Sistema de Gestión de Contenidos (CMS)", subtitle_cover))
-    story.append(Paragraph("<b>Institución:</b> Liceo de Limón Mario Bourne Bourne<br/><b>Acreditación:</b> Colegio del Mundo del IB (Bachillerato Internacional - IB World School)<br/><b>Edición del Sistema:</b> Versión Oficial 2026", body_style))
+    story.append(Paragraph("GUÍA PRÁCTICA DEL ADMINISTRADOR WEB", title_cover))
+    story.append(Paragraph("Aprende a controlar, editar y personalizar la página de tu colegio fácilmente", subtitle_cover))
+    story.append(Paragraph("¡Bienvenido al equipo que mantiene viva la web oficial del <b>Liceo de Limón</b>! Esta guía está escrita de forma súper sencilla para que cualquier estudiante, profesor o colaborador aprenda en 10 minutos todo lo que puede hacer como administrador.", body_style))
     story.append(Spacer(1, 15))
 
-    # Caja de metadatos de la portada
-    cover_info_data = [
-        [Paragraph("<b>Documento:</b>", table_cell), Paragraph("Manual de Operación, Edición y Mantenimiento Web", table_cell)],
-        [Paragraph("<b>Destinatarios:</b>", table_cell), Paragraph("Directores, Asistentes de Dirección, Coordinación IB, Administradores Web", table_cell)],
-        [Paragraph("<b>Seguridad:</b>", table_cell), Paragraph("Uso Oficial Interno · Protección de Credenciales MEP", table_cell)],
-        [Paragraph("<b>Dominio Oficial:</b>", table_cell), Paragraph("<code>liceomariobourne.dpdns.org</code> (con alias <code>www</code>)", table_cell)],
-        [Paragraph("<b>Última Actualización:</b>", table_cell), Paragraph("Octubre 2026 · Con soporte de video, modo mantenimiento y desarrolladores", table_cell)],
+    # Tarjeta de superpoderes
+    powers_data = [
+        [Paragraph("<b>¿Qué aprenderás en esta guía?</b>", table_header), Paragraph("<b>Tus superpoderes como Administrador:</b>", table_header)],
+        [Paragraph("✏️ <b>Cambiar cualquier texto o foto</b>", table_cell), Paragraph("Escribir directo en la pantalla como en Word y cambiar fotos con 1 clic.", table_cell)],
+        [Paragraph("🎬 <b>Subir noticias con video</b>", table_cell), Paragraph("Publicar eventos con videos de YouTube o Google Drive que se reproducen solos.", table_cell)],
+        [Paragraph("🛠️ <b>Activar Modo Mantenimiento</b>", table_cell), Paragraph("Poner una página en pausa si la estás arreglando para que nadie la vea rota.", table_cell)],
+        [Paragraph("👥 <b>Sumar al equipo de desarrollo</b>", table_cell), Paragraph("Agregar a tus compañeros con foto, generación y redes sociales.", table_cell)],
+        [Paragraph("🛡️ <b>La Máquina del Tiempo</b>", table_cell), Paragraph("Guardar copias de seguridad por si te equivocas y quieres volver atrás.", table_cell)],
     ]
-    cover_table = Table(cover_info_data, colWidths=[130, letter[0] - 108 - 130])
-    cover_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), GRIS_LIGHT),
+    t_powers = Table(powers_data, colWidths=[180, letter[0] - 108 - 180])
+    t_powers.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), AZUL_IB),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [BLANCO, GRIS_LIGHT]),
         ('BOX', (0, 0), (-1, -1), 1, GRIS_BORDER),
         ('INNERGRID', (0, 0), (-1, -1), 0.5, GRIS_BORDER),
         ('TOPPADDING', (0, 0), (-1, -1), 5),
@@ -245,42 +236,40 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 8),
     ]))
-    story.append(cover_table)
+    story.append(t_powers)
 
-    story.append(Spacer(1, 25))
+    story.append(Spacer(1, 20))
     story.append(create_callout(
-        "Este manual describe detalladamente todas las funciones del portal institucional: desde el acceso seguro con contraseñas y códigos temporales OTP, la edición visual directa de textos e imágenes, la publicación de noticias con videos de YouTube y Google Drive, el control de activación/desactivación de subpáginas en mantenimiento, hasta el respaldo completo con copias de seguridad descargables en JSON.",
-        title="RESUMEN EJECUTIVO",
-        border_color=VINO,
-        bg_color=colors.HexColor('#fdf2f4')
+        "<b>No necesitas saber programar</b> ni escribir código extraño. Todo se maneja con botones visuales, clics y formularios listos para usar.",
+        title="¡TRANQUILO(A)!",
+        border_color=VERDE,
+        bg_color=VERDE_BG
     ))
 
     story.append(PageBreak())
 
     # =========================================================================
-    # 2. ÍNDICE GENERAL (TABLA DE CONTENIDOS)
+    # 2. ÍNDICE FÁCIL (TABLA DE CONTENIDOS)
     # =========================================================================
-    story.append(Paragraph("ÍNDICE GENERAL", h1_style))
+    story.append(Paragraph("MAPA DE LA GUÍA (ÍNDICE)", h1_style))
     story.append(HRFlowable(width="100%", thickness=1.5, color=AZUL_IB, spaceAfter=12))
 
     toc_data = [
-        [Paragraph("<b>Módulo</b>", table_header), Paragraph("<b>Título de la Sección</b>", table_header), Paragraph("<b>Contenidos y Funciones Tratadas</b>", table_header)],
-        [Paragraph("<b>Módulo 1</b>", table_cell), Paragraph("<b>Introducción y Roles</b>", table_cell), Paragraph("Arquitectura general, doble modalidad de edición y privilegios.", table_cell)],
-        [Paragraph("<b>Módulo 2</b>", table_cell), Paragraph("<b>Acceso y Seguridad</b>", table_cell), Paragraph("Inicio de sesión, cambio de claves, códigos OTP y clave de rescate.", table_cell)],
-        [Paragraph("<b>Módulo 3</b>", table_cell), Paragraph("<b>Editor Visual In-Situ</b>", table_cell), Paragraph("Edición directa sobre la pantalla, fotos, encuadre 3x3 y listas +/-.", table_cell)],
-        [Paragraph("<b>Módulo 4</b>", table_cell), Paragraph("<b>Panel de Control (Dashboard)</b>", table_cell), Paragraph("Navegación por pestañas, consultas de matrícula, identidad y contacto.", table_cell)],
-        [Paragraph("<b>Módulo 5</b>", table_cell), Paragraph("<b>Noticias y Multimedia</b>", table_cell), Paragraph("Publicación de comunicados, subcategorías IB, videos YouTube/Drive/MP4.", table_cell)],
-        [Paragraph("<b>Módulo 6</b>", table_cell), Paragraph("<b>Mantenimiento de Subpáginas</b>", table_cell), Paragraph("Activar/Desactivar IB, Francés, Regular o Desarrolladores; mensaje 503.", table_cell)],
-        [Paragraph("<b>Módulo 7</b>", table_cell), Paragraph("<b>Equipo de Desarrolladores</b>", table_cell), Paragraph("Gestión de miembros, generación, roles y redes sociales de créditos.", table_cell)],
-        [Paragraph("<b>Módulo 8</b>", table_cell), Paragraph("<b>Puntos de Control & Respaldo</b>", table_cell), Paragraph("Wayback Machine, exportar e importar JSON, restauración de fábrica.", table_cell)],
-        [Paragraph("<b>Módulo 9</b>", table_cell), Paragraph("<b>Dominio, DNS y Redes</b>", table_cell), Paragraph("FreeDomain (dpdns.org), registro www y vista previa OpenGraph/WhatsApp.", table_cell)],
-        [Paragraph("<b>Módulo 10</b>", table_cell), Paragraph("<b>Preguntas Frecuentes & Rescate</b>", table_cell), Paragraph("Solución de problemas comunes y script de rescate por consola.", table_cell)],
+        [Paragraph("<b>Capítulo</b>", table_header), Paragraph("<b>¿De qué trata?</b>", table_header), Paragraph("<b>Lo que vas a lograr</b>", table_header)],
+        [Paragraph("<b>Capítulo 1</b>", table_cell), Paragraph("<b>Cómo Entrar al Sistema</b>", table_cell), Paragraph("Iniciar sesión en <code>/login</code> y qué hacer si olvidas la contraseña.", table_cell)],
+        [Paragraph("<b>Capítulo 2</b>", table_cell), Paragraph("<b>El Editor Visual en Vivo</b>", table_cell), Paragraph("Tocar un texto para cambiarlo, cambiar fotos y cuadrar la cámara.", table_cell)],
+        [Paragraph("<b>Capítulo 3</b>", table_cell), Paragraph("<b>Listas Dinámicas (+ y ✕)</b>", table_cell), Paragraph("Agregar y borrar requisitos o ventajas con numeración automática.", table_cell)],
+        [Paragraph("<b>Capítulo 4</b>", table_cell), Paragraph("<b>El Panel de Control (Dashboard)</b>", table_cell), Paragraph("Tu centro de comando: ver mensajes de matrícula, teléfonos y redes.", table_cell)],
+        [Paragraph("<b>Capítulo 5</b>", table_cell), Paragraph("<b>Publicar Noticias con Videos</b>", table_cell), Paragraph("Poner comunicados con fotos y videos de YouTube o Google Drive.", table_cell)],
+        [Paragraph("<b>Capítulo 6</b>", table_cell), Paragraph("<b>El Botón de Mantenimiento</b>", table_cell), Paragraph("Pausar subpáginas temporalmente si estás haciendo cambios.", table_cell)],
+        [Paragraph("<b>Capítulo 7</b>", table_cell), Paragraph("<b>Créditos y Desarrolladores</b>", table_cell), Paragraph("Poner tu nombre y el de tu equipo en la página de autores.", table_cell)],
+        [Paragraph("<b>Capítulo 8</b>", table_cell), Paragraph("<b>Copias de Seguridad (Respaldos)</b>", table_cell), Paragraph("Descargar el archivo <code>.json</code> por si necesitas restaurar todo.", table_cell)],
+        [Paragraph("<b>Capítulo 9</b>", table_cell), Paragraph("<b>Preguntas Frecuentes y Trucos</b>", table_cell), Paragraph("Respuestas rápidas a las dudas más comunes.", table_cell)],
     ]
-    toc_table = Table(toc_data, colWidths=[65, 155, letter[0] - 108 - 220])
-    toc_table.setStyle(TableStyle([
+    t_toc = Table(toc_data, colWidths=[65, 170, letter[0] - 108 - 235])
+    t_toc.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), AZUL_IB),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [BLANCO, GRIS_LIGHT]),
         ('BOX', (0, 0), (-1, -1), 1, GRIS_BORDER),
         ('INNERGRID', (0, 0), (-1, -1), 0.5, GRIS_BORDER),
@@ -289,256 +278,122 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 8),
     ]))
-    story.append(toc_table)
+    story.append(t_toc)
 
     story.append(Spacer(1, 15))
     story.append(create_callout(
-        "Para una navegación rápida en este documento PDF, cada módulo está estructurado con explicaciones claras, pasos ordenados con viñetas y tablas de parámetros.",
-        title="SUGERENCIA DE LECTURA"
+        "Si tienes una prisa específica (por ejemplo, subir una noticia o cambiar un texto), ve directo al capítulo que necesitas.",
+        title="CONSEJO RÁPIDO"
     ))
 
     story.append(PageBreak())
 
     # =========================================================================
-    # MÓDULO 1: INTRODUCCIÓN Y ARQUITECTURA GENERAL
+    # CAPÍTULO 1: CÓMO ENTRAR AL SISTEMA
     # =========================================================================
-    story.append(Paragraph("MÓDULO 1: INTRODUCCIÓN Y ARQUITECTURA GENERAL", h1_style))
+    story.append(Paragraph("CAPÍTULO 1: CÓMO ENTRAR AL SISTEMA", h1_style))
     story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
 
-    story.append(Paragraph("1.1 Propósito del Sistema Web", h2_style))
-    story.append(Paragraph(
-        "La plataforma web institucional del <b>Liceo de Limón Mario Bourne Bourne</b> es un sistema moderno desarrollado con Python Flask y SQLite, diseñado para comunicar la identidad del colegio benemérito, su acreditación como Colegio del Mundo del IB (Bachillerato Internacional), y sus modalidades de estudio (Secundaria Regular, Francés Avanzado e IB).",
-        body_style
-    ))
-    story.append(Paragraph(
-        "A diferencia de sitios web estáticos tradicionales, esta plataforma incorpora un <b>Sistema de Gestión de Contenidos (CMS)</b> propio y seguro que permite a los funcionarios del colegio modificar textos, fotos, requisitos, teléfonos, noticias y canales de contacto sin requerir conocimientos técnicos ni programación.",
-        body_style
-    ))
+    story.append(Paragraph("1. Iniciar sesión paso a paso:", h2_style))
+    story.append(Paragraph("1. Abre la página del colegio en tu navegador (ej. <code>http://localhost:5000</code> o el dominio oficial).", bullet_style))
+    story.append(Paragraph("2. Arriba a la derecha, en la barrita azul superior, toca el botón <b>🔒 Iniciar Sesión</b> (o entra directo a <code>/login</code>).", bullet_style))
+    story.append(Paragraph("3. Escribe tu usuario (por defecto: <b>Admin</b>) y tu contraseña (por defecto: <b>Admin</b>).", bullet_style))
+    story.append(Paragraph("4. Presiona el botón rojo <b>Ingresar al Panel de Control</b>. ¡Listo! Ya estás dentro.", bullet_style))
 
-    story.append(Paragraph("1.2 Doble Modalidad de Administración", h2_style))
-    story.append(Paragraph("El administrador dispone de dos entornos complementarios para gestionar la plataforma:", body_style))
-    story.append(Paragraph("• <b>Editor Visual In-Situ:</b> Permite navegar por la página pública e interactuar directamente con los textos e imágenes con solo hacer clic sobre ellos (<i>WYSIWYG: What You See Is What You Get</i>). Ideal para cambios rápidos de ortografía, fotos o requisitos.", bullet_style))
-    story.append(Paragraph("• <b>Panel de Control Administrativo (/admin/panel):</b> Un escritorio de trabajo estructurado por pestañas para gestionar comunicados de noticias, responder consultas de matrícula, descargar respaldos JSON, cambiar credenciales y activar/desactivar subpáginas en mantenimiento.", bullet_style))
+    story.append(Paragraph("2. ¿Qué pasa cuando entras como administrador?", h2_style))
+    story.append(Paragraph("Notarás dos cosas geniales de inmediato:", body_style))
+    story.append(Paragraph("• Se abre tu <b>Panel de Control</b> con todas las opciones.", bullet_style))
+    story.append(Paragraph("• En la parte de abajo de la pantalla aparece una <b>barrita flotante negra</b> con botones para guardar o previsualizar tus cambios.", bullet_style))
+
+    story.append(Paragraph("3. ¿Olvidaste tu contraseña? ¡Cero pánico!", h2_style))
+    story.append(Paragraph("En la misma pantalla de login tienes el botón <b>🔑 ¿Olvidó su contraseña?</b>. Te da dos opciones sencillas:", body_style))
+    story.append(Paragraph("• <b>Opción A (Código por correo):</b> Pides un código de 6 números que llega al correo del colegio. Lo escribes y pones tu nueva clave.", bullet_style))
+    story.append(Paragraph("• <b>Opción B (Clave Maestra de Rescate):</b> Si no tienes acceso al correo, usas la clave fija del colegio: <code>MEP-LIMON-2026</code>. Esta clave nunca cambia y siempre te salvará.", bullet_style))
 
     story.append(Spacer(1, 8))
     story.append(create_callout(
-        "Cualquier cambio guardado tanto desde el Editor Visual como desde el Panel de Control se almacena de forma instantánea y permanente en la base de datos local SQLite del servidor.",
-        title="PERSISTENCIA DE DATOS"
+        "Para cambiar tu usuario o clave por una más segura, entra a la pestaña <b>🔐 Seguridad & Credenciales</b> dentro del panel.",
+        title="RECOMENDACIÓN DE SEGURIDAD"
     ))
 
     story.append(Spacer(1, 10))
 
     # =========================================================================
-    # MÓDULO 2: ACCESO Y SEGURIDAD
+    # CAPÍTULO 2: EL EDITOR VISUAL EN VIVO
     # =========================================================================
-    story.append(Paragraph("MÓDULO 2: ACCESO Y SEGURIDAD DEL SISTEMA", h1_style))
+    story.append(Paragraph("CAPÍTULO 2: EL EDITOR VISUAL EN VIVO", h1_style))
     story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
 
-    story.append(Paragraph("2.1 Cómo Iniciar Sesión", h2_style))
-    story.append(Paragraph("Para acceder como administrador al sistema:", body_style))
-    story.append(Paragraph("1. En la barra superior institucional de cualquier página, haga clic en el botón <b>🔒 Iniciar Sesión</b> (o escriba en su navegador la ruta <code>/login</code>).", bullet_style))
-    story.append(Paragraph("2. Ingrese el nombre de usuario y su contraseña asignada.", bullet_style))
-    story.append(Paragraph("3. Presione el botón <b>Ingresar al Panel de Control</b>.", bullet_style))
-    story.append(Paragraph("4. Al autenticarse con éxito, se le redirigirá al Panel Administrativo y en todas las páginas se habilitará la barra flotante inferior del Editor Visual.", bullet_style))
-
-    story.append(Paragraph("2.2 Cambio Seguro de Credenciales", h2_style))
+    story.append(Paragraph("1. Cambiar textos directamente sobre la pantalla", h2_style))
     story.append(Paragraph(
-        "Dentro del panel de control, en la pestaña <b>🔐 Seguridad & Credenciales</b>, el administrador puede modificar en cualquier momento su nombre de usuario o su contraseña. Para prevenir accesos indebidos, el sistema exige digitar la <u>Contraseña Actual</u> como confirmación antes de autorizar el cambio.",
+        "Esta es la función más divertida: cuando tienes la sesión abierta, navega por el sitio normalmente. Notarás que cuando pasas el ratón por un título o párrafo, se dibuja un recuadro punteado. <b>¡Solo haz clic y escribe lo que quieras!</b>",
+        body_style
+    ))
+    story.append(Paragraph("Puedes corregir faltas de ortografía, actualizar horarios, cambiar lemas o nombres de profesores en segundos.", body_style))
+
+    story.append(Paragraph("2. Cambiar fotos y logos", h2_style))
+    story.append(Paragraph(
+        "Al poner el ratón sobre cualquier foto del colegio (como las instalaciones o el escudo), aparece un botoncito que dice <b>📷 Cambiar Imagen</b>. Pégale el enlace de la nueva foto (puede ser de internet o de Google Drive) y cambiará al instante.",
         body_style
     ))
 
-    story.append(Paragraph("2.3 Mecanismos de Rescate ante Olvido de Contraseña", h2_style))
-    story.append(Paragraph("Si en algún momento extravía su contraseña, la pantalla de inicio de sesión dispone del enlace interactivo <b>🔑 ¿Olvidó su contraseña?</b>, el cual ofrece dos vías de recuperación:", body_style))
-    story.append(Paragraph("• <b>Vía 1: Código de 6 Dígitos por Correo (OTP):</b> Escriba su usuario y el sistema enviará un código numérico temporal con validez de 15 minutos al correo electrónico institucional registrado. Ingrese el código recibido y asigne su nueva clave.", bullet_style))
-    story.append(Paragraph("• <b>Vía 2: Clave Maestra Institucional Inmutable:</b> Si no tiene acceso al correo, puede emplear la clave maestra institucional de rescate (<code>MEP-LIMON-2026</code>) para ingresar inmediatamente y restablecer sus claves.", bullet_style))
+    story.append(Paragraph("3. Encuadrar la foto para que nadie quede cortado (Botonera 3x3)", h2_style))
+    story.append(Paragraph(
+        "¿Alguna vez pusiste una foto y la cabeza de una persona quedó cortada por el marco? Aquí lo resuelves en 2 segundos:",
+        body_style
+    ))
+    story.append(Paragraph("• Te saldrá una botonera con <b>9 flechas (arriba, centro, abajo, izquierda, derecha)</b>. Toca una flecha para mover el foco hacia donde está la persona o el edificio.", bullet_style))
+    story.append(Paragraph("• También tienes dos barritas deslizantes (X e Y) para mover la foto con precisión milimétrica.", bullet_style))
+
+    story.append(Paragraph("4. Cómo guardar lo que hiciste", h2_style))
+    story.append(Paragraph(
+        "Abajo en la barrita flotante verás un botón verde que dice <b>💾 Guardar Cambios</b>. Púlsalo y aparecerá un mensaje verde arriba a la derecha confirmando que se guardó. Si quieres ver cómo le quedó al público antes de guardar, toca el botón del ojito <b>👁️ Vista Previa</b>.",
+        body_style
+    ))
+
+    story.append(PageBreak())
+
+    # =========================================================================
+    # CAPÍTULO 3: LISTAS DINÁMICAS (+ Y ✕)
+    # =========================================================================
+    story.append(Paragraph("CAPÍTULO 3: LISTAS DINÁMICAS (+ Y ✕)", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
+
+    story.append(Paragraph("1. ¿Qué son las listas dinámicas?", h2_style))
+    story.append(Paragraph(
+        "En páginas como la del <b>Bachillerato IB</b> o <b>Secundaria Regular</b> hay listas de requisitos, materias o ventajas numeradas (1, 2, 3...). No tienes que editar código para agregar o quitar cosas.",
+        body_style
+    ))
+    story.append(Paragraph("• <b>Para agregar:</b> Al final de la lista verás un botón que dice <b>➕ Agregar Nuevo Elemento</b>. Al tocarlo se crea automáticamente un nuevo punto con el siguiente número.", bullet_style))
+    story.append(Paragraph("• <b>Para borrar:</b> Al lado de cada punto hay una <b>✕ roja</b>. Tócala y el punto desaparecerá. ¡Lo mejor es que la lista se re-enumera sola automáticamente!", bullet_style))
 
     story.append(Spacer(1, 8))
-    story.append(create_callout(
-        "Si administra directamente el servidor por terminal o consola, puede ejecutar el script de emergencia: <code>python restablecer_password.py --factory</code> para reiniciar inmediatamente el usuario a 'Admin' y la contraseña a 'Admin'.",
-        title="RESCATE POR LÍNEA DE COMANDOS",
-        border_color=VERDE,
-        bg_color=colors.HexColor('#ecfdf5')
-    ))
-
-    story.append(PageBreak())
 
     # =========================================================================
-    # MÓDULO 3: EL EDITOR VISUAL EN VIVO (CMS IN-SITU)
+    # CAPÍTULO 4: EL PANEL DE CONTROL (TU CENTRO DE MANDO)
     # =========================================================================
-    story.append(Paragraph("MÓDULO 3: EL EDITOR VISUAL EN VIVO (CMS IN-SITU)", h1_style))
+    story.append(Paragraph("CAPÍTULO 4: EL PANEL DE CONTROL (DASHBOARD)", h1_style))
     story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
 
-    story.append(Paragraph("3.1 Edición Directa de Textos y Títulos (WYSIWYG)", h2_style))
+    story.append(Paragraph("1. Cómo entrar al Panel", h2_style))
     story.append(Paragraph(
-        "Al estar autenticado como administrador, cualquier texto editable del portal (títulos, subtítulos, lemas, descripciones, misión, visión y avisos) muestra un contorno sutil punteado. Haga clic sobre el texto deseado y comience a escribir como si estuviera en un procesador de textos.",
+        "En la barra superior siempre verás un botón azul que dice <b>⚙️ Panel Admin</b> (o visita <code>/admin/panel</code>).",
         body_style
     ))
+    story.append(Paragraph("A la izquierda tienes un menú ordenado por pestañas. Aquí te explicamos las más importantes:", body_style))
 
-    story.append(Paragraph("3.2 Cambio y Reemplazo de Imágenes", h2_style))
-    story.append(Paragraph(
-        "Las fotografías de campus, banners, fotos de modalidades y logotipos institucionales muestran un botón flotante <b>📷 Cambiar Imagen</b> al colocar el cursor sobre ellas. Al hacer clic se despliega un diálogo donde puede pegar la URL de la nueva imagen (incluyendo vínculos directos de Google Drive). El sistema adapta el enlace automáticamente.",
-        body_style
-    ))
-
-    story.append(Paragraph("3.3 Herramienta de Encuadre y Posición de Fotos (Botonera 3x3)", h2_style))
-    story.append(Paragraph(
-        "Para garantizar que los rostros de las personas, edificios o banderas no queden cortados en pantallas de computadoras o celulares, el editor incluye un selector de encuadre direccional:",
-        body_style
-    ))
-    story.append(Paragraph("• <b>Matriz 3x3:</b> Permite alinear la foto al instante hacia cualquiera de los 9 cuadrantes: Arriba-Izquierda, Arriba-Centro, Arriba-Derecha, Centro, Abajo, etc.", bullet_style))
-    story.append(Paragraph("• <b>Deslizadores Milimétricos (Sliders X e Y):</b> Ajuste fino de 0% a 100% para calibrar la posición exacta del foco visual.", bullet_style))
-
-    story.append(Paragraph("3.4 Gestión Dinámica de Listas (+ y ✕)", h2_style))
-    story.append(Paragraph(
-        "En las secciones estructuradas (pilares curriculares, requisitos de matrícula, ventajas del IB, instalaciones destacadas):",
-        body_style
-    ))
-    story.append(Paragraph("• Presione el botón verde <b>➕ Agregar Nuevo Elemento</b> para insertar una nueva fila numerada.", bullet_style))
-    story.append(Paragraph("• Presione el botón rojo <b>✕</b> sobre cualquier elemento existente para eliminarlo. La numeración de la lista se actualiza automáticamente de forma correlativa.", bullet_style))
-
-    story.append(Paragraph("3.5 Barra Flotante: Vista Previa y Guardado Asíncrono", h2_style))
-    story.append(Paragraph(
-        "En la parte inferior de la pantalla aparece una barra flotante de control:",
-        body_style
-    ))
-    story.append(Paragraph("• <b>Contador de Cambios:</b> Indica cuántos textos o imágenes ha modificado en la sesión.", bullet_style))
-    story.append(Paragraph("• <b>Botón 👁️ Vista Previa:</b> Oculta temporalmente los controles administrativos para apreciar cómo verá la página el visitante regular.", bullet_style))
-    story.append(Paragraph("• <b>Botón 💾 Guardar Cambios:</b> Envía los datos modificados al servidor mediante peticiones asíncronas y muestra una notificación Toast de confirmación en verde.", bullet_style))
-
-    story.append(PageBreak())
-
-    # =========================================================================
-    # MÓDULO 4: PANEL DE CONTROL ADMINISTRATIVO (DASHBOARD)
-    # =========================================================================
-    story.append(Paragraph("MÓDULO 4: PANEL DE CONTROL ADMINISTRATIVO (DASHBOARD)", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
-
-    story.append(Paragraph("4.1 Estructura del Panel de Control (/admin/panel)", h2_style))
-    story.append(Paragraph(
-        "El Panel de Control centraliza la administración institucional a través de una barra lateral modular con las siguientes áreas operativas:",
-        body_style
-    ))
-
-    panel_modules = [
-        [Paragraph("<b>Pestaña</b>", table_header), Paragraph("<b>Función Institucional</b>", table_header)],
-        [Paragraph("📊 <b>Bienvenida & Resumen</b>", table_cell), Paragraph("Indicadores clave (KPIs), accesos rápidos y estado del sistema.", table_cell)],
-        [Paragraph("📬 <b>Bandeja de Consultas</b>", table_cell), Paragraph("Mensajes y preguntas de matrícula enviadas por estudiantes o padres.", table_cell)],
-        [Paragraph("🎨 <b>Editor Visual</b>", table_cell), Paragraph("Lanzador directo a las páginas en modo de edición in-situ.", table_cell)],
-        [Paragraph("📢 <b>Noticias & Avisos</b>", table_cell), Paragraph("Publicación, edición y filtrado de comunicados con fotos y videos.", table_cell)],
-        [Paragraph("🌐 <b>Redes y Canales IB</b>", table_cell), Paragraph("Enlaces a WhatsApp, Facebook, Instagram y correos de coordinación.", table_cell)],
-        [Paragraph("🏛️ <b>Identidad & Escudo</b>", table_cell), Paragraph("Nombres institucionales, bandera MEP editable y escudo del liceo.", table_cell)],
-        [Paragraph("💻 <b>Desarrolladores & Créditos</b>", table_cell), Paragraph("Gestión de autores, estudiantes, colaboradores y redes sociales.", table_cell)],
-        [Paragraph("🛠️ <b>Control de Subpáginas</b>", table_cell), Paragraph("Activar o pausar subpáginas en modo mantenimiento con mensaje 503.", table_cell)],
-        [Paragraph("🛡️ <b>Puntos de Control</b>", table_cell), Paragraph("Wayback Machine, copias de seguridad descargables en JSON y restore.", table_cell)],
-        [Paragraph("🔐 <b>Seguridad & Credenciales</b>", table_cell), Paragraph("Actualización del usuario administrativo y contraseña maestra.", table_cell)],
+    admin_tabs = [
+        [Paragraph("<b>Pestaña</b>", table_header), Paragraph("<b>¿Para qué sirve?</b>", table_header)],
+        [Paragraph("📊 <b>Bienvenida</b>", table_cell), Paragraph("El resumen de cuántas consultas hay, noticias y accesos rápidos.", table_cell)],
+        [Paragraph("📬 <b>Consultas</b>", table_cell), Paragraph("Los mensajes que manda la gente interesada en matricularse en el colegio.", table_cell)],
+        [Paragraph("📢 <b>Noticias</b>", table_cell), Paragraph("Donde publicas comunicados oficiales con fotos y videos.", table_cell)],
+        [Paragraph("🌐 <b>Redes IB</b>", table_cell), Paragraph("Cambiar el WhatsApp, Facebook e Instagram oficiales del programa IB.", table_cell)],
+        [Paragraph("🛠️ <b>Control Subpáginas</b>", table_cell), Paragraph("Poner páginas en modo mantenimiento si las estás arreglando.", table_cell)],
+        [Paragraph("💻 <b>Desarrolladores</b>", table_cell), Paragraph("Gestionar la lista de estudiantes y colaboradores que hicieron la web.", table_cell)],
+        [Paragraph("🛡️ <b>Puntos de Control</b>", table_cell), Paragraph("Guardar copias de respaldo (backups) en archivos JSON.", table_cell)],
     ]
-    t_panel = Table(panel_modules, colWidths=[150, letter[0] - 108 - 150])
-    t_panel.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), AZUL_IB),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [BLANCO, GRIS_LIGHT]),
-        ('BOX', (0, 0), (-1, -1), 1, GRIS_BORDER),
-        ('INNERGRID', (0, 0), (-1, -1), 0.5, GRIS_BORDER),
-        ('TOPPADDING', (0, 0), (-1, -1), 4.5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4.5),
-        ('LEFTPADDING', (0, 0), (-1, -1), 8),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-    ]))
-    story.append(t_panel)
-
-    story.append(Spacer(1, 12))
-    story.append(Paragraph("4.2 Gestión de la Bandeja de Consultas", h2_style))
-    story.append(Paragraph(
-        "Cuando un visitante envía un formulario desde la sección de Contacto o Matrícula, la consulta queda registrada automáticamente en la pestaña <b>📬 Consultas</b>. El administrador puede:",
-        body_style
-    ))
-    story.append(Paragraph("• Visualizar el nombre, correo electrónico, teléfono, asunto y mensaje completo.", bullet_style))
-    story.append(Paragraph("• Marcar el mensaje como <b>⏳ Pendiente</b> o <b>✓ Atendida</b>.", bullet_style))
-    story.append(Paragraph("• Hacer clic en <b>✉️ Responder por Correo</b> para abrir directamente su cliente de correo predeterminado dirigido al remitente.", bullet_style))
-    story.append(Paragraph("• Eliminar consultas obsoletas con confirmación de seguridad.", bullet_style))
-
-    story.append(PageBreak())
-
-    # =========================================================================
-    # MÓDULO 5: GESTIÓN DE NOTICIAS Y COMUNICADOS MULTIMEDIA
-    # =========================================================================
-    story.append(Paragraph("MÓDULO 5: GESTIÓN DE NOTICIAS Y COMUNICADOS MULTIMEDIA", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
-
-    story.append(Paragraph("5.1 Publicación de un Nuevo Comunicado", h2_style))
-    story.append(Paragraph(
-        "En la pestaña <b>📢 Noticias & Avisos</b> del panel de control:",
-        body_style
-    ))
-    story.append(Paragraph("1. Ingrese el <b>Título de la Noticia</b> y la <b>Fecha Oficial</b>.", bullet_style))
-    story.append(Paragraph("2. Seleccione la <b>Categoría Principal</b> (Académico, Vida Estudiantil, Deporte, Efemérides o Bachillerato Internacional).", bullet_style))
-    story.append(Paragraph("3. Si la noticia pertenece al IB, seleccione su <b>Subcategoría Especializada</b>: <code>CAS (Creatividad, Actividad y Servicio)</code>, <code>TOK (Teoría del Conocimiento)</code>, <code>Monografía</code>, <code>DELF Francés</code> o <code>Comunidad IB</code>.", bullet_style))
-    story.append(Paragraph("4. Indique la URL de la fotografía de portada (muestra previsualización instantánea).", bullet_style))
-    story.append(Paragraph("5. Redacte el cuerpo del comunicado y presione <b>Publicar Noticia</b>.", bullet_style))
-
-    story.append(Paragraph("5.2 Soporte de Videos Multimedia (YouTube, Google Drive y MP4)", h2_style))
-    story.append(Paragraph(
-        "Las noticias admiten la inserción directa de videos interactivos. En el campo opcional <b>Enlace de Video</b>, puede ingresar cualquiera de los siguientes formatos:",
-        body_style
-    ))
-    story.append(Paragraph("• <b>YouTube:</b> Enlaces estándar (<code>youtube.com/watch?v=...</code>), compartidos (<code>youtu.be/...</code>) o de Shorts (<code>youtube.com/shorts/...</code>). El sistema los transforma automáticamente en reproductores embebidos responsivos en formato 16:9.", bullet_style))
-    story.append(Paragraph("• <b>Google Drive:</b> Enlaces compartidos de archivos de video almacenados en Drive. El sistema convierte la URL a modo de previsualización (<code>preview</code>) para reproducirlo de inmediato.", bullet_style))
-    story.append(Paragraph("• <b>Archivos MP4 / WebM:</b> Enlaces directos a archivos de video en la web.", bullet_style))
-
-    story.append(Spacer(1, 8))
-    story.append(create_callout(
-        "Al incluir un video en una noticia, la tarjeta en la página principal y en la sección de noticias exhibe una insignia distintiva pulsante <b>▶ VIDEO OFICIAL</b>. Al hacer clic en la noticia, el video se reproduce en alta definición sin salir del sitio web.",
-        title="INDICADOR VISUAL DE VIDEO",
-        border_color=AMBAR,
-        bg_color=colors.HexColor('#fffbeb')
-    ))
-
-    story.append(Spacer(1, 10))
-    story.append(Paragraph("5.3 Sección Exclusiva de Noticias IB con Filtros", h2_style))
-    story.append(Paragraph(
-        "En la subpágina del Bachillerato Internacional (<code>/modalidad/ib</code>) existe una sección dedicada que filtra automáticamente todas las noticias marcadas con la categoría IB. Los visitantes pueden filtrar con un solo clic entre las subcategorías oficiales: CAS, TOK, DELF, etc.",
-        body_style
-    ))
-
-    story.append(PageBreak())
-
-    # =========================================================================
-    # MÓDULO 6: CONTROL DE ACTIVACIÓN Y MANTENIMIENTO DE SUBPÁGINAS
-    # =========================================================================
-    story.append(Paragraph("MÓDULO 6: CONTROL DE ACTIVACIÓN Y MODO MANTENIMIENTO", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
-
-    story.append(Paragraph("6.1 Propósito del Modo Mantenimiento", h2_style))
-    story.append(Paragraph(
-        "Cuando el personal directivo o docente se encuentra actualizando planes de estudio, mallas curriculares, calendarios de admisión o proyectos de graduación, es deseable suspender temporalmente el acceso público a una sección específica sin alterar el resto del sitio web.",
-        body_style
-    ))
-
-    story.append(Paragraph("6.2 Panel de Control: Pestaña 🛠️ Control de Subpáginas", h2_style))
-    story.append(Paragraph(
-        "En esta pestaña el administrador puede gestionar la disponibilidad de cuatro subpáginas clave:",
-        body_style
-    ))
-    story.append(Paragraph("1. 🎓 <b>Bachillerato Internacional (IB)</b> (<code>/modalidad/ib</code>)", bullet_style))
-    story.append(Paragraph("2. 🇫🇷 <b>Sección Bilingüe Francés</b> (<code>/modalidad/frances</code>)", bullet_style))
-    story.append(Paragraph("3. 🏛️ <b>Modalidad Académica Regular</b> (<code>/modalidad/regular</code>)", bullet_style))
-    story.append(Paragraph("4. 💻 <b>Desarrolladores & Créditos Web</b> (<code>/desarrolladores</code>)", bullet_style))
-
-    story.append(Spacer(1, 8))
-    story.append(Paragraph("6.3 Comportamiento según el Rol de Usuario", h2_style))
-
-    maint_roles = [
-        [Paragraph("<b>Tipo de Usuario</b>", table_header), Paragraph("<b>Experiencia al ingresar a una subpágina desactivada</b>", table_header)],
-        [
-            Paragraph("<b>Visitante Público</b><br/>(Estudiantes, Padres, Comunidad)", table_cell),
-            Paragraph("El servidor devuelve la pantalla institucional de mantenimiento (HTTP 503) con el mensaje oficial: <i>'Este apartado se encuentra temporalmente fuera de servicio debido a que se está realizando mantenimiento. Por favor, vuelva nuevamente más tarde'</i> y el botón destacado <b>🏠 Volver al Inicio</b>.", table_cell)
-        ],
-        [
-            Paragraph("<b>Administrador Autenticado</b><br/>(Personal con Sesión Iniciada)", table_cell),
-            Paragraph("Conserva <b>acceso completo</b> a la subpágina para revisar y editar sus contenidos. En la parte superior de la pantalla se despliega una barra amarilla de advertencia: <i>'⚠️ AVISO DE ADMINISTRACIÓN: Esta subpágina está actualmente DESACTIVADA para visitantes públicos'</i>.", table_cell)
-        ],
-    ]
-    t_maint = Table(maint_roles, colWidths=[160, letter[0] - 108 - 160])
-    t_maint.setStyle(TableStyle([
+    t_tabs = Table(admin_tabs, colWidths=[140, letter[0] - 108 - 140])
+    t_tabs.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), AZUL_IB),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [BLANCO, GRIS_LIGHT]),
         ('BOX', (0, 0), (-1, -1), 1, GRIS_BORDER),
@@ -548,134 +403,174 @@ def build_manual_pdf(filename="MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf"):
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 8),
     ]))
-    story.append(t_maint)
+    story.append(t_tabs)
 
     story.append(Spacer(1, 10))
-    story.append(Paragraph("6.4 Interruptor Maestro Global", h2_style))
+    story.append(Paragraph("2. Responder preguntas de padres y estudiantes", h2_style))
     story.append(Paragraph(
-        "En la parte superior de la pestaña se encuentra el botón <b>🚨 Mantenimiento General del Sitio</b>. Al activarlo, todas las subpáginas secundarias pasan inmediatamente a estado fuera de servicio con un solo clic, ideal ante actualizaciones integrales del servidor o períodos vacacionales.",
+        "En la pestaña <b>📬 Consultas</b> verás la lista de mensajes recibidos con nombre, correo y pregunta. Puedes hacer clic en <b>✉️ Responder por Correo</b> para contestarles al instante, o marcarlas como <b>✓ Atendida</b>.",
         body_style
     ))
 
     story.append(PageBreak())
 
     # =========================================================================
-    # MÓDULO 7: GESTIÓN DEL EQUIPO DE DESARROLLADORES Y CRÉDITOS
+    # CAPÍTULO 5: PUBLICAR NOTICIAS CON VIDEOS
     # =========================================================================
-    story.append(Paragraph("MÓDULO 7: GESTIÓN DEL EQUIPO DE DESARROLLADORES", h1_style))
+    story.append(Paragraph("CAPÍTULO 5: PUBLICAR NOTICIAS CON VIDEOS", h1_style))
     story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
 
-    story.append(Paragraph("7.1 Reconocimiento al Talento Estudiantil", h2_style))
-    story.append(Paragraph(
-        "La plataforma cuenta con la subpágina dedicada <code>/desarrolladores</code> (accesible también como <code>/creditos</code> y <code>/equipo</code>) donde se rinde homenaje y testimonio a los estudiantes del Bachillerato Internacional y colaboradores que crearon el sitio web mediante la metodología <i>Vibe Coding</i>.",
-        body_style
-    ))
+    story.append(Paragraph("1. Cómo crear una noticia en 4 pasos:", h2_style))
+    story.append(Paragraph("1. Entra a la pestaña <b>📢 Noticias & Avisos</b> en el panel de control.", bullet_style))
+    story.append(Paragraph("2. Escribe el <b>Título</b> y la <b>Fecha</b> del evento.", bullet_style))
+    story.append(Paragraph("3. Elige la <b>Categoría</b>: Académico, Vida Estudiantil, Deporte o Bachillerato Internacional.", bullet_style))
+    story.append(Paragraph("4. Si es del IB, puedes elegir su subcategoría: <code>CAS</code>, <code>TOK</code>, <code>DELF</code> o <code>Comunidad IB</code>.", bullet_style))
+    story.append(Paragraph("5. Pega el link de la foto de portada y escribe el texto. ¡Toca <b>Publicar Noticia</b> y ya está en vivo!", bullet_style))
 
-    story.append(Paragraph("7.2 Administración de Miembros desde el Panel", h2_style))
+    story.append(Paragraph("2. ¡Poner videos interactivos es facilísimo!", h2_style))
     story.append(Paragraph(
-        "En la pestaña <b>💻 Desarrolladores & Créditos</b>, el administrador puede editar o añadir personas con los siguientes campos:",
+        "En el formulario verás un campo opcional llamado <b>Enlace de Video</b>. Puedes pegar:",
         body_style
     ))
-    story.append(Paragraph("• <b>Nombre Completo:</b> Nombre del desarrollador o colaborador.", bullet_style))
-    story.append(Paragraph("• <b>Rol o Especialidad:</b> Puesto desempeñado (ej. Lead Full-Stack, Diseñador UI/UX, Editor de Contenidos).", bullet_style))
-    story.append(Paragraph("• <b>Generación / Año:</b> Generación académica (ej. Generación IB 2026).", bullet_style))
-    story.append(Paragraph("• <b>Fotografía:</b> Enlace de foto (con soporte para enlaces de Google Drive).", bullet_style))
-    story.append(Paragraph("• <b>Biografía Breve:</b> Resumen de aportes y contribución técnica.", bullet_style))
-    story.append(Paragraph("• <b>Redes Sociales Profesionales:</b> Enlaces directos a GitHub, LinkedIn, Instagram y Correo.", bullet_style))
+    story.append(Paragraph("• <b>Cualquier video de YouTube:</b> El link normal de la barra (<code>youtube.com/watch?v=...</code>), el botón de compartir (<code>youtu.be/...</code>) o incluso un Short.", bullet_style))
+    story.append(Paragraph("• <b>Google Drive:</b> Si tienes un video subido a Google Drive, comparte el enlace y pégalo. El sistema lo incrusta automáticamente.", bullet_style))
 
     story.append(Spacer(1, 8))
-    story.append(Paragraph("7.3 Operaciones Rápidas", h2_style))
-    story.append(Paragraph("• <b>Agregar Integrante:</b> Presione <i>➕ Agregar Otro Desarrollador</i> para abrir una nueva tarjeta en blanco.", bullet_style))
-    story.append(Paragraph("• <b>Eliminar Integrante:</b> Presione el botón rojo <i>🗑️ Eliminar</i> sobre la tarjeta deseada.", bullet_style))
-    story.append(Paragraph("• <b>Guardar Cambios:</b> Haga clic en <i>💾 Guardar Cambios</i> para impactar de inmediato la página pública.", bullet_style))
+    story.append(create_callout(
+        "Cuando una noticia tiene video, en la página principal le aparece una etiqueta pulsante roja que dice <b>▶ VIDEO OFICIAL</b>. Al tocar la noticia, el video se reproduce en pantalla grande sin salir de la web.",
+        title="EFECTO VISUAL",
+        border_color=AMBAR,
+        bg_color=AMBAR_BG
+    ))
 
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 10))
 
     # =========================================================================
-    # MÓDULO 8: PUNTOS DE CONTROL Y RESPALDO (WAYBACK MACHINE)
+    # CAPÍTULO 6: EL BOTÓN DE MANTENIMIENTO
     # =========================================================================
-    story.append(Paragraph("MÓDULO 8: PUNTOS DE CONTROL Y RESPALDO (WAYBACK MACHINE)", h1_style))
+    story.append(Paragraph("CAPÍTULO 6: EL BOTÓN DE MANTENIMIENTO", h1_style))
     story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
 
-    story.append(Paragraph("8.1 Guardar un Nuevo Punto Base", h2_style))
+    story.append(Paragraph("1. ¿Para qué sirve poner una página en mantenimiento?", h2_style))
     story.append(Paragraph(
-        "Antes de realizar modificaciones mayores (ej. inicio de matrícula o cambio de fotos institucionales), se recomienda crear un punto de control. En la pestaña <b>🛡️ Puntos de Control</b>, escriba una etiqueta descriptiva (ej. <i>'Versión Previa Matrícula 2026'</i>) y presione <b>💾 Guardar como Nuevo Punto Base</b>. El sistema congelará una fotografía idéntica de la base de datos.",
+        "Imagina que estás cambiando los planes de estudio del IB o subiendo las fotos de una nueva generación y la página aún no está lista. En lugar de que el público vea cosas a medias, puedes <b>ponerle un aviso de pausa con un clic</b>.",
         body_style
     ))
 
-    story.append(Paragraph("8.2 Exportar y Descargar Respaldo JSON", h2_style))
+    story.append(Paragraph("2. Cómo funciona en la pestaña 🛠️ Control de Subpáginas:", h2_style))
+    story.append(Paragraph("• Tienes tarjetas para <b>Bachillerato IB</b>, <b>Sección Francés</b>, <b>Secundaria Regular</b> y <b>Desarrolladores</b>.", bullet_style))
+    story.append(Paragraph("• Cada una tiene un botón: <b>🛑 Desactivar (Poner en Mantenimiento)</b> o <b>✅ Activar Subpágina</b>.", bullet_style))
+    story.append(Paragraph("• <b>¿Qué ve un visitante normal?</b> Ve una pantalla muy bonita que dice que el apartado está en mantenimiento y un botón grande que dice <b>🏠 Volver al Inicio</b>.", bullet_style))
+    story.append(Paragraph("• <b>¿Qué ves tú como administrador?</b> ¡Tú sí puedes seguir viendo la página completa para trabajar en ella! Solo te mostrará una barrita amarilla arriba recordándote que está en mantenimiento.", bullet_style))
+
+    story.append(PageBreak())
+
+    # =========================================================================
+    # CAPÍTULO 7: CRÉDITOS Y DESARROLLADORES
+    # =========================================================================
+    story.append(Paragraph("CAPÍTULO 7: CRÉDITOS Y EQUIPO DE DESARROLLO", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
+
+    story.append(Paragraph("1. La página de los autores (/desarrolladores)", h2_style))
     story.append(Paragraph(
-        "En la tabla de historial, presione el botón <b>📥 Descargar JSON</b> junto a cualquier punto guardado. Se descargará a su computadora un archivo liviano con toda la información, listo para ser custodiado externamente o compartido con la dirección.",
+        "La web del Liceo de Limón fue creada por estudiantes y colaboradores limonenses. Esta página especial celebra ese talento.",
         body_style
     ))
 
-    story.append(Paragraph("8.3 Importar y Restaurar desde Archivo", h2_style))
+    story.append(Paragraph("2. Cómo agregar o editar a una persona:", h2_style))
+    story.append(Paragraph("1. En el panel entra a <b>💻 Desarrolladores & Créditos</b>.", bullet_style))
+    story.append(Paragraph("2. Puedes llenar el <b>Nombre</b>, su <b>Rol</b> (ej. Diseñador, Programador), y la <b>Generación</b> (ej. Generación IB 2026).", bullet_style))
+    story.append(Paragraph("3. Pega el link de su foto y una pequeña descripción de lo que aportó.", bullet_style))
+    story.append(Paragraph("4. Si tiene GitHub, LinkedIn o Instagram, puedes poner sus enlaces para que la gente conozca su trabajo.", bullet_style))
+    story.append(Paragraph("5. Toca <b>💾 Guardar Cambios</b> y aparecerá en la página oficial.", bullet_style))
+
+    story.append(Spacer(1, 10))
+
+    # =========================================================================
+    # CAPÍTULO 8: COPIAS DE SEGURIDAD (LA MÁQUINA DEL TIEMPO)
+    # =========================================================================
+    story.append(Paragraph("CAPÍTULO 8: COPIAS DE SEGURIDAD (RESPALDOS)", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
+
+    story.append(Paragraph("1. ¿Por qué es genial la Máquina del Tiempo?", h2_style))
     story.append(Paragraph(
-        "Si desea regresar a una versión archivada en su computadora, utilice el botón <b>📤 Importar Respaldo</b>, seleccione el archivo <code>.json</code> y el sistema reconfigurará el portal con los datos históricos de ese archivo.",
+        "A todos nos da miedo tocar algo y 'arruinar la página'. <b>¡Con esta función no tienes nada que temer!</b> Antes de hacer cambios grandes, puedes congelar una copia exacta de la página en ese segundo.",
         body_style
+    ))
+
+    story.append(Paragraph("2. Los 3 botones mágicos de la pestaña 🛡️ Puntos de Control:", h2_style))
+    story.append(Paragraph("• <b>💾 Guardar como Nuevo Punto Base:</b> Le pones un nombre (ej. <i>'Antes de editar fotos'</i>) y queda grabado en la memoria.", bullet_style))
+    story.append(Paragraph("• <b>📥 Descargar JSON:</b> Descarga un archivito liviano a tu computadora. Ese archivo tiene todos los textos, noticias y fotos guardados.", bullet_style))
+    story.append(Paragraph("• <b>📤 Importar Respaldo:</b> Si alguien borró algo sin querer, subes el archivito JSON y la página vuelve a estar exactamente como antes.", bullet_style))
+
+    story.append(Spacer(1, 8))
+    story.append(create_callout(
+        "Si alguna vez quieres volver a los textos originales oficiales del MEP, hay un botón rojo al final que dice <b>Restaurar a Valores de Fábrica</b>.",
+        title="RESTAURACIÓN TOTAL",
+        border_color=VINO,
+        bg_color=VINO_SOFT
     ))
 
     story.append(PageBreak())
 
     # =========================================================================
-    # MÓDULO 9: DOMINIO, DNS Y PREVISUALIZACIÓN SOCIAL
+    # CAPÍTULO 9: PREGUNTAS FRECUENTES Y TRUCOS RÁPIDOS
     # =========================================================================
-    story.append(Paragraph("MÓDULO 9: DOMINIO, DNS Y PREVISUALIZACIÓN SOCIAL", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
-
-    story.append(Paragraph("9.1 Configuración de Dominio con FreeDomain (dpdns.org)", h2_style))
-    story.append(Paragraph(
-        "El sitio web está preparado para operar bajo el nombre de dominio oficial registrado en FreeDomain: <b>liceomariobourne.dpdns.org</b> (con soporte simultáneo para el prefijo <b>www.liceomariobourne.dpdns.org</b>).",
-        body_style
-    ))
-    story.append(Paragraph("Para apuntar el dominio hacia el servidor de alojamiento (ej. Render, VPS o servidor institucional):", body_style))
-    story.append(Paragraph("• <b>Registro Principal (@):</b> Registro tipo <code>CNAME</code> apuntando al host de la aplicación (ej. <code>tu-app.onrender.com</code>) o tipo <code>A</code> con la dirección IP fija.", bullet_style))
-    story.append(Paragraph("• <b>Registro WWW:</b> Registro tipo <code>CNAME</code> con alias <code>www</code> apuntando a <code>liceomariobourne.dpdns.org</code>.", bullet_style))
-
-    story.append(Paragraph("9.2 Imagen de Previsualización en Redes Sociales (OpenGraph / WhatsApp)", h2_style))
-    story.append(Paragraph(
-        "Al compartir el enlace del colegio a través de <b>WhatsApp, Facebook, Twitter (X) o Telegram</b>, el sistema genera automáticamente una tarjeta enriquecida con:",
-        body_style
-    ))
-    story.append(Paragraph("• <b>Título Oficial:</b> <i>Liceo de Limón Mario Bourne Bourne | Portal Institucional</i>", bullet_style))
-    story.append(Paragraph("• <b>Descripción:</b> <i>Sitio web oficial del Liceo de Limón Mario Bourne Bourne (MEP). Colegio del Mundo del IB.</i>", bullet_style))
-    story.append(Paragraph("• <b>Imagen Oficial (og_preview.jpg):</b> Fotografía de alta resolución con fondo blanco puro institucional, el escudo oficial del liceo, el emblema de Colegio del Mundo del IB y los colores oficiales (Negro, Rojo, Blanco y Azul IB).", bullet_style))
-
-    story.append(Spacer(1, 12))
-
-    # =========================================================================
-    # MÓDULO 10: PREGUNTAS FRECUENTES Y SOLUCIÓN DE PROBLEMAS
-    # =========================================================================
-    story.append(Paragraph("MÓDULO 10: PREGUNTAS FRECUENTES Y RESOLUCIÓN DE PROBLEMAS", h1_style))
+    story.append(Paragraph("CAPÍTULO 9: PREGUNTAS FRECUENTES Y TRUCOS PRO", h1_style))
     story.append(HRFlowable(width="100%", thickness=1, color=VINO, spaceAfter=10))
 
     faqs = [
-        ("¿Qué hacer si una imagen de Google Drive no se visualiza?",
-         "Asegúrese de que el archivo en Google Drive tenga permisos configurados como 'Cualquier persona con el enlace puede ver'. El editor visual de la página web convertirá automáticamente la URL para que se muestre en pantalla."),
-        ("¿Cómo sé si los cambios en el editor visual ya están públicos?",
-         "Al presionar 'Guardar Cambios' en la barra inferior flotante, aparece un mensaje verde en la esquina superior derecha indicando '✓ Cambios guardados correctamente'. En ese instante, todos los visitantes verán la versión actualizada."),
-        ("¿Por qué un visitante ve la pantalla de mantenimiento en una subpágina?",
-         "Revise en el panel de control la pestaña '🛠️ Control de Subpáginas'. Es probable que la subpágina individual o el 'Mantenimiento General' estén activados. Presione '✅ Activar Subpágina' para reanudar el acceso inmediato."),
-        ("¿Cómo respaldar la base de datos completa de forma manual?",
-         "El archivo físico de la base de datos se llama 'liceo_cms.db' y reside en la raíz del proyecto. También puede descargar el respaldo en formato JSON desde la pestaña '🛡️ Puntos de Control' del panel administrativo.")
+        ("¿Cómo pongo una foto de Google Drive en la página?",
+         "Sube la foto a tu Google Drive, dale clic derecho > Compartir, y asegúrate de marcar 'Cualquier persona con el enlace puede ver'. Copia ese link y pégalo en la página web. ¡El sistema hace la magia y la muestra sola!"),
+        ("¿Por qué el enlace en WhatsApp muestra el escudo del colegio?",
+         "La web tiene configurada una tarjeta oficial (OpenGraph). Cuando compartes el link en WhatsApp o Facebook, automáticamente sale la imagen oficial con el logo del Liceo, el sello de IB World School y la descripción."),
+        ("Hice un cambio en el editor visual pero no se ve desde mi teléfono, ¿por qué?",
+         "Asegúrate de haber tocado el botón verde '💾 Guardar Cambios' de la barrita flotante. Si ya lo hiciste, refresca la página en tu teléfono deslizando hacia abajo para borrar la memoria caché."),
+        ("¿Qué pasa si cierro sesión?",
+         "Para salir de forma segura, toca el botón rojo '🚪 Cerrar Sesión' arriba a la derecha. La página volverá al modo público normal y nadie podrá hacer cambios hasta que vuelvan a poner la contraseña.")
     ]
 
     for q, a in faqs:
-        story.append(Paragraph(f"<b>❓ {q}</b>", h3_style))
-        story.append(Paragraph(f"<b>R:</b> {a}", body_style))
-        story.append(Spacer(1, 4))
+        story.append(Paragraph(f"<b>❓ {q}</b>", ParagraphStyle('FAQq', fontName='Helvetica-Bold', fontSize=10, textColor=AZUL_IB, spaceBefore=6, spaceAfter=2)))
+        story.append(Paragraph(f"{a}", body_style))
+        story.append(Spacer(1, 3))
 
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 15))
+
+    # Tabla resumen de superpoderes
+    story.append(Paragraph("RESUMEN RÁPIDO DE COMANDOS Y RUTAS", h2_style))
+    quick_routes = [
+        [Paragraph("<b>¿A dónde quieres ir?</b>", table_header), Paragraph("<b>Ruta en el navegador</b>", table_header), Paragraph("<b>¿Qué haces ahí?</b>", table_header)],
+        [Paragraph("Página Principal", table_cell), Paragraph("<code>/</code>", table_cell), Paragraph("Ver el portal oficial como un visitante regular.", table_cell)],
+        [Paragraph("Iniciar Sesión", table_cell), Paragraph("<code>/login</code>", table_cell), Paragraph("Poner tu usuario y clave de administrador.", table_cell)],
+        [Paragraph("Panel de Control", table_cell), Paragraph("<code>/admin/panel</code>", table_cell), Paragraph("Administrar noticias, consultas, subpáginas y backups.", table_cell)],
+        [Paragraph("Bachillerato IB", table_cell), Paragraph("<code>/modalidad/ib</code>", table_cell), Paragraph("Ver noticias del IB, redes exclusivas y materias.", table_cell)],
+        [Paragraph("Equipo de Desarrollo", table_cell), Paragraph("<code>/desarrolladores</code>", table_cell), Paragraph("Ver las fichas con fotos de los autores de la web.", table_cell)],
+    ]
+    t_quick = Table(quick_routes, colWidths=[130, 110, letter[0] - 108 - 240])
+    t_quick.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), AZUL_IB),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [BLANCO, GRIS_LIGHT]),
+        ('BOX', (0, 0), (-1, -1), 1, GRIS_BORDER),
+        ('INNERGRID', (0, 0), (-1, -1), 0.5, GRIS_BORDER),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+    ]))
+    story.append(t_quick)
+
+    story.append(Spacer(1, 20))
     story.append(create_callout(
-        "Para asistencia técnica adicional o soporte sobre la infraestructura del servidor, contacte al administrador de tecnologías educativas o a la Coordinación del Bachillerato Internacional del Liceo de Limón Mario Bourne Bourne.",
-        title="SOPORTE INSTITUCIONAL",
+        "¡Felicidades! Ahora conoces todas las herramientas para mantener la web del <b>Liceo de Limón Mario Bourne Bourne</b> moderna, activa y siempre al día. Si tienes dudas, revisa este manual cuando quieras.",
+        title="¡LISTO PARA COMENZAR!",
         border_color=AZUL_IB,
         bg_color=AZUL_BG
     ))
 
     # Construir el documento con el canvas de dos pasos
     doc.build(story, canvasmaker=NumberedCanvas)
-    print(f"Manual generado exitosamente: {filename}")
+    print(f"Manual simplificado generado exitosamente: {filename}")
 
 
 if __name__ == '__main__':
