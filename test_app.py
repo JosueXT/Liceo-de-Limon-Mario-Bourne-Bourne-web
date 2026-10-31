@@ -799,13 +799,13 @@ class LiceoLimonTestCase(unittest.TestCase):
         html_home = res_home.get_data(as_text=True)
         self.assertIn('mep-dev-link', html_home)
         self.assertIn('nav-dev-highlight', html_home)
-        self.assertIn('footer-credit-pill', html_home)
+        self.assertIn('footer_col3_link_dev', html_home)
 
         res_ib = self.client.get('/modalidad/ib')
         html_ib = res_ib.get_data(as_text=True)
         self.assertIn('mep-dev-link', html_ib)
         self.assertIn('nav-dev-highlight', html_ib)
-        self.assertIn('footer-credit-pill', html_ib)
+        self.assertIn('footer_col3_link_dev', html_ib)
 
         # 2. Login y acceso a la pestaña de Desarrolladores en el panel de control
         self.client.post('/api/auth/login',
