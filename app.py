@@ -10,7 +10,7 @@ import secrets
 from datetime import timedelta
 from collections import defaultdict
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_from_directory
-from email_service import load_env_file
+from email_service import load_env_file, check_smtp_health
 from database import (
     init_db,
     get_all_content,
@@ -31,6 +31,8 @@ from database import (
     import_snapshot,
     restore_snapshot,
     delete_snapshot,
+    export_full_database,
+    get_system_health,
     get_admin_user,
     verify_admin_credentials,
     update_admin_credentials,
@@ -54,7 +56,7 @@ if not secret_key:
     secret_key = secrets.token_hex(32)
 app.secret_key = secret_key
 
-# Configuración endurecida de cookies de sesión
+# Configuración endurecida de cookies de sesión (Ciberseguridad OWASP)
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
@@ -64,10 +66,28 @@ app.config.update(
 
 @app.after_request
 def add_security_headers(response):
-    """Agrega cabeceras de seguridad HTTP estándar para prevenir ataques comunes."""
+    """Agrega cabeceras de seguridad HTTP endurecidas según estándares OWASP."""
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=(), payment=()'
+    
+    # HSTS para forzar conexiones HTTPS cifradas en producción (Render)
+    if os.environ.get('RENDER') or os.environ.get('FLASK_ENV') == 'production':
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+
+    # Content Security Policy (permite fuentes de Google, recursos del MEP, YouTube y Unsplash)
+    csp_directives = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com data:",
+        "img-src 'self' data: https: blob:",
+        "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
+        "connect-src 'self' https:"
+    ]
+    response.headers['Content-Security-Policy'] = "; ".join(csp_directives)
     return response
 
 # =============================================================================
@@ -420,6 +440,7 @@ def login():
     if verify_admin_credentials(username, password):
         if not app.config.get('TESTING'):
             security_shield.reset_failures(get_client_ip(), 'login')
+        session.clear()  # Protección contra fijación de sesión (Session Fixation OWASP)
         session['is_admin'] = True
         session['admin_username'] = username
         return redirect(url_for('admin_panel'))
@@ -430,9 +451,8 @@ def login():
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    """Cierra la sesión administrativa y redirige al inicio público."""
-    session.pop('is_admin', None)
-    session.pop('admin_username', None)
+    """Cierra la sesión administrativa de forma segura y redirige al inicio público."""
+    session.clear()
     return redirect(url_for('home'))
 
 # =============================================================================
@@ -455,7 +475,20 @@ def admin_panel():
     inquiries = get_all_inquiries()
     snapshots = get_all_snapshots()
     developers = get_developers_dynamic_list(cms)
-    return render_template('admin_panel.html', cms=cms, news=news, inquiries=inquiries, snapshots=snapshots, developers=developers, current_admin_username=current_admin_username, current_recovery_email=current_recovery_email)
+    system_health = get_system_health()
+    smtp_status = check_smtp_health()
+    return render_template(
+        'admin_panel.html',
+        cms=cms,
+        news=news,
+        inquiries=inquiries,
+        snapshots=snapshots,
+        developers=developers,
+        system_health=system_health,
+        smtp_status=smtp_status,
+        current_admin_username=current_admin_username,
+        current_recovery_email=current_recovery_email
+    )
 
 # =============================================================================
 # 4. ENDPOINTS API REST (FORMULARIO DE CONTACTO PÚBLICO)
@@ -463,7 +496,15 @@ def admin_panel():
 
 @app.route('/api/contact/submit', methods=['POST'])
 def api_submit_contact():
-    """Recibe y guarda las consultas enviadas desde el formulario institucional público"""
+    """Recibe y guarda las consultas enviadas desde el formulario institucional público con rate limiting."""
+    if not app.config.get('TESTING'):
+        ip = get_client_ip()
+        if security_shield.is_rate_limited(ip, 'contact', max_requests=6, window_seconds=600):
+            return jsonify({
+                'success': False,
+                'message': 'Ha enviado varias consultas recientemente. Por seguridad, espere unos minutos antes de enviar otra.'
+            }), 429
+
     data = request.get_json() or {}
     name = data.get('name', '').strip()
     email = data.get('email', '').strip()
@@ -1023,12 +1064,13 @@ def api_import_snapshot():
 
     content = data.get('content', {})
     news = data.get('news', [])
+    inquiries = data.get('inquiries', [])
     name = data.get('name') or "Copia Importada"
 
     if not isinstance(content, dict):
         return jsonify({'success': False, 'message': 'Estructura de respaldo no válida.'}), 400
 
-    new_id = import_snapshot(name, content, news)
+    new_id = import_snapshot(name, content, news, inquiries)
 
     apply_now = request.form.get('apply_now') == 'true' or (request.is_json and (request.get_json() or {}).get('apply_now'))
     if apply_now:
@@ -1038,6 +1080,68 @@ def api_import_snapshot():
         'success': True,
         'message': f'Respaldo "{name}" importado exitosamente con ID #{new_id}.',
         'snapshot_id': new_id
+    })
+
+@app.route('/api/cms/snapshots/export-full', methods=['GET'])
+def api_export_full_backup():
+    """Descarga una copia de seguridad integral (100% de la base de datos) en formato JSON."""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    import json
+    from datetime import datetime
+    backup_data = export_full_database()
+    json_bytes = json.dumps(backup_data, indent=2, ensure_ascii=False)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"respaldo_completo_liceo_limon_{timestamp}.json"
+
+    return Response(
+        json_bytes,
+        mimetype="application/json",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+@app.route('/api/admin/system-status', methods=['GET'])
+def api_admin_system_status():
+    """Retorna el diagnóstico en tiempo real de todos los subsistemas (BD Nube, SMTP, Seguridad, Runtime)."""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    health = get_system_health()
+    smtp = check_smtp_health()
+    
+    # Métricas del Escudo de Seguridad
+    locked_count = len(security_shield.failed_attempts)
+
+    return jsonify({
+        'success': True,
+        'database': health,
+        'smtp': smtp,
+        'security': {
+            'shield_active': True,
+            'locked_identities': locked_count,
+            'hsts_enabled': bool(os.environ.get('RENDER') or os.environ.get('FLASK_ENV') == 'production'),
+            'csp_enabled': True,
+            'session_cookie_httponly': True,
+            'session_cookie_samesite': 'Lax'
+        },
+        'environment': {
+            'is_render': bool(os.environ.get('RENDER')),
+            'python_version': os.sys.version.split(' ')[0],
+            'runtime': 'Gunicorn WSGI (Producción Endurecida)' if os.environ.get('RENDER') else 'Desarrollo Local'
+        }
+    })
+
+@app.route('/api/admin/test-smtp', methods=['POST'])
+def api_admin_test_smtp():
+    """Prueba de conexión SMTP en vivo ejecutada a solicitud del administrador."""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    res = check_smtp_health()
+    return jsonify({
+        'success': res.get('connected', False),
+        'result': res
     })
 
 @app.route('/api/cms/reset', methods=['POST'])

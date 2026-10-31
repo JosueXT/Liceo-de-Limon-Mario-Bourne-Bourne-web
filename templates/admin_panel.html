@@ -892,6 +892,108 @@
           </div>
         </div>
 
+        <!-- PANEL DE ESTADO DE SERVICIOS & CIBERSEGURIDAD EN TIEMPO REAL -->
+        <div class="panel-card" style="margin-bottom: 2rem; border-top: 4px solid var(--azul);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: var(--azul-dark); font-weight: 800; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                🩺 Estado de Servicios & Ciberseguridad en Tiempo Real
+              </h3>
+              <p style="font-size: 0.85rem; color: var(--gris-600); margin: 0;">
+                Diagnóstico en vivo de persistencia en la nube, servidor de correo SMTP, protección activa contra ataques y motor de respaldos.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="refreshSystemHealth()" id="btnRefreshHealth" title="Actualizar métricas de conexión en vivo">
+              🔄 Actualizar Diagnóstico
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            
+            <!-- Tarjeta 1: Base de Datos en la Nube -->
+            <div style="background: var(--gris-50); border: 1.5px solid {% if system_health.connected %}#86efac{% else %}#fca5a5{% endif %}; border-radius: var(--radius-md); padding: 1.1rem; position: relative;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.4rem;">☁️</span>
+                <span class="admin-badge-pill" style="background: {% if system_health.connected %}#16a34a{% else %}#dc2626{% endif %}; font-size: 0.72rem;">
+                  {% if system_health.is_cloud %}🟢 Nube Turso Conectada{% else %}🟡 SQLite Local Activo{% endif %}
+                </span>
+              </div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--azul-dark); margin: 0 0 0.2rem 0;">Base de Datos (Persistencia)</h4>
+              <p style="font-size: 0.78rem; color: var(--gris-600); margin-bottom: 0.6rem;">
+                <strong>Motor:</strong> {{ system_health.db_backend }}<br>
+                <strong>Latencia en vivo:</strong> <span id="healthDbLatency">{{ system_health.latency_ms }} ms</span><br>
+                <strong>Registros:</strong> {{ system_health.cms_count }} textos CMS • {{ system_health.news_count }} noticias
+              </p>
+              <div style="font-size: 0.73rem; color: #15803d; background: #dcfce7; padding: 0.3rem 0.55rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <span>✓</span>
+                {% if system_health.is_cloud %}
+                  <span>Inmune a reinicios de Render (AWS Cloud)</span>
+                {% else %}
+                  <span>Modo local temporal de desarrollo</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Tarjeta 2: Servidor SMTP / Correo -->
+            <div style="background: var(--gris-50); border: 1.5px solid {% if smtp_status.connected %}#86efac{% elif smtp_status.configured %}#fde047{% else %}#fca5a5{% endif %}; border-radius: var(--radius-md); padding: 1.1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.4rem;">✉️</span>
+                <span class="admin-badge-pill" id="badgeSmtpStatus" style="background: {% if smtp_status.connected %}#16a34a{% elif smtp_status.configured %}#ca8a04{% else %}#dc2626{% endif %}; font-size: 0.72rem;">
+                  {% if smtp_status.connected %}🟢 SMTP Autenticado{% elif smtp_status.configured %}🟡 Configurado{% else %}🔴 No Configurado{% endif %}
+                </span>
+              </div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--azul-dark); margin: 0 0 0.2rem 0;">Servidor de Correo (SMTP/OTP)</h4>
+              <p style="font-size: 0.78rem; color: var(--gris-600); margin-bottom: 0.6rem;">
+                <strong>Servidor:</strong> {{ smtp_status.provider }} (Puerto {{ smtp_status.port or 587 }})<br>
+                <strong>Cuenta:</strong> <span id="healthSmtpUser">{{ smtp_status.user }}</span><br>
+                <strong>Cifrado:</strong> TLS Activo para envío de OTP
+              </p>
+              <button type="button" class="btn btn-outline btn-sm" id="btnTestSmtp" onclick="testSmtpConnection()" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                ⚡ Probar Conexión
+              </button>
+            </div>
+
+            <!-- Tarjeta 3: Escudo de Ciberseguridad -->
+            <div style="background: var(--gris-50); border: 1.5px solid #86efac; border-radius: var(--radius-md); padding: 1.1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.4rem;">🛡️</span>
+                <span class="admin-badge-pill" style="background: #16a34a; font-size: 0.72rem;">
+                  🟢 Blindaje Activo
+                </span>
+              </div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--azul-dark); margin: 0 0 0.2rem 0;">Escudo de Ciberseguridad</h4>
+              <p style="font-size: 0.78rem; color: var(--gris-600); margin-bottom: 0.6rem;">
+                <strong>Anti-Fuerza Bruta:</strong> Rate Limiting en Login y Formularios<br>
+                <strong>Cabeceras:</strong> HSTS, CSP, Nosniff, Anti-Clickjacking<br>
+                <strong>Sesiones:</strong> Cookies HttpOnly + SameSite=Lax (SHA-256)
+              </p>
+              <div style="font-size: 0.73rem; color: #15803d; background: #dcfce7; padding: 0.3rem 0.55rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <span>✓</span> <span>Protección OWASP Endurecida</span>
+              </div>
+            </div>
+
+            <!-- Tarjeta 4: Motor de Respaldos (Wayback) -->
+            <div style="background: var(--gris-50); border: 1.5px solid #86efac; border-radius: var(--radius-md); padding: 1.1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.4rem;">💾</span>
+                <span class="admin-badge-pill" style="background: #16a34a; font-size: 0.72rem;">
+                  🟢 Respaldo Integral
+                </span>
+              </div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--azul-dark); margin: 0 0 0.2rem 0;">Copias de Seguridad (Wayback)</h4>
+              <p style="font-size: 0.78rem; color: var(--gris-600); margin-bottom: 0.6rem;">
+                <strong>Puntos guardados:</strong> {{ snapshots|length }} versiones en la nube<br>
+                <strong>Cobertura:</strong> 100% Textos CMS + Noticias + Consultas<br>
+                <strong>Exportación:</strong> Descarga instantánea fuera de línea
+              </p>
+              <a href="/api/cms/snapshots/export-full" class="btn btn-azul btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                📥 Descargar Respaldo (.JSON)
+              </a>
+            </div>
+
+          </div>
+        </div>
+
         <!-- Banner de Descarga del Manual Oficial PDF -->
         <div style="background: linear-gradient(135deg, rgba(0, 53, 112, 0.06), rgba(114, 0, 38, 0.06)); border: 1.5px solid rgba(0, 53, 112, 0.2); border-radius: var(--radius-lg); padding: 1.25rem 1.6rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;">
           <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 280px;">
@@ -2383,6 +2485,25 @@
               <h2 class="panel-card-title">🛡️ Copias de Seguridad & Puntos de Control (Wayback Machine)</h2>
               <p class="panel-card-desc">Guarde el estado actual del sitio como un nuevo punto base para poder regresar en el tiempo cuando lo necesite.</p>
             </div>
+            <a href="/api/cms/snapshots/export-full" class="btn btn-vino btn-sm" style="text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
+              📥 Descargar Respaldo Completo (.JSON)
+            </a>
+          </div>
+
+          <!-- Banner Informativo de Persistencia en la Nube -->
+          <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--radius-lg); padding: 1.25rem 1.6rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.8rem; flex: 1; min-width: 280px;">
+              <span style="font-size: 2rem;">☁️</span>
+              <div>
+                <h4 style="font-size: 1.05rem; font-weight: 800; color: #166534; margin: 0 0 0.2rem 0;">Garantía de Persistencia en la Nube (Turso Cloud)</h4>
+                <p style="font-size: 0.85rem; color: #15803d; margin: 0; line-height: 1.4;">
+                  Toda la información institucional (textos de todas las páginas, modalidades, noticias, imágenes y consultas) se guarda directamente en la base de datos en la nube Turso. <strong>Es inmune a reinicios o suspensiones del servidor en Render</strong>.
+                </p>
+              </div>
+            </div>
+            <a href="/api/cms/snapshots/export-full" class="btn btn-azul btn-sm" style="white-space: nowrap; font-weight: 700; text-decoration: none;">
+              💾 Exportar Todo (.JSON)
+            </a>
           </div>
 
           <!-- Caja 1: Guardar Estado Actual como Nuevo Punto Base -->
@@ -3736,6 +3857,58 @@
     const initialNewsDate = document.getElementById('pNewsDate');
     if (initialNewsDate && !initialNewsDate.value.trim()) {
       initialNewsDate.value = getFormattedCurrentDate();
+    }
+
+    // =========================================================================
+    // DIAGNÓSTICO EN TIEMPO REAL & PRUEBA DE SERVICIOS
+    // =========================================================================
+    async function refreshSystemHealth() {
+      const btn = document.getElementById('btnRefreshHealth');
+      if (btn) btn.innerText = '⏳ Verificando...';
+      try {
+        const res = await fetch('/api/admin/system-status');
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const latEl = document.getElementById('healthDbLatency');
+          if (latEl) latEl.innerText = `${data.database.latency_ms} ms`;
+          showToast('✓ Diagnóstico en tiempo real actualizado.', 'success');
+        } else {
+          showToast('No fue posible consultar el diagnóstico.', 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al consultar diagnóstico.', 'error');
+      } finally {
+        if (btn) btn.innerText = '🔄 Actualizar Diagnóstico';
+      }
+    }
+
+    async function testSmtpConnection() {
+      const btn = document.getElementById('btnTestSmtp');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Probando conexión...';
+      }
+      try {
+        const res = await fetch('/api/admin/test-smtp', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(`✓ Conexión SMTP exitosa con ${data.result.provider} (${data.result.latency_ms} ms).`, 'success');
+          const badge = document.getElementById('badgeSmtpStatus');
+          if (badge) {
+            badge.style.background = '#16a34a';
+            badge.innerText = '🟢 SMTP Autenticado';
+          }
+        } else {
+          showToast(`⚠️ Advertencia SMTP: ${data.result?.message || 'Fallo de autenticación.'}`, 'error');
+        }
+      } catch (err) {
+        showToast('Error de red al probar conexión SMTP.', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '⚡ Probar Conexión';
+        }
+      }
     }
   </script>
 </body>

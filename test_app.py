@@ -909,6 +909,52 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.client.get('/logout')
         self.assertEqual(self.client.get('/desarrolladores').status_code, 200)
 
+    def test_20_security_headers_and_system_health(self):
+        """Verifica cabeceras de ciberseguridad OWASP, exportación integral de backup y monitoreo en vivo"""
+        # 1. Cabeceras HTTP de ciberseguridad
+        res = self.client.get('/')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.headers.get('X-Content-Type-Options'), 'nosniff')
+        self.assertEqual(res.headers.get('X-Frame-Options'), 'SAMEORIGIN')
+        self.assertEqual(res.headers.get('Referrer-Policy'), 'strict-origin-when-cross-origin')
+        self.assertIn("default-src 'self'", res.headers.get('Content-Security-Policy', ''))
+
+        # 2. Acceso protegido a diagnóstico del sistema
+        res_unauth = self.client.get('/api/admin/system-status')
+        self.assertEqual(res_unauth.status_code, 403)
+
+        # Iniciar sesión como admin
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+
+        res_health = self.client.get('/api/admin/system-status')
+        self.assertEqual(res_health.status_code, 200)
+        data = json.loads(res_health.get_data(as_text=True))
+        self.assertTrue(data['success'])
+        self.assertIn('database', data)
+        self.assertIn('smtp', data)
+        self.assertIn('security', data)
+        self.assertTrue(data['security']['shield_active'])
+
+        # 3. Exportación integral de respaldo (100% datos)
+        res_export = self.client.get('/api/cms/snapshots/export-full')
+        self.assertEqual(res_export.status_code, 200)
+        self.assertIn('attachment;', res_export.headers.get('Content-Disposition', ''))
+        export_json = json.loads(res_export.get_data(as_text=True))
+        self.assertIn('metadata', export_json)
+        self.assertIn('content', export_json)
+        self.assertIn('news', export_json)
+        self.assertIn('inquiries', export_json)
+        self.assertGreater(len(export_json['content']), 300)
+
+        # 4. Prueba de endpoint SMTP
+        res_smtp = self.client.post('/api/admin/test-smtp')
+        self.assertEqual(res_smtp.status_code, 200)
+        smtp_data = json.loads(res_smtp.get_data(as_text=True))
+        self.assertIn('result', smtp_data)
+
 if __name__ == '__main__':
     unittest.main()
 

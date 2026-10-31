@@ -228,9 +228,16 @@ def init_db(force=False):
             name TEXT NOT NULL,
             content_json TEXT NOT NULL,
             news_json TEXT NOT NULL,
+            inquiries_json TEXT DEFAULT '[]',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
+    # Migración segura: verificar columna inquiries_json en cms_snapshots
+    cursor.execute("PRAGMA table_info(cms_snapshots)")
+    snap_cols = [row[1] for row in cursor.fetchall()]
+    if 'inquiries_json' not in snap_cols:
+        cursor.execute("ALTER TABLE cms_snapshots ADD COLUMN inquiries_json TEXT DEFAULT '[]'")
 
     # 5. Tabla para usuarios y credenciales de acceso administrativo
     cursor.execute('''
@@ -581,25 +588,34 @@ def reset_to_defaults():
     return True
 
 # =============================================================================
-# FUNCIONES PARA PUNTOS DE RESTAURACIÓN Y SNAPSHOTS (WAYBACK MACHINE)
+# FUNCIONES PARA PUNTOS DE RESTAURACIÓN Y SNAPSHOTS (WAYBACK MACHINE INTEGRAL)
 # =============================================================================
 
 def create_snapshot(name="Copia de Seguridad"):
-    """Crea una instantánea completa del estado de los contenidos y noticias actuales asegurando el 100% de las claves."""
+    """Crea una instantánea completa del estado de contenidos, noticias y consultas."""
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Obtener todo el contenido CMS actual consolidado (incluyendo personalizaciones y claves base)
-    content_dict = get_all_content()
+    # 1. Obtener todo el contenido CMS actual consolidado
+    content_dict = get_all_content(force_fresh=True)
 
-    # Obtener todas las noticias actuales
+    # 2. Obtener todas las noticias actuales con multimedia y encuadre
     cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url FROM news_articles')
     news_rows = [dict(row) for row in cursor.fetchall()]
 
+    # 3. Obtener todas las consultas registradas en la bandeja
+    cursor.execute('SELECT name, email, phone, area, message, status, created_at FROM contact_inquiries ORDER BY id ASC')
+    inq_rows = [dict(row) for row in cursor.fetchall()]
+
     cursor.execute('''
-        INSERT INTO cms_snapshots (name, content_json, news_json)
-        VALUES (?, ?, ?)
-    ''', (name, json.dumps(content_dict, ensure_ascii=False), json.dumps(news_rows, ensure_ascii=False)))
+        INSERT INTO cms_snapshots (name, content_json, news_json, inquiries_json)
+        VALUES (?, ?, ?, ?)
+    ''', (
+        name,
+        json.dumps(content_dict, ensure_ascii=False),
+        json.dumps(news_rows, ensure_ascii=False),
+        json.dumps(inq_rows, ensure_ascii=False)
+    ))
     
     new_id = cursor.lastrowid
     conn.commit()
@@ -619,37 +635,51 @@ def get_snapshot_by_id(snapshot_id):
     """Obtiene un punto de restauración completo con sus datos para descarga o inspección."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT id, name, content_json, news_json, created_at FROM cms_snapshots WHERE id = ?', (snapshot_id,))
+    cursor.execute('SELECT id, name, content_json, news_json, inquiries_json, created_at FROM cms_snapshots WHERE id = ?', (snapshot_id,))
     row = cursor.fetchone()
     conn.close()
     if not row:
         return None
+
+    inq_val = row['inquiries_json'] if ('inquiries_json' in row and row['inquiries_json']) else '[]'
+    try:
+        inquiries_list = json.loads(inq_val)
+    except Exception:
+        inquiries_list = []
+
     return {
         'id': row['id'],
         'name': row['name'],
         'content': json.loads(row['content_json']),
         'news': json.loads(row['news_json']),
+        'inquiries': inquiries_list,
         'created_at': str(row['created_at'])
     }
 
-def import_snapshot(name, content_dict, news_list):
+def import_snapshot(name, content_dict, news_list, inquiries_list=None):
     """Registra una copia de seguridad importada desde archivo JSON externo."""
     conn = get_db_connection()
     cursor = conn.cursor()
+    inq_json = json.dumps(inquiries_list or [], ensure_ascii=False)
     cursor.execute('''
-        INSERT INTO cms_snapshots (name, content_json, news_json)
-        VALUES (?, ?, ?)
-    ''', (name, json.dumps(content_dict, ensure_ascii=False), json.dumps(news_list, ensure_ascii=False)))
+        INSERT INTO cms_snapshots (name, content_json, news_json, inquiries_json)
+        VALUES (?, ?, ?, ?)
+    ''', (
+        name,
+        json.dumps(content_dict, ensure_ascii=False),
+        json.dumps(news_list, ensure_ascii=False),
+        inq_json
+    ))
     new_id = cursor.lastrowid
     conn.commit()
     conn.close()
     return new_id
 
-def restore_snapshot(snapshot_id):
+def restore_snapshot(snapshot_id, restore_inquiries=False):
     """Restaura todos los contenidos y noticias a un punto de restauración específico"""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT content_json, news_json FROM cms_snapshots WHERE id = ?', (snapshot_id,))
+    cursor.execute('SELECT content_json, news_json, inquiries_json FROM cms_snapshots WHERE id = ?', (snapshot_id,))
     row = cursor.fetchone()
     if not row:
         conn.close()
@@ -683,10 +713,99 @@ def restore_snapshot(snapshot_id):
             item.get('video_url', '')
         ))
 
+    # Opcional: restaurar consultas si se solicita explícitamente y existen en el snapshot
+    if restore_inquiries and ('inquiries_json' in row and row['inquiries_json']):
+        try:
+            inquiries_list = json.loads(row['inquiries_json'])
+            if inquiries_list:
+                cursor.execute('DELETE FROM contact_inquiries')
+                for inq in inquiries_list:
+                    cursor.execute('''
+                        INSERT INTO contact_inquiries (name, email, phone, area, message, status)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    ''', (
+                        inq.get('name', ''),
+                        inq.get('email', ''),
+                        inq.get('phone', ''),
+                        inq.get('area', 'General'),
+                        inq.get('message', ''),
+                        inq.get('status', 'Pendiente')
+                    ))
+        except Exception:
+            pass
+
     conn.commit()
     conn.close()
     invalidate_cms_cache()
     return True
+
+def export_full_database():
+    """Genera una exportación integral y estructurada de la base de datos completa para respaldo fuera de línea."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    content_dict = get_all_content(force_fresh=True)
+
+    cursor.execute('SELECT title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url FROM news_articles')
+    news_rows = [dict(row) for row in cursor.fetchall()]
+
+    cursor.execute('SELECT name, email, phone, area, message, status, created_at FROM contact_inquiries ORDER BY id ASC')
+    inq_rows = [dict(row) for row in cursor.fetchall()]
+
+    is_turso = bool(os.environ.get('TURSO_DATABASE_URL') and HAS_LIBSQL)
+    conn.close()
+
+    from datetime import datetime
+    return {
+        "metadata": {
+            "institucion": "Liceo de Limón Mario Bourne Bourne (MEP)",
+            "sistema": "Plataforma Institucional Oficial",
+            "version": "2.0-cloud-persisted",
+            "fecha_exportacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "motor_bd": "Turso LibSQL Cloud (AWS)" if is_turso else "SQLite Local",
+            "resistencia_reinicios_render": True if is_turso else False,
+            "total_claves_cms": len(content_dict),
+            "total_noticias": len(news_rows),
+            "total_consultas": len(inq_rows)
+        },
+        "content": content_dict,
+        "news": news_rows,
+        "inquiries": inq_rows
+    }
+
+def get_system_health():
+    """Diagnóstico en tiempo real de la base de datos, latencia y persistencia en la nube."""
+    is_turso = bool(os.environ.get('TURSO_DATABASE_URL') and HAS_LIBSQL)
+    t0 = time.time()
+    health = {
+        'db_backend': 'Turso LibSQL Cloud (AWS US-East)' if is_turso else 'SQLite Local',
+        'is_cloud': is_turso,
+        'connected': False,
+        'latency_ms': 0,
+        'cms_count': 0,
+        'news_count': 0,
+        'inquiries_count': 0,
+        'snapshots_count': 0,
+        'cloud_persistence_safe': is_turso,
+        'error': None
+    }
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM cms_content')
+        health['cms_count'] = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) FROM news_articles')
+        health['news_count'] = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) FROM contact_inquiries')
+        health['inquiries_count'] = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) FROM cms_snapshots')
+        health['snapshots_count'] = cursor.fetchone()[0]
+        conn.close()
+        health['connected'] = True
+        health['latency_ms'] = round((time.time() - t0) * 1000, 1)
+    except Exception as e:
+        health['error'] = str(e)
+    return health
 
 def delete_snapshot(snapshot_id):
     """Elimina un punto de restauración"""

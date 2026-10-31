@@ -398,4 +398,49 @@ def send_recovery_otp_email(to_email, otp_code, username='Administrador', expira
 
         return False, f"No fue posible enviar el correo por SMTP: {err_str}"
 
+def check_smtp_health():
+    """Diagnóstico en vivo del estado y latencia de conexión con el servidor de correo SMTP."""
+    import time
+    host, port, user, password, from_addr, use_tls = get_smtp_config()
+    if not host or not user or not password:
+        return {
+            'configured': False,
+            'connected': False,
+            'provider': host or 'No configurado',
+            'port': port,
+            'user': mask_email(user) if user else 'No configurado',
+            'message': 'Credenciales SMTP pendientes de configurar en variables de entorno (.env o Render).'
+        }
+    t0 = time.time()
+    try:
+        server = smtplib.SMTP(host, port, timeout=5)
+        if use_tls:
+            server.starttls()
+        server.login(user, password)
+        latency = (time.time() - t0) * 1000
+        server.quit()
+        return {
+            'configured': True,
+            'connected': True,
+            'latency_ms': round(latency, 1),
+            'provider': host,
+            'port': port,
+            'user': mask_email(user),
+            'from_addr': from_addr,
+            'message': 'Conexión y autenticación SMTP exitosa en tiempo real.'
+        }
+    except Exception as e:
+        latency = (time.time() - t0) * 1000
+        return {
+            'configured': True,
+            'connected': False,
+            'latency_ms': round(latency, 1),
+            'provider': host,
+            'port': port,
+            'user': mask_email(user),
+            'error': str(e),
+            'message': f'Fallo de conexión SMTP ({host}:{port}): {str(e)}'
+        }
+
+
 
