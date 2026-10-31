@@ -25,16 +25,21 @@ GEMINI_MODELS = [
 ]
 
 def get_gemini_api_key():
-    """Obtiene la clave de API de Gemini desde variables de entorno."""
+    """Obtiene y limpia la clave de API de Gemini desde variables de entorno."""
     load_env_file()
-    return os.environ.get('GEMINI_API_KEY', '').strip()
+    key = os.environ.get('GEMINI_API_KEY', '').strip()
+    key = key.strip("'\"").strip()
+    key = key.replace(' ', '').replace('\t', '').replace('\n', '').replace('\r', '')
+    if not key or key == 'tu_clave_de_google_ai_studio':
+        return ''
+    return key
 
 def check_gemini_health():
     """Diagnóstico en tiempo real del estado de conexión con Google Gemini."""
     if os.environ.get('TESTING') == 'True':
         return {
             'active': True,
-            'model': 'gemini-3.5-flash',
+            'model': 'gemini-3.5-flash-lite',
             'latency_ms': 15.0,
             'total_models': 50,
             'message': 'Modo de pruebas unitarias activo (Simulación de IA).'
@@ -46,14 +51,20 @@ def check_gemini_health():
             'active': False,
             'model': 'No configurado',
             'latency_ms': 0,
-            'message': 'API Key no configurada en variables de entorno.'
+            'message': 'API Key no configurada. Agregue GEMINI_API_KEY en variables de entorno de Render o en .env.'
         }
 
     t0 = time.time()
     url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
     try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'LiceoDeLimon-CMS/2.0'})
-        with urllib.request.urlopen(req, timeout=5) as resp:
+        req = urllib.request.Request(
+            url,
+            headers={
+                'User-Agent': 'LiceoDeLimon-CMS/2.0',
+                'x-goog-api-key': api_key
+            }
+        )
+        with urllib.request.urlopen(req, timeout=6) as resp:
             data = json.loads(resp.read().decode('utf-8'))
             latency = (time.time() - t0) * 1000
             has_flash_lite = any('3.5-flash-lite' in m.get('name', '') or 'flash-lite' in m.get('name', '') for m in data.get('models', []))
@@ -64,6 +75,31 @@ def check_gemini_health():
                 'total_models': len(data.get('models', [])),
                 'message': 'Conexión activa con Google Gemini.'
             }
+    except urllib.error.HTTPError as he:
+        latency = (time.time() - t0) * 1000
+        error_detail = str(he)
+        try:
+            body = he.read().decode('utf-8')
+            err_json = json.loads(body)
+            if 'error' in err_json and 'message' in err_json['error']:
+                error_detail = err_json['error']['message']
+        except Exception:
+            pass
+
+        if he.code in (400, 401, 403):
+            msg = f"Clave de API no válida ({he.code}): Verifique GEMINI_API_KEY en Render o en .env (sin espacios ni comillas)."
+        elif he.code == 429:
+            msg = "Límite de cuota temporal en Google AI Studio (429). Se reanudará automáticamente."
+        else:
+            msg = f"Error en Google Gemini ({he.code}): {error_detail}"
+
+        return {
+            'active': False,
+            'model': 'Error de autenticación' if he.code in (400, 401) else 'Error de cuota/servicio',
+            'latency_ms': round(latency, 1),
+            'error': error_detail,
+            'message': msg
+        }
     except Exception as e:
         latency = (time.time() - t0) * 1000
         return {

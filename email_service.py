@@ -34,7 +34,8 @@ def load_env_file():
                     key, val = line.split('=', 1)
                     key = key.strip()
                     val = val.strip().strip("'\"")
-                    if 'tu_correo@gmail.com' not in val:
+                    placeholders = ('tu_correo@gmail.com', 'tu_clave_de_google_ai_studio', 'cambiar_por_clave_secreta')
+                    if not any(ph in val for ph in placeholders):
                         os.environ[key] = val
         except Exception:
             pass
