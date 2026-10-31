@@ -475,17 +475,119 @@ function initNewsModal() {
     }, 300);
   }
 
-  // Delegación de eventos para clics en 'Leer Comunicado' o en la tarjeta
-  document.addEventListener('click', (e) => {
-    const readBtn = e.target.closest('.btn-read-more');
-    if (readBtn) {
-      e.preventDefault();
-      const card = readBtn.closest('.news-card');
+  // Reproducción instantánea directa dentro de la tarjeta (inline)
+  function playVideoInCard(card) {
+    if (!card) return;
+    const videoUrl = card.getAttribute('data-video-url');
+    if (!videoUrl) {
       openNewsModal(card);
       return;
     }
 
-    // Botón de cerrar o clic en el fondo oscuro
+    const container = card.querySelector('.news-image-container');
+    if (!container) return;
+
+    // Si ya tiene un reproductor activo, no hacer nada
+    if (container.querySelector('.inline-video-frame')) return;
+
+    const parsed = parseMediaVideoUrl(videoUrl);
+    if (!parsed) {
+      openNewsModal(card);
+      return;
+    }
+
+    // Detener cualquier otro video inline que se esté reproduciendo en otras tarjetas
+    document.querySelectorAll('.news-card.is-playing-video').forEach(c => {
+      if (c !== card) stopVideoInCard(c);
+    });
+
+    // Guardar el HTML original para restaurar al cerrar
+    if (!container.dataset.originalHtml) {
+      container.dataset.originalHtml = container.innerHTML;
+    }
+
+    let videoMarkup = '';
+    if (parsed.type === 'direct') {
+      videoMarkup = `
+        <video class="inline-video-frame" controls autoplay playsinline style="width:100%; height:100%; object-fit:contain; background:#000;">
+          <source src="${parsed.videoUrl}">
+          Su navegador no soporta reproducción de video.
+        </video>
+      `;
+    } else {
+      let embedSrc = parsed.embedUrl;
+      if (embedSrc.indexOf('autoplay=') === -1) {
+        embedSrc += (embedSrc.indexOf('?') === -1 ? '?' : '&') + 'autoplay=1';
+      }
+      videoMarkup = `
+        <iframe class="inline-video-frame" 
+                src="${embedSrc}" 
+                allow="autoplay; fullscreen; picture-in-picture; accelerometer; clipboard-write; encrypted-media; gyroscope" 
+                allowfullscreen
+                style="width:100%; height:100%; border:none; background:#000;">
+        </iframe>
+      `;
+    }
+
+    card.classList.add('is-playing-video');
+    container.innerHTML = `
+      ${videoMarkup}
+      <button type="button" class="btn-close-inline-video" title="Detener video y restaurar imagen" aria-label="Cerrar video">
+        ✕
+      </button>
+    `;
+
+    const closeBtn = container.querySelector('.btn-close-inline-video');
+    closeBtn?.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      stopVideoInCard(card);
+    });
+  }
+
+  function stopVideoInCard(card) {
+    if (!card) return;
+    const container = card.querySelector('.news-image-container');
+    if (container && container.dataset.originalHtml) {
+      container.innerHTML = container.dataset.originalHtml;
+    }
+    card.classList.remove('is-playing-video');
+  }
+
+  // Delegación de eventos para clics en video, botones de lectura o títulos
+  document.addEventListener('click', (e) => {
+    // 1. Clic directo en la insignia '▶ Video' o en el botón flotante de Play
+    const videoTrigger = e.target.closest('.news-video-badge, .news-play-btn');
+    if (videoTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      const card = videoTrigger.closest('.news-card');
+      playVideoInCard(card);
+      return;
+    }
+
+    // 2. Clic en el contenedor de imagen de la noticia
+    const imgContainer = e.target.closest('.news-image-container');
+    if (imgContainer && !e.target.closest('.btn-close-inline-video')) {
+      const card = imgContainer.closest('.news-card');
+      if (card && card.getAttribute('data-video-url')) {
+        e.preventDefault();
+        playVideoInCard(card);
+        return;
+      }
+    }
+
+    // 3. Clic en 'Leer Comunicado Completo' o en el título de la noticia
+    const readBtn = e.target.closest('.btn-read-more');
+    const titleLink = e.target.closest('.news-title');
+    if (readBtn || titleLink) {
+      e.preventDefault();
+      const card = (readBtn || titleLink).closest('.news-card');
+      openNewsModal(card);
+      return;
+    }
+
+    // 4. Botón de cerrar o clic en el fondo oscuro del modal
     if (e.target === modal || e.target.closest('#closeNewsModalBtn')) {
       e.preventDefault();
       closeNewsModal();

@@ -3654,6 +3654,78 @@ body.cms-preview-mode .contact-info-panel.contact-info-preview-full .contact-det
   box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.3);
   animation: pulseVideoBadge 2.2s infinite ease-in-out;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.news-video-badge:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.75);
+  filter: brightness(1.15);
+}
+
+.news-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.92);
+  color: #ffffff;
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.45rem;
+  padding-left: 4px;
+  cursor: pointer;
+  z-index: 5;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(220, 38, 38, 0.7);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.news-play-btn:hover {
+  transform: translate(-50%, -50%) scale(1.18);
+  background: #ef4444;
+  box-shadow: 0 12px 34px rgba(220, 38, 38, 0.65);
+}
+
+.news-card:hover .news-play-btn {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.news-card.is-playing-video .news-image,
+.news-card.is-playing-video .news-play-btn,
+.news-card.is-playing-video .news-video-badge,
+.news-card.is-playing-video .news-tag-overlay {
+  display: none !important;
+}
+
+.btn-close-inline-video {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-close-inline-video:hover {
+  background: #dc2626;
+  transform: scale(1.1);
 }
 
 @keyframes pulseVideoBadge {

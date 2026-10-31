@@ -439,7 +439,10 @@
               {% endif %}
             </span>
             {% if item.video_url %}
-            <span class="news-video-badge">▶ Video</span>
+            <span class="news-video-badge" title="Clic para reproducir video">▶ Video</span>
+            <button type="button" class="news-play-btn" title="Reproducir video" aria-label="Reproducir video">
+              ▶
+            </button>
             {% endif %}
             <img src="{{ item.image or 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80' }}" alt="{{ item.title }}" class="news-image" data-position="{{ item.image_position or 'center center' }}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80';">
           </div>
