@@ -7,7 +7,7 @@
 [![Database](https://img.shields.io/badge/Database-SQLite%20%2F%20Turso%20Cloud-003B57.svg?logo=sqlite&logoColor=white)](https://turso.tech)
 [![Desarrollo](https://img.shields.io/badge/Desarrollo-Estudiantes%20IB%20%2B%20IA%20(Vibe%20Coding)-8b5cf6.svg)](#-innovación-y-desarrollo-estudiantes-ib--inteligencia-artificial-vibe-coding)
 [![Diseño Responsivo](https://img.shields.io/badge/Diseño-100%25%20Responsivo%20Móvil-success.svg)](#-diseño-100-responsivo-ordenadores-y-celulares)
-[![Tests](https://img.shields.io/badge/Unit%20Tests-13%2F13%20Aprobados-10b981.svg)](#-suite-de-pruebas-automatizadas)
+[![Tests](https://img.shields.io/badge/Unit%20Tests-19%2F19%20Aprobados-10b981.svg)](#-suite-de-pruebas-automatizadas)
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-vino.svg)](LICENSE)
 
 ---
@@ -21,18 +21,23 @@
    - [Editor Visual en Vivo (CMS In-Situ)](#-editor-visual-en-vivo-cms-in-situ)
    - [Control Interactivo de Encuadre y Posición de Fotos](#-control-interactivo-de-encuadre-y-posición-de-fotos)
    - [Gestión Dinámica de Listas (+ y ✕)](#-gestión-dinámica-de-listas--y-)
+   - [Noticias con Soporte de Video (YouTube, Drive y MP4)](#-noticias-con-soporte-de-video-youtube-drive-y-mp4)
+   - [Control de Activación y Modo Mantenimiento de Subpáginas](#-control-de-activación-y-modo-mantenimiento-de-subpáginas)
+   - [Subpágina Dedicada de Desarrolladores y Créditos Web](#-subpágina-dedicada-de-desarrolladores-y-créditos-web)
    - [Redes Sociales y Coordinación del Bachillerato Internacional (IB)](#-redes-sociales-y-coordinación-del-ib)
    - [Copias de Seguridad y Respaldos (Exportar e Importar JSON)](#-copias-de-seguridad-y-respaldos-wayback-machine)
    - [Seguridad y Gestión de Credenciales](#-seguridad-y-gestión-de-credenciales)
-4. [Guía de Instalación y Puesta en Marcha](#-guía-de-instalación-y-puesta-en-marcha)
+   - [Dominio Oficial y Previsualización en Redes Sociales (OpenGraph)](#-dominio-oficial-y-previsualización-en-redes-sociales-opengraph)
+4. [Manual de Usuario en PDF para Administradores](#-manual-de-usuario-en-pdf-para-administradores)
+5. [Guía de Instalación y Puesta en Marcha](#-guía-de-instalación-y-puesta-en-marcha)
    - [Inicio Rápido en Windows (iniciar_sitio.bat)](#-en-sistemas-windows)
    - [Inicio en macOS / Linux (iniciar_sitio.sh)](#-en-sistemas-macos-y-linux)
    - [Método Manual por Terminal](#-método-manual-por-terminal)
-4. [Credenciales de Acceso Iniciales](#-credenciales-de-acceso-iniciales)
-5. [Estructura del Proyecto](#-estructura-del-código-fuente)
-6. [Suite de Pruebas Automatizadas](#-suite-de-pruebas-automatizadas)
-7. [Guía para Subir este Proyecto a GitHub](#-guía-para-subir-este-proyecto-a-github)
-8. [Licencia](#-licencia)
+6. [Credenciales de Acceso Iniciales](#-credenciales-de-acceso-iniciales)
+7. [Estructura del Proyecto](#-estructura-del-código-fuente)
+8. [Suite de Pruebas Automatizadas (19 Tests)](#-suite-de-pruebas-automatizadas)
+9. [Guía para Subir este Proyecto a GitHub](#-guía-para-subir-este-proyecto-a-github)
+10. [Licencia](#-licencia)
 
 ---
 
@@ -88,6 +93,38 @@ Este proyecto fue ideado, liderado e impulsado con la visión de **estudiantes d
   - Presionar el botón **`+ Agregar Nuevo Elemento`** para insertar un nuevo punto con su número correspondiente.
   - Presionar el botón **`✕`** sobre cualquier elemento para removerlo con animación suave.
   - La re-enumeración es completamente automática y secuencial en tiempo real.
+
+### 🎬 Noticias con Soporte de Video (YouTube, Drive y MP4)
+- **Inserción de Video Multiformato:** Al crear o editar noticias, se puede ingresar una URL de video en los formatos más utilizados:
+  - **YouTube:** Enlaces estándar (`watch?v=...`), compartidos (`youtu.be/...`) o Shorts (`shorts/...`).
+  - **Google Drive:** Enlaces compartidos de videos que el sistema adapta a modo de previsualización incrustada.
+  - **Archivos MP4 / WebM:** Enlaces directos a archivos multimedia.
+- **Insignia Pulsante de Video:** Las tarjetas de noticias que incorporan video exhiben una insignia pulsante roja `▶ VIDEO OFICIAL`.
+- **Filtro Especializado para el Bachillerato Internacional:** En la subpágina `/modalidad/ib` existe un feed exclusivo de noticias IB con filtros rápidos por subcategorías: `CAS (Creatividad, Actividad y Servicio)`, `TOK (Teoría del Conocimiento)`, `Monografía`, `DELF Francés` y `Comunidad IB`.
+
+### 🛠️ Control de Activación y Modo Mantenimiento de Subpáginas
+- **Disponibilidad Granular:** En la pestaña `🛠️ Control de Subpáginas` del panel, el administrador puede activar o pausar individualmente:
+  - 🎓 **Bachillerato Internacional (IB)** (`/modalidad/ib`)
+  - 🇫🇷 **Sección Bilingüe Francés** (`/modalidad/frances`)
+  - 🏛️ **Modalidad Regular** (`/modalidad/regular`)
+  - 💻 **Desarrolladores & Créditos Web** (`/desarrolladores`)
+- **Interruptor Maestro Global:** Permite suspender todas las subpáginas al mismo tiempo con un solo clic.
+- **Respuesta Formal para Visitantes:** Cuando una subpágina está desactivada, el visitante recibe la plantilla `mantenimiento_subpagina.html` (código HTTP 503) con el mensaje explicativo institucional y el botón **"🏠 Volver al Inicio"**.
+- **Acceso Exclusivo para Administradores:** Los administradores autenticados conservan acceso total para ver y editar la subpágina, visualizando una barra de alerta amarilla de mantenimiento en la parte superior.
+- **Textos de Mantenimiento Editables:** Título y mensaje de mantenimiento personalizables directamente desde el panel.
+
+### 💻 Subpágina Dedicada de Desarrolladores y Créditos Web
+- Subpágina oficial (`/desarrolladores`, `/creditos`, `/equipo`) con diseño *glassmorphism* de alta tecnología para honrar a los estudiantes y colaboradores del proyecto.
+- **Gestión Completa en el Panel Administrativo:** Pestaña `💻 Desarrolladores & Créditos` que permite agregar, editar fotos (con soporte Google Drive), años de graduación, roles, biografías y redes sociales profesionales (GitHub, LinkedIn, Instagram, Correo).
+
+### 🌐 Dominio Oficial y Previsualización en Redes Sociales (OpenGraph)
+- **Soporte DNS:** Configurado para operar bajo el dominio FreeDomain `liceomariobourne.dpdns.org` y alias `www`.
+- **Tarjetas Enriquecidas OpenGraph:** Al compartir el enlace en WhatsApp, Facebook, Twitter (X) o Telegram, se visualiza automáticamente la imagen institucional `og_preview.jpg` (con fondo blanco oficial, escudo del liceo y logo IB World School), título y descripción oficial.
+
+### 📄 Manual de Usuario en PDF para Administradores
+- Se incluye el documento oficial completo: **`MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf`** (11 páginas con portada, índice general detallado y 10 módulos explicativos).
+- El manual se encuentra ubicado en la raíz del proyecto, en `static/docs/MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf` y se puede descargar con un clic directamente desde la cabecera y el resumen del Panel de Administración.
+- Generador automático reproducible incluido en el proyecto: `python generar_manual_pdf.py`.
 
 ### 🌐 Redes Sociales y Coordinación del IB
 - La subpágina del Bachillerato Internacional (`/modalidad/ib`) cuenta con una **sección exclusiva de canales oficiales del programa IB** (totalmente independientes de las redes generales del liceo):
@@ -227,43 +264,50 @@ SECURITY_BACKUP_EMAILS=jeredbi20252026@gmail.com,jeredamaya@gmail.com
 
 ```text
 Liceo-de-Limon-Mario-Bourne-Bourne-web/
-├── app.py                  # Servidor backend Flask (Rutas públicas, API REST, CMS, OTP y Auth)
+├── MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf # Manual oficial completo en PDF con índice general (11 páginas)
+├── generar_manual_pdf.py    # Script generador del manual técnico en PDF usando ReportLab
+├── app.py                  # Servidor backend Flask (Rutas públicas, API REST, CMS, OTP, Auth y Subpáginas)
 ├── database.py             # Capa de datos SQLite (Esquema, consultas, tokens OTP y transacciones)
 ├── email_service.py        # Módulo de correo electrónico con soporte SMTP y simulador local
 ├── seed_data.py            # Diccionario inicial oficial con contenidos base del MEP
 ├── liceo_cms.db            # Base de datos SQLite institucional preconfigurada
 ├── restablecer_password.py # Herramienta CLI de rescate y restablecimiento de contraseña
-├── requirements.txt        # Dependencias de Python mínimas y livianas (Flask, Werkzeug)
-├── test_app.py             # Suite de 13 pruebas unitarias automatizadas
+├── requirements.txt        # Dependencias de Python (Flask, Werkzeug, ReportLab)
+├── test_app.py             # Suite de 19 pruebas unitarias automatizadas (100% aprobadas)
 ├── iniciar_sitio.bat       # Script ejecutable de un clic para sistemas Windows
 ├── iniciar_sitio.sh        # Script ejecutable para entornos macOS y Linux
 ├── .gitignore              # Reglas de exclusión para git (ignora cachés, entornos y archivos de SO)
 ├── LICENSE                 # Licencia de código abierto MIT
-├── README.md               # Documentación completa y manual de usuario
+├── README.md               # Documentación completa y manual del desarrollador
 ├── static/                 # Archivos estáticos del frontend
 │   ├── css/
-│   │   ├── main.css        # Sistema de diseño principal, CSS tokens y media queries responsivas
+│   │   ├── main.css        # Sistema de diseño principal, CSS tokens, badges de colores y media queries
 │   │   ├── admin.css       # Estilos del editor visual in-situ, toolbar flotante y toasts
 │   │   └── animations.css  # Animaciones suaves, scroll reveal y keyframes
+│   ├── docs/
+│   │   └── MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf # Manual de administración descargable desde el panel
 │   ├── js/
 │   │   ├── main.js         # Lógica frontend (Menú móvil, modales, contadores animados y formulario)
 │   │   └── admin_cms.js    # Motor de edición visual in-situ, listas dinámicas (+/-) y guardado asíncrono
-│   └── img/                # Activos vectoriales SVG institucionales
+│   └── img/                # Activos vectoriales SVG e imágenes institucionales
+│       ├── og_preview.jpg  # Imagen de vista previa para redes sociales (OpenGraph / WhatsApp)
 │       ├── bandera_costa_rica.svg
 │       ├── bandera_limon.svg
 │       └── bandera_francia.svg
 └── templates/              # Plantillas Jinja2 / HTML5 semántico
     ├── index.html          # Portal principal del Liceo de Limón (Secciones 1 a 13)
     ├── modalidad.html      # Subpágina modular para Regular, Francés e IB (con redes IB y contacto)
+    ├── desarrolladores.html # Subpágina de Créditos y Equipo de Desarrollo (Glassmorphism)
+    ├── mantenimiento_subpagina.html # Pantalla oficial de mantenimiento temporal (HTTP 503)
     ├── login.html          # Subpágina dedicada y segura de inicio de sesión administrativo
-    └── admin_panel.html    # Panel de control del CMS (Pestañas modulares, backups y credenciales)
+    └── admin_panel.html    # Panel de control del CMS (Control de subpáginas, backups y credenciales)
 ```
 
 ---
 
 ## 🧪 Suite de Pruebas Automatizadas
 
-El proyecto incluye un conjunto exhaustivo de pruebas unitarias que verifican la integridad del sistema antes de cada despliegue.
+El proyecto incluye un conjunto exhaustivo de **19 pruebas unitarias** que verifican la integridad funcional, seguridad y flujos administrativos del sistema:
 
 Para ejecutar las pruebas:
 ```bash
@@ -281,6 +325,15 @@ python test_app.py
 8. `test_08_admin_change_credentials`: Valida el cambio seguro de nombre de usuario y contraseña con confirmación previa.
 9. `test_09_ib_social_and_contact`: Verifica la presencia de redes sociales exclusivas y datos de coordinación en la subpágina del IB.
 10. `test_10_snapshots_backup_integrity`: Comprueba la creación de puntos de restauración, exportación e importación de respaldos en formato JSON.
+11. `test_11_image_position_and_cropping`: Valida el almacenamiento y aplicación de los desplazamientos X e Y en fotos institucionales.
+12. `test_12_dynamic_lists_persistence`: Comprueba la persistencia de inserción y eliminación dinámica de elementos de listas.
+13. `test_13_curriculum_tables_persistence`: Verifica la actualización de mallas curriculares y tablas de asignaturas.
+14. `test_14_password_reset_otp_workflow`: Prueba la generación, validación y consumo único del código de rescate OTP por correo.
+15. `test_15_password_reset_recovery_key`: Valida el restablecimiento de contraseñas mediante la Clave Maestra Institucional inmutable.
+16. `test_16_news_video_support_and_ib_filter`: Comprueba la compatibilidad con videos incrustados (YouTube, Drive y MP4) y filtros IB.
+17. `test_17_developers_page_and_aliases`: Valida las rutas públicas del equipo (`/desarrolladores`, `/creditos`, `/equipo`).
+18. `test_18_admin_panel_developers_management`: Verifica el CRUD completo de desarrolladores desde el panel de control.
+19. `test_19_subpages_activation_and_maintenance`: Valida la activación y desactivación de subpáginas en mantenimiento, la respuesta HTTP 503 con opción de retorno al inicio para visitantes y la vista especial para administradores.
 
 ---
 

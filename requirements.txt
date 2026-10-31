@@ -2,3 +2,4 @@ Flask>=2.3.0
 Werkzeug>=2.3.0
 gunicorn>=21.2.0
 libsql>=0.1.11
+reportlab>=4.0.0

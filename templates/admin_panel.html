@@ -721,6 +721,9 @@
     </div>
 
     <div class="admin-nav-actions">
+      <a href="/static/docs/MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf" download class="btn btn-sm" style="background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.45); color: #38bdf8; font-weight: 700;" title="Descargar Manual Oficial de Administración en PDF con índice">
+        📄 Manual PDF ⬇
+      </a>
       <a href="/" target="_blank" class="btn btn-outline-white btn-sm" title="Abrir la página pública en una nueva pestaña">
         🌐 Ver Sitio Público ↗
       </a>
@@ -838,6 +841,24 @@
             <div class="kpi-number">{{ snapshots|length }}</div>
             <div class="kpi-label">Puntos Base Guardados</div>
           </div>
+        </div>
+
+        <!-- Banner de Descarga del Manual Oficial PDF -->
+        <div style="background: linear-gradient(135deg, rgba(0, 53, 112, 0.06), rgba(114, 0, 38, 0.06)); border: 1.5px solid rgba(0, 53, 112, 0.2); border-radius: var(--radius-lg); padding: 1.25rem 1.6rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 280px;">
+            <div style="font-size: 2.2rem; background: #ffffff; width: 54px; height: 54px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1px solid var(--gris-200); flex-shrink: 0;">
+              📕
+            </div>
+            <div>
+              <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--azul-dark); margin: 0 0 0.25rem 0;">Manual de Usuario & Guía de Administración (PDF Oficial)</h4>
+              <p style="font-size: 0.88rem; color: var(--gris-600); margin: 0; line-height: 1.4;">
+                Documento completo de 11 páginas con índice general, tutorial paso a paso de cada función, capturas, diagramas y solución de problemas.
+              </p>
+            </div>
+          </div>
+          <a href="/static/docs/MANUAL_ADMINISTRADOR_LICEO_LIMON.pdf" download class="btn btn-azul" style="white-space: nowrap; font-weight: 700;">
+            📥 Descargar Manual en PDF
+          </a>
         </div>
 
         <!-- Accesos Rápidos Principales -->
