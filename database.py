@@ -6,6 +6,7 @@ BASE DE DATOS (SQLite) - LICEO DE LIMÓN MARIO BOURNE BOURNE
 
 import sqlite3
 import os
+import re
 import json
 import time
 import secrets
@@ -465,7 +466,25 @@ def get_news_by_id(news_id):
     conn.close()
     return dict(row) if row else None
 
+DEFAULT_NEWS_IMAGE = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80'
+
+def extract_video_thumbnail(video_url):
+    """Extrae automáticamente la miniatura oficial de YouTube o Google Drive si el usuario no aportó una foto."""
+    if not video_url or not isinstance(video_url, str):
+        return None
+    url = video_url.strip()
+    yt_m = re.search(r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})', url)
+    if yt_m:
+        return f"https://img.youtube.com/vi/{yt_m.group(1)}/hqdefault.jpg"
+    drive_m = re.search(r'drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)', url)
+    if drive_m:
+        return f"https://drive.google.com/thumbnail?id={drive_m.group(1)}&sz=w1000"
+    return None
+
 def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url=''):
+    if not image or not str(image).strip():
+        image = extract_video_thumbnail(video_url) or DEFAULT_NEWS_IMAGE
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -479,6 +498,9 @@ def add_news(title, category, category_slug, subcategory, date, summary, content
     return new_id
 
 def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url=''):
+    if not image or not str(image).strip():
+        image = extract_video_thumbnail(video_url) or DEFAULT_NEWS_IMAGE
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''

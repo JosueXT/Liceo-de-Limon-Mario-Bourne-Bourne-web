@@ -2600,6 +2600,47 @@
     bindLiveImagePreview('editNewsImage', 'editNewsImagePreview');
     bindLiveImagePreview('inputFlagUrl', 'flagPreviewImg');
 
+    // Detección automática y sincronización de miniatura oficial desde YouTube o Google Drive
+    function extractVideoThumbnail(url) {
+      if (!url || typeof url !== 'string') return '';
+      url = url.trim();
+      const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+      if (ytMatch && ytMatch[1]) {
+        return `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
+      }
+      const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1000`;
+      }
+      return '';
+    }
+
+    function autoSyncVideoThumbnail(videoId, imageId, previewId) {
+      const vInput = document.getElementById(videoId);
+      const imgInput = document.getElementById(imageId);
+      const imgPreview = document.getElementById(previewId);
+      if (!vInput || !imgInput) return;
+
+      const handler = () => {
+        const thumb = extractVideoThumbnail(vInput.value);
+        if (thumb) {
+          if (!imgInput.value.trim() || imgInput.value.includes('unsplash.com')) {
+            imgInput.value = thumb;
+            if (imgPreview) {
+              imgPreview.src = thumb;
+              imgPreview.style.display = 'block';
+            }
+          }
+        }
+      };
+      vInput.addEventListener('input', handler);
+      vInput.addEventListener('change', handler);
+      vInput.addEventListener('paste', () => setTimeout(handler, 80));
+    }
+
+    autoSyncVideoThumbnail('pNewsVideo', 'pNewsImage', 'pNewsImagePreview');
+    autoSyncVideoThumbnail('editNewsVideo', 'editNewsImage', 'editNewsImagePreview');
+
     function setPresetLogo(url) {
       const logoInput = document.getElementById('inputLogoUrl');
       const logoImg = document.getElementById('logoPreviewImg');
@@ -2944,9 +2985,10 @@
       const date = document.getElementById('editNewsDate').value.trim() || new Date().toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' });
       const summary = document.getElementById('editNewsSummary').value.trim();
       const content = document.getElementById('editNewsContent').value.trim();
-      const image = document.getElementById('editNewsImage').value.trim();
-      const image_position = document.getElementById('editNewsImagePosition')?.value || 'center center';
+      const rawImage = document.getElementById('editNewsImage').value.trim();
       const video_url = document.getElementById('editNewsVideo')?.value.trim() || '';
+      const image = rawImage || extractVideoThumbnail(video_url) || 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80';
+      const image_position = document.getElementById('editNewsImagePosition')?.value || 'center center';
       const author = document.getElementById('editNewsAuthor').value.trim() || 'Liceo de Limón MEP';
       const submitBtn = e.target.querySelector('button[type="submit"]');
       if (submitBtn) {
@@ -2996,9 +3038,10 @@
       const date = document.getElementById('pNewsDate').value.trim() || new Date().toLocaleDateString('es-CR', { day: 'numeric', month: 'long', year: 'numeric' });
       const summary = document.getElementById('pNewsSummary').value.trim();
       const content = document.getElementById('pNewsContent').value.trim();
-      const image = document.getElementById('pNewsImage').value.trim();
-      const image_position = document.getElementById('pNewsImagePosition')?.value || 'center center';
+      const rawImage = document.getElementById('pNewsImage').value.trim();
       const video_url = document.getElementById('pNewsVideo')?.value.trim() || '';
+      const image = rawImage || extractVideoThumbnail(video_url) || 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80';
+      const image_position = document.getElementById('pNewsImagePosition')?.value || 'center center';
       const author = document.getElementById('pNewsAuthor').value.trim() || 'Liceo de Limón MEP';
 
       const submitBtn = e.target.querySelector('button[type="submit"]');
