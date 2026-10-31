@@ -340,6 +340,20 @@ def modalidad_detalle(slug):
     cms = get_all_content()
     news = get_all_news()
     is_admin = session.get('is_admin', False)
+
+    # Verificación de mantenimiento para visitantes no administradores
+    subpage_key = f"subpage_status_{slug}"
+    is_deactivated = (cms.get(subpage_key, 'active') == 'maintenance') or (cms.get('subpages_global_maintenance') == 'true')
+
+    if is_deactivated and not is_admin:
+        return render_template(
+            'mantenimiento_subpagina.html',
+            cms=cms,
+            subpage_name=modalidad_info.get('title', slug.upper()),
+            subpage_slug=slug,
+            is_admin=False
+        ), 503
+
     dynamic_lists = get_modality_dynamic_lists(slug, cms)
 
     return render_template(
@@ -348,7 +362,8 @@ def modalidad_detalle(slug):
         cms=cms,
         is_admin=is_admin,
         dynamic_lists=dynamic_lists,
-        news=news
+        news=news,
+        is_maintenance_mode=is_deactivated
     )
 
 @app.route('/desarrolladores')
@@ -358,12 +373,25 @@ def desarrolladores():
     """Subpágina dedicada del Equipo de Desarrolladores de la página web."""
     cms = get_all_content()
     is_admin = session.get('is_admin', False)
+
+    is_deactivated = (cms.get('subpage_status_developers', 'active') == 'maintenance') or (cms.get('subpages_global_maintenance') == 'true')
+
+    if is_deactivated and not is_admin:
+        return render_template(
+            'mantenimiento_subpagina.html',
+            cms=cms,
+            subpage_name="Equipo de Desarrolladores & Créditos Web",
+            subpage_slug="developers",
+            is_admin=False
+        ), 503
+
     developers = get_developers_dynamic_list(cms)
     return render_template(
         'desarrolladores.html',
         cms=cms,
         is_admin=is_admin,
-        developers=developers
+        developers=developers,
+        is_maintenance_mode=is_deactivated
     )
 
 # =============================================================================
@@ -773,6 +801,75 @@ def api_update_developers():
             'success': True,
             'message': 'Equipo de desarrolladores guardado exitosamente.',
             'count': len(devs)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error al guardar en base de datos: {str(e)}'}), 500
+
+# =============================================================================
+# GESTIÓN DE DISPONIBILIDAD Y MANTENIMIENTO DE SUBPÁGINAS
+# =============================================================================
+@app.route('/api/cms/subpages/status', methods=['GET'])
+def api_get_subpages_status():
+    """Retorna el estado de activación y mantenimiento de todas las subpáginas."""
+    cms = get_all_content()
+    subpages = {
+        'ib': cms.get('subpage_status_ib', 'active'),
+        'frances': cms.get('subpage_status_frances', 'active'),
+        'regular': cms.get('subpage_status_regular', 'active'),
+        'developers': cms.get('subpage_status_developers', 'active'),
+        'global_maintenance': cms.get('subpages_global_maintenance', 'false') == 'true',
+        'maintenance_title': cms.get('subpages_maintenance_title', 'Apartado Temporalmente Fuera de Servicio'),
+        'maintenance_message': cms.get('subpages_maintenance_message', 'Este apartado se encuentra temporalmente fuera de servicio debido a que se está realizando mantenimiento técnico y actualización de contenidos institucionales. Por favor, vuelva nuevamente más tarde.')
+    }
+    return jsonify({'success': True, 'subpages': subpages})
+
+@app.route('/api/cms/subpages/toggle', methods=['POST'])
+def api_toggle_subpage():
+    """Activa o desactiva subpáginas específicas o el modo global de mantenimiento."""
+    if not session.get('is_admin', False):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    data = request.get_json() or {}
+    subpage = str(data.get('subpage', '')).strip().lower()
+    target_status = data.get('status')
+
+    valid_subpages = {'ib', 'frances', 'regular', 'developers', 'global'}
+    if subpage not in valid_subpages:
+        return jsonify({'success': False, 'message': f'Subpágina inválida. Opciones válidas: {list(valid_subpages)}'}), 400
+
+    cms = get_all_content()
+    items_to_save = {}
+
+    if subpage == 'global':
+        current = cms.get('subpages_global_maintenance', 'false') == 'true'
+        if target_status is not None:
+            new_val = 'true' if (target_status in ['maintenance', True, 'true', '1']) else 'false'
+        else:
+            new_val = 'false' if current else 'true'
+        items_to_save['subpages_global_maintenance'] = new_val
+        new_status = 'maintenance' if new_val == 'true' else 'active'
+    else:
+        key = f"subpage_status_{subpage}"
+        current = cms.get(key, 'active')
+        if target_status is not None:
+            new_status = 'maintenance' if str(target_status).lower() in ['maintenance', 'false', '0', 'disabled'] else 'active'
+        else:
+            new_status = 'maintenance' if current == 'active' else 'active'
+        items_to_save[key] = new_status
+
+    if 'maintenance_title' in data:
+        items_to_save['subpages_maintenance_title'] = str(data['maintenance_title']).strip()
+    if 'maintenance_message' in data:
+        items_to_save['subpages_maintenance_message'] = str(data['maintenance_message']).strip()
+
+    try:
+        update_bulk_content(items_to_save)
+        return jsonify({
+            'success': True,
+            'subpage': subpage,
+            'new_status': new_status,
+            'global_maintenance': items_to_save.get('subpages_global_maintenance', cms.get('subpages_global_maintenance', 'false')) == 'true',
+            'message': f'Estado de subpágina {subpage} actualizado a: {new_status}'
         })
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error al guardar en base de datos: {str(e)}'}), 500

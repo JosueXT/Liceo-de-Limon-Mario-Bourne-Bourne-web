@@ -794,18 +794,18 @@ class LiceoLimonTestCase(unittest.TestCase):
 
     def test_18_admin_panel_developers_management(self):
         """Verifica la gestión completa de Desarrolladores desde el Panel de Administración y visibilidad de enlaces"""
-        # 1. Verificar visibilidad de enlaces prominentes en el sitio
+        # 1. Verificar visibilidad de enlaces en barra superior y pie de página, y que no sature navMenu
         res_home = self.client.get('/')
         html_home = res_home.get_data(as_text=True)
         self.assertIn('mep-dev-link', html_home)
-        self.assertIn('nav-dev-highlight', html_home)
         self.assertIn('footer_col3_link_dev', html_home)
+        self.assertNotIn('nav-pill-creditos', html_home)
 
         res_ib = self.client.get('/modalidad/ib')
         html_ib = res_ib.get_data(as_text=True)
         self.assertIn('mep-dev-link', html_ib)
-        self.assertIn('nav-dev-highlight', html_ib)
         self.assertIn('footer_col3_link_dev', html_ib)
+        self.assertNotIn('nav-pill-creditos', html_ib)
 
         # 2. Login y acceso a la pestaña de Desarrolladores en el panel de control
         self.client.post('/api/auth/login',
@@ -875,6 +875,99 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertIn('Ingeniera de Pruebas', html_devs_page)
         self.assertIn('Arquitectura', html_devs_page)
         self.assertIn('Programación', html_devs_page)
+
+    def test_19_subpages_activation_and_maintenance(self):
+        """Verifica la activación/desactivación de subpáginas desde el panel admin y mensaje de mantenimiento"""
+        # 1. Por defecto, todas las subpáginas están activas y retornan HTTP 200 a visitantes
+        self.assertEqual(self.client.get('/modalidad/ib').status_code, 200)
+        self.assertEqual(self.client.get('/modalidad/frances').status_code, 200)
+        self.assertEqual(self.client.get('/modalidad/regular').status_code, 200)
+        self.assertEqual(self.client.get('/desarrolladores').status_code, 200)
+
+        # 2. Intentar cambiar estado sin ser admin debe retornar 403
+        res_unauth = self.client.post('/api/cms/subpages/toggle',
+            data=json.dumps({'subpage': 'ib', 'status': 'maintenance'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_unauth.status_code, 403)
+
+        # 3. Autenticarse como administrador
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+
+        # 4. Desactivar la subpágina de Bachillerato IB
+        res_toggle_ib = self.client.post('/api/cms/subpages/toggle',
+            data=json.dumps({'subpage': 'ib', 'status': 'maintenance'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_toggle_ib.status_code, 200)
+        data_ib = json.loads(res_toggle_ib.get_data(as_text=True))
+        self.assertEqual(data_ib['new_status'], 'maintenance')
+
+        # 5. El administrador aún puede ver la página (HTTP 200) con aviso de mantenimiento
+        res_admin_view = self.client.get('/modalidad/ib')
+        self.assertEqual(res_admin_view.status_code, 200)
+        html_admin = res_admin_view.get_data(as_text=True)
+        self.assertIn('AVISO DE ADMINISTRACIÓN', html_admin)
+
+        # 6. Un visitante no autenticado (logout) debe recibir pantalla de mantenimiento (HTTP 503)
+        self.client.get('/logout')
+        res_visitor_ib = self.client.get('/modalidad/ib')
+        self.assertEqual(res_visitor_ib.status_code, 503)
+        html_visitor = res_visitor_ib.get_data(as_text=True)
+        self.assertIn('Apartado Temporalmente Fuera de Servicio', html_visitor)
+        self.assertIn('Mantenimiento Institucional', html_visitor)
+        self.assertIn('Volver al Inicio', html_visitor)
+        self.assertIn('href="/"', html_visitor)
+
+        # Las otras subpáginas siguen activas para el visitante
+        self.assertEqual(self.client.get('/modalidad/frances').status_code, 200)
+        self.assertEqual(self.client.get('/modalidad/regular').status_code, 200)
+
+        # 7. Reactivar la subpágina de Bachillerato IB como administrador
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+        res_reactivate_ib = self.client.post('/api/cms/subpages/toggle',
+            data=json.dumps({'subpage': 'ib', 'status': 'active'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_reactivate_ib.status_code, 200)
+
+        # Logout y comprobar que el visitante ahora sí accede a IB normalmente (HTTP 200)
+        self.client.get('/logout')
+        res_restored = self.client.get('/modalidad/ib')
+        self.assertEqual(res_restored.status_code, 200)
+        self.assertNotIn('Apartado Temporalmente Fuera de Servicio', res_restored.get_data(as_text=True))
+
+        # 8. Mantenimiento de subpágina de desarrolladores
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+        self.client.post('/api/cms/subpages/toggle',
+            data=json.dumps({'subpage': 'developers', 'status': 'maintenance'}),
+            content_type='application/json'
+        )
+        self.client.get('/logout')
+        res_devs_maint = self.client.get('/desarrolladores')
+        self.assertEqual(res_devs_maint.status_code, 503)
+        self.assertIn('Volver al Inicio', res_devs_maint.get_data(as_text=True))
+
+        # Restaurar subpágina de desarrolladores
+        self.client.post('/api/auth/login',
+            data=json.dumps({'username': 'Admin', 'password': 'Admin'}),
+            content_type='application/json'
+        )
+        self.client.post('/api/cms/subpages/toggle',
+            data=json.dumps({'subpage': 'developers', 'status': 'active'}),
+            content_type='application/json'
+        )
+        self.client.get('/logout')
+        self.assertEqual(self.client.get('/desarrolladores').status_code, 200)
 
 if __name__ == '__main__':
     unittest.main()

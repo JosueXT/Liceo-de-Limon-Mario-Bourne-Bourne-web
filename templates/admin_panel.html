@@ -782,6 +782,9 @@
       </button>
 
       <div class="sidebar-heading">Mantenimiento y Respaldo</div>
+      <button class="sidebar-btn" data-tab="tab-subpages" style="color: var(--azul-dark); font-weight: 700;">
+        <span>🛠️ Control de Subpáginas</span>
+      </button>
       <button class="sidebar-btn" data-tab="tab-snapshots" style="color: var(--azul-dark); font-weight: 700;">
         <span>🛡️ Puntos de Control & Respaldo</span>
       </button>
@@ -940,6 +943,20 @@
               </p>
             </div>
             <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Cambiar Claves →</span>
+          </div>
+
+          <!-- Acción 8: Control de Subpáginas & Mantenimiento -->
+          <div class="action-card" onclick="switchToTab('tab-subpages')">
+            <div>
+              <div class="action-card-header">
+                <div class="action-card-icon" style="background: rgba(217, 119, 6, 0.1); color: #d97706;">🛠️</div>
+                <h4 class="action-card-title">Estado de Subpáginas</h4>
+              </div>
+              <p class="action-card-desc">
+                Active o desactive temporalmente las subpáginas (IB, Francés, Regular o Desarrolladores) con mensaje de mantenimiento institucional.
+              </p>
+            </div>
+            <span class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Gestionar Estado →</span>
           </div>
         </div>
 
@@ -2064,6 +2081,173 @@
               💾 Guardar Todos los Cambios
             </button>
           </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA: CONTROL Y MANTENIMIENTO DE SUBPÁGINAS ==================== -->
+      <section class="admin-tab-pane" id="tab-subpages">
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 class="panel-card-title">🛠️ Estado de Activación y Mantenimiento de Subpáginas</h2>
+              <p class="panel-card-desc">
+                Controle la disponibilidad pública de las subpáginas institucionales. Cuando desactive un apartado, cualquier visitante verá la pantalla informativa de mantenimiento con opción de volver al inicio, mientras que los administradores autenticados podrán seguir viéndola y editándola normalmente.
+              </p>
+            </div>
+          </div>
+
+          <!-- Caja 1: Mantenimiento Global (Master Switch) -->
+          {% set is_global_maint = (cms.get('subpages_global_maintenance') == 'true') %}
+          <div style="background: {% if is_global_maint %}linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.14)){% else %}var(--azul-soft){% endif %}; border: 2px solid {% if is_global_maint %}#fca5a5{% else %}#93c5fd{% endif %}; border-radius: var(--radius-lg); padding: 1.5rem 1.8rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 260px;">
+              <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                <span style="font-size: 1.4rem;">🚨</span>
+                <h3 style="font-size: 1.15rem; color: var(--azul-dark); font-weight: 800; margin: 0;">Mantenimiento General del Sitio (Todas las Subpáginas)</h3>
+              </div>
+              <p style="font-size: 0.88rem; color: var(--gris-700); margin: 0; line-height: 1.5;">
+                Pone simultáneamente todas las subpáginas secundarias (IB, Francés, Regular y Desarrolladores) en modo fuera de servicio con un solo clic.
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <span id="globalMaintBadge" class="status-badge" style="background: {% if is_global_maint %}#fee2e2; color: #991b1b;{% else %}#dcfce7; color: #166534;{% endif %} font-weight: 700; padding: 0.4rem 0.85rem; border-radius: var(--radius-full);">
+                {% if is_global_maint %}⚠️ MANTENIMIENTO GLOBAL ACTIVO{% else %}🟢 Todas Activas (Normal){% endif %}
+              </span>
+              <button type="button" id="btnToggleGlobalMaint" class="btn {% if is_global_maint %}btn-azul{% else %}btn-vino{% endif %} btn-sm" onclick="toggleSubpageStatus('global')">
+                {% if is_global_maint %}✅ Reanudar Acceso a Todas{% else %}⛔ Desactivar Todas las Subpáginas{% endif %}
+              </button>
+            </div>
+          </div>
+
+          <!-- Caja 2: Tarjetas Individuales por Subpágina -->
+          <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--azul-dark); font-weight: 800; margin-bottom: 1.25rem;">
+            📑 Control Individual por Subpágina
+          </h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+            
+            <!-- Subpágina 1: Bachillerato Internacional (IB) -->
+            {% set is_ib_maint = (cms.get('subpage_status_ib') == 'maintenance') %}
+            <div class="panel-card" style="margin: 0; border: 1px solid var(--gris-200); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; background: #ffffff;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                  <span style="font-size: 1.75rem;">🎓</span>
+                  <span id="badge-subpage-ib" class="status-badge" style="background: {% if is_ib_maint %}#fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}#dcfce7; color: #166534; border: 1px solid #86efac;{% endif %} font-weight: 700;">
+                    {% if is_ib_maint %}🟡 En Mantenimiento{% else %}🟢 Activa / En Línea{% endif %}
+                  </span>
+                </div>
+                <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--azul-dark); margin-bottom: 0.35rem;">Bachillerato Internacional (IB)</h4>
+                <p style="font-size: 0.825rem; color: var(--gris-500); margin-bottom: 1.15rem;">
+                  Ruta oficial: <code>/modalidad/ib</code>
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" id="btn-subpage-ib" class="btn {% if is_ib_maint %}btn-azul{% else %}btn-outline{% endif %} btn-sm" style="flex: 1;" onclick="toggleSubpageStatus('ib')">
+                  {% if is_ib_maint %}✅ Activar Subpágina{% else %}🛑 Desactivar (Mantenimiento){% endif %}
+                </button>
+                <a href="/modalidad/ib" target="_blank" class="btn btn-outline btn-sm" title="Abrir en pestaña nueva">↗</a>
+              </div>
+            </div>
+
+            <!-- Subpágina 2: Sección Bilingüe Francés -->
+            {% set is_frances_maint = (cms.get('subpage_status_frances') == 'maintenance') %}
+            <div class="panel-card" style="margin: 0; border: 1px solid var(--gris-200); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; background: #ffffff;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                  <span style="font-size: 1.75rem;">🇫🇷</span>
+                  <span id="badge-subpage-frances" class="status-badge" style="background: {% if is_frances_maint %}#fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}#dcfce7; color: #166534; border: 1px solid #86efac;{% endif %} font-weight: 700;">
+                    {% if is_frances_maint %}🟡 En Mantenimiento{% else %}🟢 Activa / En Línea{% endif %}
+                  </span>
+                </div>
+                <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--azul-dark); margin-bottom: 0.35rem;">Sección Bilingüe Francés</h4>
+                <p style="font-size: 0.825rem; color: var(--gris-500); margin-bottom: 1.15rem;">
+                  Ruta oficial: <code>/modalidad/frances</code>
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" id="btn-subpage-frances" class="btn {% if is_frances_maint %}btn-azul{% else %}btn-outline{% endif %} btn-sm" style="flex: 1;" onclick="toggleSubpageStatus('frances')">
+                  {% if is_frances_maint %}✅ Activar Subpágina{% else %}🛑 Desactivar (Mantenimiento){% endif %}
+                </button>
+                <a href="/modalidad/frances" target="_blank" class="btn btn-outline btn-sm" title="Abrir en pestaña nueva">↗</a>
+              </div>
+            </div>
+
+            <!-- Subpágina 3: Modalidad Académica Regular -->
+            {% set is_regular_maint = (cms.get('subpage_status_regular') == 'maintenance') %}
+            <div class="panel-card" style="margin: 0; border: 1px solid var(--gris-200); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; background: #ffffff;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                  <span style="font-size: 1.75rem;">🏛️</span>
+                  <span id="badge-subpage-regular" class="status-badge" style="background: {% if is_regular_maint %}#fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}#dcfce7; color: #166534; border: 1px solid #86efac;{% endif %} font-weight: 700;">
+                    {% if is_regular_maint %}🟡 En Mantenimiento{% else %}🟢 Activa / En Línea{% endif %}
+                  </span>
+                </div>
+                <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--azul-dark); margin-bottom: 0.35rem;">Modalidad Regular</h4>
+                <p style="font-size: 0.825rem; color: var(--gris-500); margin-bottom: 1.15rem;">
+                  Ruta oficial: <code>/modalidad/regular</code>
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" id="btn-subpage-regular" class="btn {% if is_regular_maint %}btn-azul{% else %}btn-outline{% endif %} btn-sm" style="flex: 1;" onclick="toggleSubpageStatus('regular')">
+                  {% if is_regular_maint %}✅ Activar Subpágina{% else %}🛑 Desactivar (Mantenimiento){% endif %}
+                </button>
+                <a href="/modalidad/regular" target="_blank" class="btn btn-outline btn-sm" title="Abrir en pestaña nueva">↗</a>
+              </div>
+            </div>
+
+            <!-- Subpágina 4: Desarrolladores y Créditos Web -->
+            {% set is_devs_maint = (cms.get('subpage_status_developers') == 'maintenance') %}
+            <div class="panel-card" style="margin: 0; border: 1px solid var(--gris-200); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; background: #ffffff;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                  <span style="font-size: 1.75rem;">💻</span>
+                  <span id="badge-subpage-developers" class="status-badge" style="background: {% if is_devs_maint %}#fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}#dcfce7; color: #166534; border: 1px solid #86efac;{% endif %} font-weight: 700;">
+                    {% if is_devs_maint %}🟡 En Mantenimiento{% else %}🟢 Activa / En Línea{% endif %}
+                  </span>
+                </div>
+                <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--azul-dark); margin-bottom: 0.35rem;">Desarrolladores & Créditos</h4>
+                <p style="font-size: 0.825rem; color: var(--gris-500); margin-bottom: 1.15rem;">
+                  Ruta oficial: <code>/desarrolladores</code>
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" id="btn-subpage-developers" class="btn {% if is_devs_maint %}btn-azul{% else %}btn-outline{% endif %} btn-sm" style="flex: 1;" onclick="toggleSubpageStatus('developers')">
+                  {% if is_devs_maint %}✅ Activar Subpágina{% else %}🛑 Desactivar (Mantenimiento){% endif %}
+                </button>
+                <a href="/desarrolladores" target="_blank" class="btn btn-outline btn-sm" title="Abrir en pestaña nueva">↗</a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Caja 3: Personalización de Textos de la Pantalla de Mantenimiento -->
+          <div style="background: var(--blanco); border: 1px solid var(--gris-200); border-radius: var(--radius-lg); padding: 1.8rem; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
+              <span style="font-size: 1.3rem;">✍️</span>
+              <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--azul-dark); font-weight: 800; margin: 0;">Personalizar Mensaje de Mantenimiento para Visitantes</h3>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--gris-500); margin-bottom: 1.5rem;">
+              Este es el título y texto que verán los visitantes cuando intenten acceder a una subpágina desactivada:
+            </p>
+
+            <form id="formSubpageMaintenanceTexts" onsubmit="saveSubpageMaintenanceNotice(event)">
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label">Título Principal del Aviso</label>
+                <input type="text" id="subpageMaintTitleInput" class="form-control" value="{{ cms.get('subpages_maintenance_title', 'Apartado Temporalmente Fuera de Servicio') }}" placeholder="Ej. Apartado Temporalmente Fuera de Servicio">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label">Mensaje Informativo para el Visitante</label>
+                <textarea id="subpageMaintMessageInput" class="form-control" rows="3" placeholder="Explique al visitante el motivo del mantenimiento y sugiera volver más tarde...">{{ cms.get('subpages_maintenance_message', 'Este apartado se encuentra temporalmente fuera de servicio debido a que se está realizando mantenimiento técnico y actualización de contenidos institucionales. Por favor, vuelva nuevamente más tarde.') }}</textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" id="btnSaveMaintTexts" class="btn btn-vino">
+                  💾 Guardar Textos de Mantenimiento
+                </button>
+              </div>
+            </form>
+          </div>
+
         </div>
       </section>
 
@@ -3229,6 +3413,128 @@
       } finally {
         if (topBtn) { topBtn.disabled = false; topBtn.innerText = '💾 Guardar Cambios'; }
         if (btmBtn) { btmBtn.disabled = false; btmBtn.innerText = '💾 Guardar Todos los Cambios'; }
+      }
+    }
+
+    // =========================================================================
+    // CONTROL Y MANTENIMIENTO DE SUBPÁGINAS
+    // =========================================================================
+    async function toggleSubpageStatus(subpage) {
+      try {
+        const res = await fetch('/api/cms/subpages/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subpage })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('✓ ' + data.message, 'success');
+          updateSubpageUI(data.subpage, data.new_status, data.global_maintenance);
+        } else {
+          showToast('Error: ' + (data.message || 'No se pudo actualizar'), 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al cambiar estado de subpágina.', 'error');
+      }
+    }
+
+    function updateSubpageUI(subpage, status, globalMaint) {
+      if (subpage === 'global') {
+        const badge = document.getElementById('globalMaintBadge');
+        const btn = document.getElementById('btnToggleGlobalMaint');
+        if (status === 'maintenance') {
+          if (badge) {
+            badge.style.background = '#fee2e2';
+            badge.style.color = '#991b1b';
+            badge.innerHTML = '⚠️ MANTENIMIENTO GLOBAL ACTIVO';
+          }
+          if (btn) {
+            btn.className = 'btn btn-azul btn-sm';
+            btn.innerHTML = '✅ Reanudar Acceso a Todas';
+          }
+        } else {
+          if (badge) {
+            badge.style.background = '#dcfce7';
+            badge.style.color = '#166534';
+            badge.innerHTML = '🟢 Todas Activas (Normal)';
+          }
+          if (btn) {
+            btn.className = 'btn btn-vino btn-sm';
+            btn.innerHTML = '⛔ Desactivar Todas las Subpáginas';
+          }
+        }
+      } else {
+        const badge = document.getElementById(`badge-subpage-${subpage}`);
+        const btn = document.getElementById(`btn-subpage-${subpage}`);
+        if (status === 'maintenance') {
+          if (badge) {
+            badge.style.background = '#fef3c7';
+            badge.style.color = '#92400e';
+            badge.style.borderColor = '#fcd34d';
+            badge.innerHTML = '🟡 En Mantenimiento';
+          }
+          if (btn) {
+            btn.className = 'btn btn-azul btn-sm';
+            btn.style.flex = '1';
+            btn.innerHTML = '✅ Activar Subpágina';
+          }
+        } else {
+          if (badge) {
+            badge.style.background = '#dcfce7';
+            badge.style.color = '#166534';
+            badge.style.borderColor = '#86efac';
+            badge.innerHTML = '🟢 Activa / En Línea';
+          }
+          if (btn) {
+            btn.className = 'btn btn-outline btn-sm';
+            btn.style.flex = '1';
+            btn.innerHTML = '🛑 Desactivar (Mantenimiento)';
+          }
+        }
+      }
+    }
+
+    async function saveSubpageMaintenanceNotice(event) {
+      if (event) event.preventDefault();
+      const titleInput = document.getElementById('subpageMaintTitleInput');
+      const messageInput = document.getElementById('subpageMaintMessageInput');
+      const btn = document.getElementById('btnSaveMaintTexts');
+
+      if (!titleInput || !messageInput) return;
+
+      const title = titleInput.value.trim();
+      const message = messageInput.value.trim();
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Guardando...';
+      }
+
+      try {
+        const res = await fetch('/api/cms/content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: {
+              subpages_maintenance_title: title,
+              subpages_maintenance_message: message
+            }
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('✓ Aviso de mantenimiento actualizado con éxito.', 'success');
+        } else {
+          showToast('Error al guardar aviso: ' + (data.message || 'Desconocido'), 'error');
+        }
+      } catch (e) {
+        showToast('Error de conexión al guardar aviso.', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '💾 Guardar Textos de Mantenimiento';
+        }
       }
     }
   </script>

@@ -105,7 +105,6 @@
           <li class="nav-item"><a href="/modalidad/ib" class="nav-link nav-pill-ib">Bachillerato IB</a></li>
           <li class="nav-item"><a href="/#noticias" class="nav-link nav-pill-noticias">Noticias</a></li>
           <li class="nav-item"><a href="/#contacto" class="nav-link nav-pill-contacto">Contacto</a></li>
-          <li class="nav-item"><a href="/desarrolladores" class="nav-link active nav-pill-creditos nav-dev-highlight">💻 Créditos</a></li>
           <li class="nav-item mobile-only-nav-item">
             <a href="/modalidad/ib" class="btn btn-vino btn-sm mobile-nav-btn">Bachillerato IB</a>
           </li>
@@ -122,6 +121,15 @@
       </nav>
     </div>
   </header>
+
+  {% if is_admin and is_maintenance_mode %}
+  <div style="background: linear-gradient(90deg, #b45309, #d97706); color: #ffffff; padding: 0.75rem 1rem; text-align: center; font-size: 0.9rem; font-weight: 600; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3); z-index: 99; position: relative;">
+    <div class="container" style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+      <span>⚠️ <strong>AVISO DE ADMINISTRACIÓN:</strong> Esta subpágina está actualmente <u>DESACTIVADA / EN MANTENIMIENTO</u> para visitantes públicos. Puedes verla y editarla por ser administrador.</span>
+      <a href="/admin/panel" class="btn btn-sm" style="background: rgba(0,0,0,0.25); color: #fff; padding: 0.25rem 0.75rem; font-size: 0.8rem; border-radius: var(--radius-full);">Gestionar en Panel ↗</a>
+    </div>
+  </div>
+  {% endif %}
 
   <!-- =====================================================================
        3. SECCIÓN HERO DE PRESENTACIÓN DE DESARROLLADORES
