@@ -3350,8 +3350,9 @@
           const res = await fetch(`/api/cms/news/${id}`, { method: 'DELETE' });
           const data = await res.json();
           if (res.ok && data.success) {
-            showToast('✓ Comunicado eliminado.', 'success');
+            showToast('✓ Comunicado eliminado y numeración compactada.', 'success');
             document.getElementById(`newsRow-${id}`)?.remove();
+            setTimeout(() => { window.location.reload(); }, 400);
           }
         } catch (err) {
           showToast('Error al eliminar comunicado.', 'error');

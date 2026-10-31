@@ -289,18 +289,26 @@ def init_db(force=False):
         row = cursor.fetchone()
         return not row or row[0] == 0
 
-    # Verificar si necesitamos rellenar datos iniciales
+    # Verificar si necesitamos rellenar datos iniciales (SOLO LA PRIMERA VEZ EN LA INSTALACIÓN)
+    cursor.execute("SELECT value FROM cms_content WHERE key = 'db_seed_completed'")
+    seed_flag = cursor.fetchone()
+
     cursor.execute('SELECT COUNT(*) FROM cms_content')
-    if _is_empty():
+    cms_cnt_row = cursor.fetchone()
+    cms_cnt = cms_cnt_row[0] if cms_cnt_row else 0
+
+    if not seed_flag and cms_cnt == 0:
+        # Base de datos completamente nueva y vacía: poblar datos iniciales de fábrica
         seed_content(conn)
-
-    cursor.execute('SELECT COUNT(*) FROM news_articles')
-    if _is_empty():
         seed_news(conn)
-
-    cursor.execute('SELECT COUNT(*) FROM contact_inquiries')
-    if _is_empty():
         seed_inquiries(conn)
+        cursor.execute("INSERT OR REPLACE INTO cms_content (key, value) VALUES ('db_seed_completed', 'true')")
+        conn.commit()
+    elif not seed_flag and cms_cnt > 0:
+        # Base de datos existente en producción (ej: Turso en la nube con textos guardados):
+        # Marcar que ya está inicializada para no volver a inyectar noticias o consultas eliminadas
+        cursor.execute("INSERT OR REPLACE INTO cms_content (key, value) VALUES ('db_seed_completed', 'true')")
+        conn.commit()
 
     cursor.execute('SELECT COUNT(*) FROM admin_users')
     if _is_empty():
@@ -330,6 +338,10 @@ def init_db(force=False):
         cursor.execute("INSERT OR REPLACE INTO cms_content (key, value) VALUES ('site_logo', ?)", (DEFAULT_CMS_CONTENT['site_logo'],))
     conn.close()
     _DB_ALREADY_INITIALIZED = True
+    try:
+        resequence_news_ids()
+    except Exception:
+        pass
 
 def seed_content(conn):
     cursor = conn.cursor()
@@ -549,12 +561,54 @@ def update_news(news_id, title, category, category_slug, subcategory, date, summ
     invalidate_cms_cache()
     return True
 
+def resequence_news_ids():
+    """
+    Reordena y compacta los IDs de las noticias para que siempre sean números limpios
+    y consecutivos (1, 2, 3...) según su orden cronológico original de creación,
+    evitando que el número crezca indefinidamente (#32, #33, #34, #35...).
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM news_articles ORDER BY id ASC')
+    rows = cursor.fetchall()
+
+    current_ids = [row['id'] for row in rows]
+    expected_ids = list(range(1, len(current_ids) + 1))
+
+    if current_ids and current_ids != expected_ids:
+        # 1. Asignar temporalmente IDs negativos para evitar colisiones de clave UNIQUE
+        for idx, old_id in enumerate(current_ids):
+            temp_id = -(idx + 1)
+            cursor.execute('UPDATE news_articles SET id = ? WHERE id = ?', (temp_id, old_id))
+
+        # 2. Asignar los IDs consecutivos limpios (1, 2, 3...)
+        for idx in range(len(current_ids)):
+            temp_id = -(idx + 1)
+            new_id = idx + 1
+            cursor.execute('UPDATE news_articles SET id = ? WHERE id = ?', (new_id, temp_id))
+
+    # 3. Sincronizar el puntero AUTOINCREMENT (sqlite_sequence)
+    total = len(current_ids)
+    try:
+        if total == 0:
+            cursor.execute("DELETE FROM sqlite_sequence WHERE name = 'news_articles'")
+        else:
+            cursor.execute("UPDATE sqlite_sequence SET seq = ? WHERE name = 'news_articles'", (total,))
+    except Exception:
+        pass
+
+    conn.commit()
+    conn.close()
+    invalidate_cms_cache()
+    return True
+
 def delete_news(news_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('DELETE FROM news_articles WHERE id = ?', (news_id,))
     conn.commit()
     conn.close()
+    resequence_news_ids()
     invalidate_cms_cache()
     return True
 
@@ -598,6 +652,13 @@ def delete_inquiry(inquiry_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('DELETE FROM contact_inquiries WHERE id = ?', (inquiry_id,))
+    try:
+        cursor.execute('SELECT COUNT(*) FROM contact_inquiries')
+        row = cursor.fetchone()
+        if row and row[0] == 0:
+            cursor.execute("DELETE FROM sqlite_sequence WHERE name = 'contact_inquiries'")
+    except Exception:
+        pass
     conn.commit()
     conn.close()
     return True
@@ -608,9 +669,19 @@ def reset_to_defaults():
     cursor.execute('DELETE FROM cms_content')
     cursor.execute('DELETE FROM news_articles')
     cursor.execute('DELETE FROM contact_inquiries')
+    try:
+        cursor.execute("DELETE FROM sqlite_sequence WHERE name IN ('news_articles', 'contact_inquiries')")
+    except Exception:
+        pass
     seed_content(conn)
     seed_news(conn)
     seed_inquiries(conn)
+    cursor.execute("INSERT OR REPLACE INTO cms_content (key, value) VALUES ('db_seed_completed', 'true')")
+    conn.commit()
+    conn.close()
+    resequence_news_ids()
+    invalidate_cms_cache()
+    return True
     conn.close()
     invalidate_cms_cache()
     return True
