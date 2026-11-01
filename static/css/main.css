@@ -2237,6 +2237,14 @@ textarea.form-control {
   letter-spacing: 0.5px;
 }
 
+.th-group-col {
+  width: 28%;
+}
+
+.th-subject-col {
+  width: 72%;
+}
+
 .curriculum-table td {
   padding: 1.3rem 1.6rem;
   border-bottom: 1px solid var(--gris-200);
@@ -3482,7 +3490,8 @@ body.mobile-menu-open {
   /* Malla Curricular 100% responsiva sin desbordes ni texto cortado */
   .curriculum-table-wrapper,
   body.theme-ib .curriculum-table-wrapper {
-    overflow: hidden !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
     display: block;
     width: 100% !important;
     max-width: 100% !important;
@@ -3494,9 +3503,9 @@ body.mobile-menu-open {
   .curriculum-table,
   body.theme-ib .curriculum-table {
     width: 100% !important;
-    min-width: 0 !important;
+    min-width: 100% !important;
     max-width: 100% !important;
-    table-layout: fixed !important;
+    table-layout: auto !important;
     border-collapse: separate !important;
     border-spacing: 0 !important;
   }
@@ -3513,9 +3522,10 @@ body.mobile-menu-open {
   .curriculum-table th:first-child,
   body.theme-ib .curriculum-table th:first-child,
   .curriculum-table td:first-child,
-  body.theme-ib .curriculum-table td:first-child {
-    width: 32% !important;
-    max-width: 115px !important;
+  body.theme-ib .curriculum-table td:first-child,
+  .th-group-col {
+    width: 30% !important;
+    max-width: 105px !important;
     padding: 0.8rem 0.45rem !important;
     text-align: center !important;
     vertical-align: middle !important;
@@ -3524,11 +3534,16 @@ body.mobile-menu-open {
   .curriculum-table th:nth-child(2),
   body.theme-ib .curriculum-table th:nth-child(2),
   .curriculum-table td:nth-child(2),
-  body.theme-ib .curriculum-table td:nth-child(2) {
-    width: 68% !important;
-    padding: 0.8rem 0.75rem !important;
+  body.theme-ib .curriculum-table td:nth-child(2),
+  .th-subject-col {
+    width: 70% !important;
+    padding: 0.8rem 0.65rem !important;
     vertical-align: middle !important;
     text-align: left !important;
+  }
+
+  body.theme-ib .curriculum-table tbody tr td {
+    padding: 0.8rem 0.6rem !important;
   }
 
   body.theme-ib .curriculum-group-cell strong {
@@ -3550,7 +3565,7 @@ body.mobile-menu-open {
     font-size: 0.84rem !important;
     line-height: 1.45 !important;
     color: var(--gris-800) !important;
-    word-break: normal !important;
+    word-break: break-word !important;
     overflow-wrap: break-word !important;
   }
 
@@ -3749,29 +3764,36 @@ body.mobile-menu-open {
   .curriculum-table th:first-child,
   body.theme-ib .curriculum-table th:first-child,
   .curriculum-table td:first-child,
-  body.theme-ib .curriculum-table td:first-child {
-    width: 30% !important;
-    max-width: 95px !important;
+  body.theme-ib .curriculum-table td:first-child,
+  .th-group-col {
+    width: 28% !important;
+    max-width: 90px !important;
     padding: 0.65rem 0.35rem !important;
   }
 
   .curriculum-table th:nth-child(2),
   body.theme-ib .curriculum-table th:nth-child(2),
   .curriculum-table td:nth-child(2),
-  body.theme-ib .curriculum-table td:nth-child(2) {
-    width: 70% !important;
+  body.theme-ib .curriculum-table td:nth-child(2),
+  .th-subject-col {
+    width: 72% !important;
     padding: 0.65rem 0.55rem !important;
+  }
+
+  body.theme-ib .curriculum-table tbody tr td {
+    padding: 0.65rem 0.45rem !important;
   }
 
   body.theme-ib .curriculum-group-cell strong {
     font-size: 0.72rem !important;
-    padding: 0.25rem 0.35rem !important;
+    padding: 0.22rem 0.35rem !important;
   }
 
   .curriculum-subject-cell,
   body.theme-ib .curriculum-subject-cell {
-    font-size: 0.78rem !important;
+    font-size: 0.76rem !important;
     line-height: 1.38 !important;
+    word-break: break-word !important;
   }
 
   /* Estadísticas Flotantes */
@@ -5082,15 +5104,27 @@ body.devs-page-body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
 }
 
-/* Menú Móvil en Modo Oscuro */
+/* Menú de Navegación en Modo Oscuro */
 [data-theme="dark"] .nav-menu {
-  background: rgba(10, 16, 32, 0.98) !important;
-  border-bottom: 2px solid #0284c7 !important;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 [data-theme="dark"] .nav-item {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border: none !important;
+}
+
+@media (max-width: 992px) {
+  [data-theme="dark"] .nav-menu {
+    background: rgba(10, 16, 32, 0.98) !important;
+    border-bottom: 2px solid #0284c7 !important;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  [data-theme="dark"] .nav-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  }
 }
 
 /* Barra de Migas de Pan (Breadcrumbs) en Modo Oscuro */
@@ -5163,7 +5197,6 @@ body.devs-page-body {
 [data-theme="dark"] .curriculum-section,
 [data-theme="dark"] .requirements-section,
 [data-theme="dark"] .subject-groups-section,
-[data-theme="dark"] .social-section,
 [data-theme="dark"] .faq-section,
 [data-theme="dark"] .modality-intro-section,
 [data-theme="dark"] .modality-curriculum-section {
@@ -5178,9 +5211,19 @@ body.devs-page-body {
   color: #cbd5e1;
 }
 
+[data-theme="dark"] .social-section,
 [data-theme="dark"] .ib-social-section {
   background: linear-gradient(180deg, #070c18 0%, #0a1122 100%) !important;
+  background-image: linear-gradient(180deg, #070c18 0%, #0a1122 100%) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Insignias / Tags de Sección en Modo Oscuro */
+[data-theme="dark"] .section-tag {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15) !important;
 }
 
 /* Títulos y Subtítulos de Secciones */
@@ -5222,7 +5265,11 @@ body.devs-page-body {
 [data-theme="dark"] .ib-hello-desc,
 [data-theme="dark"] .ib-accreditation-desc,
 [data-theme="dark"] .ib-coord-desc {
-  color: #94a3b8 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .social-handle {
+  color: #38bdf8 !important;
 }
 
 [data-theme="dark"] .lead-text {
@@ -5237,6 +5284,7 @@ body.devs-page-body {
 [data-theme="dark"] .mission-card,
 [data-theme="dark"] .vision-card,
 [data-theme="dark"] .contact-info-panel,
+[data-theme="dark"] .contact-form-wrapper,
 [data-theme="dark"] .contact-form-container,
 [data-theme="dark"] .pillar-card,
 [data-theme="dark"] .feature-card,
@@ -5251,7 +5299,7 @@ body.devs-page-body {
 [data-theme="dark"] .visual-page-card,
 [data-theme="dark"] .curriculum-table-wrapper {
   background: #0e182e !important;
-  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55) !important;
   color: #cbd5e1;
 }
@@ -5466,7 +5514,12 @@ body.devs-page-body {
   color: #38bdf8 !important;
 }
 
-/* Formularios e Inputs */
+/* Formularios e Inputs en Modo Oscuro */
+[data-theme="dark"] .form-label {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+}
+
 [data-theme="dark"] .form-control,
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
@@ -5482,6 +5535,82 @@ body.devs-page-body {
 [data-theme="dark"] select:focus {
   border-color: #38bdf8 !important;
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3) !important;
+}
+
+[data-theme="dark"] ::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Panel de Contacto e Información en Modo Oscuro */
+[data-theme="dark"] .contact-info-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .contact-item-label,
+[data-theme="dark"] .contact-detail-label {
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .contact-item-value,
+[data-theme="dark"] .contact-detail-text {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .contact-icon-circle {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+}
+
+/* Caja Destacada de Modalidades y Elementos de Lista en Modo Oscuro */
+[data-theme="dark"] .highlight-stat-box {
+  background: #0e182e !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .highlight-stat-tag {
+  color: #38bdf8 !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.2px !important;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+[data-theme="dark"] .highlight-stat-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .highlight-stat-desc {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .highlight-features-check {
+  color: #f1f5f9 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .highlight-features-check span {
+  color: #f1f5f9 !important;
+}
+
+/* Pathway Cards en Inicio para Modo Oscuro */
+[data-theme="dark"] .pathway-feature-item {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .pathway-description {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .pathway-features-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .feature-icon-bullet {
+  background: #0284c7 !important;
+  color: #ffffff !important;
 }
 
 /* Modales y Notificaciones */
@@ -6112,42 +6241,44 @@ body.theme-ib .curriculum-table {
   border: none;
 }
 
-body.theme-ib .curriculum-table thead th {
-  background: linear-gradient(135deg, #07193b 0%, #0284c7 100%);
-  color: #ffffff;
-  padding: 1.4rem 1.8rem;
-  font-family: var(--font-heading);
-  font-size: 1.05rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border: none;
-}
+@media (min-width: 769px) {
+  body.theme-ib .curriculum-table thead th {
+    background: linear-gradient(135deg, #07193b 0%, #0284c7 100%);
+    color: #ffffff;
+    padding: 1.4rem 1.8rem;
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: none;
+  }
 
-body.theme-ib .curriculum-table tbody tr {
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-}
+  body.theme-ib .curriculum-table tbody tr {
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
 
-body.theme-ib .curriculum-table tbody tr td {
-  padding: 1.35rem 1.8rem;
-  border-bottom: 1px solid rgba(2, 132, 199, 0.1);
-  transition: all 0.28s ease;
+  body.theme-ib .curriculum-table tbody tr td {
+    padding: 1.35rem 1.8rem;
+    border-bottom: 1px solid rgba(2, 132, 199, 0.1);
+    transition: all 0.28s ease;
+  }
+
+  /* Hover 3D en las filas de la tabla */
+  body.theme-ib .curriculum-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(2, 132, 199, 0.08) 0%, rgba(56, 189, 248, 0.04) 100%);
+    transform: translateX(10px) scale(1.006);
+  }
+
+  body.theme-ib .curriculum-table tbody tr:hover td:first-child {
+    border-left: 5px solid #0284c7;
+    padding-left: calc(1.8rem - 5px);
+  }
 }
 
 body.theme-ib .curriculum-table tbody tr:last-child td {
   border-bottom: none;
-}
-
-/* Hover 3D en las filas de la tabla */
-body.theme-ib .curriculum-table tbody tr:hover {
-  background: linear-gradient(90deg, rgba(2, 132, 199, 0.08) 0%, rgba(56, 189, 248, 0.04) 100%);
-  transform: translateX(10px) scale(1.006);
-}
-
-body.theme-ib .curriculum-table tbody tr:hover td:first-child {
-  border-left: 5px solid #0284c7;
-  padding-left: calc(1.8rem - 5px);
 }
 
 /* Celda de Grupo estilizada como Badge Moderno */

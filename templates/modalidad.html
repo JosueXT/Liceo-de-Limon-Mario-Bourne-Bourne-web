@@ -469,8 +469,8 @@
         <table class="curriculum-table" data-cms-list="curriculum" data-cms-prefix="{{ modalidad.slug }}_curr_">
           <thead>
             <tr>
-              <th style="width: 25%;" data-cms-key="modality_curriculum_th1">{{ cms.modality_curriculum_th1 }}</th>
-              <th style="width: 70%;" data-cms-key="modality_curriculum_th2">{{ cms.modality_curriculum_th2 }}</th>
+              <th class="th-group-col" data-cms-key="modality_curriculum_th1">{{ cms.modality_curriculum_th1 }}</th>
+              <th class="th-subject-col" data-cms-key="modality_curriculum_th2">{{ cms.modality_curriculum_th2 }}</th>
               {% if is_admin %}
               <th class="cms-th-actions" style="width: 5%;"></th>
               {% endif %}
@@ -741,7 +741,7 @@
                     <span class="news-tag-overlay tag-ib">
                       <span class="cat-text-full">{{ item.category }}</span>
                       <span class="cat-text-short">{% if item.category_slug == 'ib' or 'Bachillerato' in item.category %}IB{% elif 'Franc' in item.category %}Francés{% elif 'Regular' in item.category %}Académica{% else %}{{ item.category }}{% endif %}</span>
-                      {% if item.subcategory and item.subcategory not in ['Instagram', 'Facebook', item.category, 'Redes Sociales', 'General'] %}
+                      {% if item.subcategory and (item.subcategory|lower|trim) not in ['instagram', 'facebook', 'redes sociales', 'general', (item.category|lower|trim)] and 'instagram' not in (item.subcategory|lower) and 'facebook' not in (item.subcategory|lower) %}
                         <span class="news-subcategory-tag">{{ item.subcategory }}</span>
                       {% endif %}
                     </span>
