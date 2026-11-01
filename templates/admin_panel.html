@@ -928,7 +928,7 @@
                 <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: #0369a1; font-weight: 800; margin: 0;">
                   Modo Exclusivo Bachillerato Internacional (Portal Dedicado IB)
                 </h3>
-                <span id="ibExclusiveBadge" class="badge" style="background: {{ '#dcfce7; color: #15803d;' if is_ib_exclusive else '#f1f5f9; color: #64748b;' }} font-weight: 800; font-size: 0.75rem;">
+                <span id="ibExclusiveBadge" class="badge {{ 'badge-ib-active' if is_ib_exclusive else 'badge-ib-inactive' }}">
                   {{ '🟢 MODO EXCLUSIVO IB ACTIVO' if is_ib_exclusive else '⚪ MODO COLEGIO GENERAL ACTIVO' }}
                 </span>
               </div>
@@ -2903,10 +2903,10 @@
                   </td>
                   <td>
                     {% if u.role != 'admin' %}
-                    <button type="button" class="btn btn-sm btn-outline" onclick="toggleTeacherActive({{ u.id }})" style="margin-right: 0.35rem;">
+                    <button type="button" class="btn btn-sm btn-outline" data-user-id="{{ u.id }}" onclick="toggleTeacherActive(this.dataset.userId)" style="margin-right: 0.35rem;">
                       {{ 'Pausar' if u.is_active == 1 else 'Activar' }}
                     </button>
-                    <button type="button" class="btn btn-sm btn-vino" onclick="deleteTeacher({{ u.id }}, '{{ u.username }}')">
+                    <button type="button" class="btn btn-sm btn-vino" data-user-id="{{ u.id }}" data-username="{{ u.username }}" onclick="deleteTeacher(this.dataset.userId, this.dataset.username)">
                       Eliminar
                     </button>
                     {% else %}
@@ -4181,8 +4181,7 @@
           const isExclusive = (data.ib_exclusive_mode === 'true');
           const badge = document.getElementById('ibExclusiveBadge');
           if (badge) {
-            badge.style.background = isExclusive ? '#dcfce7' : '#f1f5f9';
-            badge.style.color = isExclusive ? '#15803d' : '#64748b';
+            badge.className = 'badge ' + (isExclusive ? 'badge-ib-active' : 'badge-ib-inactive');
             badge.innerText = isExclusive ? '🟢 MODO EXCLUSIVO IB ACTIVO' : '⚪ MODO COLEGIO GENERAL ACTIVO';
           }
           if (btn) {
