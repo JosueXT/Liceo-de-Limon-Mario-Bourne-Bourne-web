@@ -85,8 +85,12 @@
         <a href="/admin/panel" class="admin-portal-badge mep-badge-admin" style="background: var(--azul);" title="Ir al Panel de Control">
           ⚙️ Panel Admin
         </a>
+        {% elif is_teacher %}
+        <a href="/portal-docente" class="admin-portal-badge mep-badge-admin" style="background: #0284c7;" title="Ir al Portal de Docentes">
+          👩‍🏫 Portal Docente
+        </a>
         {% else %}
-        <a href="/login" class="admin-portal-badge mep-badge-login" title="Iniciar sesión de administración">
+        <a href="/login" class="admin-portal-badge mep-badge-login" title="Iniciar sesión institucional">
           🔒 Iniciar Sesión
         </a>
         {% endif %}

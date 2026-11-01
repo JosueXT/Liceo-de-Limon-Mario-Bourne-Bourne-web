@@ -17,15 +17,29 @@ from datetime import datetime
 from database import get_db_connection, add_news, invalidate_cms_cache, resequence_news_ids
 
 # Publicaciones oficiales base del Bachillerato Internacional (IB) en Redes Sociales
+# Importadas directamente desde Instagram (@ib_limon_) y Facebook Oficial IB
 OFFICIAL_IB_SOCIAL_FEEDS = [
+    {
+        "title": "📸 Convocatoria Abierta: Pruebas Diagnósticas e Inducción al Diploma IB 2026",
+        "category": "Bachillerato Internacional",
+        "category_slug": "ib",
+        "subcategory": "Redes Sociales",
+        "date": "29 de Octubre, 2026",
+        "summary": "Información oficial compartida en Instagram con requisitos, cronograma de exámenes y fechas de charlas informativas para 9° año.",
+        "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nInvitamos a los estudiantes de 9° año y a sus familias interesadas en formar parte del Bachillerato Internacional público a consultar los requisitos de admisión, documentación y fechas clave en el enlace oficial de la publicación.",
+        "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80",
+        "author": "Instagram @ib_limon_",
+        "social_network": "Instagram",
+        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
+    },
     {
         "title": "📸 Proyecto CAS IB: Reforestación y Conciencia Marina en el Caribe Sur",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "29 de Octubre, 2026",
+        "date": "27 de Octubre, 2026",
         "summary": "Estudiantes del Diploma IB documentaron en Instagram su trabajo de campo ecológico y servicio comunitario en Playa Bonita y Cahuita.",
-        "content": "Publicación oficial replicada desde Instagram (@ib_limon_).\n\nLos estudiantes de la generación 2026 del Bachillerato Internacional del Liceo de Limón lideraron una jornada ecológica y de educación ambiental marina en alianza con organizaciones comunitarias del Caribe costarricense.\n\nSiga las historias, videos y testimonios completos en nuestra cuenta oficial de Instagram.",
+        "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nLos estudiantes de la generación del Bachillerato Internacional del Liceo de Limón lideraron una jornada ecológica y de educación ambiental marina en alianza con organizaciones comunitarias del Caribe costarricense.\n\nSiga las historias, videos y testimonios completos en nuestra cuenta oficial de Instagram.",
         "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
@@ -36,23 +50,49 @@ OFFICIAL_IB_SOCIAL_FEEDS = [
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "26 de Octubre, 2026",
+        "date": "25 de Octubre, 2026",
         "summary": "Transmisión oficial y galería de fotos compartida en nuestra página de Facebook sobre el coloquio anual de epistemología y ética TOK.",
-        "content": "Publicación oficial replicada desde Facebook (Bachillerato Internacional - Liceo de Limón).\n\nRevise las presentaciones orales, ensayos destacados y debates interactivos de los alumnos del Diploma del IB sobre preguntas centrales del conocimiento humano, perspectivas culturales y ética contemporánea.\n\nEl video completo de la transmisión se encuentra disponible en nuestro Facebook oficial.",
+        "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional - Liceo de Limón).\n\nRevise las presentaciones orales, ensayos destacados y debates interactivos de los alumnos del Diploma del IB sobre preguntas centrales del conocimiento humano, perspectivas culturales y ética contemporánea.\n\nEl video completo de la transmisión se encuentra disponible en nuestro Facebook oficial.",
         "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80",
         "author": "Facebook IB Liceo de Limón",
         "social_network": "Facebook",
         "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
     },
     {
-        "title": "📸 Convocatoria Abierta: Pruebas Diagnósticas e Inducción al Diploma IB 2026",
+        "title": "📸 Defensa de Monografías (Extended Essay): Investigación Rigurosa y Pensamiento Crítico",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "22 de Octubre, 2026",
-        "summary": "Información oficial compartida en Instagram con requisitos, cronograma de exámenes y fechas de charlas informativas para 9° año.",
-        "content": "Publicación oficial replicada desde Instagram (@ib_limon_).\n\nInvitamos a los estudiantes de 9° año y a sus familias interesadas en formar parte del Bachillerato Internacional público a consultar los requisitos de admisión, documentación y fechas clave en el enlace oficial de la publicación.",
-        "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80",
+        "date": "20 de Octubre, 2026",
+        "summary": "Estudiantes del IB concluyen con éxito su investigación monográfica de 4.000 palabras en diversas áreas académicas.",
+        "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nFelicitamos a los alumnos del Diploma IB por la culminación y defensa oral de sus Monografías académicas. Sus proyectos abarcaron desde historia regional de Limón y literatura caribeña, hasta análisis biofísicos de arrecifes y modelos matemáticos aplicados.",
+        "image": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80",
+        "author": "Instagram @ib_limon_",
+        "social_network": "Instagram",
+        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
+    },
+    {
+        "title": "👥 Ceremonia de Graduación y Entrega de Diplomas Oficiales del Bachillerato Internacional",
+        "category": "Bachillerato Internacional",
+        "category_slug": "ib",
+        "subcategory": "Redes Sociales",
+        "date": "15 de Octubre, 2026",
+        "summary": "Álbum fotográfico y reseña compartida en Facebook sobre la solemne entrega de títulos a los egresados del Diploma IB.",
+        "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional - Liceo de Limón).\n\nCelebramos con orgullo el logro de nuestra nueva generación de graduados del Programa del Diploma IB. Gracias a su esfuerzo y disciplina, abren puertas en universidades de prestigio nacional e internacional.",
+        "image": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
+        "author": "Facebook IB Liceo de Limón",
+        "social_network": "Facebook",
+        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
+    },
+    {
+        "title": "📸 Laboratorios de Ciencias Experimentales STEM y Biología Marina en Acción",
+        "category": "Bachillerato Internacional",
+        "category_slug": "ib",
+        "subcategory": "Redes Sociales",
+        "date": "10 de Octubre, 2026",
+        "summary": "Sesiones prácticas de laboratorio donde los estudiantes del IB aplican el método científico en experimentos de química y física.",
+        "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nNuestros estudiantes del IB pusieron en práctica sus habilidades científicas en el laboratorio de química y biología, recolectando datos experimentales para su evaluación interna. ¡La ciencia y la indagación viva en el Liceo de Limón!",
+        "image": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
         "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"

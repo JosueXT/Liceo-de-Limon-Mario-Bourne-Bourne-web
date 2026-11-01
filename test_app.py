@@ -1214,6 +1214,57 @@ class LiceoLimonTestCase(unittest.TestCase):
         news_after_delete = get_all_news()
         self.assertFalse(any(n['id'] == target_item['id'] for n in news_after_delete))
 
+    def test_27_teacher_auth_redirect_and_admin_panel_blocking(self):
+        """Valida que los docentes ingresen al portal docente, reciban su redirección adecuada y tengan BLOQUEADO el acceso al panel administrativo."""
+        from database import create_teacher_user
+
+        # 1. Crear un usuario profesor de prueba
+        create_teacher_user('profe_pedro', 'Limon2026!', 'Prof. Pedro Campbell')
+
+        # 2. Iniciar sesión mediante /api/auth/login
+        res_login = self.client.post('/api/auth/login', json={
+            'username': 'profe_pedro',
+            'password': 'Limon2026!'
+        })
+        self.assertEqual(res_login.status_code, 200)
+        data = json.loads(res_login.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['role'], 'teacher')
+        self.assertEqual(data['redirect'], '/portal-docente')
+
+        # 3. Intentar acceder al panel administrativo /admin/panel estando autenticado como docente
+        res_admin = self.client.get('/admin/panel', follow_redirects=False)
+        self.assertEqual(res_admin.status_code, 302)
+        # Debe redirigirlo estrictamente a /portal-docente
+        self.assertIn('/portal-docente', res_admin.headers.get('Location', ''))
+
+        # 4. Comprobar que en /portal-docente tiene acceso pleno
+        res_portal = self.client.get('/portal-docente')
+        self.assertEqual(res_portal.status_code, 200)
+        html_portal = res_portal.data.decode('utf-8')
+        self.assertIn('Prof. Pedro Campbell', html_portal)
+
+    def test_28_login_speed_and_health_cache(self):
+        """Valida que el acceso al panel administrativo y las consultas de salud usen caché en memoria para respuesta instantánea."""
+        import time
+        from email_service import check_smtp_health
+        from gemini_service import check_gemini_health
+
+        # 1. Primera consulta carga en memoria
+        t0 = time.time()
+        s1 = check_smtp_health()
+        g1 = check_gemini_health()
+
+        # 2. Consultas subsecuentes responden en menos de 10 milisegundos desde memoria caché
+        t1 = time.time()
+        s2 = check_smtp_health()
+        g2 = check_gemini_health()
+        elapsed = (time.time() - t1) * 1000
+
+        self.assertLess(elapsed, 15.0)  # Menos de 15ms
+        self.assertEqual(s1.get('provider'), s2.get('provider'))
+        self.assertEqual(g1.get('model'), g2.get('model'))
+
 if __name__ == '__main__':
     unittest.main()
 

@@ -602,9 +602,10 @@
           if (res.ok && data.success) {
             submitBtn.innerText = '✓ Acceso Concedido. Redirigiendo...';
             submitBtn.style.background = '#10b981';
+            const targetUrl = data.redirect || (data.role === 'teacher' ? '/portal-docente' : '/admin/panel');
             setTimeout(() => {
-              window.location.href = '/admin/panel';
-            }, 600);
+              window.location.href = targetUrl;
+            }, 100);
           } else {
             errorBox.innerText = data.message || 'Usuario o contraseña incorrectos.';
             errorBox.style.display = 'block';
@@ -612,13 +613,13 @@
             errorBox.style.borderColor = '#f87171';
             errorBox.style.color = '#991b1b';
             submitBtn.disabled = false;
-            submitBtn.innerText = 'Ingresar al Panel Administrativo';
+            submitBtn.innerText = 'Ingresar al Portal Institucional';
           }
         } catch (err) {
           errorBox.innerText = 'Error al conectar con el servidor.';
           errorBox.style.display = 'block';
           submitBtn.disabled = false;
-          submitBtn.innerText = 'Ingresar al Panel Administrativo';
+          submitBtn.innerText = 'Ingresar al Portal Institucional';
         }
       });
 

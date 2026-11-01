@@ -670,9 +670,17 @@ def send_recovery_otp_email(to_email, otp_code, username='Administrador', expira
 
         return False, f"No fue posible enviar el correo por SMTP: {err_str}"
 
-def check_smtp_health():
-    """Diagnóstico en vivo del estado y latencia de conexión con el servidor de correo SMTP."""
+_smtp_health_cache = None
+_smtp_health_cache_time = 0
+
+def check_smtp_health(force=False):
+    """Diagnóstico del estado y latencia de conexión con el servidor de correo SMTP con caché de 5 minutos para máxima velocidad."""
+    global _smtp_health_cache, _smtp_health_cache_time
     import time
+    now = time.time()
+    if not force and _smtp_health_cache is not None and (now - _smtp_health_cache_time) < 300:
+        return _smtp_health_cache
+
     host, port, user, password, from_addr, use_tls = get_smtp_config()
     if not host or not user or not password:
         return {
@@ -685,13 +693,13 @@ def check_smtp_health():
         }
     t0 = time.time()
     try:
-        server = smtplib.SMTP(host, port, timeout=10)
+        server = smtplib.SMTP(host, port, timeout=5)
         if use_tls:
             server.starttls()
         server.login(user, password)
         latency = (time.time() - t0) * 1000
         server.quit()
-        return {
+        res = {
             'configured': True,
             'connected': True,
             'latency_ms': round(latency, 1),
@@ -703,7 +711,7 @@ def check_smtp_health():
         }
     except Exception as e:
         latency = (time.time() - t0) * 1000
-        return {
+        res = {
             'configured': True,
             'connected': False,
             'latency_ms': round(latency, 1),
@@ -713,6 +721,10 @@ def check_smtp_health():
             'error': str(e),
             'message': f'Fallo de conexión SMTP ({host}:{port}): {str(e)}'
         }
+
+    _smtp_health_cache = res
+    _smtp_health_cache_time = now
+    return res
 
 
 

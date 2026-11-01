@@ -360,6 +360,7 @@ def favicon():
 def home():
     """Ruta Principal Pública: Carga el sitio institucional con los contenidos del CMS"""
     is_admin = session.get('is_admin', False)
+    is_teacher = session.get('is_teacher', False)
     cms = get_all_content(force_fresh=is_admin)
     raw_news = get_all_news(force_fresh=is_admin)
     is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
@@ -379,6 +380,7 @@ def home():
         cms=cms,
         news=news,
         is_admin=is_admin,
+        is_teacher=is_teacher,
         is_ib_exclusive=is_ib_exclusive,
         pathway_features=pathway_features,
         dynamic_campus=dynamic_campus,
@@ -395,6 +397,7 @@ def modalidad_detalle(slug):
 
     modalidad_info = MODALIDADES_DETALLE[slug]
     is_admin = session.get('is_admin', False)
+    is_teacher = session.get('is_teacher', False)
     cms = get_all_content(force_fresh=is_admin)
     raw_news = get_all_news(force_fresh=is_admin)
     is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
@@ -432,6 +435,7 @@ def modalidad_detalle(slug):
         modalidad=modalidad_info,
         cms=cms,
         is_admin=is_admin,
+        is_teacher=is_teacher,
         is_ib_exclusive=is_ib_exclusive,
         dynamic_lists=dynamic_lists,
         news=news,
@@ -444,6 +448,7 @@ def modalidad_detalle(slug):
 def desarrolladores():
     """Subpágina dedicada del Equipo de Desarrolladores de la página web."""
     is_admin = session.get('is_admin', False)
+    is_teacher = session.get('is_teacher', False)
     cms = get_all_content(force_fresh=is_admin)
 
     is_deactivated = (cms.get('subpage_status_developers', 'active') == 'maintenance') or (cms.get('subpages_global_maintenance') == 'true')
@@ -462,6 +467,7 @@ def desarrolladores():
         'desarrolladores.html',
         cms=cms,
         is_admin=is_admin,
+        is_teacher=is_teacher,
         developers=developers,
         is_maintenance_mode=is_deactivated
     )
@@ -530,6 +536,11 @@ def logout():
 @app.route('/admin/panel')
 def admin_panel():
     """Subpágina de Edición y Panel de Administración con Bandeja de Consultas."""
+    # 1. Bloqueo estricto: Los profesores NUNCA pueden acceder al panel administrativo
+    if session.get('is_teacher', False):
+        return redirect(url_for('teacher_portal'))
+
+    # 2. Si no es administrador, redirigir al login
     if not session.get('is_admin', False):
         return redirect(url_for('login'))
 
@@ -537,13 +548,9 @@ def admin_panel():
     current_admin_username = session.get('admin_username') or (admin_user['username'] if admin_user else 'Admin')
     current_recovery_email = (admin_user['recovery_email'] if admin_user and admin_user.get('recovery_email') else 'jeredamaya@gmail.com')
 
-    try:
-        resequence_news_ids()
-    except Exception:
-        pass
-
-    cms = get_all_content(force_fresh=True)
-    news = get_all_news(force_fresh=True)
+    # Lectura veloz optimizada con caché en memoria
+    cms = get_all_content()
+    news = get_all_news()
     official_news = [n for n in news if n.get('subcategory') != 'Redes Sociales' and not n.get('social_network') and not n.get('social_url')]
     social_news = [n for n in news if n.get('subcategory') == 'Redes Sociales' or n.get('social_network') or n.get('social_url')]
     inquiries = get_all_inquiries()
@@ -576,15 +583,15 @@ def admin_panel():
 # 3.1 PORTAL DEDICADO PARA PROFESORES (PANEL SIMPLIFICADO Y AMIGABLE)
 # =============================================================================
 
-@app.route('/portal-docente')
 @app.route('/profesor')
+@app.route('/portal-docente')
 def teacher_portal():
     """Portal hiper amigable para profesores (noticias, redes, contacto y consultas)."""
     if not session.get('is_teacher') and not session.get('is_admin'):
         return redirect(url_for('login'))
 
-    cms = get_all_content(force_fresh=True)
-    news = get_all_news(force_fresh=True)
+    cms = get_all_content()
+    news = get_all_news()
     inquiries = get_all_inquiries()
     teacher_name = session.get('teacher_name') or session.get('admin_username') or 'Docente'
     
@@ -834,7 +841,7 @@ def api_delete_inquiry(inquiry_id):
 
 @app.route('/api/auth/login', methods=['POST'])
 def api_login():
-    """Valida credenciales dinámicas en base de datos con hash seguro y protección contra fuerza bruta."""
+    """Valida credenciales dinámicas en base de datos (Admin o Docente) con hash seguro y protección contra fuerza bruta."""
     ip = get_client_ip()
     if not app.config.get('TESTING'):
         locked, remaining = security_shield.is_locked(ip, 'api_login', max_attempts=5, window_seconds=600)
@@ -849,24 +856,42 @@ def api_login():
     username = data.get('username', '').strip()
     password = data.get('password', '').strip()
 
-    if verify_admin_credentials(username, password):
+    user, ok, err_msg = verify_user_credentials(username, password)
+    if ok and user:
         if not app.config.get('TESTING'):
             security_shield.reset_failures(ip, 'api_login')
         session.clear()  # Protección contra fijación de sesión (Session Fixation OWASP)
-        session['is_admin'] = True
-        session['admin_username'] = username
-        trigger_admin_login_alert(username, ip, request.headers.get('User-Agent', ''))
-        return jsonify({
-            'success': True,
-            'message': 'Autenticación exitosa.',
-            'redirect': '/admin/panel'
-        })
+
+        role = user.get('role', 'admin')
+        if role == 'teacher':
+            session['is_teacher'] = True
+            session['teacher_id'] = user['id']
+            session['teacher_username'] = user['username']
+            session['teacher_name'] = user['full_name'] or user['username']
+            session['is_admin'] = False
+            return jsonify({
+                'success': True,
+                'role': 'teacher',
+                'message': f'Bienvenido(a), {session["teacher_name"]}.',
+                'redirect': '/portal-docente'
+            })
+        else:
+            session['is_admin'] = True
+            session['is_teacher'] = False
+            session['admin_username'] = user['username']
+            trigger_admin_login_alert(username, ip, request.headers.get('User-Agent', ''))
+            return jsonify({
+                'success': True,
+                'role': 'admin',
+                'message': 'Autenticación exitosa.',
+                'redirect': '/admin/panel'
+            })
     else:
         if not app.config.get('TESTING'):
             security_shield.record_failure(ip, 'api_login')
         return jsonify({
             'success': False,
-            'message': 'Usuario o contraseña incorrectos. Verifique sus credenciales.'
+            'message': err_msg or 'Usuario o contraseña incorrectos. Verifique sus credenciales.'
         }), 401
 
 @app.route('/api/auth/logout', methods=['POST'])
@@ -1424,7 +1449,7 @@ def api_admin_test_smtp():
     if not session.get('is_admin', False):
         return jsonify({'success': False, 'message': 'No autorizado.'}), 403
 
-    res = check_smtp_health()
+    res = check_smtp_health(force=True)
     return jsonify({
         'success': res.get('connected', False),
         'result': res

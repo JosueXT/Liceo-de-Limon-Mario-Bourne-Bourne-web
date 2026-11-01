@@ -38,25 +38,39 @@ def get_gemini_api_key():
         return ''
     return key
 
-def check_gemini_health():
-    """Diagnóstico en tiempo real del estado de conexión con Google Gemini."""
+_gemini_health_cache = None
+_gemini_health_cache_time = 0
+
+def check_gemini_health(force=False):
+    """Diagnóstico en tiempo real del estado de conexión con Google Gemini con caché de 5 minutos."""
+    global _gemini_health_cache, _gemini_health_cache_time
+    now = time.time()
+    if not force and _gemini_health_cache is not None and (now - _gemini_health_cache_time) < 300:
+        return _gemini_health_cache
+
     if os.environ.get('TESTING') == 'True':
-        return {
+        res = {
             'active': True,
             'model': 'gemini-3.5-flash-lite',
             'latency_ms': 15.0,
             'total_models': 50,
             'message': 'Modo de pruebas unitarias activo (Simulación de IA).'
         }
+        _gemini_health_cache = res
+        _gemini_health_cache_time = now
+        return res
 
     api_key = get_gemini_api_key()
     if not api_key:
-        return {
+        res = {
             'active': False,
             'model': 'No configurado',
             'latency_ms': 0,
             'message': 'API Key no configurada. Agregue GEMINI_API_KEY en variables de entorno de Render o en .env.'
         }
+        _gemini_health_cache = res
+        _gemini_health_cache_time = now
+        return res
 
     t0 = time.time()
     url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
@@ -68,11 +82,11 @@ def check_gemini_health():
                 'x-goog-api-key': api_key
             }
         )
-        with urllib.request.urlopen(req, timeout=6) as resp:
+        with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read().decode('utf-8'))
             latency = (time.time() - t0) * 1000
             has_flash_lite = any('3.5-flash-lite' in m.get('name', '') or 'flash-lite' in m.get('name', '') for m in data.get('models', []))
-            return {
+            res = {
                 'active': True,
                 'model': 'gemini-3.5-flash-lite' if has_flash_lite else 'gemini-flash-lite-latest',
                 'latency_ms': round(latency, 1),
@@ -97,7 +111,7 @@ def check_gemini_health():
         else:
             msg = f"Error en Google Gemini ({he.code}): {error_detail}"
 
-        return {
+        res = {
             'active': False,
             'model': 'Error de autenticación' if he.code in (400, 401) else 'Error de cuota/servicio',
             'latency_ms': round(latency, 1),
@@ -106,13 +120,17 @@ def check_gemini_health():
         }
     except Exception as e:
         latency = (time.time() - t0) * 1000
-        return {
+        res = {
             'active': False,
             'model': 'Error de conexión',
             'latency_ms': round(latency, 1),
             'error': str(e),
             'message': f'No fue posible contactar con Google Gemini: {str(e)}'
         }
+
+    _gemini_health_cache = res
+    _gemini_health_cache_time = now
+    return res
 
 def _friendly_field_name(key):
     """Mapea claves técnicas de CMS a nombres legibles en español."""

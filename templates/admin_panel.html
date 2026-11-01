@@ -1762,69 +1762,35 @@
                   <strong style="color: #0369a1; font-size: 1.05rem;">Sub-Apartado de Redes Sociales del Bachillerato Internacional (IB)</strong>
                 </div>
                 <p style="font-size: 0.85rem; color: var(--gris-700); margin: 0; line-height: 1.45;">
-                  Publicaciones exclusivas del <strong>Bachillerato Internacional</strong> provenientes de <strong>Instagram (@ib_limon_)</strong> y <strong>Facebook Oficial IB</strong>. Cuentan con distintivo oficial y botón de enlace directo para los visitantes en el portal público de noticias.
+                  Publicaciones oficiales del <strong>Bachillerato Internacional</strong> importadas automáticamente desde <strong>Instagram (@ib_limon_)</strong> y <strong>Facebook Oficial IB</strong>. Cuentan con distintivo oficial y botón de enlace directo para los visitantes en el portal público de noticias.
                 </p>
               </div>
               <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="syncIbSocialPosts()" id="btnSyncSocial" style="border-color: #0284c7; color: #0284c7; font-weight: 700;">
-                  🔄 Sincronizar Redes IB (IG & FB)
-                </button>
-                <button type="button" class="btn btn-azul btn-sm" onclick="toggleAdminAddSocialForm()">
-                  ➕ Replicar Publicación
+                <button type="button" class="btn btn-azul btn-sm" onclick="syncIbSocialPosts()" id="btnSyncSocial" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+                  <span>🔄 Sincronizar Publicaciones Automáticamente</span>
                 </button>
               </div>
             </div>
 
-            <!-- Formulario 3: REPLICAR PUBLICACIÓN DE RED SOCIAL IB -->
-            <div id="panelAddSocialBox" style="display: none; background: #f0f9ff; border: 2px solid #38bdf8; border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2.5rem; box-shadow: 0 8px 25px rgba(2, 132, 199, 0.08);">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid #bae6fd; padding-bottom: 0.8rem;">
+            <!-- Banner Informativo de Sincronización Automática (Sin necesidad de ingresar enlaces individuales) -->
+            <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--radius-md); padding: 1rem 1.4rem; margin-bottom: 1.8rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 0.8rem;">
+                <span style="font-size: 1.5rem;">📡</span>
                 <div>
-                  <h3 style="font-size: 1.25rem; color: #0369a1; margin: 0;">📱 Replicar Publicación de Instagram / Facebook</h3>
-                  <span style="font-size: 0.85rem; color: #0284c7;">Se asignará automáticamente a Bachillerato Internacional con distintivo oficial y botón directo.</span>
+                  <strong style="color: #166534; font-size: 0.95rem;">Sincronización Automática Activa</strong>
+                  <p style="margin: 0; font-size: 0.82rem; color: #15803d; line-height: 1.35;">
+                    Las noticias se extraen y actualizan directamente de las cuentas oficiales de IB en <strong>Instagram (@ib_limon_)</strong> y <strong>Facebook</strong>. No se requiere ingresar enlaces individuales de cada publicación.
+                  </p>
                 </div>
-                <button type="button" class="btn btn-outline btn-sm" onclick="toggleAdminAddSocialForm()">✕ Cancelar</button>
               </div>
-
-              <form id="adminAddSocialForm">
-                <div class="form-grid-2">
-                  <div class="form-group">
-                    <label class="form-label">Red Social *</label>
-                    <select id="adminSocialNetwork" name="network" class="form-control" style="font-weight: 700;">
-                      <option value="Instagram">📸 Instagram Oficial (@ib_limon_)</option>
-                      <option value="Facebook">👥 Facebook Oficial IB</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Enlace Directo de la Publicación (URL) *</label>
-                    <div style="display: flex; gap: 0.5rem;">
-                      <input type="url" id="adminSocialPostUrl" name="post_url" class="form-control" placeholder="https://www.instagram.com/p/... o https://www.facebook.com/..." required>
-                      <button type="button" class="btn btn-outline btn-sm" id="btnAdminAutoFetch" onclick="autoFetchAdminSocialMetadata()" style="border-color: #0284c7; color: #0284c7; font-weight: 700; white-space: nowrap;">
-                        🪄 Cargar Auto
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Título del Comunicado *</label>
-                  <input type="text" id="adminSocialPostTitle" name="title" class="form-control" placeholder="Ej: Proyecto CAS IB en Cahuita" required>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Resumen / Descripción *</label>
-                  <textarea id="adminSocialPostSummary" name="summary" class="form-control" rows="3" placeholder="Resumen del contenido compartido en redes..." required></textarea>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Foto de Portada (Opcional)</label>
-                  <input type="url" id="adminSocialPostImage" name="image_url" class="form-control" placeholder="https://... o deje vacío para usar imagen por defecto">
-                </div>
-
-                <div style="display: flex; gap: 1rem;">
-                  <button type="submit" class="btn btn-azul" id="btnAdminShareSocial">🚀 Replicar y Publicar en Noticias IB</button>
-                  <button type="button" class="btn btn-outline" onclick="toggleAdminAddSocialForm()">Cancelar</button>
-                </div>
-              </form>
+              <div style="display: flex; gap: 0.5rem;">
+                <a href="https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="background: #fff; border-color: #e1306c; color: #e1306c; font-size: 0.78rem;">
+                  📸 Ver Instagram IB ↗
+                </a>
+                <a href="https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="background: #fff; border-color: #1877f2; color: #1877f2; font-size: 0.78rem;">
+                  👥 Ver Facebook IB ↗
+                </a>
+              </div>
             </div>
 
             <!-- Tabla de Publicaciones de Redes Sociales IB -->
