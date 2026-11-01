@@ -738,7 +738,9 @@
       <!-- Cuadrícula Dinámica de Comunicados -->
       <div class="news-grid" id="newsGridContainer">
         {% for item in news %}
-        <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}" data-image-position="{{ item.image_position or 'center center' }}" data-video-url="{{ item.video_url or '' }}" data-social-url="{{ item.social_url or '' }}" data-gallery='{{ item.gallery_images or "[]" }}'>
+        <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ (item.content or item.summary or '') | e }}" data-image-position="{{ item.image_position or 'center center' }}" data-video-url="{{ (item.video_url or '') | e }}" data-social-url="{{ (item.social_url or '') | e }}" data-gallery='{{ (item.gallery_images or "[]") | e }}'>
+          <div class="news-full-content is-hidden">{{ item.content or item.summary or '' }}</div>
+          <script type="application/json" class="news-gallery-json">{{ (item.gallery_images or '[]') | safe }}</script>
           <div class="news-image-container">
             {% if item.is_pinned %}
             <span class="news-pinned-badge" style="position: absolute; top: 0.75rem; left: 0.75rem; background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: #ffffff; padding: 0.32rem 0.75rem; border-radius: 20px; font-size: 0.78rem; font-weight: 800; z-index: 4; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 4px 12px rgba(202, 138, 4, 0.45); border: 1px solid rgba(255,255,255,0.4);">
@@ -1266,23 +1268,26 @@
        ===================================================================== -->
   <div class="modal-backdrop" id="newsDetailModal">
     <div class="modal-dialog">
-      <button class="modal-close-btn" id="closeNewsModalBtn">&times;</button>
+      <button class="modal-close-btn" id="closeNewsModalBtn" aria-label="Cerrar modal">&times;</button>
       
       <!-- Selector de Medios cuando coexisten Video y Carrusel de Fotos -->
-      <div id="modalMediaSwitcher" style="display: none; padding: 0.6rem 1rem; background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; gap: 0.5rem; justify-content: center; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-        <button type="button" id="btnShowGallery" class="btn btn-sm btn-azul" style="font-size: 0.8rem; padding: 0.35rem 0.85rem;">📸 Fotos (<span id="modalGalleryTotal"></span>)</button>
-        <button type="button" id="btnShowVideo" class="btn btn-sm btn-outline" style="font-size: 0.8rem; padding: 0.35rem 0.85rem; color: #fff; border-color: rgba(255,255,255,0.4);">▶ Video</button>
+      <div id="modalMediaSwitcher" class="modal-media-switcher">
+        <button type="button" id="btnShowGallery" class="btn btn-sm btn-azul">📸 Fotos (<span id="modalGalleryTotal">0</span>)</button>
+        <button type="button" id="btnShowVideo" class="btn btn-sm btn-outline">▶ Video</button>
       </div>
 
+      <!-- Contenedor del Reproductor de Video -->
       <div id="modalNewsVideoContainer" class="modal-video-wrapper" style="display: none;"></div>
-      <div id="modalNewsGalleryContainer" class="modal-gallery-wrapper" style="display: none; position: relative; background: #0f172a; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden;">
-        <img src="" alt="Foto Carrusel" id="modalNewsGalleryImage" style="width: 100%; max-height: 500px; object-fit: contain; display: block; margin: 0 auto; transition: opacity 0.22s ease;">
-        <button type="button" id="modalGalleryPrevBtn" aria-label="Foto Anterior" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: rgba(15,23,42,0.75); color: #fff; border: 1.5px solid rgba(255,255,255,0.45); border-radius: 50%; width: 44px; height: 44px; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">⟨</button>
-        <button type="button" id="modalGalleryNextBtn" aria-label="Foto Siguiente" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(15,23,42,0.75); color: #fff; border: 1.5px solid rgba(255,255,255,0.45); border-radius: 50%; width: 44px; height: 44px; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">⟩</button>
-        <div id="modalGalleryCounter" style="position: absolute; bottom: 12px; right: 16px; background: rgba(15,23,42,0.85); color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; z-index: 5; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2);">1 / 1</div>
-        <div id="modalGalleryDots" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 5;"></div>
+
+      <!-- Contenedor del Carrusel de Fotos -->
+      <div id="modalNewsGalleryContainer" class="modal-gallery-wrapper" style="display: none;">
+        <img src="" alt="Foto de la noticia" id="modalNewsGalleryImage" class="modal-gallery-img">
+        <button type="button" id="modalGalleryPrevBtn" class="modal-gallery-nav-btn modal-gallery-prev" aria-label="Foto Anterior">⟨</button>
+        <button type="button" id="modalGalleryNextBtn" class="modal-gallery-nav-btn modal-gallery-next" aria-label="Foto Siguiente">⟩</button>
+        <div id="modalGalleryCounter" class="modal-gallery-counter-badge">1 / 1</div>
+        <div id="modalGalleryDots" class="modal-gallery-dots-container"></div>
       </div>
-      <img src="" alt="Noticia" id="modalNewsImage" class="modal-image">
+      <img src="" alt="Noticia" id="modalNewsImage" class="modal-image is-hidden">
       <div class="modal-body">
         <h2 class="modal-title" id="modalNewsTitle">Título de la Noticia</h2>
         <div class="modal-meta">

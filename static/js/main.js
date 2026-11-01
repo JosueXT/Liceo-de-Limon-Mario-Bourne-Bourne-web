@@ -338,7 +338,7 @@ function initNewsFilters() {
 }
 
 /**
- * Parsea y formatea enlaces multimedia (Google Drive, YouTube, Vimeo, MP4 directo)
+ * Parsea y formatea enlaces multimedia (Google Drive, YouTube, Vimeo, Instagram, Facebook, MP4 directo)
  */
 function parseMediaVideoUrl(url) {
   if (!url || typeof url !== 'string') return null;
@@ -362,24 +362,46 @@ function parseMediaVideoUrl(url) {
     const videoId = ytMatch[1];
     return {
       type: 'youtube',
-      embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`,
+      videoId: videoId,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`,
       original: url
     };
   }
 
-  // 3. Vimeo
+  // 3. Instagram (Reels, publicaciones de video, IGTV)
+  const igMatch = url.match(/instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/);
+  if (igMatch) {
+    const shortcode = igMatch[1];
+    return {
+      type: 'instagram',
+      shortcode: shortcode,
+      embedUrl: `https://www.instagram.com/p/${shortcode}/embed/captioned/`,
+      original: url
+    };
+  }
+
+  // 4. Vimeo
   const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vimeoMatch) {
     const vimeoId = vimeoMatch[1];
     return {
       type: 'vimeo',
-      embedUrl: `https://player.vimeo.com/video/${vimeoId}?autoplay=1`,
+      embedUrl: `https://player.vimeo.com/video/${vimeoId}`,
       original: url
     };
   }
 
-  // 4. Archivo directo MP4 / WebM / OGG
-  if (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url)) {
+  // 5. Facebook Video
+  if (url.includes('facebook.com') || url.includes('fb.watch')) {
+    return {
+      type: 'facebook',
+      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`,
+      original: url
+    };
+  }
+
+  // 6. Archivo directo MP4 / WebM / OGG / MOV (incluyendo CDN de Curator u otros)
+  if (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url) || url.includes('.mp4') || url.includes('.webm')) {
     return {
       type: 'direct',
       videoUrl: url,
@@ -387,10 +409,10 @@ function parseMediaVideoUrl(url) {
     };
   }
 
-  // 5. Enlace web o embed genérico
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  // 7. Enlace web genérico
+  if (url.startsWith('https://') || url.startsWith('http://')) {
     return {
-      type: 'embed',
+      type: 'generic',
       embedUrl: url,
       original: url
     };
@@ -406,220 +428,299 @@ function initNewsModal() {
   const modal = document.getElementById('newsDetailModal');
   if (!modal) return;
 
-  let activeModalGallery = null;
+  const modalVideo = document.getElementById('modalNewsVideoContainer');
+  const modalGallery = document.getElementById('modalNewsGalleryContainer');
+  const modalGalleryImg = document.getElementById('modalNewsGalleryImage');
+  const modalGalleryCounter = document.getElementById('modalGalleryCounter');
+  const modalGalleryDots = document.getElementById('modalGalleryDots');
+  const prevBtn = document.getElementById('modalGalleryPrevBtn');
+  const nextBtn = document.getElementById('modalGalleryNextBtn');
+  const mediaSwitcher = document.getElementById('modalMediaSwitcher');
+  const btnShowGallery = document.getElementById('btnShowGallery');
+  const btnShowVideo = document.getElementById('btnShowVideo');
+  const modalGalleryTotal = document.getElementById('modalGalleryTotal');
+  const modalTitle = document.getElementById('modalNewsTitle');
+  const modalDate = document.getElementById('modalNewsDate');
+  const modalAuthor = document.getElementById('modalNewsAuthor');
+  const modalBody = document.getElementById('modalNewsBody');
 
-  function openNewsModal(card) {
+  let activeModalGallery = null;
+  let currentParsedVideo = null;
+
+  function stopModalVideo() {
+    if (!modalVideo) return;
+    const vid = modalVideo.querySelector('video');
+    if (vid) {
+      vid.pause();
+      vid.removeAttribute('src');
+      vid.load();
+    }
+    modalVideo.innerHTML = '';
+    modalVideo.style.display = 'none';
+    modalVideo.classList.remove('is-iframe-video', 'is-ig-embed');
+  }
+
+  function renderModalVideo(parsed, autoplay = true) {
+    if (!modalVideo || !parsed) return;
+    stopModalVideo();
+
+    if (parsed.type === 'direct') {
+      modalVideo.classList.remove('is-iframe-video', 'is-ig-embed');
+      modalVideo.innerHTML = `
+        <video controls ${autoplay ? 'autoplay' : ''} playsinline preload="metadata" style="width:100%; height:100%; max-height:520px; object-fit:contain; background:#000; border-radius: var(--radius-xl) var(--radius-xl) 0 0; display:block;">
+          <source src="${parsed.videoUrl}">
+          Su navegador no soporta reproducción de video HTML5.
+        </video>
+      `;
+    } else if (parsed.type === 'instagram') {
+      modalVideo.classList.remove('is-iframe-video');
+      modalVideo.classList.add('is-ig-embed');
+      modalVideo.innerHTML = `
+        <iframe src="${parsed.embedUrl}"
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
+                allowfullscreen
+                style="width:100%; height:540px; border:none; background:#000;">
+        </iframe>
+      `;
+    } else {
+      modalVideo.classList.add('is-iframe-video');
+      modalVideo.classList.remove('is-ig-embed');
+      let embedSrc = parsed.embedUrl;
+      if (autoplay && embedSrc.indexOf('autoplay=') === -1) {
+        embedSrc += (embedSrc.indexOf('?') === -1 ? '?' : '&') + 'autoplay=1';
+      }
+      modalVideo.innerHTML = `
+        <iframe src="${embedSrc}" 
+                allow="autoplay; fullscreen; picture-in-picture; accelerometer; clipboard-write; encrypted-media; gyroscope" 
+                allowfullscreen
+                style="position:absolute; top:0; left:0; width:100%; height:100%; border:none; background:#000;">
+        </iframe>
+      `;
+    }
+    modalVideo.style.display = 'block';
+  }
+
+  function openNewsModal(card, defaultTab = null) {
     if (!card) return;
 
+    // 1. Detener inmediatamente cualquier video que se esté reproduciendo en tarjetas
+    document.querySelectorAll('.news-card.is-playing-video').forEach(c => stopVideoInCard(c));
+
+    // 2. Extraer datos del comunicado
     const title = card.querySelector('.news-title')?.innerText.trim() || 'Comunicado Oficial';
     const date = card.querySelector('.news-meta-date')?.innerText.trim() || '';
     const author = card.querySelector('.news-meta-author')?.innerText.trim() || 'Liceo de Limón MEP';
-    const imageEl = card.querySelector('.news-image');
-    const imageSrc = imageEl ? imageEl.getAttribute('src') : '';
-    const imagePos = (imageEl && imageEl.style.objectPosition) || card.getAttribute('data-image-position') || 'center center';
     const videoUrl = card.getAttribute('data-video-url') || '';
-    const rawContent = card.getAttribute('data-content') || card.querySelector('.news-summary')?.innerText.trim() || '';
+    const socialUrl = card.getAttribute('data-social-url') || '';
 
-    const modalVideo = document.getElementById('modalNewsVideoContainer');
-    const modalGallery = document.getElementById('modalNewsGalleryContainer');
-    const modalGalleryImg = document.getElementById('modalNewsGalleryImage');
-    const modalGalleryCounter = document.getElementById('modalGalleryCounter');
-    const modalGalleryDots = document.getElementById('modalGalleryDots');
-    const prevBtn = document.getElementById('modalGalleryPrevBtn');
-    const nextBtn = document.getElementById('modalGalleryNextBtn');
-    const modalImg = document.getElementById('modalNewsImage');
-    const mediaSwitcher = document.getElementById('modalMediaSwitcher');
-    const btnShowGallery = document.getElementById('btnShowGallery');
-    const btnShowVideo = document.getElementById('btnShowVideo');
-    const modalGalleryTotal = document.getElementById('modalGalleryTotal');
+    // Contenido
+    const fullContentElem = card.querySelector('.news-full-content');
+    const rawContent = (fullContentElem ? fullContentElem.innerText : card.getAttribute('data-content')) || card.querySelector('.news-summary')?.innerText.trim() || '';
 
-    // Parsear galería de imágenes (carrusel)
+    // Galería de fotos
     let galleryImages = [];
-    const rawGallery = card.getAttribute('data-gallery');
-    try {
-      if (rawGallery) {
-        const parsed = JSON.parse(rawGallery);
+    const galleryScript = card.querySelector('.news-gallery-json');
+    if (galleryScript && galleryScript.textContent) {
+      try {
+        const parsed = JSON.parse(galleryScript.textContent);
         if (Array.isArray(parsed) && parsed.length > 0) {
           galleryImages = parsed.filter(Boolean);
         }
+      } catch (e) {}
+    }
+    if (galleryImages.length === 0) {
+      const rawGallery = card.getAttribute('data-gallery');
+      if (rawGallery) {
+        try {
+          const parsed = JSON.parse(rawGallery);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            galleryImages = parsed.filter(Boolean);
+          }
+        } catch (e) {}
       }
-    } catch (e) {
-      galleryImages = [];
     }
 
-    // Si galleryImages está vacío pero hay imageSrc, incluirlo
-    if (galleryImages.length === 0 && imageSrc) {
-      galleryImages = [imageSrc];
+    // Imagen de respaldo si no hay fotos en galería
+    const imgEl = card.querySelector('.news-image');
+    const fallbackImg = imgEl ? imgEl.getAttribute('src') : '';
+    if (galleryImages.length === 0 && fallbackImg) {
+      galleryImages = [fallbackImg];
     }
 
-    const parsedVideo = parseMediaVideoUrl(videoUrl);
+    currentParsedVideo = parseMediaVideoUrl(videoUrl);
+
+    const hasVideo = !!currentParsedVideo;
     const hasMultiplePhotos = galleryImages.length > 1;
+    const hasAnyPhotos = galleryImages.length > 0;
 
-    // Configurar Reproductor de Video si existe
-    if (modalVideo && parsedVideo) {
-      if (parsedVideo.type === 'direct') {
-        modalVideo.innerHTML = `
-          <video controls autoplay playsinline style="width:100%; height:100%; max-height:480px; object-fit:contain; background:#000; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-            <source src="${parsedVideo.videoUrl}">
-            Su navegador no soporta reproducción de video HTML5.
-          </video>
-        `;
-      } else {
-        modalVideo.innerHTML = `
-          <iframe src="${parsedVideo.embedUrl}" 
-                  allow="autoplay; fullscreen; picture-in-picture" 
-                  allowfullscreen
-                  style="width:100%; height:100%; border:none; min-height:360px;">
-          </iframe>
-        `;
-      }
+    // 3. Sincronizar índice inicial del carrusel con la tarjeta
+    let cardIdx = parseInt(card.dataset.carouselIdx, 10);
+    if (isNaN(cardIdx) || cardIdx < 0 || cardIdx >= galleryImages.length) {
+      cardIdx = 0;
     }
+    let currentGalleryIdx = cardIdx;
 
-    // Configuración de Carrusel
-    let currentGalleryIdx = 0;
+    // 4. Controlador de actualización visual del carrusel en el modal
     const updateGalleryView = (newIdx) => {
       if (galleryImages.length === 0) return;
       currentGalleryIdx = (newIdx + galleryImages.length) % galleryImages.length;
+      card.dataset.carouselIdx = currentGalleryIdx;
+
       if (modalGalleryImg) {
-        modalGalleryImg.style.opacity = '0.3';
-        setTimeout(() => {
+        modalGalleryImg.style.opacity = '0';
+        const imgObj = new Image();
+        imgObj.src = galleryImages[currentGalleryIdx];
+        imgObj.onload = () => {
           modalGalleryImg.src = galleryImages[currentGalleryIdx];
           modalGalleryImg.style.opacity = '1';
-        }, 80);
+        };
+        imgObj.onerror = () => {
+          modalGalleryImg.src = galleryImages[currentGalleryIdx];
+          modalGalleryImg.style.opacity = '1';
+        };
+        if (imgObj.complete) {
+          modalGalleryImg.src = galleryImages[currentGalleryIdx];
+          modalGalleryImg.style.opacity = '1';
+        }
       }
+
       if (modalGalleryCounter) {
-        modalGalleryCounter.innerText = `Foto ${currentGalleryIdx + 1} de ${galleryImages.length}`;
+        modalGalleryCounter.innerText = `${currentGalleryIdx + 1} / ${galleryImages.length}`;
       }
+
       if (modalGalleryDots) {
         const dots = modalGalleryDots.querySelectorAll('.gallery-dot');
-        dots.forEach((d, i) => {
-          d.classList.toggle('active', i === currentGalleryIdx);
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle('active', idx === currentGalleryIdx);
         });
+      }
+
+      // Precargar imágenes adyacentes para una transición instantánea
+      if (galleryImages.length > 1) {
+        const nextImg = new Image();
+        nextImg.src = galleryImages[(currentGalleryIdx + 1) % galleryImages.length];
+        const prevImg = new Image();
+        prevImg.src = galleryImages[(currentGalleryIdx - 1 + galleryImages.length) % galleryImages.length];
       }
     };
 
+    // 5. Configurar botones y controles de la galería
     if (hasMultiplePhotos) {
+      if (prevBtn) prevBtn.style.display = 'flex';
+      if (nextBtn) nextBtn.style.display = 'flex';
+      if (modalGalleryCounter) modalGalleryCounter.style.display = 'block';
+
       if (modalGalleryDots) {
         modalGalleryDots.innerHTML = '';
         if (galleryImages.length <= 15) {
-          galleryImages.forEach((_, i) => {
+          modalGalleryDots.style.display = 'flex';
+          galleryImages.forEach((_, idx) => {
             const dot = document.createElement('button');
             dot.type = 'button';
-            dot.className = `gallery-dot ${i === 0 ? 'active' : ''}`;
-            dot.setAttribute('aria-label', `Ir a foto ${i + 1}`);
-            dot.onclick = (e) => {
-              e.stopPropagation();
-              updateGalleryView(i);
+            dot.className = `gallery-dot ${idx === currentGalleryIdx ? 'active' : ''}`;
+            dot.setAttribute('aria-label', `Ir a foto ${idx + 1}`);
+            dot.onclick = (ev) => {
+              ev.stopPropagation();
+              updateGalleryView(idx);
             };
             modalGalleryDots.appendChild(dot);
           });
+        } else {
+          modalGalleryDots.style.display = 'none';
         }
       }
-      updateGalleryView(0);
+
       if (prevBtn) {
-        prevBtn.onclick = (e) => {
-          e.stopPropagation();
+        prevBtn.onclick = (ev) => {
+          ev.stopPropagation();
           updateGalleryView(currentGalleryIdx - 1);
         };
       }
       if (nextBtn) {
-        nextBtn.onclick = (e) => {
-          e.stopPropagation();
+        nextBtn.onclick = (ev) => {
+          ev.stopPropagation();
           updateGalleryView(currentGalleryIdx + 1);
         };
       }
+
       activeModalGallery = {
         next: () => updateGalleryView(currentGalleryIdx + 1),
         prev: () => updateGalleryView(currentGalleryIdx - 1)
       };
     } else {
+      if (prevBtn) prevBtn.style.display = 'none';
+      if (nextBtn) nextBtn.style.display = 'none';
+      if (modalGalleryCounter) modalGalleryCounter.style.display = 'none';
+      if (modalGalleryDots) modalGalleryDots.style.display = 'none';
       activeModalGallery = null;
     }
 
-    // Mostrar Medios: Video, Galería o Imagen Estática
-    if (parsedVideo && hasMultiplePhotos) {
-      // Coexisten Video y Carrusel de Fotos
+    if (hasAnyPhotos) {
+      updateGalleryView(currentGalleryIdx);
+    }
+
+    // 6. Gestionar Selector de Medios (Coexistencia de Video y Fotos)
+    const showGalleryTab = () => {
+      stopModalVideo();
+      if (modalGallery) modalGallery.style.display = 'flex';
+      if (btnShowGallery) btnShowGallery.className = 'btn btn-sm btn-azul';
+      if (btnShowVideo) btnShowVideo.className = 'btn btn-sm btn-outline';
+    };
+
+    const showVideoTab = () => {
+      if (modalGallery) modalGallery.style.display = 'none';
+      renderModalVideo(currentParsedVideo, true);
+      if (btnShowVideo) btnShowVideo.className = 'btn btn-sm btn-azul';
+      if (btnShowGallery) btnShowGallery.className = 'btn btn-sm btn-outline';
+    };
+
+    if (hasVideo && hasAnyPhotos) {
       if (mediaSwitcher) {
         mediaSwitcher.style.display = 'flex';
         if (modalGalleryTotal) modalGalleryTotal.innerText = galleryImages.length;
-        if (btnShowGallery) {
-          btnShowGallery.className = 'btn btn-sm btn-azul';
-          btnShowGallery.onclick = () => {
-            btnShowGallery.className = 'btn btn-sm btn-azul';
-            if (btnShowVideo) btnShowVideo.className = 'btn btn-sm btn-outline';
-            if (modalVideo) modalVideo.style.display = 'none';
-            if (modalGallery) modalGallery.style.display = 'block';
-            if (modalImg) modalImg.style.display = 'none';
-          };
-        }
-        if (btnShowVideo) {
-          btnShowVideo.className = 'btn btn-sm btn-outline';
-          btnShowVideo.onclick = () => {
-            btnShowVideo.className = 'btn btn-sm btn-azul';
-            if (btnShowGallery) btnShowGallery.className = 'btn btn-sm btn-outline';
-            if (modalGallery) modalGallery.style.display = 'none';
-            if (modalImg) modalImg.style.display = 'none';
-            if (modalVideo) modalVideo.style.display = 'block';
-          };
-        }
+        if (btnShowGallery) btnShowGallery.onclick = showGalleryTab;
+        if (btnShowVideo) btnShowVideo.onclick = showVideoTab;
       }
-      if (modalGallery) modalGallery.style.display = 'block';
-      if (modalVideo) modalVideo.style.display = 'none';
-      if (modalImg) modalImg.style.display = 'none';
-    } else if (hasMultiplePhotos) {
-      if (mediaSwitcher) mediaSwitcher.style.display = 'none';
-      if (modalVideo) {
-        modalVideo.innerHTML = '';
-        modalVideo.style.display = 'none';
+
+      if (defaultTab === 'video') {
+        showVideoTab();
+      } else {
+        showGalleryTab();
       }
-      if (modalImg) modalImg.style.display = 'none';
-      if (modalGallery) modalGallery.style.display = 'block';
-    } else if (parsedVideo) {
+    } else if (hasVideo) {
       if (mediaSwitcher) mediaSwitcher.style.display = 'none';
       if (modalGallery) modalGallery.style.display = 'none';
-      if (modalImg) modalImg.style.display = 'none';
-      if (modalVideo) modalVideo.style.display = 'block';
+      renderModalVideo(currentParsedVideo, true);
+    } else if (hasAnyPhotos) {
+      if (mediaSwitcher) mediaSwitcher.style.display = 'none';
+      stopModalVideo();
+      if (modalGallery) modalGallery.style.display = 'flex';
     } else {
       if (mediaSwitcher) mediaSwitcher.style.display = 'none';
-      if (modalVideo) {
-        modalVideo.innerHTML = '';
-        modalVideo.style.display = 'none';
-      }
+      stopModalVideo();
       if (modalGallery) modalGallery.style.display = 'none';
-      if (modalImg) {
-        if (imageSrc) {
-          modalImg.src = imageSrc;
-          modalImg.style.objectPosition = imagePos;
-          modalImg.style.display = 'block';
-        } else {
-          modalImg.style.display = 'none';
-        }
-      }
     }
 
-    const modalTitle = document.getElementById('modalNewsTitle');
+    // 7. Llenar textos y contenido de la noticia
     if (modalTitle) modalTitle.innerText = title;
-
-    const modalDate = document.getElementById('modalNewsDate');
     if (modalDate) modalDate.innerText = date;
-
-    const modalAuthor = document.getElementById('modalNewsAuthor');
-    if (modalAuthor) modalAuthor.innerText = author;
     if (modalAuthor) modalAuthor.innerText = author;
 
-    const modalBody = document.getElementById('modalNewsBody');
     if (modalBody) {
       let bodyHtml = rawContent
-        .split('\n\n')
+        .split(/\n{2,}/)
         .filter(p => p.trim())
-        .map(p => `<p style="margin-bottom: 1.2rem; line-height: 1.8;">${p.trim()}</p>`)
+        .map(p => `<p style="margin-bottom: 1.15rem; line-height: 1.8; color: var(--gris-700); font-size: 1.02rem;">${p.trim().replace(/\n/g, '<br>')}</p>`)
         .join('');
 
-      const socialUrl = card.getAttribute('data-social-url');
+      if (!bodyHtml.trim()) {
+        bodyHtml = `<p style="margin-bottom: 1.15rem; line-height: 1.8; color: var(--gris-700); font-size: 1.02rem;">${title}</p>`;
+      }
+
       if (socialUrl) {
         const isIg = socialUrl.includes('instagram.com');
         const isFb = socialUrl.includes('facebook.com');
-        const btnText = isIg ? '📸 Abrir Publicación Oficial en Instagram' : (isFb ? '👥 Abrir Publicación Oficial en Facebook' : '🔗 Abrir Publicación en Red Social');
+        const btnText = isIg ? '📸 Ver Publicación Oficial en Instagram' : (isFb ? '👥 Ver Publicación Oficial en Facebook' : '🔗 Ver Publicación en Red Social');
         const btnClass = isIg ? 'link-ig' : 'link-fb';
         bodyHtml += `
           <div style="margin-top: 1.8rem; padding-top: 1.2rem; border-top: 1px solid var(--gris-200); display: flex; justify-content: flex-start;">
@@ -633,6 +734,7 @@ function initNewsModal() {
       modalBody.innerHTML = bodyHtml;
     }
 
+    // 8. Desplegar el modal con animación suave
     modal.style.display = 'flex';
     void modal.offsetWidth;
     modal.classList.add('active');
@@ -642,13 +744,8 @@ function initNewsModal() {
   function closeNewsModal() {
     modal.classList.remove('active');
     document.body.style.overflow = '';
-
-    // Detener reproducción de video inmediatamente al cerrar
-    const modalVideo = document.getElementById('modalNewsVideoContainer');
-    if (modalVideo) {
-      modalVideo.innerHTML = '';
-      modalVideo.style.display = 'none';
-    }
+    stopModalVideo();
+    activeModalGallery = null;
 
     setTimeout(() => {
       if (!modal.classList.contains('active')) {
@@ -669,7 +766,6 @@ function initNewsModal() {
     const container = card.querySelector('.news-image-container');
     if (!container) return;
 
-    // Si ya tiene un reproductor activo, no hacer nada
     if (container.querySelector('.inline-video-frame')) return;
 
     const parsed = parseMediaVideoUrl(videoUrl);
@@ -678,12 +774,10 @@ function initNewsModal() {
       return;
     }
 
-    // Detener cualquier otro video inline que se esté reproduciendo en otras tarjetas
     document.querySelectorAll('.news-card.is-playing-video').forEach(c => {
       if (c !== card) stopVideoInCard(c);
     });
 
-    // Guardar el HTML original para restaurar al cerrar
     if (!container.dataset.originalHtml) {
       container.dataset.originalHtml = container.innerHTML;
     }
@@ -736,7 +830,7 @@ function initNewsModal() {
     card.classList.remove('is-playing-video');
   }
 
-  // Delegación de eventos para clics en video, botones de lectura o títulos
+  // Delegación de eventos para clics en tarjetas, videos, carruseles y lectura
   document.addEventListener('click', (e) => {
     // 1. Clic directo en la insignia '▶ Video' o en el botón flotante de Play
     const videoTrigger = e.target.closest('.news-video-badge, .news-play-btn');
@@ -744,29 +838,32 @@ function initNewsModal() {
       e.preventDefault();
       e.stopPropagation();
       const card = videoTrigger.closest('.news-card');
-      playVideoInCard(card);
+      openNewsModal(card, 'video');
       return;
     }
 
-    // 2. Clic en el contenedor de imagen de la noticia
+    // 2. Clic en las flechas del carrusel en la tarjeta (Feed)
+    if (e.target.closest('.card-gallery-nav-btn')) {
+      return;
+    }
+
+    // 3. Clic en el botón para cerrar video inline en tarjeta
+    if (e.target.closest('.btn-close-inline-video')) {
+      return;
+    }
+
+    // 4. Clic en el contenedor de imagen de la noticia -> abre modal
     const imgContainer = e.target.closest('.news-image-container');
-    if (imgContainer && !e.target.closest('.btn-close-inline-video') && !e.target.closest('.card-gallery-nav-btn')) {
+    if (imgContainer) {
       const card = imgContainer.closest('.news-card');
       if (card) {
-        // Clic en el botón específico de reproducir video
-        if (e.target.closest('.news-play-btn') || e.target.closest('.news-video-badge')) {
-          e.preventDefault();
-          playVideoInCard(card);
-          return;
-        }
-        // Clic en la imagen para abrir modal completo con el carrusel o video
         e.preventDefault();
         openNewsModal(card);
         return;
       }
     }
 
-    // 3. Clic en 'Leer Comunicado Completo' o en el título de la noticia
+    // 5. Clic en 'Leer Comunicado Completo' o en el título de la noticia
     const readBtn = e.target.closest('.btn-read-more');
     const titleLink = e.target.closest('.news-title');
     if (readBtn || titleLink) {
@@ -776,7 +873,7 @@ function initNewsModal() {
       return;
     }
 
-    // 4. Botón de cerrar o clic en el fondo oscuro del modal
+    // 6. Botón de cerrar o clic en el fondo oscuro del modal
     if (e.target === modal || e.target.closest('#closeNewsModalBtn')) {
       e.preventDefault();
       closeNewsModal();
@@ -798,19 +895,18 @@ function initNewsModal() {
 
   // Gestos táctiles de deslizamiento (Swipe) en móvil para el carrusel del modal
   let touchStartX = 0;
-  const galleryWrapper = document.getElementById('modalNewsGalleryContainer');
-  if (galleryWrapper) {
-    galleryWrapper.addEventListener('touchstart', (e) => {
+  if (modalGallery) {
+    modalGallery.addEventListener('touchstart', (e) => {
       touchStartX = e.changedTouches[0].screenX;
     }, { passive: true });
-    galleryWrapper.addEventListener('touchend', (e) => {
+    modalGallery.addEventListener('touchend', (e) => {
       const touchEndX = e.changedTouches[0].screenX;
       const diff = touchStartX - touchEndX;
       if (Math.abs(diff) > 40 && activeModalGallery) {
         if (diff > 0) {
-          activeModalGallery.next(); // Deslizar izquierda -> siguiente
+          activeModalGallery.next();
         } else {
-          activeModalGallery.prev(); // Deslizar derecha -> anterior
+          activeModalGallery.prev();
         }
       }
     }, { passive: true });
@@ -821,58 +917,93 @@ function initNewsModal() {
  * 6.0 Carrusel de Fotos Directo en las Tarjetas de Noticias (Feed)
  */
 function initCardCarousels() {
-  document.querySelectorAll('.news-card').forEach(card => {
-    if (card.dataset.cardCarouselInit) return;
-    const rawGallery = card.getAttribute('data-gallery');
-    if (!rawGallery) return;
+  document.addEventListener('click', (e) => {
+    const prevBtn = e.target.closest('.card-gallery-prev');
+    const nextBtn = e.target.closest('.card-gallery-next');
+    if (!prevBtn && !nextBtn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    const card = (prevBtn || nextBtn).closest('.news-card');
+    if (!card) return;
 
     let images = [];
-    try {
-      images = JSON.parse(rawGallery);
-    } catch (e) {
-      images = [];
+    const galleryScript = card.querySelector('.news-gallery-json');
+    if (galleryScript && galleryScript.textContent) {
+      try {
+        const parsed = JSON.parse(galleryScript.textContent);
+        if (Array.isArray(parsed) && parsed.length > 0) images = parsed.filter(Boolean);
+      } catch (err) {}
     }
-    if (!Array.isArray(images) || images.length <= 1) return;
+    if (images.length === 0) {
+      const rawGallery = card.getAttribute('data-gallery');
+      if (rawGallery) {
+        try {
+          const parsed = JSON.parse(rawGallery);
+          if (Array.isArray(parsed) && parsed.length > 0) images = parsed.filter(Boolean);
+        } catch (err) {}
+      }
+    }
+    if (images.length <= 1) return;
 
-    card.dataset.cardCarouselInit = 'true';
-    let currentIdx = 0;
+    let currentIdx = parseInt(card.dataset.carouselIdx, 10);
+    if (isNaN(currentIdx)) currentIdx = 0;
+
+    const delta = prevBtn ? -1 : 1;
+    currentIdx = (currentIdx + delta + images.length) % images.length;
+    card.dataset.carouselIdx = currentIdx;
+
     const imgElem = card.querySelector('.news-image');
     const counterElem = card.querySelector('.card-gallery-counter');
-    const prevBtn = card.querySelector('.card-gallery-prev');
-    const nextBtn = card.querySelector('.card-gallery-next');
 
-    const updateCardView = (newIdx) => {
-      currentIdx = (newIdx + images.length) % images.length;
-      if (imgElem) {
-        imgElem.style.opacity = '0.35';
-        setTimeout(() => {
-          imgElem.src = images[currentIdx];
-          imgElem.style.opacity = '1';
-        }, 110);
+    if (imgElem) {
+      imgElem.style.opacity = '0.35';
+      const imgObj = new Image();
+      imgObj.src = images[currentIdx];
+      imgObj.onload = () => {
+        imgElem.src = images[currentIdx];
+        imgElem.style.opacity = '1';
+      };
+      imgObj.onerror = () => {
+        imgElem.src = images[currentIdx];
+        imgElem.style.opacity = '1';
+      };
+      if (imgObj.complete) {
+        imgElem.src = images[currentIdx];
+        imgElem.style.opacity = '1';
       }
-      if (counterElem) {
-        counterElem.innerText = `${currentIdx + 1} / ${images.length}`;
-      }
-    };
+    }
 
     if (counterElem) {
-      counterElem.innerText = `1 / ${images.length}`;
+      counterElem.innerText = `${currentIdx + 1} / ${images.length}`;
     }
+  });
 
-    if (prevBtn) {
-      prevBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        updateCardView(currentIdx - 1);
-      });
+  // Inicializar contadores iniciales en las tarjetas
+  document.querySelectorAll('.news-card').forEach(card => {
+    let images = [];
+    const galleryScript = card.querySelector('.news-gallery-json');
+    if (galleryScript && galleryScript.textContent) {
+      try {
+        const parsed = JSON.parse(galleryScript.textContent);
+        if (Array.isArray(parsed)) images = parsed.filter(Boolean);
+      } catch (err) {}
     }
-
-    if (nextBtn) {
-      nextBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        updateCardView(currentIdx + 1);
-      });
+    if (images.length === 0) {
+      const rawGallery = card.getAttribute('data-gallery');
+      if (rawGallery) {
+        try {
+          const parsed = JSON.parse(rawGallery);
+          if (Array.isArray(parsed)) images = parsed.filter(Boolean);
+        } catch (err) {}
+      }
+    }
+    if (images.length > 1) {
+      const counterElem = card.querySelector('.card-gallery-counter');
+      if (counterElem) {
+        counterElem.innerText = `1 / ${images.length}`;
+      }
+      card.dataset.carouselIdx = '0';
     }
   });
 }
