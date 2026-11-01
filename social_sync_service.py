@@ -14,9 +14,10 @@ import time
 import urllib.request
 import urllib.error
 from datetime import datetime
+from typing import Any, Dict
 from database import get_db_connection, add_news, invalidate_cms_cache, resequence_news_ids
 
-_feed_health_cache = {'data': None, 'timestamp': 0}
+_feed_health_cache: Dict[str, Any] = {'data': None, 'timestamp': 0.0}
 
 def check_social_feed_health(force=False):
     """
