@@ -28,7 +28,11 @@ def get_gemini_api_key():
     """Obtiene y limpia la clave de API de Gemini desde variables de entorno."""
     load_env_file()
     key = os.environ.get('GEMINI_API_KEY', '').strip()
-    key = key.strip("'\"").strip()
+    if not key:
+        return ''
+    key = key.strip("'\"`").strip()
+    if 'GEMINI_API_KEY=' in key:
+        key = key.split('GEMINI_API_KEY=', 1)[1].strip().strip("'\"`")
     key = key.replace(' ', '').replace('\t', '').replace('\n', '').replace('\r', '')
     if not key or key == 'tu_clave_de_google_ai_studio':
         return ''

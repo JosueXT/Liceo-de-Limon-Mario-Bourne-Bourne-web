@@ -4,7 +4,7 @@ SERVICIO DE SINCRONIZACIÓN Y REPLICACIÓN DE REDES SOCIALES (IB)
 LICEO DE LIMÓN MARIO BOURNE BOURNE - PROGRAMA DEL DIPLOMA
 ==============================================================================
 Sincroniza y publica automáticamente noticias del Bachillerato Internacional (IB)
-a partir de publicaciones de Instagram (@ib_liceodelimon) y Facebook Oficial IB.
+a partir de publicaciones de Instagram (@ib_limon_) y Facebook Oficial IB.
 ==============================================================================
 """
 
@@ -25,11 +25,11 @@ OFFICIAL_IB_SOCIAL_FEEDS = [
         "subcategory": "Redes Sociales",
         "date": "29 de Octubre, 2026",
         "summary": "Estudiantes del Diploma IB documentaron en Instagram su trabajo de campo ecológico y servicio comunitario en Playa Bonita y Cahuita.",
-        "content": "Publicación oficial replicada desde Instagram (@ib_liceodelimon).\n\nLos estudiantes de la generación 2026 del Bachillerato Internacional del Liceo de Limón lideraron una jornada ecológica y de educación ambiental marina en alianza con organizaciones comunitarias del Caribe costarricense.\n\nSiga las historias, videos y testimonios completos en nuestra cuenta oficial de Instagram.",
+        "content": "Publicación oficial replicada desde Instagram (@ib_limon_).\n\nLos estudiantes de la generación 2026 del Bachillerato Internacional del Liceo de Limón lideraron una jornada ecológica y de educación ambiental marina en alianza con organizaciones comunitarias del Caribe costarricense.\n\nSiga las historias, videos y testimonios completos en nuestra cuenta oficial de Instagram.",
         "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
-        "author": "Instagram @ib_liceodelimon",
+        "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_liceodelimon"
+        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
     },
     {
         "title": "👥 Coloquio de Teoría del Conocimiento (TOK): Ponencias Estudiantiles en Vivo",
@@ -42,7 +42,7 @@ OFFICIAL_IB_SOCIAL_FEEDS = [
         "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80",
         "author": "Facebook IB Liceo de Limón",
         "social_network": "Facebook",
-        "social_url": "https://www.facebook.com/liceodelimon"
+        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
     },
     {
         "title": "📸 Convocatoria Abierta: Pruebas Diagnósticas e Inducción al Diploma IB 2026",
@@ -51,11 +51,11 @@ OFFICIAL_IB_SOCIAL_FEEDS = [
         "subcategory": "Redes Sociales",
         "date": "22 de Octubre, 2026",
         "summary": "Información oficial compartida en Instagram con requisitos, cronograma de exámenes y fechas de charlas informativas para 9° año.",
-        "content": "Publicación oficial replicada desde Instagram (@ib_liceodelimon).\n\nInvitamos a los estudiantes de 9° año y a sus familias interesadas en formar parte del Bachillerato Internacional público a consultar los requisitos de admisión, documentación y fechas clave en el enlace oficial de la publicación.",
+        "content": "Publicación oficial replicada desde Instagram (@ib_limon_).\n\nInvitamos a los estudiantes de 9° año y a sus familias interesadas en formar parte del Bachillerato Internacional público a consultar los requisitos de admisión, documentación y fechas clave en el enlace oficial de la publicación.",
         "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80",
-        "author": "Instagram @ib_liceodelimon",
+        "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_liceodelimon"
+        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
     }
 ]
 

@@ -370,14 +370,14 @@ DEFAULT_CMS_CONTENT = {
     "ib_facebook_title": "Facebook Oficial IB",
     "ib_facebook_handle": "Bachillerato Internacional - Liceo de Limón",
     "ib_facebook_desc": "Seguimiento a proyectos CAS, muestras de Monografía, coloquios de Teoría del Conocimiento (TOK) y vida estudiantil del PD.",
-    "ib_facebook_url": "https://facebook.com",
+    "ib_facebook_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr",
     "ib_facebook_btn": "Seguir en Facebook",
 
     # Instagram IB
     "ib_instagram_title": "Instagram IB Limón",
-    "ib_instagram_name": "@ib_liceodelimon",
+    "ib_instagram_name": "@ib_limon_",
     "ib_instagram_desc": "Galería fotográfica de actividades de campo, ferias del diploma, ceremonias de graduación y vivencias de nuestra comunidad IB.",
-    "ib_instagram_url": "https://instagram.com",
+    "ib_instagram_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh",
     "ib_instagram_btn": "Ver en Instagram",
 
     # WhatsApp IB
@@ -503,11 +503,11 @@ DEFAULT_NEWS = [
         "subcategory": "Redes Sociales",
         "date": "29 de Octubre, 2026",
         "summary": "Estudiantes del Diploma IB documentaron en Instagram su trabajo de campo ecológico y servicio comunitario en Playa Bonita y Cahuita.",
-        "content": "Publicación oficial replicada desde Instagram (@ib_liceodelimon).\n\nLos estudiantes de la generación 2026 del Bachillerato Internacional del Liceo de Limón lideraron una jornada ecológica y de educación ambiental marina en alianza con organizaciones comunitarias del Caribe costarricense.\n\nSiga las historias, videos y testimonios completos en nuestra cuenta oficial de Instagram.",
+        "content": "Publicación oficial replicada desde Instagram (@ib_limon_).\n\nLos estudiantes de la generación 2026 del Bachillerato Internacional del Liceo de Limón lideraron una jornada ecológica y de educación ambiental marina en alianza con organizaciones comunitarias del Caribe costarricense.\n\nSiga las historias, videos y testimonios completos en nuestra cuenta oficial de Instagram.",
         "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
-        "author": "Instagram @ib_liceodelimon",
+        "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_liceodelimon"
+        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
     },
     {
         "id": 8,
@@ -521,7 +521,7 @@ DEFAULT_NEWS = [
         "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80",
         "author": "Facebook IB Liceo de Limón",
         "social_network": "Facebook",
-        "social_url": "https://www.facebook.com/liceodelimon"
+        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
     },
     {
         "id": 9,
@@ -531,11 +531,11 @@ DEFAULT_NEWS = [
         "subcategory": "Redes Sociales",
         "date": "22 de Octubre, 2026",
         "summary": "Información oficial compartida en Instagram con requisitos, cronograma de exámenes y fechas de charlas informativas para 9° año.",
-        "content": "Publicación oficial replicada desde Instagram (@ib_liceodelimon).\n\nInvitamos a los estudiantes de 9° año y a sus familias interesadas en formar parte del Bachillerato Internacional público a consultar los requisitos de admisión, documentación y fechas clave en el enlace oficial de la publicación.",
+        "content": "Publicación oficial replicada desde Instagram (@ib_limon_).\n\nInvitamos a los estudiantes de 9° año y a sus familias interesadas en formar parte del Bachillerato Internacional público a consultar los requisitos de admisión, documentación y fechas clave en el enlace oficial de la publicación.",
         "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80",
-        "author": "Instagram @ib_liceodelimon",
+        "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_liceodelimon"
+        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
     }
 ]
 

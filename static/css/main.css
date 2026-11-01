@@ -317,16 +317,16 @@ body.cms-edit-mode .mep-flag-strip:hover {
 /* Utilización óptima del ancho del encabezado sin espacios muertos a los lados */
 .main-header .container,
 .top-mep-bar .container {
-  max-width: 100%;
-  width: 100%;
-  padding: 0 clamp(1rem, 2.8vw, 3rem);
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 clamp(0.75rem, 2vw, 2.5rem) !important;
 }
 
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: clamp(1rem, 1.8vw, 2rem);
+  gap: clamp(1rem, 2vw, 2.5rem);
   padding: 0.75rem 0;
   width: 100%;
   transition: padding var(--transition-fast);
@@ -335,7 +335,7 @@ body.cms-edit-mode .mep-flag-strip:hover {
 .brand-wrapper {
   display: flex;
   align-items: center;
-  gap: clamp(0.75rem, 1.2vw, 1.25rem);
+  gap: clamp(0.75rem, 1.3vw, 1.35rem);
   flex-shrink: 0;
   text-decoration: none;
 }
@@ -371,29 +371,29 @@ body.cms-edit-mode .mep-flag-strip:hover {
 
 .brand-name {
   font-family: var(--font-heading);
-  font-size: clamp(1.42rem, 2.1vw, 1.95rem);
+  font-size: clamp(1.48rem, 2.3vw, 2.15rem);
   font-weight: 800;
   color: var(--azul-dark);
-  letter-spacing: -0.25px;
+  letter-spacing: 0.1px;
   line-height: 1.12;
   white-space: nowrap;
 }
 
 .brand-subname {
-  font-size: clamp(0.88rem, 1.2vw, 1.12rem);
+  font-size: clamp(0.92rem, 1.3vw, 1.22rem);
   font-weight: 800;
   color: var(--vino);
-  letter-spacing: 2.2px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   white-space: nowrap;
   line-height: 1.18;
 }
 
 .brand-subtitle {
-  font-size: clamp(0.72rem, 0.9vw, 0.82rem);
+  font-size: clamp(0.74rem, 0.95vw, 0.86rem);
   color: var(--gris-500);
   font-weight: 600;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   white-space: nowrap;
   line-height: 1.2;
 }
