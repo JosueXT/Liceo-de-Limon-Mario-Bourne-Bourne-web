@@ -854,16 +854,6 @@ body.cms-edit-mode .mep-flag-strip:hover {
   overflow: hidden;
 }
 
-.stats-grid::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--vino) 0%, var(--azul) 50%, #0284c7 100%);
-}
-
 .stat-item {
   display: flex;
   flex-direction: column;
@@ -1108,7 +1098,7 @@ body.cms-edit-mode .mep-flag-strip:hover {
 
 /* 1. Secundaria Regular (Vino, Blanco, Azul, Gris) */
 .card-regular {
-  border-top: 5px solid var(--reg-vino);
+  border: 2px solid rgba(114, 18, 38, 0.3);
 }
 .card-regular:hover {
   border-color: var(--reg-vino);
@@ -1139,7 +1129,7 @@ body.cms-edit-mode .mep-flag-strip:hover {
 
 /* 2. Francés Avanzado (Azul, Rojo, Amarillo, Blanco, Anaranjado) */
 .card-french {
-  border-top: 5px solid var(--fr-azul);
+  border: 2px solid rgba(0, 38, 111, 0.3);
   background: var(--fr-bg-grad);
 }
 .card-french:hover {
@@ -1184,7 +1174,7 @@ body.cms-edit-mode .mep-flag-strip:hover {
 
 /* 3. Bachillerato Internacional IB (Azul, Índigo, Blanco, Celeste, Gris) */
 .card-ib {
-  border-top: 5px solid var(--ib-celeste);
+  border: 2px solid rgba(2, 132, 199, 0.4);
   background: var(--ib-bg-grad);
   position: relative;
 }
@@ -2501,8 +2491,7 @@ body.theme-regular .pillar-number {
   border-radius: var(--radius-xl);
   padding: 2.5rem 2.8rem;
   box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
-  border: 1.5px solid var(--gris-200);
-  border-left: 6px solid var(--azul);
+  border: 1.5px solid rgba(2, 132, 199, 0.25);
 }
 
 .ib-coord-header {
@@ -3335,29 +3324,83 @@ body.mobile-menu-open {
     border-radius: 20px;
   }
 
-  /* Malla Curricular con desplazamiento táctil horizontal suave */
+  /* Malla Curricular 100% responsiva sin desbordes ni texto cortado */
   .curriculum-table-wrapper,
   body.theme-ib .curriculum-table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden !important;
     display: block;
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
     border-radius: var(--radius-xl) !important;
+    box-sizing: border-box;
+    margin: 0 auto;
   }
 
   .curriculum-table,
   body.theme-ib .curriculum-table {
-    min-width: 520px; /* Asegura legibilidad de columnas sin comprimir texto */
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+  }
+
+  body.theme-ib .curriculum-table thead th,
+  .curriculum-table thead th {
+    padding: 0.8rem 0.55rem !important;
+    font-size: 0.78rem !important;
+    letter-spacing: 0.02em !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+  }
+
+  .curriculum-table th:first-child,
+  body.theme-ib .curriculum-table th:first-child,
+  .curriculum-table td:first-child,
+  body.theme-ib .curriculum-table td:first-child {
+    width: 32% !important;
+    max-width: 115px !important;
+    padding: 0.8rem 0.45rem !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+
+  .curriculum-table th:nth-child(2),
+  body.theme-ib .curriculum-table th:nth-child(2),
+  .curriculum-table td:nth-child(2),
+  body.theme-ib .curriculum-table td:nth-child(2) {
+    width: 68% !important;
+    padding: 0.8rem 0.75rem !important;
+    vertical-align: middle !important;
+    text-align: left !important;
+  }
+
+  body.theme-ib .curriculum-group-cell strong {
+    display: inline-flex !important;
+    white-space: nowrap !important;
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+    padding: 0.32rem 0.55rem !important;
+    border-radius: var(--radius-sm) !important;
+    justify-content: center !important;
+    text-align: center !important;
+    width: auto !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .curriculum-subject-cell,
+  body.theme-ib .curriculum-subject-cell {
+    font-size: 0.84rem !important;
+    line-height: 1.45 !important;
+    color: var(--gris-800) !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
   }
 
   body.theme-ib .curriculum-table tbody tr:hover {
     transform: none !important;
-  }
-
-  .curriculum-table th,
-  .curriculum-table td {
-    padding: 0.9rem 1.1rem;
-    font-size: 0.875rem;
   }
 
   /* Pilares de Modalidad en 1 columna */
@@ -3469,6 +3512,34 @@ body.mobile-menu-open {
     font-size: 1.25rem;
   }
 
+  .curriculum-table th:first-child,
+  body.theme-ib .curriculum-table th:first-child,
+  .curriculum-table td:first-child,
+  body.theme-ib .curriculum-table td:first-child {
+    width: 30% !important;
+    max-width: 95px !important;
+    padding: 0.65rem 0.35rem !important;
+  }
+
+  .curriculum-table th:nth-child(2),
+  body.theme-ib .curriculum-table th:nth-child(2),
+  .curriculum-table td:nth-child(2),
+  body.theme-ib .curriculum-table td:nth-child(2) {
+    width: 70% !important;
+    padding: 0.65rem 0.55rem !important;
+  }
+
+  body.theme-ib .curriculum-group-cell strong {
+    font-size: 0.72rem !important;
+    padding: 0.25rem 0.35rem !important;
+  }
+
+  .curriculum-subject-cell,
+  body.theme-ib .curriculum-subject-cell {
+    font-size: 0.78rem !important;
+    line-height: 1.38 !important;
+  }
+
   /* Estadísticas Flotantes */
   .stats-bar-wrapper {
     margin-top: -2rem;
@@ -3559,16 +3630,6 @@ body.mobile-menu-open {
 .ib-accreditation-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 18px 40px rgba(13, 71, 161, 0.14);
-}
-
-.ib-accreditation-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 6px;
-  height: 100%;
-  background: linear-gradient(180deg, #0d47a1 0%, #1976d2 100%);
 }
 
 .ib-logo-container {
@@ -5002,8 +5063,7 @@ body.devs-page-body {
 /* Coordinación IB en Modo Oscuro */
 [data-theme="dark"] .ib-coordination-card {
   background: #0e182e !important;
-  border: 1px solid rgba(255, 255, 255, 0.09) !important;
-  border-left: 6px solid #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
 }
 
@@ -5731,22 +5791,6 @@ body.theme-ib .pillar-card {
   overflow: hidden;
 }
 
-body.theme-ib .pillar-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #0284c7, #38bdf8, #6366f1);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-body.theme-ib .pillar-card:hover::before {
-  opacity: 1;
-}
-
 body.theme-ib .pillar-card:hover {
   border-color: #38bdf8;
   box-shadow: 0 18px 45px rgba(2, 132, 199, 0.25);
@@ -5806,20 +5850,6 @@ body.theme-ib .curriculum-table-wrapper {
 
 body.theme-ib .curriculum-table-wrapper:hover {
   box-shadow: 0 25px 60px rgba(2, 132, 199, 0.25), 0 0 50px rgba(56, 189, 248, 0.25);
-}
-
-/* Efecto de barra superior luminosa animada */
-body.theme-ib .curriculum-table-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #0284c7, #38bdf8, #818cf8, #06b6d4, #0284c7);
-  background-size: 300% 100%;
-  animation: shimmerSweep 4s linear infinite;
-  z-index: 10;
 }
 
 body.theme-ib .curriculum-table {
