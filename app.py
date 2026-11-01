@@ -1313,6 +1313,23 @@ def api_delete_news(news_id):
     delete_news(news_id)
     return jsonify({'success': True, 'message': f'Noticia #{news_id} eliminada.'})
 
+@app.route('/api/cms/news/<int:news_id>/toggle-pin', methods=['POST'])
+@app.route('/api/news/toggle-pin/<int:news_id>', methods=['POST'])
+@app.route('/api/teacher/news/toggle-pin/<int:news_id>', methods=['POST'])
+def api_toggle_news_pin(news_id):
+    if not session.get('is_admin') and not session.get('is_teacher'):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+
+    from database import toggle_news_pinned
+    success, result = toggle_news_pinned(news_id)
+    if success:
+        return jsonify({
+            'success': True,
+            'is_pinned': result,
+            'message': 'Noticia fijada al inicio con éxito.' if result == 1 else 'Noticia desfijada con éxito.'
+        })
+    return jsonify({'success': False, 'message': str(result)}), 400
+
 @app.route('/api/cms/snapshots', methods=['GET'])
 def api_get_snapshots():
     """Obtiene la lista de puntos de restauración"""

@@ -1750,7 +1750,10 @@
               {% for item in official_news %}
               <tr id="newsRow-{{ item.id }}">
                 <td>#{{ item.id }}</td>
-                <td><strong>{{ item.title }}</strong></td>
+                <td>
+                  <strong>{{ item.title }}</strong>
+                  <span class="admin-badge-pill badge-pinned" id="pinBadge-{{ item.id }}" style="background: #ca8a04; color: #ffffff; font-size: 0.72rem; margin-left: 0.4rem; {{ 'display: inline-block;' if item.is_pinned else 'display: none;' }}">📌 Fijada</span>
+                </td>
                 <td><span class="admin-badge-pill" style="background: var(--azul);">{{ item.category }}</span></td>
                 <td>
                   {% if item.subcategory %}
@@ -1761,7 +1764,10 @@
                 </td>
                 <td>{{ item.date }}</td>
                 <td>
-                  <div style="display: flex; gap: 0.4rem;">
+                  <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-outline btn-sm btn-pin-toggle" id="btnPin-{{ item.id }}" onclick="togglePinNews({{ item.id }})" title="{{ 'Desfijar de la parte superior' if item.is_pinned else 'Fijar al inicio de la lista' }}" style="{{ 'background: #fef08a; border-color: #ca8a04; color: #854d0e; font-weight: 700;' if item.is_pinned else 'font-weight: 600;' }}">
+                      📌 {{ 'Desfijar' if item.is_pinned else 'Fijar' }}
+                    </button>
                     <button class="btn btn-azul btn-sm" data-id="{{ item.id }}" onclick="openEditNews(this.dataset.id)" title="Editar este comunicado">✏️ Editar</button>
                     <button class="btn btn-vino btn-sm" data-id="{{ item.id }}" onclick="deleteNewsItem(this.dataset.id)" title="Eliminar comunicado">🗑️ Eliminar</button>
                   </div>
@@ -1877,7 +1883,9 @@
                     {% endif %}
                   </td>
                   <td>
-                    <strong style="color: var(--azul-dark); font-size: 0.95rem;">{{ item.title }}</strong><br>
+                    <strong style="color: var(--azul-dark); font-size: 0.95rem;">{{ item.title }}</strong>
+                    <span class="admin-badge-pill badge-pinned" id="pinBadge-{{ item.id }}" style="background: #ca8a04; color: #ffffff; font-size: 0.72rem; margin-left: 0.4rem; {{ 'display: inline-block;' if item.is_pinned else 'display: none;' }}">📌 Fijada</span>
+                    <br>
                     <small style="color: var(--gris-600); line-height: 1.35; display: inline-block; margin-top: 0.2rem;">{{ item.summary[:95] }}{% if item.summary|length > 95 %}...{% endif %}</small>
                   </td>
                   <td>
@@ -1891,7 +1899,10 @@
                   </td>
                   <td>{{ item.date }}</td>
                   <td>
-                    <div style="display: flex; gap: 0.4rem;">
+                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                      <button type="button" class="btn btn-outline btn-sm btn-pin-toggle" id="btnPin-{{ item.id }}" onclick="togglePinNews({{ item.id }})" title="{{ 'Desfijar de la parte superior' if item.is_pinned else 'Fijar al inicio de la lista' }}" style="{{ 'background: #fef08a; border-color: #ca8a04; color: #854d0e; font-weight: 700;' if item.is_pinned else 'font-weight: 600;' }}">
+                        📌 {{ 'Desfijar' if item.is_pinned else 'Fijar' }}
+                      </button>
                       <button class="btn btn-azul btn-sm" data-id="{{ item.id }}" onclick="openEditNews(this.dataset.id)" title="Editar este comunicado">✏️ Editar</button>
                       <button class="btn btn-vino btn-sm" data-id="{{ item.id }}" onclick="deleteNewsItem(this.dataset.id)" title="Eliminar comunicado">🗑️ Eliminar</button>
                     </div>
@@ -3842,6 +3853,36 @@
         }
       }
     });
+
+    async function togglePinNews(id) {
+      try {
+        const res = await fetch(`/api/news/toggle-pin/${id}`, { method: 'POST', credentials: 'same-origin' });
+        const data = await res.json();
+        if (data.success) {
+          const isPinned = data.is_pinned === 1;
+          const btn = document.getElementById(`btnPin-${id}`);
+          const badge = document.getElementById(`pinBadge-${id}`);
+          if (btn) {
+            btn.innerHTML = isPinned ? '📌 Desfijar' : '📌 Fijar';
+            btn.style.background = isPinned ? '#fef08a' : '';
+            btn.style.borderColor = isPinned ? '#ca8a04' : '';
+            btn.style.color = isPinned ? '#854d0e' : '';
+            btn.style.fontWeight = isPinned ? '700' : '600';
+            btn.title = isPinned ? 'Desfijar de la parte superior' : 'Fijar al inicio de la lista';
+          }
+          if (badge) {
+            badge.style.display = isPinned ? 'inline-block' : 'none';
+          }
+          showToast(isPinned ? '📌 Noticia fijada arriba en el portal.' : 'Noticia desfijada con éxito.', 'success');
+          // Breve recarga opcional para reordenar la tabla en vivo
+          setTimeout(() => { window.location.reload(); }, 600);
+        } else {
+          showToast(data.message || 'Error al fijar noticia', 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al fijar noticia', 'error');
+      }
+    }
 
     async function deleteNewsItem(id) {
       if (confirm(`¿Está seguro de eliminar el comunicado #${id}?`)) {

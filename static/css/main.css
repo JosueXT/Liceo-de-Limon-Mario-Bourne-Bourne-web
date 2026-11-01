@@ -5188,3 +5188,66 @@ body.devs-page-body {
   font-size: 0.75rem;
 }
 
+/* ==========================================================================
+   CARRUSEL DE FOTOS INTERACTIVO (TARJETAS Y MODAL)
+   ========================================================================== */
+.card-gallery-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  font-weight: 800;
+  cursor: pointer;
+  z-index: 5;
+  opacity: 0.88;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  line-height: 1;
+  padding: 0;
+  user-select: none;
+}
+.card-gallery-nav-btn:hover {
+  background: rgba(15, 23, 42, 0.98);
+  border-color: #ffffff;
+  opacity: 1;
+  transform: translateY(-50%) scale(1.12);
+}
+.card-gallery-prev {
+  left: 10px;
+}
+.card-gallery-next {
+  right: 10px;
+}
+.gallery-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  padding: 0;
+}
+.gallery-dot.active {
+  background: #38bdf8;
+  width: 20px;
+  border-radius: 8px;
+}
+.news-image {
+  transition: opacity 0.2s ease;
+}
+.modal-gallery-wrapper {
+  user-select: none;
+  touch-action: pan-y;
+}
+

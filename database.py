@@ -215,6 +215,8 @@ def init_db(force=False):
         cursor.execute("ALTER TABLE news_articles ADD COLUMN social_url TEXT DEFAULT ''")
     if 'gallery_images' not in columns:
         cursor.execute("ALTER TABLE news_articles ADD COLUMN gallery_images TEXT DEFAULT '[]'")
+    if 'is_pinned' not in columns:
+        cursor.execute("ALTER TABLE news_articles ADD COLUMN is_pinned INTEGER DEFAULT 0")
 
     # 3. Tabla para consultas de contacto
     cursor.execute('''
@@ -510,8 +512,39 @@ def update_bulk_content(items_dict):
     success, _ = update_bulk_content_with_ai(items_dict, auto_backup=True)
     return success
 
+SPANISH_MONTH_TO_NUM = {
+    'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4,
+    'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
+    'septiembre': 9, 'setiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12,
+    'january': 1, 'february': 2, 'march': 3, 'april': 4,
+    'may': 5, 'june': 6, 'july': 7, 'august': 8,
+    'september': 9, 'october': 10, 'november': 11, 'december': 12
+}
+
+def parse_date_to_sort_key(date_str, fallback_id=0):
+    """
+    Convierte una fecha en formato '15 de Octubre, 2026', '2026-10-15', etc.
+    en una tupla comparable (YYYY, MM, DD, fallback_id) para ordenar cronológicamente.
+    """
+    if not date_str:
+        return (0, 0, 0, fallback_id)
+    s = str(date_str).strip().lower()
+    m_iso = re.search(r'(\d{4})-(\d{1,2})-(\d{1,2})', s)
+    if m_iso:
+        return (int(m_iso.group(1)), int(m_iso.group(2)), int(m_iso.group(3)), fallback_id)
+    m_year = re.search(r'\b(20\d\d|19\d\d)\b', s)
+    year = int(m_year.group(1)) if m_year else 2026
+    month = 1
+    for m_name, m_num in SPANISH_MONTH_TO_NUM.items():
+        if m_name in s:
+            month = m_num
+            break
+    m_day = re.search(r'^\s*(\d{1,2})\s+de\b|\b(\d{1,2})\s+de\b', s)
+    day = int(m_day.group(1) or m_day.group(2)) if m_day else 1
+    return (year, month, day, fallback_id)
+
 def get_all_news(force_fresh: bool = False) -> List[Dict[str, Any]]:
-    """Obtiene todas las noticias utilizando caché en RAM ultra-rápida."""
+    """Obtiene todas las noticias ordenadas por fijadas arriba y de más reciente a menos reciente."""
     global _CACHE_NEWS, _CACHE_NEWS_TIME
     now = time.time()
     if not force_fresh and _CACHE_NEWS is not None and (now - _CACHE_NEWS_TIME < CACHE_TTL_SECONDS):
@@ -519,10 +552,23 @@ def get_all_news(force_fresh: bool = False) -> List[Dict[str, Any]]:
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM news_articles ORDER BY id DESC')
+    cursor.execute('SELECT * FROM news_articles')
     rows = cursor.fetchall()
     conn.close()
     news = [dict(row) for row in rows]
+    for n in news:
+        n['is_pinned'] = 1 if n.get('is_pinned') else 0
+    # Ordenar por:
+    # 1. is_pinned DESC (las noticias fijadas siempre de primeras)
+    # 2. Fecha (de más reciente hacia menos reciente)
+    # 3. ID DESC como desempate
+    news.sort(
+        key=lambda n: (
+            n['is_pinned'],
+            parse_date_to_sort_key(n.get('date'), n.get('id', 0))
+        ),
+        reverse=True
+    )
     _CACHE_NEWS = news
     _CACHE_NEWS_TIME = now
     return list(news)
@@ -550,16 +596,16 @@ def extract_video_thumbnail(video_url):
         return f"https://drive.google.com/thumbnail?id={drive_m.group(1)}&sz=w1000"
     return None
 
-def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=1, gallery_images='[]'):
+def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=1, gallery_images='[]', is_pinned=0):
     if not image or not str(image).strip():
         image = extract_video_thumbnail(video_url) or DEFAULT_NEWS_IMAGE
 
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url, social_network, social_url, is_active, gallery_images)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', 1 if is_active else 0, gallery_images or '[]'))
+        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url, social_network, social_url, is_active, gallery_images, is_pinned)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', 1 if is_active else 0, gallery_images or '[]', 1 if is_pinned else 0))
     new_id = cursor.lastrowid
     conn.commit()
     conn.close()
@@ -570,18 +616,24 @@ def add_news(title, category, category_slug, subcategory, date, summary, content
     invalidate_cms_cache()
     return new_id
 
-def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=None, gallery_images=None):
+def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=None, gallery_images=None, is_pinned=None):
     if not image or not str(image).strip():
         image = extract_video_thumbnail(video_url) or DEFAULT_NEWS_IMAGE
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    if is_active is None and gallery_images is None:
+    if is_active is None and gallery_images is None and is_pinned is None:
         cursor.execute('''
             UPDATE news_articles
             SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?, video_url = ?, social_network = ?, social_url = ?
             WHERE id = ?
         ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', news_id))
+    elif is_pinned is not None:
+        cursor.execute('''
+            UPDATE news_articles
+            SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?, video_url = ?, social_network = ?, social_url = ?, is_active = ?, gallery_images = ?, is_pinned = ?
+            WHERE id = ?
+        ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', 1 if is_active else 0, gallery_images or '[]', 1 if is_pinned else 0, news_id))
     elif gallery_images is not None:
         if is_active is None:
             cursor.execute('''
@@ -605,6 +657,23 @@ def update_news(news_id, title, category, category_slug, subcategory, date, summ
     conn.close()
     invalidate_cms_cache()
     return True
+
+def toggle_news_pinned(news_id: int):
+    """Fija o desfija una noticia (1 <-> 0) para mantenerla destacada al inicio de la lista."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT is_pinned FROM news_articles WHERE id = ?', (news_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return False, "Noticia no encontrada"
+    current_val = 1 if row['is_pinned'] else 0
+    new_val = 0 if current_val == 1 else 1
+    cursor.execute('UPDATE news_articles SET is_pinned = ? WHERE id = ?', (new_val, news_id))
+    conn.commit()
+    conn.close()
+    invalidate_cms_cache()
+    return True, new_val
 
 def toggle_news_visibility(news_id: int):
     """Activa o pausa una noticia (1 <-> 0) sin eliminarla, ideal para docentes."""

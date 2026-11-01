@@ -1212,7 +1212,8 @@ class LiceoLimonTestCase(unittest.TestCase):
         delete_news(target_item['id'])
         sync_ib_social_posts()
         news_after_delete = get_all_news()
-        self.assertFalse(any(n['id'] == target_item['id'] for n in news_after_delete))
+        self.assertFalse(any(n.get('social_url') == target_item.get('social_url') and n.get('title') == target_item.get('title') for n in news_after_delete))
+        self.assertEqual(len(news_after_delete), len(updated_items_2) - 1)
 
         # 6. Al sincronizar nuevas publicaciones, las existentes NUNCA se eliminan
         count_before_new = len(news_after_delete)
@@ -1285,6 +1286,53 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertLess(elapsed, 15.0)  # Menos de 15ms
         self.assertEqual(s1.get('provider'), s2.get('provider'))
         self.assertEqual(g1.get('model'), g2.get('model'))
+
+    def test_29_news_chronological_ordering_and_pin_unpin(self):
+        """Valida que las noticias se ordenen cronológicamente de más reciente a menos reciente y soporte fijar/desfijar."""
+        from database import get_all_news, toggle_news_pinned, parse_date_to_sort_key
+
+        news = get_all_news()
+        self.assertGreater(len(news), 1)
+
+        # 1. Comprobar que están en orden cronológico descendente (las no fijadas)
+        unpinned = [n for n in news if not n.get('is_pinned')]
+        for i in range(len(unpinned) - 1):
+            key_curr = parse_date_to_sort_key(unpinned[i].get('date'), unpinned[i].get('id', 0))
+            key_next = parse_date_to_sort_key(unpinned[i + 1].get('date'), unpinned[i + 1].get('id', 0))
+            self.assertGreaterEqual(key_curr, key_next)
+
+        # 2. Fijar una noticia antigua (la última de la lista)
+        last_item = news[-1]
+        ok, state = toggle_news_pinned(last_item['id'])
+        self.assertTrue(ok)
+        self.assertEqual(state, 1)
+
+        # 3. Al recargar las noticias, la noticia fijada debe aparecer de PRIMERA en la lista
+        news_after_pin = get_all_news()
+        self.assertEqual(news_after_pin[0]['id'], last_item['id'])
+        self.assertEqual(news_after_pin[0]['is_pinned'], 1)
+
+        # 4. Desfijar la noticia
+        ok_unpin, state_unpin = toggle_news_pinned(last_item['id'])
+        self.assertTrue(ok_unpin)
+        self.assertEqual(state_unpin, 0)
+        news_after_unpin = get_all_news()
+        self.assertEqual(news_after_unpin[-1]['id'], last_item['id'])
+
+        # 5. Probar el endpoint HTTP de fijar/desfijar
+        with self.client.session_transaction() as sess:
+            sess['is_admin'] = True
+        res_pin = self.client.post(f'/api/news/toggle-pin/{last_item["id"]}')
+        self.assertEqual(res_pin.status_code, 200)
+        data_pin = json.loads(res_pin.data)
+        self.assertTrue(data_pin['success'])
+        self.assertEqual(data_pin['is_pinned'], 1)
+
+        # Desfijar de vuelta
+        res_unpin = self.client.post(f'/api/news/toggle-pin/{last_item["id"]}')
+        self.assertEqual(res_unpin.status_code, 200)
+        data_unpin = json.loads(res_unpin.data)
+        self.assertEqual(data_unpin['is_pinned'], 0)
 
 if __name__ == '__main__':
     unittest.main()
