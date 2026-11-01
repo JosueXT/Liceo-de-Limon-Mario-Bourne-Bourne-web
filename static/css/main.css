@@ -4460,7 +4460,7 @@ body.devs-page-body {
   border-radius: var(--radius-full);
   background: var(--gris-100);
   border: 1.5px solid var(--gris-200);
-  color: var(--gris-700);
+  color: #0f3460;
   cursor: pointer;
   transition: all var(--transition-normal);
   position: relative;
@@ -4474,25 +4474,46 @@ body.devs-page-body {
 .theme-toggle-btn:hover {
   transform: translateY(-2px) scale(1.06);
   border-color: #0284c7;
+  color: #0284c7;
   box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
 }
 
-.theme-toggle-btn .theme-icon {
-  font-size: 1.15rem;
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+.theme-toggle-btn .theme-icon,
+.theme-toggle-btn .theme-icon-sun,
+.theme-toggle-btn .theme-icon-moon,
+.theme-toggle-btn .theme-icon-light,
+.theme-toggle-btn .theme-icon-dark {
   position: absolute;
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
   line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
 }
 
-.theme-toggle-btn .theme-icon-sun {
+.theme-toggle-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.theme-toggle-btn .theme-icon-sun,
+.theme-toggle-btn .theme-icon-light {
   opacity: 0;
-  transform: translateY(22px) rotate(-90deg);
+  transform: translateY(22px) rotate(-90deg) scale(0.6);
 }
 
-.theme-toggle-btn .theme-icon-moon {
+.theme-toggle-btn .theme-icon-moon,
+.theme-toggle-btn .theme-icon-dark {
   opacity: 1;
-  transform: translateY(0) rotate(0deg);
+  transform: translateY(0) rotate(0deg) scale(1);
 }
 
 /* ==========================================================================
@@ -4554,13 +4575,13 @@ body.devs-page-body {
 [data-theme="dark"] .theme-toggle-btn .theme-icon-sun,
 [data-theme="dark"] .theme-toggle-btn .theme-icon-light {
   opacity: 1 !important;
-  transform: translateY(0) rotate(0deg) !important;
+  transform: translateY(0) rotate(0deg) scale(1) !important;
 }
 
 [data-theme="dark"] .theme-toggle-btn .theme-icon-moon,
 [data-theme="dark"] .theme-toggle-btn .theme-icon-dark {
   opacity: 0 !important;
-  transform: translateY(-22px) rotate(90deg) !important;
+  transform: translateY(-22px) rotate(90deg) scale(0.6) !important;
 }
 
 /* Barra Superior MEP y Navegación Principal */
