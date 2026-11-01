@@ -1014,10 +1014,10 @@
             </div>
 
             <!-- Tarjeta 2: Servidor SMTP / Correo -->
-            <div class="health-card {{ 'border-ok' if smtp_status.connected else ('border-warn' if smtp_status.configured else 'border-err') }}">
+            <div class="health-card {% if smtp_status.connected %}border-ok{% elif smtp_status.configured %}border-warn{% else %}border-err{% endif %}">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                 <span style="font-size: 1.4rem;">✉️</span>
-                <span class="admin-badge-pill {{ 'badge-health-ok' if smtp_status.connected else ('badge-health-warn' if smtp_status.configured else 'badge-health-err') }}" id="badgeSmtpStatus" style="font-size: 0.72rem;">
+                <span class="admin-badge-pill {% if smtp_status.connected %}badge-health-ok{% elif smtp_status.configured %}badge-health-warn{% else %}badge-health-err{% endif %}" id="badgeSmtpStatus" style="font-size: 0.72rem;">
                   {% if smtp_status.connected %}🟢 SMTP Autenticado{% elif smtp_status.configured %}🟡 Configurado{% else %}🔴 No Configurado{% endif %}
                 </span>
               </div>
@@ -1345,7 +1345,7 @@
               <p class="panel-card-desc">Mensajes enviados por padres de familia, estudiantes y visitantes desde el formulario de contacto institucional.</p>
             </div>
             <div style="display: flex; gap: 0.5rem;">
-              <span class="admin-badge-pill" style="background: var(--azul);">Total: {{ inquiries|length }} consultas</span>
+              <span class="admin-badge-pill" style="background: var(--azul);" id="headerInquiriesCount">Total: {{ inquiries|length }} consultas</span>
             </div>
           </div>
 
@@ -3126,11 +3126,28 @@
             showToast(`✓ Consulta #${id} eliminada.`, 'success');
             document.getElementById(`inquiryCard-${id}`)?.remove();
             
-            // Actualizar contador
+            // Actualizar contadores en la barra lateral y en la cabecera
             const countEl = document.getElementById('sidebarInquiriesCount');
+            const headerCountEl = document.getElementById('headerInquiriesCount');
+            let remaining = 0;
             if (countEl) {
               const currentCount = parseInt(countEl.innerText) || 0;
-              countEl.innerText = Math.max(0, currentCount - 1);
+              remaining = Math.max(0, currentCount - 1);
+              countEl.innerText = remaining;
+            }
+            if (headerCountEl) {
+              headerCountEl.innerText = `Total: ${remaining} consultas`;
+            }
+
+            const container = document.querySelector('.inquiries-container');
+            if (container && container.querySelectorAll('.inquiry-card').length === 0) {
+              container.innerHTML = `
+                <div style="text-align: center; padding: 3.5rem 1.5rem; color: var(--gris-500);">
+                  <p style="font-size: 2.8rem; margin-bottom: 0.5rem;">📭</p>
+                  <p style="font-size: 1.15rem; font-weight: 700; color: var(--azul-dark);">Bandeja Limpia</p>
+                  <p style="font-size: 0.88rem; color: var(--gris-600); margin: 0;">No hay consultas pendientes ni archivadas. Nuevos mensajes de visitantes aparecerán aquí en tiempo real.</p>
+                </div>
+              `;
             }
           }
         } catch (err) {

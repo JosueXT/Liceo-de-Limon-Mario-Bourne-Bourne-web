@@ -554,6 +554,10 @@ def add_news(title, category, category_slug, subcategory, date, summary, content
     new_id = cursor.lastrowid
     conn.commit()
     conn.close()
+    try:
+        resequence_news_ids()
+    except Exception:
+        pass
     invalidate_cms_cache()
     return new_id
 

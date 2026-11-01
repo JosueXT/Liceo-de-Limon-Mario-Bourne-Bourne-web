@@ -23,6 +23,7 @@ from database import (
     add_news,
     update_news,
     delete_news,
+    resequence_news_ids,
     add_inquiry,
     get_all_inquiries,
     update_inquiry_status,
@@ -527,6 +528,11 @@ def admin_panel():
     admin_user = get_admin_user()
     current_admin_username = session.get('admin_username') or (admin_user['username'] if admin_user else 'Admin')
     current_recovery_email = (admin_user['recovery_email'] if admin_user and admin_user.get('recovery_email') else 'jeredamaya@gmail.com')
+
+    try:
+        resequence_news_ids()
+    except Exception:
+        pass
 
     cms = get_all_content(force_fresh=True)
     news = get_all_news(force_fresh=True)

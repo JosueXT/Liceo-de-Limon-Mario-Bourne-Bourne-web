@@ -317,16 +317,16 @@ body.cms-edit-mode .mep-flag-strip:hover {
 /* Utilización óptima del ancho del encabezado sin espacios muertos a los lados */
 .main-header .container,
 .top-mep-bar .container {
-  max-width: 1680px;
+  max-width: 100%;
   width: 100%;
-  padding: 0 clamp(1.25rem, 3.5vw, 3.5rem);
+  padding: 0 clamp(1rem, 2.8vw, 3rem);
 }
 
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
+  gap: clamp(1rem, 1.8vw, 2rem);
   padding: 0.75rem 0;
   width: 100%;
   transition: padding var(--transition-fast);
@@ -335,7 +335,7 @@ body.cms-edit-mode .mep-flag-strip:hover {
 .brand-wrapper {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: clamp(0.75rem, 1.2vw, 1.25rem);
   flex-shrink: 0;
   text-decoration: none;
 }
@@ -371,19 +371,19 @@ body.cms-edit-mode .mep-flag-strip:hover {
 
 .brand-name {
   font-family: var(--font-heading);
-  font-size: clamp(1.42rem, 1.9vw, 1.72rem);
+  font-size: clamp(1.42rem, 2.1vw, 1.95rem);
   font-weight: 800;
   color: var(--azul-dark);
-  letter-spacing: -0.3px;
+  letter-spacing: -0.25px;
   line-height: 1.12;
   white-space: nowrap;
 }
 
 .brand-subname {
-  font-size: clamp(0.86rem, 1.1vw, 1rem);
+  font-size: clamp(0.88rem, 1.2vw, 1.12rem);
   font-weight: 800;
   color: var(--vino);
-  letter-spacing: 2px;
+  letter-spacing: 2.2px;
   text-transform: uppercase;
   white-space: nowrap;
   line-height: 1.18;
@@ -4460,13 +4460,23 @@ body.devs-page-body {
   transform: translateY(0) rotate(0deg);
 }
 
-/* PALETA Y ESTILOS CUANDO ESTÁ ACTIVO EL MODO OSCURO */
+/* ==========================================================================
+   PALETA Y ESTILOS DE ALTO CONTRASTE PARA MODO OSCURO
+   ========================================================================== */
 [data-theme="dark"] {
-  /* Sobrescritura semántica de tokens */
-  --blanco: #0f172a;
-  --blanco-trans: rgba(15, 23, 42, 0.94);
-  --gris-50: #070c18;
-  --gris-100: #0b1329;
+  /* Tokens de Superficie y Texto (Mantiene --blanco puro para botones e iconos) */
+  --bg-body: #070c18;
+  --bg-card: #0e172a;
+  --bg-card-hover: #152238;
+  --border-card: rgba(255, 255, 255, 0.09);
+  --border-card-subtle: rgba(255, 255, 255, 0.05);
+
+  --text-main: #ffffff;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --gris-50: #0a1122;
+  --gris-100: #0e172a;
   --gris-200: #1e293b;
   --gris-300: #334155;
   --gris-400: #64748b;
@@ -4476,32 +4486,34 @@ body.devs-page-body {
   --gris-800: #f1f5f9;
   --gris-900: #ffffff;
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
-  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.7);
-  --shadow-hover: 0 20px 45px rgba(2, 132, 199, 0.3);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.85);
+  --shadow-hover: 0 20px 45px rgba(2, 132, 199, 0.35);
 
-  /* Modalidades en Modo Oscuro */
-  --reg-bg-grad: linear-gradient(145deg, #18090f 0%, #070c18 100%);
-  --fr-bg-grad: linear-gradient(145deg, #091530 0%, #050914 100%);
-  --ib-bg-grad: linear-gradient(145deg, #07132a 0%, #030712 100%);
+  /* Degradados de Modalidades en Modo Oscuro */
+  --reg-bg-grad: linear-gradient(145deg, #220914 0%, #0e172a 100%);
+  --fr-bg-grad: linear-gradient(145deg, #091a38 0%, #0c1527 100%);
+  --ib-bg-grad: linear-gradient(145deg, #0a1f42 0%, #081122 100%);
 }
 
 [data-theme="dark"] body {
   background-color: #070c18;
-  color: #e2e8f0;
+  color: #cbd5e1;
 }
 
+/* Botón Conmutador de Tema */
 [data-theme="dark"] .theme-toggle-btn {
   background: #1e293b;
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(253, 224, 71, 0.35);
   color: #fde047;
+  box-shadow: 0 0 14px rgba(253, 224, 71, 0.2);
 }
 
 [data-theme="dark"] .theme-toggle-btn:hover {
   border-color: #fde047;
-  box-shadow: 0 4px 16px rgba(253, 224, 71, 0.3);
+  box-shadow: 0 4px 18px rgba(253, 224, 71, 0.4);
 }
 
 [data-theme="dark"] .theme-toggle-btn .theme-icon-sun {
@@ -4514,79 +4526,216 @@ body.devs-page-body {
   transform: translateY(-22px) rotate(90deg);
 }
 
-/* Header & Barra Superior en Modo Oscuro */
-[data-theme="dark"] .main-header {
-  background: rgba(7, 12, 24, 0.94);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+/* Barra Superior MEP y Navegación Principal */
+[data-theme="dark"] .top-mep-bar {
+  background: #040813 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
-[data-theme="dark"] .top-bar {
-  background: #040813;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
+[data-theme="dark"] .mep-link,
 [data-theme="dark"] .top-bar-text,
 [data-theme="dark"] .top-bar-link {
-  color: #94a3b8;
+  color: #cbd5e1 !important;
 }
 
+[data-theme="dark"] .mep-link:hover,
 [data-theme="dark"] .top-bar-link:hover {
-  color: #38bdf8;
+  color: #38bdf8 !important;
 }
 
+[data-theme="dark"] .main-header {
+  background: rgba(7, 12, 24, 0.94) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .main-header.scrolled {
+  background: rgba(7, 12, 24, 0.98) !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.25) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Identidad del Colegio en Cabecera */
+[data-theme="dark"] .brand-name {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .brand-subname {
+  color: #fb7185 !important;
+}
+
+[data-theme="dark"] .brand-subtitle {
+  color: #94a3b8 !important;
+}
+
+/* Píldoras de Navegación */
 [data-theme="dark"] .nav-link {
   color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="dark"] .nav-link:hover,
 [data-theme="dark"] .nav-link.active {
-  color: #38bdf8;
+  color: #ffffff !important;
+  background: rgba(56, 189, 248, 0.16) !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
 }
 
-/* Tarjetas y Contenedores en Modo Oscuro */
-[data-theme="dark"] .feature-card,
+[data-theme="dark"] .nav-pill-inicio,
+[data-theme="dark"] .nav-pill-modalidades,
+[data-theme="dark"] .nav-pill-noticias,
+[data-theme="dark"] .nav-pill-redes,
+[data-theme="dark"] .nav-pill-identidad,
+[data-theme="dark"] .nav-pill-campus,
+[data-theme="dark"] .nav-pill-contacto {
+  color: #e2e8f0 !important;
+}
+
+/* Secciones de Contenido */
+[data-theme="dark"] .section,
+[data-theme="dark"] .pathways-section,
+[data-theme="dark"] .news-section,
+[data-theme="dark"] .identity-section,
+[data-theme="dark"] .history-section,
+[data-theme="dark"] .campus-section,
+[data-theme="dark"] .contact-section,
+[data-theme="dark"] .ib-accreditation-section,
+[data-theme="dark"] .curriculum-section,
+[data-theme="dark"] .requirements-section,
+[data-theme="dark"] .subject-groups-section,
+[data-theme="dark"] .social-section,
+[data-theme="dark"] .faq-section {
+  background-color: #070c18 !important;
+  color: #cbd5e1;
+}
+
+/* Títulos y Subtítulos de Secciones */
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .page-title,
+[data-theme="dark"] .hero-title,
+[data-theme="dark"] .modalidad-title,
+[data-theme="dark"] .pillar-title,
+[data-theme="dark"] .feature-title,
+[data-theme="dark"] .campus-title,
+[data-theme="dark"] .history-title,
+[data-theme="dark"] .contact-title,
+[data-theme="dark"] .curriculum-title,
+[data-theme="dark"] .group-title,
+[data-theme="dark"] .social-name,
+[data-theme="dark"] .requirements-title,
+[data-theme="dark"] .faq-question {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .section-subtitle,
+[data-theme="dark"] .page-subtitle,
+[data-theme="dark"] .hero-subtitle,
+[data-theme="dark"] .card-desc,
+[data-theme="dark"] .pathway-desc,
+[data-theme="dark"] .news-summary,
+[data-theme="dark"] .pillar-desc,
+[data-theme="dark"] .history-desc,
+[data-theme="dark"] .contact-desc,
+[data-theme="dark"] .social-desc,
+[data-theme="dark"] .lead-text,
+[data-theme="dark"] .body-text,
+[data-theme="dark"] .faq-answer {
+  color: #94a3b8 !important;
+}
+
+/* Tarjetas y Contenedores */
+[data-theme="dark"] .pathway-card,
 [data-theme="dark"] .news-card,
+[data-theme="dark"] .campus-card,
+[data-theme="dark"] .history-card,
+[data-theme="dark"] .mission-card,
+[data-theme="dark"] .vision-card,
+[data-theme="dark"] .contact-info-panel,
+[data-theme="dark"] .contact-form-container,
 [data-theme="dark"] .pillar-card,
-[data-theme="dark"] .social-card,
-[data-theme="dark"] .visual-page-card,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .curriculum-card,
+[data-theme="dark"] .group-card,
+[data-theme="dark"] .stats-box,
+[data-theme="dark"] .developer-card,
+[data-theme="dark"] .contact-card,
 [data-theme="dark"] .requirements-box,
-[data-theme="dark"] .highlight-stat-box {
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  color: #e2e8f0;
+[data-theme="dark"] .highlight-stat-box,
+[data-theme="dark"] .social-card,
+[data-theme="dark"] .visual-page-card {
+  background: #0e172a !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55) !important;
+  color: #cbd5e1;
 }
 
 [data-theme="dark"] .news-body {
-  background: #0f172a;
+  background: #0e172a !important;
 }
 
-[data-theme="dark"] .news-title,
-[data-theme="dark"] .section-title,
-[data-theme="dark"] .pillar-title,
-[data-theme="dark"] .social-name,
-[data-theme="dark"] .requirements-title {
-  color: #f8fafc;
+[data-theme="dark"] .news-title {
+  color: #f8fafc !important;
 }
 
-[data-theme="dark"] .news-summary,
-[data-theme="dark"] .section-subtitle,
-[data-theme="dark"] .pillar-desc,
-[data-theme="dark"] .social-desc,
-[data-theme="dark"] .lead-text,
-[data-theme="dark"] .body-text {
-  color: #94a3b8;
+/* Títulos Individuales de Modalidades */
+[data-theme="dark"] .card-regular .pathway-title {
+  color: #fb7185 !important;
+}
+
+[data-theme="dark"] .card-french .pathway-title {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .card-ib .pathway-title {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .pathway-badge-regular {
+  background: rgba(225, 29, 72, 0.2) !important;
+  color: #fb7185 !important;
+  border: 1px solid rgba(225, 29, 72, 0.4) !important;
+}
+
+[data-theme="dark"] .pathway-badge-french {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+}
+
+[data-theme="dark"] .pathway-badge-ib {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+}
+
+/* Filtros de Noticias */
+[data-theme="dark"] .news-tab-btn {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .news-tab-btn:hover {
+  background: #27354f;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .news-tab-btn.active {
+  background: #0284c7 !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
 }
 
 /* Tablas en Modo Oscuro */
 [data-theme="dark"] .curriculum-table {
-  background: #0f172a;
+  background: #0e172a;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="dark"] .curriculum-table thead th {
-  background: #1e293b;
+  background: #162238;
   color: #38bdf8;
   border-bottom-color: rgba(255, 255, 255, 0.12);
 }
@@ -4600,32 +4749,35 @@ body.devs-page-body {
   background: rgba(2, 132, 199, 0.12);
 }
 
-/* Formularios e Inputs en Modo Oscuro */
+/* Formularios e Inputs */
 [data-theme="dark"] .form-control,
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
 [data-theme="dark"] select {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
+  background: #131f37 !important;
+  border: 1.5px solid #263859 !important;
+  color: #ffffff !important;
 }
 
-[data-theme="dark"] .form-control:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3) !important;
 }
 
 /* Modales y Notificaciones */
 [data-theme="dark"] .modal-content,
 [data-theme="dark"] .modal-dialog {
-  background: #0f172a;
+  background: #0e172a;
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #f8fafc;
 }
 
 [data-theme="dark"] .footer {
-  background: #040813;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #040813 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 /* ==========================================================================
