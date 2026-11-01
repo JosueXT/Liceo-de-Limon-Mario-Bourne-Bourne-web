@@ -799,6 +799,39 @@
       color: #9a3412;
       background: #ffedd5;
     }
+
+    /* Sub-apartados de la sección de Noticias */
+    .news-subtabs-bar {
+      display: flex;
+      gap: 0.6rem;
+      border-bottom: 2px solid var(--gris-200);
+      padding-bottom: 0.8rem;
+      margin-bottom: 1.8rem;
+      flex-wrap: wrap;
+    }
+    .btn-subtab {
+      background: var(--gris-100);
+      color: var(--gris-700);
+      border: 1.5px solid var(--gris-200);
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      padding: 0.45rem 1.1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all var(--transition-fast);
+    }
+    .btn-subtab:hover {
+      background: var(--gris-200);
+      color: var(--azul-dark);
+    }
+    .btn-subtab.active {
+      background: var(--azul) !important;
+      color: #ffffff !important;
+      border-color: var(--azul) !important;
+      box-shadow: 0 4px 14px rgba(0, 53, 112, 0.25);
+    }
   </style>
 </head>
 <body class="admin-dashboard-body">
@@ -1405,15 +1438,25 @@
           <div class="panel-card-header">
             <div>
               <h2 class="panel-card-title">Gestión y Edición de Noticias</h2>
-              <p class="panel-card-desc">Publique o edite comunicados institucionales asignando categorías y subcategorías (ej. CAS, TOK, DELF, etc.).</p>
-            </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button type="button" class="btn btn-outline btn-sm" onclick="syncIbSocialPosts()" id="btnSyncSocial" style="border-color: #0284c7; color: #0284c7; font-weight: 700;">
-                🔄 Sincronizar Redes IB (IG & FB)
-              </button>
-              <button type="button" class="btn btn-azul btn-sm" onclick="toggleAddNewsForm()">➕ Publicar Nuevo Comunicado</button>
+              <p class="panel-card-desc">Administre por separado los comunicados académicos oficiales y las publicaciones de redes sociales del Bachillerato Internacional.</p>
             </div>
           </div>
+
+          <!-- Selector de Sub-Apartados de Noticias -->
+          <div class="news-subtabs-bar">
+            <button type="button" class="btn-subtab active" id="btnSubtabOfficial" onclick="switchNewsSubtab('official')">
+              📰 Comunicados Oficiales ({{ official_news|length }})
+            </button>
+            <button type="button" class="btn-subtab" id="btnSubtabSocial" onclick="switchNewsSubtab('social')">
+              📱 Redes Sociales IB (Instagram & Facebook) ({{ social_news|length }})
+            </button>
+          </div>
+
+          <!-- ==================== SUB-APARTADO 1: COMUNICADOS OFICIALES ==================== -->
+          <div id="subpaneOfficialNews">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 1.25rem;">
+              <button type="button" class="btn btn-azul btn-sm" onclick="toggleAddNewsForm()">➕ Publicar Nuevo Comunicado</button>
+            </div>
 
           <!-- Formulario 1: EDITAR NOTICIA EXISTENTE -->
           <div id="editNewsBox" style="display: none; background: #f0fdf4; border: 2px solid #86efac; border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2.5rem; box-shadow: 0 8px 25px rgba(22, 101, 52, 0.08);">
@@ -1661,7 +1704,8 @@
             </form>
           </div>
 
-          <!-- Tabla de Comunicados con Subcategoría & Botón Editar -->
+          <!-- Tabla de Comunicados Oficiales -->
+          {% if official_news %}
           <table class="admin-table">
             <thead>
               <tr>
@@ -1674,7 +1718,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for item in news %}
+              {% for item in official_news %}
               <tr id="newsRow-{{ item.id }}">
                 <td>#{{ item.id }}</td>
                 <td><strong>{{ item.title }}</strong></td>
@@ -1697,6 +1741,151 @@
               {% endfor %}
             </tbody>
           </table>
+          {% else %}
+          <div style="text-align: center; padding: 3rem; color: var(--gris-500);">
+            <p style="font-size: 2.5rem; margin-bottom: 0.5rem;">📰</p>
+            <p style="font-size: 1.1rem; font-weight: 600;">No hay comunicados oficiales registrados aún.</p>
+            <p style="font-size: 0.875rem;">Haga clic en '➕ Publicar Nuevo Comunicado' para redactar una publicación.</p>
+          </div>
+          {% endif %}
+
+          </div><!-- Fin #subpaneOfficialNews -->
+
+          <!-- ==================== SUB-APARTADO 2: REDES SOCIALES IB ==================== -->
+          <div id="subpaneSocialNews" style="display: none;">
+
+            <!-- Banner Descriptivo de Redes Sociales IB -->
+            <div style="background: rgba(2, 132, 199, 0.05); border: 1.5px solid #7dd3fc; border-radius: var(--radius-md); padding: 1.25rem 1.6rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div style="flex: 1; min-width: 280px;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                  <span style="font-size: 1.3rem;">📱</span>
+                  <strong style="color: #0369a1; font-size: 1.05rem;">Sub-Apartado de Redes Sociales del Bachillerato Internacional (IB)</strong>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--gris-700); margin: 0; line-height: 1.45;">
+                  Publicaciones exclusivas del <strong>Bachillerato Internacional</strong> provenientes de <strong>Instagram (@ib_liceodelimon)</strong> y <strong>Facebook Oficial IB</strong>. Cuentan con distintivo oficial y botón de enlace directo para los visitantes en el portal público de noticias.
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="syncIbSocialPosts()" id="btnSyncSocial" style="border-color: #0284c7; color: #0284c7; font-weight: 700;">
+                  🔄 Sincronizar Redes IB (IG & FB)
+                </button>
+                <button type="button" class="btn btn-azul btn-sm" onclick="toggleAdminAddSocialForm()">
+                  ➕ Replicar Publicación
+                </button>
+              </div>
+            </div>
+
+            <!-- Formulario 3: REPLICAR PUBLICACIÓN DE RED SOCIAL IB -->
+            <div id="panelAddSocialBox" style="display: none; background: #f0f9ff; border: 2px solid #38bdf8; border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2.5rem; box-shadow: 0 8px 25px rgba(2, 132, 199, 0.08);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid #bae6fd; padding-bottom: 0.8rem;">
+                <div>
+                  <h3 style="font-size: 1.25rem; color: #0369a1; margin: 0;">📱 Replicar Publicación de Instagram / Facebook</h3>
+                  <span style="font-size: 0.85rem; color: #0284c7;">Se asignará automáticamente a Bachillerato Internacional con distintivo oficial y botón directo.</span>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" onclick="toggleAdminAddSocialForm()">✕ Cancelar</button>
+              </div>
+
+              <form id="adminAddSocialForm">
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Red Social *</label>
+                    <select id="adminSocialNetwork" name="network" class="form-control" style="font-weight: 700;">
+                      <option value="Instagram">📸 Instagram Oficial (@ib_liceodelimon)</option>
+                      <option value="Facebook">👥 Facebook Oficial IB</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Enlace Directo de la Publicación (URL) *</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <input type="url" id="adminSocialPostUrl" name="post_url" class="form-control" placeholder="https://www.instagram.com/p/... o https://www.facebook.com/..." required>
+                      <button type="button" class="btn btn-outline btn-sm" id="btnAdminAutoFetch" onclick="autoFetchAdminSocialMetadata()" style="border-color: #0284c7; color: #0284c7; font-weight: 700; white-space: nowrap;">
+                        🪄 Cargar Auto
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Título del Comunicado *</label>
+                  <input type="text" id="adminSocialPostTitle" name="title" class="form-control" placeholder="Ej: Proyecto CAS IB en Cahuita" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Resumen / Descripción *</label>
+                  <textarea id="adminSocialPostSummary" name="summary" class="form-control" rows="3" placeholder="Resumen del contenido compartido en redes..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Foto de Portada (Opcional)</label>
+                  <input type="url" id="adminSocialPostImage" name="image_url" class="form-control" placeholder="https://... o deje vacío para usar imagen por defecto">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                  <button type="submit" class="btn btn-azul" id="btnAdminShareSocial">🚀 Replicar y Publicar en Noticias IB</button>
+                  <button type="button" class="btn btn-outline" onclick="toggleAdminAddSocialForm()">Cancelar</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Tabla de Publicaciones de Redes Sociales IB -->
+            {% if social_news %}
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Red Social</th>
+                  <th>Título & Resumen</th>
+                  <th>Enlace Oficial</th>
+                  <th>Fecha</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in social_news %}
+                <tr id="newsRow-{{ item.id }}">
+                  <td>#{{ item.id }}</td>
+                  <td>
+                    {% if item.social_network == 'Instagram' or 'instagram.com' in (item.social_url or '') %}
+                      <span class="admin-badge-pill" style="background: #e1306c; color: #ffffff; font-weight: 700;">📸 Instagram</span>
+                    {% elif item.social_network == 'Facebook' or 'facebook.com' in (item.social_url or '') %}
+                      <span class="admin-badge-pill" style="background: #1877f2; color: #ffffff; font-weight: 700;">👥 Facebook</span>
+                    {% else %}
+                      <span class="admin-badge-pill" style="background: #0284c7; color: #ffffff; font-weight: 700;">📱 Red Social</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <strong style="color: var(--azul-dark); font-size: 0.95rem;">{{ item.title }}</strong><br>
+                    <small style="color: var(--gris-600); line-height: 1.35; display: inline-block; margin-top: 0.2rem;">{{ item.summary[:95] }}{% if item.summary|length > 95 %}...{% endif %}</small>
+                  </td>
+                  <td>
+                    {% if item.social_url %}
+                      <a href="{{ item.social_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <span>↗ Ver en {{ item.social_network or 'Red' }}</span>
+                      </a>
+                    {% else %}
+                      <span style="color: var(--gris-400); font-size: 0.78rem;">Sin enlace</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ item.date }}</td>
+                  <td>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <button class="btn btn-azul btn-sm" data-id="{{ item.id }}" onclick="openEditNews(this.dataset.id)" title="Editar este comunicado">✏️ Editar</button>
+                      <button class="btn btn-vino btn-sm" data-id="{{ item.id }}" onclick="deleteNewsItem(this.dataset.id)" title="Eliminar comunicado">🗑️ Eliminar</button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <div style="text-align: center; padding: 3rem; color: var(--gris-500);">
+              <p style="font-size: 2.5rem; margin-bottom: 0.5rem;">📱</p>
+              <p style="font-size: 1.1rem; font-weight: 600;">No hay publicaciones de redes sociales replicadas aún.</p>
+              <p style="font-size: 0.875rem;">Haga clic en '🔄 Sincronizar Redes IB' para incorporar automáticamente las publicaciones oficiales de Instagram y Facebook.</p>
+            </div>
+            {% endif %}
+
+          </div><!-- Fin #subpaneSocialNews -->
         </div>
       </section>
 
@@ -3196,6 +3385,80 @@
       if (editBox) editBox.style.display = 'none';
     }
 
+    function switchNewsSubtab(subtab) {
+      const paneOfficial = document.getElementById('subpaneOfficialNews');
+      const paneSocial = document.getElementById('subpaneSocialNews');
+      const btnOfficial = document.getElementById('btnSubtabOfficial');
+      const btnSocial = document.getElementById('btnSubtabSocial');
+
+      if (subtab === 'social') {
+        if (paneOfficial) paneOfficial.style.display = 'none';
+        if (paneSocial) paneSocial.style.display = 'block';
+        if (btnOfficial) btnOfficial.classList.remove('active');
+        if (btnSocial) btnSocial.classList.add('active');
+      } else {
+        if (paneOfficial) paneOfficial.style.display = 'block';
+        if (paneSocial) paneSocial.style.display = 'none';
+        if (btnOfficial) btnOfficial.classList.add('active');
+        if (btnSocial) btnSocial.classList.remove('active');
+      }
+    }
+
+    function toggleAdminAddSocialForm() {
+      const box = document.getElementById('panelAddSocialBox');
+      if (box) {
+        const isOpening = (box.style.display === 'none' || !box.style.display);
+        box.style.display = isOpening ? 'block' : 'none';
+        if (isOpening) {
+          box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+
+    async function autoFetchAdminSocialMetadata() {
+      const urlInput = document.getElementById('adminSocialPostUrl');
+      const url = urlInput ? urlInput.value.trim() : '';
+      if (!url) {
+        showToast('Ingrese primero el enlace de Instagram o Facebook.', 'error');
+        return;
+      }
+      const btn = document.getElementById('btnAdminAutoFetch');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Leyendo...';
+      }
+      try {
+        const res = await fetch('/api/social/extract-metadata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.metadata) {
+          const meta = data.metadata;
+          if (meta.title && document.getElementById('adminSocialPostTitle')) {
+            document.getElementById('adminSocialPostTitle').value = meta.title;
+          }
+          if (meta.description && document.getElementById('adminSocialPostSummary')) {
+            document.getElementById('adminSocialPostSummary').value = meta.description;
+          }
+          if (meta.image && document.getElementById('adminSocialPostImage')) {
+            document.getElementById('adminSocialPostImage').value = meta.image;
+          }
+          showToast('✓ Metadatos de la red social cargados automáticamente.', 'success');
+        } else {
+          showToast(data.message || 'Complete los datos manualmente.', 'error');
+        }
+      } catch (err) {
+        showToast('No fue posible contactar directamente con la red social.', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '🪄 Cargar Auto';
+        }
+      }
+    }
+
     function setSubcat(sub) {
       document.getElementById('pNewsSubcategory').value = sub;
     }
@@ -3323,6 +3586,11 @@
         const videoInput = document.getElementById('editNewsVideo');
         if (videoInput) videoInput.value = item.video_url || '';
 
+        const socNet = document.getElementById('editNewsSocialNetwork');
+        if (socNet) socNet.value = item.social_network || '';
+        const socUrl = document.getElementById('editNewsSocialUrl');
+        if (socUrl) socUrl.value = item.social_url || '';
+
         document.getElementById('editNewsSummary').value = item.summary || '';
         document.getElementById('editNewsContent').value = item.content || '';
 
@@ -3424,6 +3692,9 @@
       const image = rawImage || extractVideoThumbnail(video_url) || 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80';
       const image_position = document.getElementById('editNewsImagePosition')?.value || 'center center';
       const author = document.getElementById('editNewsAuthor').value.trim() || 'Liceo de Limón MEP';
+      const social_network = document.getElementById('editNewsSocialNetwork')?.value || '';
+      const social_url = document.getElementById('editNewsSocialUrl')?.value.trim() || '';
+
       const submitBtn = e.target.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -3434,7 +3705,7 @@
         const res = await fetch(`/api/cms/news/${id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author, image_position, video_url })
+          body: JSON.stringify({ title, category, category_slug: categorySlug, subcategory, date, summary, content, image, author, image_position, video_url, social_network, social_url })
         });
 
         let data = {};
@@ -3511,6 +3782,40 @@
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerText = 'Publicar Comunicado';
+        }
+      }
+    });
+
+    // Replicar Publicación de Red Social IB desde el Panel Administrador
+    document.getElementById('adminAddSocialForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnAdminShareSocial');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Replicando publicación...';
+      }
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch('/api/teacher/social-post/add', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✓ Publicación de red social replicada exitosamente.', 'success');
+          setTimeout(() => location.reload(), 800);
+        } else {
+          showToast(data.message || 'Error al replicar publicación.', 'error');
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = '🚀 Replicar y Publicar en Noticias IB';
+          }
+        }
+      } catch (err) {
+        showToast('Error de conexión al replicar.', 'error');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '🚀 Replicar y Publicar en Noticias IB';
         }
       }
     });

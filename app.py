@@ -536,6 +536,8 @@ def admin_panel():
 
     cms = get_all_content(force_fresh=True)
     news = get_all_news(force_fresh=True)
+    official_news = [n for n in news if n.get('subcategory') != 'Redes Sociales' and not n.get('social_network') and not n.get('social_url')]
+    social_news = [n for n in news if n.get('subcategory') == 'Redes Sociales' or n.get('social_network') or n.get('social_url')]
     inquiries = get_all_inquiries()
     snapshots = get_all_snapshots()
     developers = get_developers_dynamic_list(cms)
@@ -548,6 +550,8 @@ def admin_panel():
         'admin_panel.html',
         cms=cms,
         news=news,
+        official_news=official_news,
+        social_news=social_news,
         inquiries=inquiries,
         snapshots=snapshots,
         developers=developers,
@@ -1170,12 +1174,14 @@ def api_add_news():
     image_position = data.get('image_position', 'center center').strip() or 'center center'
     video_url = data.get('video_url', '').strip()
     author = data.get('author', 'Liceo de Limón MEP').strip()
+    social_network = data.get('social_network', '').strip()
+    social_url = data.get('social_url', '').strip()
 
     if not title or not summary:
         return jsonify({'success': False, 'message': 'El título y el resumen son obligatorios.'}), 400
 
     try:
-        new_id = add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
+        new_id = add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url, social_network=social_network, social_url=social_url)
         return jsonify({
             'success': True,
             'message': 'Comunicado institucional publicado exitosamente.',
@@ -1217,12 +1223,14 @@ def api_update_news(news_id):
     image_position = data.get('image_position', 'center center').strip() or 'center center'
     video_url = data.get('video_url', '').strip()
     author = data.get('author', 'Liceo de Limón MEP').strip()
+    social_network = data.get('social_network', '').strip()
+    social_url = data.get('social_url', '').strip()
 
     if not title or not summary:
         return jsonify({'success': False, 'message': 'El título y el resumen son obligatorios.'}), 400
 
     try:
-        update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
+        update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url, social_network=social_network, social_url=social_url)
         return jsonify({
             'success': True,
             'message': f'Comunicado #{news_id} actualizado exitosamente.'
