@@ -4,7 +4,7 @@ SERVICIO DE SINCRONIZACIÓN Y REPLICACIÓN DE REDES SOCIALES (IB)
 LICEO DE LIMÓN MARIO BOURNE BOURNE - PROGRAMA DEL DIPLOMA
 ==============================================================================
 Sincroniza y publica automáticamente noticias del Bachillerato Internacional (IB)
-a partir de las publicaciones REALES de Instagram (@ib_limon_) mediante Behold API.
+a partir de las publicaciones REALES de Instagram (@ib_limon_) mediante Curator.io y Behold API.
 ==============================================================================
 """
 
@@ -14,12 +14,12 @@ import urllib.error
 from datetime import datetime
 from database import get_db_connection, add_news, invalidate_cms_cache, resequence_news_ids
 
+CURATOR_FEED_URL = "https://api.curator.io/v1/feeds/d1493603-e0a9-4ad7-a2fb-e329cb0dc272/posts"
 BEHOLD_FEED_URL = "https://feeds.behold.so/W8N8DJRtNSUmqg5S5yRs"
 
 SPANISH_MONTHS = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
 # Publicaciones oficiales y 100% REALES extraídas directamente de la cuenta oficial @ib_limon_
-# Se utilizan como respaldo si no hay conexión externa en el momento de la consulta.
 FALLBACK_REAL_IB_POSTS = [
     {
         "title": "🏆 ¡Limón tiene motivos para sentirse orgulloso!",
@@ -29,7 +29,7 @@ FALLBACK_REAL_IB_POSTS = [
         "date": "30 de Octubre, 2026",
         "summary": "Felicitamos a los grupos 2, 3 y 4 por su participación en el proyecto @epicostarica, impulsado por MSC Mediterranean Shipping Company. De manera especial, felicitamos al Grupo 1, ganador del proyecto nacional.",
         "content": "🏆 ¡Limón tiene motivos para sentirse orgulloso!\n\nFelicitamos a los grupos 2, 3 y 4 por su participación en el proyecto @epicostarica , impulsado por MSC Mediterranean Shipping Company. Ser parte de esta experiencia ya es un gran logro, y reconocemos el esfuerzo, la creatividad y el compromiso ambiental de todos nuestros estudiantes.\n\nDe manera especial, felicitamos al Grupo 1, ganador del proyecto y uno de los tres finalistas a nivel nacional, con una propuesta que busca aprovechar el agua de lluvia para abastecer los sanitarios y reducir el consumo de agua potable en nuestra provincia.\n\nEl equipo está integrado por:\nJosue Amaya, Engel Zúñiga, Sofia Matarrita, Jeycob Nuñez y Annie Sánchez.\n\nEste reconocimiento es motivo de orgullo para Limón, nuestro Liceo y el Bachillerato Internacional. ¡Nuestros jóvenes demuestran que las grandes ideas también nacen en nuestra provincia!\n\n¡Felicidades a todos!\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
-        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODExMzQ2MTAxOTE0NTE2NyIsImgiOiIxNGl6Mm54In0.jpg?class=squareLarge",
+        "image": "https://curator-assets.b-cdn.net/d1493603-e0a9-4ad7-a2fb-e329cb0dc272/395843436.jpg?width=850",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
         "social_url": "https://www.instagram.com/p/DfIuZD5jrHC/"
@@ -42,7 +42,7 @@ FALLBACK_REAL_IB_POSTS = [
         "date": "30 de Octubre, 2026",
         "summary": "Los estudiantes de la sección 11-7 celebraron el Día Nacional de la Mascarada Costarricense elaborando sus propias máscaras, llenando de creatividad y color esta actividad representativa.",
         "content": "🎭 ¡Nuestras tradiciones siguen vivas en las nuevas generaciones!\n\nLos estudiantes de la sección 11-7 celebraron el Día Nacional de la Mascarada Costarricense elaborando sus propias máscaras, llenando de creatividad y color esta actividad inspirada en una de las expresiones más representativas de nuestra identidad cultural.\n\nPorque conocer nuestras raíces también es una forma de mantenerlas vivas. 🇨🇷\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
-        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODExOTk5OTg0MzA4NDM0NCIsImgiOiIxMzNrN211In0.jpg?class=squareLarge",
+        "image": "https://curator-assets.b-cdn.net/d1493603-e0a9-4ad7-a2fb-e329cb0dc272/395843437.jpg?width=850",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
         "social_url": "https://www.instagram.com/p/DfIp6NUoApo/"
@@ -55,7 +55,7 @@ FALLBACK_REAL_IB_POSTS = [
         "date": "27 de Octubre, 2026",
         "summary": "Hoy, nuestros estudiantes de sexto año iniciaron las pruebas internacionales del Bachillerato Internacional (BI), una etapa que representa sueños, sacrificios y aprendizajes construidos con perseverancia.",
         "content": "Dos años de esfuerzo nos han traído hasta este momento.\n\nHoy, nuestros estudiantes de sexto año iniciaron las pruebas internacionales del Bachillerato Internacional (BI), una etapa que representa mucho más que evaluaciones: representa sueños, sacrificios, aprendizajes y metas construidas con perseverancia.\n\nQueridos estudiantes, confíen en todo lo que han aprendido y en las capacidades que han desarrollado. Recuerden que son mucho más que una calificación. Estamos orgullosos de la historia que han construido y de todo lo que han superado para llegar hasta aquí.\n\nAgradecemos profundamente a nuestra coordinadora, Andra Edwards Loban, por su entrega y acompañamiento, y a los profesores de todas las asignaturas por compartir sus conocimientos y ser parte fundamental de este proceso.\n\nQue cada respuesta refleje su esfuerzo y que, al terminar, puedan decir con orgullo: lo di todo.\n\n¡Les deseamos el mayor de los éxitos! Toda nuestra comunidad educativa cree en ustedes.\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
-        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxNzk5ODYzMDI3ODA1MTk3OCIsImgiOiIxdzBnajhkIn0.jpg?class=squareLarge",
+        "image": "https://curator-assets.b-cdn.net/d1493603-e0a9-4ad7-a2fb-e329cb0dc272/395843438.jpg?width=850",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
         "social_url": "https://www.instagram.com/p/DfA1lBYoJT5/"
@@ -68,7 +68,7 @@ FALLBACK_REAL_IB_POSTS = [
         "date": "10 de Octubre, 2026",
         "summary": "Nuestros estudiantes de quinto año del Bachillerato Internacional participaron en una jornada de convivencia con las personas jubiladas de COLYPRO, cerca de Playa Bonita, Limón.",
         "content": "¡Compartiendo experiencias que dejan huella!\n\nNuestros estudiantes de quinto año del Bachillerato Internacional participaron en una jornada de convivencia con las personas jubiladas de COLYPRO, cerca de Playa Bonita, Limón.\n\nEntre bailes, juegos de mesa y momentos de alegría, fortalecieron los lazos entre generaciones y pusieron en práctica valores como el respeto, la empatía y la solidaridad.\n\n¡Aprender también es compartir con nuestra comunidad!",
-        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODAyNjU5NTczNDg2OTcwMyIsImgiOiIxeHUwMGYzIn0.jpg?class=squareLarge",
+        "image": "https://curator-assets.b-cdn.net/d1493603-e0a9-4ad7-a2fb-e329cb0dc272/395843439.jpg?width=850",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
         "social_url": "https://www.instagram.com/p/DeS8i6Ijn2z/"
@@ -81,7 +81,7 @@ FALLBACK_REAL_IB_POSTS = [
         "date": "24 de Septiembre, 2026",
         "summary": "Elegir el Programa del Diploma del Bachillerato Internacional es apostar por una formación que va más allá del aula. Formación con visión global y excelencia académica.",
         "content": "🌎 ¿Por qué elegir el Bachillerato Internacional?\n\nElegir el Programa del Diploma del Bachillerato Internacional es apostar por una formación que va más allá del aula.\n\nDeslizá y descubrí por qué elegir el Bachillerato Internacional. ✨",
-        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxNzg4Njg0MjcxNTQ3OTA2NCIsImgiOiI2bjhpZW8ifQ.jpg?class=squareLarge",
+        "image": "https://curator-assets.b-cdn.net/d1493603-e0a9-4ad7-a2fb-e329cb0dc272/395843440.jpg?width=850",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
         "social_url": "https://www.instagram.com/p/DdpmlK2jnZu/"
@@ -94,17 +94,82 @@ FALLBACK_REAL_IB_POSTS = [
         "date": "16 de Septiembre, 2026",
         "summary": "Con orgullo y alegría conmemoramos el Día de la Independencia de Costa Rica, participando en el tradicional desfile y celebrando juntos nuestra identidad, cultura y valores.",
         "content": "Celebramos nuestra independencia 🙌🏼🇨🇷\n\nCon orgullo y alegría conmemoramos el Día de la Independencia de Costa Rica, participando en el tradicional desfile y celebrando juntos nuestra identidad, cultura y valores.\n\n¡Viva Costa Rica! 🇨🇷🇨🇷",
-        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODQwNjM0NTE4MDA4MDgzMSIsImgiOiIxYnd4OTU5In0.jpg?class=squareLarge",
+        "image": "https://curator-assets.b-cdn.net/d1493603-e0a9-4ad7-a2fb-e329cb0dc272/395843441.jpg?width=850",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
         "social_url": "https://www.instagram.com/p/DdVTXScjhhx/"
     }
 ]
 
+def fetch_live_curator_posts():
+    """
+    Extrae las publicaciones oficiales y completas de Instagram (@ib_limon_)
+    utilizando el feed activo de Curator.io (hasta 20 publicaciones).
+    """
+    try:
+        req = urllib.request.Request(
+            CURATOR_FEED_URL,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) LiceoDeLimonIB/1.0',
+                'Accept': 'application/json'
+            }
+        )
+        with urllib.request.urlopen(req, timeout=4) as response:
+            if response.status != 200:
+                return None
+            data = json.loads(response.read().decode('utf-8'))
+
+        raw_posts = data.get('posts', [])
+        if not raw_posts:
+            return None
+
+        parsed_posts = []
+        for p in raw_posts:
+            raw_text = (p.get('text') or '').strip()
+            lines = [l.strip() for l in raw_text.split('\n') if l.strip()]
+            first_line = lines[0] if lines else "Publicación Oficial de Instagram"
+            title = first_line[:110]
+
+            summary = lines[1] if len(lines) > 1 else lines[0] if lines else ''
+            if len(summary) > 220:
+                summary = summary[:217] + '...'
+
+            created = p.get('source_created_at')
+            if created:
+                try:
+                    dt = datetime.fromisoformat(created.replace('Z', '+00:00'))
+                    date_str = f"{dt.day} de {SPANISH_MONTHS[dt.month]}, {dt.year}"
+                except Exception:
+                    date_str = "Reciente"
+            else:
+                date_str = "Reciente"
+
+            img_url = p.get('image_large') or p.get('image') or ''
+            permalink = p.get('url') or 'https://www.instagram.com/ib_limon_/'
+            video_url = p.get('video') or ''
+
+            parsed_posts.append({
+                "title": title,
+                "category": "Bachillerato Internacional",
+                "category_slug": "ib",
+                "subcategory": "Redes Sociales",
+                "date": date_str,
+                "summary": summary,
+                "content": raw_text,
+                "image": img_url,
+                "video_url": video_url,
+                "author": "Instagram @ib_limon_",
+                "social_network": "Instagram",
+                "social_url": permalink
+            })
+
+        return parsed_posts
+    except Exception:
+        return None
+
 def fetch_live_behold_posts():
     """
-    Consulta en tiempo real la API de Behold.so para extraer las publicaciones
-    oficiales más recientes de la cuenta de Instagram @ib_limon_.
+    Respaldo secundario mediante Behold API en caso de que Curator no responda.
     """
     try:
         req = urllib.request.Request(
@@ -114,7 +179,7 @@ def fetch_live_behold_posts():
                 'Accept': 'application/json'
             }
         )
-        with urllib.request.urlopen(req, timeout=4) as response:
+        with urllib.request.urlopen(req, timeout=3) as response:
             if response.status != 200:
                 return None
             data = json.loads(response.read().decode('utf-8'))
@@ -163,6 +228,7 @@ def fetch_live_behold_posts():
                 "summary": summary,
                 "content": raw_caption,
                 "image": img_url,
+                "video_url": "",
                 "author": "Instagram @ib_limon_",
                 "social_network": "Instagram",
                 "social_url": permalink
@@ -207,8 +273,10 @@ def sync_ib_social_posts(force=False):
     existing_urls = set(r['social_url'].strip() for r in rows if r['social_url'])
     conn.close()
 
-    # 3. Intentar obtener publicaciones en vivo desde Behold; si falla, usar publicaciones reales de respaldo
-    posts_to_sync = fetch_live_behold_posts()
+    # 3. Intentar obtener publicaciones desde Curator.io (hasta 20); si falla, probar Behold; si falla, usar respaldo
+    posts_to_sync = fetch_live_curator_posts()
+    if not posts_to_sync:
+        posts_to_sync = fetch_live_behold_posts()
     if not posts_to_sync:
         posts_to_sync = FALLBACK_REAL_IB_POSTS
 
@@ -236,6 +304,7 @@ def sync_ib_social_posts(force=False):
             content=post['content'],
             image=post['image'],
             author=post['author'],
+            video_url=post.get('video_url', ''),
             social_network=post['social_network'],
             social_url=post['social_url'],
             is_active=1
