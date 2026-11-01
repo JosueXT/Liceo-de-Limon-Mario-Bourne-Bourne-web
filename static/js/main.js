@@ -93,8 +93,8 @@ function initScrollReveal() {
 
   const observerOptions = {
     root: null,
-    rootMargin: '0px 0px -50px 0px',
-    threshold: 0.1
+    rootMargin: '0px 0px 80px 0px',
+    threshold: 0.01
   };
 
   const observer = new IntersectionObserver((entries, obs) => {
@@ -1018,6 +1018,11 @@ function initIbNewsFilters() {
   const subfilterBtns = document.querySelectorAll('.ib-subfilter-btn');
   const cards = container.querySelectorAll('.news-card');
 
+  // Asegurar que las tarjetas iniciales de noticias IB sean completamente visibles
+  cards.forEach(card => {
+    card.classList.add('revealed');
+  });
+
   subfilterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       subfilterBtns.forEach(b => b.classList.remove('active'));
@@ -1030,7 +1035,7 @@ function initIbNewsFilters() {
         const hasSocial = Boolean(card.querySelector('.btn-news-social-link') || card.getAttribute('data-social-url'));
         if (filter === 'all' || subcat.includes(filter) || (filter === 'redes sociales' && (subcat.includes('redes') || hasSocial)) || (filter === 'instagram' && (subcat.includes('insta') || hasSocial)) || (filter === 'general' && !subcat)) {
           card.style.display = 'flex';
-          card.classList.add('reveal-scale');
+          card.classList.add('revealed');
         } else {
           card.style.display = 'none';
         }
@@ -1196,7 +1201,9 @@ function initIBInteractiveEffects() {
       '.requirements-box',
       '.highlight-stat-box',
       '.modality-contact-card',
-      '.ib-news-grid .news-card'
+      '#ibNewsGridContainer .news-card',
+      '.ib-coordination-card',
+      '.ib-coord-item'
     );
   }
 

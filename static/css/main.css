@@ -2345,19 +2345,37 @@ body.theme-regular .pillar-number {
   background: var(--blanco);
   border-radius: var(--radius-xl);
   padding: 2.2rem;
-  box-shadow: var(--shadow-md);
   border: 1.5px solid var(--gris-200);
-  transition: all var(--transition-normal);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  overflow: hidden;
+  z-index: 1;
+}
+
+/* Efecto de Luz Neón Ambiental de fondo detrás de los cuadros de redes sociales */
+.social-card::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: calc(var(--radius-xl) + 6px);
+  background: var(--social-neon-glow, transparent);
+  filter: blur(18px);
+  opacity: 0.55;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 0.4s ease, filter 0.4s ease, inset 0.4s ease;
 }
 
 .social-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-xl);
+  transform: translateY(-8px) scale(1.02);
+}
+
+.social-card:hover::after {
+  inset: -12px;
+  filter: blur(28px);
+  opacity: 0.92;
 }
 
 .social-card::before {
@@ -2367,12 +2385,43 @@ body.theme-regular .pillar-number {
   left: 0;
   right: 0;
   height: 6px;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
 }
 
-/* Variantes temáticas de cada red */
+/* Variantes temáticas con resplandor neón */
 .social-card-fb::before { background: #1877F2; }
+.social-card-fb {
+  --social-neon-glow: radial-gradient(circle at 50% 30%, #1877F2 0%, rgba(24, 119, 242, 0.5) 50%, transparent 80%);
+  border-color: rgba(24, 119, 242, 0.35);
+  box-shadow: 0 10px 30px rgba(24, 119, 242, 0.16), 0 0 22px rgba(24, 119, 242, 0.12);
+}
+.social-card-fb:hover {
+  border-color: #1877F2;
+  box-shadow: 0 18px 45px rgba(24, 119, 242, 0.35), 0 0 38px rgba(24, 119, 242, 0.3);
+}
+
 .social-card-ig::before { background: linear-gradient(90deg, #F58529, #DD2A7B, #8134AF, #515BD4); }
+.social-card-ig {
+  --social-neon-glow: radial-gradient(circle at 50% 30%, #E1306C 0%, rgba(245, 133, 41, 0.6) 40%, rgba(129, 52, 175, 0.45) 70%, transparent 90%);
+  border-color: rgba(225, 48, 108, 0.35);
+  box-shadow: 0 10px 30px rgba(225, 48, 108, 0.16), 0 0 22px rgba(225, 48, 108, 0.12);
+}
+.social-card-ig:hover {
+  border-color: #E1306C;
+  box-shadow: 0 18px 45px rgba(225, 48, 108, 0.35), 0 0 38px rgba(225, 48, 108, 0.3);
+}
+
 .social-card-wa::before { background: #25D366; }
+.social-card-wa {
+  --social-neon-glow: radial-gradient(circle at 50% 30%, #25D366 0%, rgba(37, 211, 102, 0.5) 50%, transparent 80%);
+  border-color: rgba(37, 211, 102, 0.35);
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.16), 0 0 22px rgba(37, 211, 102, 0.12);
+}
+.social-card-wa:hover {
+  border-color: #25D366;
+  box-shadow: 0 18px 45px rgba(37, 211, 102, 0.35), 0 0 38px rgba(37, 211, 102, 0.3);
+}
 
 .social-card-header {
   display: flex;
@@ -5531,18 +5580,157 @@ body.theme-ib .requirements-box {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(2, 132, 199, 0.15);
 }
 
-body.theme-ib .curriculum-table {
-  border-radius: var(--radius-xl);
+/* ==========================================================================
+   TABLA DE MATERIAS IB: EFECTOS 3D, ANIMACIÓN Y DISEÑO FUTURISTA
+   ========================================================================== */
+body.theme-ib .curriculum-table-wrapper {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(240, 249, 255, 0.94) 100%);
+  border-radius: var(--radius-2xl);
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 20px 50px rgba(2, 132, 199, 0.16), 0 0 35px rgba(56, 189, 248, 0.15);
+  position: relative;
   overflow: hidden;
-  border: 1.5px solid rgba(56, 189, 248, 0.25);
-  box-shadow: 0 12px 35px rgba(2, 132, 199, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+}
+
+body.theme-ib .curriculum-table-wrapper:hover {
+  box-shadow: 0 25px 60px rgba(2, 132, 199, 0.25), 0 0 50px rgba(56, 189, 248, 0.25);
+}
+
+/* Efecto de barra superior luminosa animada */
+body.theme-ib .curriculum-table-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0284c7, #38bdf8, #818cf8, #06b6d4, #0284c7);
+  background-size: 300% 100%;
+  animation: shimmerSweep 4s linear infinite;
+  z-index: 10;
+}
+
+body.theme-ib .curriculum-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: none;
 }
 
 body.theme-ib .curriculum-table thead th {
-  background: linear-gradient(135deg, #0284c7 0%, #00205b 100%);
+  background: linear-gradient(135deg, #07193b 0%, #0284c7 100%);
   color: #ffffff;
+  padding: 1.4rem 1.8rem;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: none;
+}
+
+body.theme-ib .curriculum-table tbody tr {
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+body.theme-ib .curriculum-table tbody tr td {
+  padding: 1.35rem 1.8rem;
+  border-bottom: 1px solid rgba(2, 132, 199, 0.1);
+  transition: all 0.28s ease;
+}
+
+body.theme-ib .curriculum-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Hover 3D en las filas de la tabla */
+body.theme-ib .curriculum-table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(2, 132, 199, 0.08) 0%, rgba(56, 189, 248, 0.04) 100%);
+  transform: translateX(10px) scale(1.006);
+}
+
+body.theme-ib .curriculum-table tbody tr:hover td:first-child {
+  border-left: 5px solid #0284c7;
+  padding-left: calc(1.8rem - 5px);
+}
+
+/* Celda de Grupo estilizada como Badge Moderno */
+body.theme-ib .curriculum-group-cell strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-heading);
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.1);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  padding: 0.4rem 0.95rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.1);
+  transition: all 0.25s ease;
+}
+
+body.theme-ib .curriculum-table tbody tr:hover .curriculum-group-cell strong {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  transform: scale(1.04);
+}
+
+/* Celda de Asignaturas con tipografía clara y destacada */
+body.theme-ib .curriculum-subject-cell {
+  font-size: 0.98rem;
+  color: var(--gris-800);
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Modo Oscuro para Tabla IB */
+[data-theme="dark"] body.theme-ib .curriculum-table-wrapper {
+  background: linear-gradient(135deg, #0a1428 0%, #060b16 100%);
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(2, 132, 199, 0.2);
+}
+
+[data-theme="dark"] body.theme-ib .curriculum-table thead th {
+  background: linear-gradient(135deg, #040915 0%, #0c234b 100%);
+  color: #38bdf8;
+}
+
+[data-theme="dark"] body.theme-ib .curriculum-table tbody tr td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] body.theme-ib .curriculum-table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, rgba(2, 132, 199, 0.08) 100%);
+}
+
+[data-theme="dark"] body.theme-ib .curriculum-table tbody tr:hover td:first-child {
+  border-left: 5px solid #38bdf8;
+}
+
+[data-theme="dark"] body.theme-ib .curriculum-group-cell strong {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+[data-theme="dark"] body.theme-ib .curriculum-table tbody tr:hover .curriculum-group-cell strong {
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+  color: #040915;
+  border-color: #ffffff;
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.5);
+}
+
+[data-theme="dark"] body.theme-ib .curriculum-subject-cell {
+  color: #cbd5e1;
 }
 
 /* --------------------------------------------------------------------------
