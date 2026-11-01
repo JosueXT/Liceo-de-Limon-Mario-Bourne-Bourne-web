@@ -426,3 +426,61 @@
   pointer-events: none;
   z-index: 2;
 }
+
+/* --------------------------------------------------------------------------
+   8. ANIMACIONES ESPECÍFICAS PARA EL PROGRAMA DEL DIPLOMA (IB)
+   -------------------------------------------------------------------------- */
+
+@keyframes ibIconBob {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(4deg);
+  }
+}
+
+@keyframes ibGlowPulse {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(2, 132, 199, 0.25), inset 0 0 12px rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.4);
+  }
+  50% {
+    box-shadow: 0 12px 42px rgba(2, 132, 199, 0.45), inset 0 0 20px rgba(56, 189, 248, 0.3);
+    border-color: rgba(56, 189, 248, 0.85);
+  }
+}
+
+@keyframes ibTitleGlow {
+  0%, 100% {
+    text-shadow: 0 2px 20px rgba(56, 189, 248, 0.3);
+  }
+  50% {
+    text-shadow: 0 2px 35px rgba(56, 189, 248, 0.65), 0 0 15px rgba(2, 132, 199, 0.5);
+  }
+}
+
+.theme-ib .modality-hero-title {
+  animation: ibTitleGlow 4s ease-in-out infinite;
+}
+
+.ib-stat-icon {
+  animation: ibIconBob 3.5s ease-in-out infinite;
+  display: inline-block;
+}
+
+.ib-stat-item:nth-child(2) .ib-stat-icon {
+  animation-delay: 0.6s;
+}
+
+.ib-stat-item:nth-child(3) .ib-stat-icon {
+  animation-delay: 1.2s;
+}
+
+.ib-stat-item:nth-child(4) .ib-stat-icon {
+  animation-delay: 1.8s;
+}
+
+.ib-accreditation-card {
+  animation: ibGlowPulse 5s ease-in-out infinite;
+}

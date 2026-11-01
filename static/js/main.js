@@ -114,7 +114,7 @@ function initScrollReveal() {
  * Cuenta progresivamente de 0 al valor final cuando las estadísticas entran al viewport.
  */
 function initAnimatedCounters() {
-  const statNumbers = document.querySelectorAll('.stat-number');
+  const statNumbers = document.querySelectorAll('.stat-number, .counter-num');
   if (!statNumbers.length) return;
 
   const counterObserver = new IntersectionObserver((entries, obs) => {
@@ -1176,8 +1176,8 @@ function initThemeToggle() {
  * 10. Efectos Visuales e Interactividad 3D Avanzada para IB
  */
 function initIBInteractiveEffects() {
-  // 1. Efecto 3D Tilt Reactivo al Cursor en Tarjeta de Acreditación IB
-  const ibCards = document.querySelectorAll('.ib-accreditation-card, .ib-core-card, .pillar-card');
+  // 1. Efecto 3D Tilt Reactivo al Cursor en Tarjetas y Estadísticas IB
+  const ibCards = document.querySelectorAll('.ib-accreditation-card, .ib-core-card, .pillar-card, .ib-stat-item, .ib-triad-card');
   ibCards.forEach(card => {
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();

@@ -4551,14 +4551,16 @@ body.devs-page-body {
   box-shadow: 0 4px 18px rgba(253, 224, 71, 0.4);
 }
 
-[data-theme="dark"] .theme-toggle-btn .theme-icon-sun {
-  opacity: 1;
-  transform: translateY(0) rotate(0deg);
+[data-theme="dark"] .theme-toggle-btn .theme-icon-sun,
+[data-theme="dark"] .theme-toggle-btn .theme-icon-light {
+  opacity: 1 !important;
+  transform: translateY(0) rotate(0deg) !important;
 }
 
-[data-theme="dark"] .theme-toggle-btn .theme-icon-moon {
-  opacity: 0;
-  transform: translateY(-22px) rotate(90deg);
+[data-theme="dark"] .theme-toggle-btn .theme-icon-moon,
+[data-theme="dark"] .theme-toggle-btn .theme-icon-dark {
+  opacity: 0 !important;
+  transform: translateY(-22px) rotate(90deg) !important;
 }
 
 /* Barra Superior MEP y Navegación Principal */
@@ -4588,6 +4590,37 @@ body.devs-page-body {
   background: rgba(7, 12, 24, 0.98) !important;
   border-bottom: 1px solid rgba(56, 189, 248, 0.25) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Menú Móvil en Modo Oscuro */
+[data-theme="dark"] .nav-menu {
+  background: rgba(10, 16, 32, 0.98) !important;
+  border-bottom: 2px solid #0284c7 !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8) !important;
+}
+
+[data-theme="dark"] .nav-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Barra de Migas de Pan (Breadcrumbs) en Modo Oscuro */
+[data-theme="dark"] .breadcrumbs-bar {
+  background: #090f20 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .breadcrumbs-list a {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .breadcrumbs-list a:hover {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .current-crumb {
+  color: #ffffff !important;
+  font-weight: 700 !important;
 }
 
 /* Identidad del Colegio en Cabecera */
@@ -4641,9 +4674,23 @@ body.devs-page-body {
 [data-theme="dark"] .requirements-section,
 [data-theme="dark"] .subject-groups-section,
 [data-theme="dark"] .social-section,
-[data-theme="dark"] .faq-section {
+[data-theme="dark"] .faq-section,
+[data-theme="dark"] .modality-intro-section,
+[data-theme="dark"] .modality-curriculum-section {
   background-color: #070c18 !important;
   color: #cbd5e1;
+}
+
+[data-theme="dark"] .modality-pillars-section,
+[data-theme="dark"] .modality-advantages-section,
+[data-theme="dark"] .ib-news-section {
+  background-color: #0a1122 !important;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .ib-social-section {
+  background: linear-gradient(180deg, #070c18 0%, #0a1122 100%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Títulos y Subtítulos de Secciones */
@@ -4660,7 +4707,11 @@ body.devs-page-body {
 [data-theme="dark"] .group-title,
 [data-theme="dark"] .social-name,
 [data-theme="dark"] .requirements-title,
-[data-theme="dark"] .faq-question {
+[data-theme="dark"] .faq-question,
+[data-theme="dark"] .highlight-stat-title,
+[data-theme="dark"] .ib-hello-title,
+[data-theme="dark"] .ib-accreditation-title,
+[data-theme="dark"] .ib-coord-title {
   color: #ffffff !important;
 }
 
@@ -4676,8 +4727,16 @@ body.devs-page-body {
 [data-theme="dark"] .social-desc,
 [data-theme="dark"] .lead-text,
 [data-theme="dark"] .body-text,
-[data-theme="dark"] .faq-answer {
+[data-theme="dark"] .faq-answer,
+[data-theme="dark"] .highlight-stat-desc,
+[data-theme="dark"] .ib-hello-desc,
+[data-theme="dark"] .ib-accreditation-desc,
+[data-theme="dark"] .ib-coord-desc {
   color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .lead-text {
+  color: #e2e8f0 !important;
 }
 
 /* Tarjetas y Contenedores */
@@ -4699,19 +4758,144 @@ body.devs-page-body {
 [data-theme="dark"] .requirements-box,
 [data-theme="dark"] .highlight-stat-box,
 [data-theme="dark"] .social-card,
-[data-theme="dark"] .visual-page-card {
-  background: #0e172a !important;
+[data-theme="dark"] .visual-page-card,
+[data-theme="dark"] .curriculum-table-wrapper {
+  background: #0e182e !important;
   border: 1px solid rgba(255, 255, 255, 0.09) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55) !important;
   color: #cbd5e1;
 }
 
 [data-theme="dark"] .news-body {
-  background: #0e172a !important;
+  background: #0e182e !important;
 }
 
 [data-theme="dark"] .news-title {
   color: #f8fafc !important;
+}
+
+[data-theme="dark"] .news-meta,
+[data-theme="dark"] .news-meta-item {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .btn-read-more {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .btn-read-more:hover {
+  color: #7dd3fc !important;
+}
+
+/* Botones Principales en Modo Oscuro */
+[data-theme="dark"] .btn-vino {
+  background: linear-gradient(135deg, #881337 0%, #be123c 100%) !important;
+  border-color: #be123c !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(225, 29, 72, 0.35) !important;
+}
+
+[data-theme="dark"] .btn-vino:hover {
+  background: linear-gradient(135deg, #9f1239 0%, #e11d48 100%) !important;
+  box-shadow: 0 6px 24px rgba(225, 29, 72, 0.5) !important;
+}
+
+[data-theme="dark"] .btn-azul {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(37, 99, 235, 0.35) !important;
+}
+
+[data-theme="dark"] .btn-azul:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%) !important;
+  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.5) !important;
+}
+
+[data-theme="dark"] .btn-outline {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .btn-outline:hover {
+  border-color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+}
+
+/* Coordinación IB en Modo Oscuro */
+[data-theme="dark"] .ib-coordination-card {
+  background: #0e182e !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-left: 6px solid #38bdf8 !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .ib-coord-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .ib-coord-badge-icon {
+  background: rgba(56, 189, 248, 0.15) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .ib-coord-item {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+[data-theme="dark"] .ib-coord-icon {
+  background: rgba(56, 189, 248, 0.15) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+}
+
+[data-theme="dark"] .ib-coord-val {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ib-coord-link {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .ib-coord-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .ib-coord-sub {
+  color: #64748b !important;
+}
+
+/* Requisitos y Beneficios en Modo Oscuro */
+[data-theme="dark"] .advantage-item {
+  background: #0e182e !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .advantage-text {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .advantage-check-icon {
+  background: rgba(16, 185, 129, 0.25) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(52, 211, 153, 0.4) !important;
+}
+
+[data-theme="dark"] .requirement-list-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="dark"] .req-text {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .req-number {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
 }
 
 /* Títulos Individuales de Modalidades */
@@ -4746,42 +4930,51 @@ body.devs-page-body {
 }
 
 /* Filtros de Noticias */
-[data-theme="dark"] .news-tab-btn {
-  background: #1e293b;
-  border-color: rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+[data-theme="dark"] .news-tab-btn,
+[data-theme="dark"] .ib-subfilter-btn {
+  background: #141f36 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
 }
 
-[data-theme="dark"] .news-tab-btn:hover {
-  background: #27354f;
-  color: #ffffff;
+[data-theme="dark"] .news-tab-btn:hover,
+[data-theme="dark"] .ib-subfilter-btn:hover {
+  background: #1c2b48 !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #ffffff !important;
 }
 
-[data-theme="dark"] .news-tab-btn.active {
+[data-theme="dark"] .news-tab-btn.active,
+[data-theme="dark"] .ib-subfilter-btn.active {
   background: #0284c7 !important;
   border-color: #38bdf8 !important;
   color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.4) !important;
 }
 
 /* Tablas en Modo Oscuro */
 [data-theme="dark"] .curriculum-table {
-  background: #0e172a;
+  background: #0e182e;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="dark"] .curriculum-table thead th {
-  background: #162238;
-  color: #38bdf8;
-  border-bottom-color: rgba(255, 255, 255, 0.12);
+  background: #101c36 !important;
+  color: #38bdf8 !important;
+  border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important;
 }
 
 [data-theme="dark"] .curriculum-table tbody td {
-  border-bottom-color: rgba(255, 255, 255, 0.06);
-  color: #cbd5e1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  color: #cbd5e1 !important;
 }
 
 [data-theme="dark"] .curriculum-table tbody tr:hover {
-  background: rgba(2, 132, 199, 0.12);
+  background: rgba(2, 132, 199, 0.12) !important;
+}
+
+[data-theme="dark"] .curriculum-group-cell strong {
+  color: #38bdf8 !important;
 }
 
 /* Formularios e Inputs */
@@ -4805,12 +4998,38 @@ body.devs-page-body {
 /* Modales y Notificaciones */
 [data-theme="dark"] .modal-content,
 [data-theme="dark"] .modal-dialog {
-  background: #0e172a;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f8fafc;
+  background: #0b1325 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
 }
 
-[data-theme="dark"] .footer {
+[data-theme="dark"] .modal-body {
+  background: #0b1325 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .modal-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .modal-meta {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .modal-close-btn {
+  background: #1e293b !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .modal-close-btn:hover {
+  background: #dc2626 !important;
+  border-color: #ef4444 !important;
+}
+
+[data-theme="dark"] .footer,
+[data-theme="dark"] .main-footer {
   background: #040813 !important;
   border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
@@ -4974,6 +5193,185 @@ body.devs-page-body {
   background: rgba(245, 158, 11, 0.2);
   color: #fbbf24;
   border-color: rgba(251, 191, 36, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   CINTA DE IMPACTO Y ESTADÍSTICAS OFICIALES IB WORLD SCHOOL
+   -------------------------------------------------------------------------- */
+.ib-stats-ribbon-section {
+  padding: 1rem 0 2.5rem 0;
+  position: relative;
+  z-index: 10;
+}
+
+.ib-stats-ribbon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.ib-stat-item {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(15, 52, 96, 0.04) 100%);
+  border: 1.5px solid rgba(2, 132, 199, 0.25);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem 1.25rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(8px);
+}
+
+.ib-stat-item:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: #38bdf8;
+  box-shadow: 0 16px 40px rgba(2, 132, 199, 0.25);
+}
+
+[data-theme="dark"] .ib-stat-item {
+  background: linear-gradient(135deg, rgba(14, 28, 56, 0.9) 0%, rgba(10, 18, 36, 0.9) 100%);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .ib-stat-item:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 16px 45px rgba(56, 189, 248, 0.35);
+}
+
+.ib-stat-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+  animation: ibIconBob 3s ease-in-out infinite;
+}
+
+.ib-stat-value {
+  font-family: var(--font-heading);
+  font-size: 2.3rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #0284c7 0%, #00205b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.35rem;
+  line-height: 1.1;
+}
+
+[data-theme="dark"] .ib-stat-value {
+  background: linear-gradient(135deg, #38bdf8 0%, #ffffff 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ib-stat-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--gris-700);
+  line-height: 1.35;
+}
+
+[data-theme="dark"] .ib-stat-label {
+  color: #cbd5e1;
+}
+
+/* --------------------------------------------------------------------------
+   TRÍADA CENTRAL IB INTERACTIVA (CAS, TOK, MONOGRAFÍA)
+   -------------------------------------------------------------------------- */
+.ib-triad-interactive-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 1.75rem;
+}
+
+.ib-triad-card {
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(2, 132, 199, 0.2);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(6px);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ib-triad-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 35px rgba(2, 132, 199, 0.2);
+}
+
+[data-theme="dark"] .ib-triad-card {
+  background: rgba(14, 24, 48, 0.85);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.ib-triad-cas {
+  border-top: 4px solid #10b981;
+}
+
+.ib-triad-tok {
+  border-top: 4px solid #6366f1;
+}
+
+.ib-triad-ee {
+  border-top: 4px solid #f59e0b;
+}
+
+.ib-triad-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.ib-triad-cas .ib-triad-badge { color: #059669; }
+[data-theme="dark"] .ib-triad-cas .ib-triad-badge { color: #34d399; }
+
+.ib-triad-tok .ib-triad-badge { color: #4f46e5; }
+[data-theme="dark"] .ib-triad-tok .ib-triad-badge { color: #818cf8; }
+
+.ib-triad-ee .ib-triad-badge { color: #d97706; }
+[data-theme="dark"] .ib-triad-ee .ib-triad-badge { color: #fbbf24; }
+
+.ib-triad-title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--azul-dark);
+}
+
+[data-theme="dark"] .ib-triad-title {
+  color: #ffffff;
+}
+
+.ib-triad-desc {
+  font-size: 0.88rem;
+  color: var(--gris-600);
+  line-height: 1.55;
+}
+
+[data-theme="dark"] .ib-triad-desc {
+  color: #94a3b8;
+}
+
+/* Responsividad para Ribbon y Tríada */
+@media (max-width: 992px) {
+  .ib-stats-ribbon-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ib-triad-interactive-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .ib-stats-ribbon-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 5. Destacado de Botón de Video con Pulso Dinámico */

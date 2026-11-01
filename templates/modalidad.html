@@ -189,6 +189,36 @@
 
   {% if modalidad.slug == 'ib' %}
   <!-- =====================================================================
+       3.5 STATS RIBBON DESTACADO IB
+       ===================================================================== -->
+  <section class="ib-stats-ribbon-section reveal-scale">
+    <div class="container">
+      <div class="ib-stats-ribbon-grid">
+        <div class="ib-stat-item">
+          <div class="ib-stat-icon">🎓</div>
+          <div class="ib-stat-value"><span class="counter-num" data-target="100">100</span>%</div>
+          <div class="ib-stat-label">Acreditación Oficial MEP & IBO</div>
+        </div>
+        <div class="ib-stat-item">
+          <div class="ib-stat-icon">🌍</div>
+          <div class="ib-stat-value">+<span class="counter-num" data-target="150">150</span></div>
+          <div class="ib-stat-label">Países con Homologación Directa</div>
+        </div>
+        <div class="ib-stat-item">
+          <div class="ib-stat-icon">📜</div>
+          <div class="ib-stat-value"><span class="counter-num" data-target="4000">4000</span></div>
+          <div class="ib-stat-label">Palabras en Monografía Universitaria</div>
+        </div>
+        <div class="ib-stat-item">
+          <div class="ib-stat-icon">🌿</div>
+          <div class="ib-stat-value"><span class="counter-num" data-target="150">150</span>h</div>
+          <div class="ib-stat-label">Horas en Proyectos CAS y Comunidad</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
        4.0 HELLO BANNER CON IMAGEN DE BIENVENIDA AL BACHILLERATO INTERNACIONAL
        ===================================================================== -->
   {% set hide_ib_hello = (cms.get('hide_section_ib_hello') == 'true') %}
@@ -270,6 +300,24 @@
             <span class="ib-core-pill ib-pill-ee" title="Investigación y Monografía Universitaria">
               <span>📜</span> <strong>Monografía:</strong> 4000 Palabras
             </span>
+          </div>
+
+          <div class="ib-triad-interactive-grid">
+            <div class="ib-triad-card ib-triad-cas">
+              <div class="ib-triad-icon-badge">🌿</div>
+              <h4>CAS</h4>
+              <p>Creatividad, Actividad y Servicio para un impacto social transformador en Limón.</p>
+            </div>
+            <div class="ib-triad-card ib-triad-tok">
+              <div class="ib-triad-icon-badge">🧠</div>
+              <h4>TdC / TOK</h4>
+              <p>Teoría del Conocimiento: pensamiento crítico, epistemología y debate filosófico.</p>
+            </div>
+            <div class="ib-triad-card ib-triad-ee">
+              <div class="ib-triad-icon-badge">📜</div>
+              <h4>Monografía</h4>
+              <p>Investigación académica independiente de 4.000 palabras con estándar universitario.</p>
+            </div>
           </div>
 
           <div class="ib-accreditation-actions" style="margin-top: 1.2rem;">
