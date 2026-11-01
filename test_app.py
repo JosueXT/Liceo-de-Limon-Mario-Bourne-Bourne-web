@@ -1214,6 +1214,27 @@ class LiceoLimonTestCase(unittest.TestCase):
         news_after_delete = get_all_news()
         self.assertFalse(any(n['id'] == target_item['id'] for n in news_after_delete))
 
+        # 6. Al sincronizar nuevas publicaciones, las existentes NUNCA se eliminan
+        count_before_new = len(news_after_delete)
+        from database import add_news
+        add_news(
+            title="Publicación Hipotética 21",
+            category="Bachillerato Internacional",
+            category_slug="ib",
+            subcategory="Redes Sociales",
+            date="31 de Octubre, 2026",
+            summary="Prueba de persistencia histórica",
+            content="Contenido",
+            image="https://example.com/foto.jpg",
+            author="Instagram @ib_limon_",
+            social_network="Instagram",
+            social_url="https://www.instagram.com/p/hipotetica21/"
+        )
+        sync_ib_social_posts()
+        news_final = get_all_news()
+        self.assertEqual(len(news_final), count_before_new + 1)
+        self.assertTrue(any(n['social_url'] == 'https://www.instagram.com/p/hipotetica21/' for n in news_final))
+
     def test_27_teacher_auth_redirect_and_admin_panel_blocking(self):
         """Valida que los docentes ingresen al portal docente, reciban su redirección adecuada y tengan BLOQUEADO el acceso al panel administrativo."""
         from database import create_teacher_user
