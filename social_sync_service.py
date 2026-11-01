@@ -8,11 +8,45 @@ a partir de las publicaciones REALES de Instagram (@ib_limon_) mediante Curator.
 ==============================================================================
 """
 
+import re
 import json
 import urllib.request
 import urllib.error
 from datetime import datetime
 from database import get_db_connection, add_news, invalidate_cms_cache, resequence_news_ids
+
+def fetch_opengraph_metadata(url):
+    """
+    Extrae automáticamente título, descripción y foto de un enlace público de Instagram,
+    Facebook o cualquier web utilizando etiquetas OpenGraph (og:title, og:description, og:image).
+    """
+    if not url or not isinstance(url, str):
+        return None
+
+    clean_url = url.strip()
+    try:
+        req = urllib.request.Request(
+            clean_url,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 LiceoLimónBot/1.0',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8'
+            }
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            html = response.read().decode('utf-8', errors='ignore')
+
+        title_m = re.search(r'<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']', html, re.IGNORECASE)
+        desc_m = re.search(r'<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']', html, re.IGNORECASE)
+        img_m = re.search(r'<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']', html, re.IGNORECASE)
+
+        return {
+            'title': title_m.group(1).strip() if title_m else None,
+            'description': desc_m.group(1).strip() if desc_m else None,
+            'image': img_m.group(1).strip() if img_m else None
+        }
+    except Exception:
+        return None
 
 CURATOR_FEED_URL = "https://api.curator.io/v1/feeds/d1493603-e0a9-4ad7-a2fb-e329cb0dc272/posts"
 BEHOLD_FEED_URL = "https://feeds.behold.so/W8N8DJRtNSUmqg5S5yRs"
