@@ -5700,8 +5700,6 @@ body.theme-ib .ib-hello-banner-media {
   transform: skewX(-20deg);
   animation: neonSweepSheen 3.5s ease-in-out infinite;
 }
-  margin-bottom: 1.25rem;
-}
 
 .ib-pulse-dot {
   width: 9px;
