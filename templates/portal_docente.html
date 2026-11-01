@@ -383,6 +383,78 @@
       background: #0284c7;
       color: #ffffff;
     }
+
+    @media (max-width: 768px) {
+      .teacher-header {
+        padding: 1rem 1.25rem;
+      }
+      .teacher-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.85rem;
+      }
+      .teacher-brand {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .teacher-nav-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .teacher-nav-actions .btn {
+        font-size: 0.82rem;
+        padding: 0.4rem 0.8rem;
+      }
+      .teacher-layout-container {
+        padding: 0 1rem 3rem 1rem;
+        margin: 1.25rem auto;
+      }
+      .teacher-tabs-nav {
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
+      }
+      .teacher-tab-btn {
+        padding: 0.9rem 1.1rem;
+        font-size: 0.95rem;
+      }
+      .teacher-panel-card {
+        padding: 1.5rem 1.15rem;
+        border-radius: var(--radius-lg);
+      }
+      .teacher-news-table {
+        min-width: 620px;
+      }
+      .teacher-btn-action {
+        width: 100%;
+        justify-content: center;
+        padding: 0.85rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .teacher-header {
+        padding: 0.85rem 1rem;
+      }
+      .teacher-welcome-text h1 {
+        font-size: 1.15rem;
+      }
+      .teacher-panel-card {
+        padding: 1.25rem 0.9rem;
+      }
+      .inquiry-card {
+        padding: 1.15rem 0.9rem;
+      }
+      .inquiry-contact-links {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .btn-respond {
+        width: 100%;
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body class="teacher-portal-body">

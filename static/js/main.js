@@ -647,6 +647,34 @@ function initNewsModal() {
         next: () => updateGalleryView(currentGalleryIdx + 1),
         prev: () => updateGalleryView(currentGalleryIdx - 1)
       };
+
+      if (modalGallery && !modalGallery.dataset.touchBound) {
+        modalGallery.dataset.touchBound = 'true';
+        let touchStartX = 0;
+        let touchStartY = 0;
+        modalGallery.addEventListener('touchstart', (ev) => {
+          if (ev.touches.length === 1) {
+            touchStartX = ev.touches[0].clientX;
+            touchStartY = ev.touches[0].clientY;
+          }
+        }, { passive: true });
+
+        modalGallery.addEventListener('touchend', (ev) => {
+          if (ev.changedTouches.length === 1 && activeModalGallery) {
+            const touchEndX = ev.changedTouches[0].clientX;
+            const touchEndY = ev.changedTouches[0].clientY;
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+            if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+              if (diffX > 0) {
+                activeModalGallery.next();
+              } else {
+                activeModalGallery.prev();
+              }
+            }
+          }
+        }, { passive: true });
+      }
     } else {
       if (prevBtn) prevBtn.style.display = 'none';
       if (nextBtn) nextBtn.style.display = 'none';
@@ -1209,32 +1237,48 @@ function initIBInteractiveEffects() {
   }
 
   const ibCards = document.querySelectorAll(ibSelectors.join(', '));
+  if (!ibCards.length) return;
+
+  const hasHoverPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
   ibCards.forEach(card => {
     card.classList.add('ib-card-3d');
 
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      
-      const rotateX = ((y - centerY) / centerY) * -6;
-      const rotateY = ((x - centerX) / centerX) * 6;
-      
-      card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-8px) scale3d(1.015, 1.015, 1.015)`;
+    if (hasHoverPointer) {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = ((y - centerY) / centerY) * -6;
+        const rotateY = ((x - centerX) / centerX) * 6;
+        
+        card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-8px) scale3d(1.015, 1.015, 1.015)`;
 
-      const glareX = ((x / rect.width) * 100).toFixed(1);
-      const glareY = ((y / rect.height) * 100).toFixed(1);
-      card.style.setProperty('--glare-x', `${glareX}%`);
-      card.style.setProperty('--glare-y', `${glareY}%`);
-      card.style.setProperty('--glare-opacity', '1');
-    });
+        const glareX = ((x / rect.width) * 100).toFixed(1);
+        const glareY = ((y / rect.height) * 100).toFixed(1);
+        card.style.setProperty('--glare-x', `${glareX}%`);
+        card.style.setProperty('--glare-y', `${glareY}%`);
+        card.style.setProperty('--glare-opacity', '1');
+      });
 
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
-      card.style.setProperty('--glare-opacity', '0');
-    });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+        card.style.setProperty('--glare-opacity', '0');
+      });
+    } else {
+      // En dispositivos móviles táctiles evitamos que se congele la rotación 3D
+      card.addEventListener('touchstart', () => {
+        card.style.transform = 'scale(0.985)';
+      }, { passive: true });
+      const resetTouch = () => {
+        card.style.transform = '';
+      };
+      card.addEventListener('touchend', resetTouch, { passive: true });
+      card.addEventListener('touchcancel', resetTouch, { passive: true });
+    }
   });
 }
 
