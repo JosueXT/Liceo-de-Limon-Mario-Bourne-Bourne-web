@@ -1176,22 +1176,56 @@ function initThemeToggle() {
  * 10. Efectos Visuales e Interactividad 3D Avanzada para IB
  */
 function initIBInteractiveEffects() {
-  // 1. Efecto 3D Tilt Reactivo al Cursor en Tarjetas y Estadísticas IB
-  const ibCards = document.querySelectorAll('.ib-accreditation-card, .ib-core-card, .pillar-card, .ib-stat-item, .ib-triad-card');
+  const isIBPage = document.body.classList.contains('theme-ib');
+  
+  // Elementos con experiencia y profundidad 3D
+  const ibSelectors = [
+    '.ib-accreditation-card',
+    '.ib-hello-banner-card',
+    '.ib-stat-item',
+    '.ib-triad-card',
+    '.ib-coordination-card',
+    '.ib-coord-item'
+  ];
+  
+  if (isIBPage) {
+    ibSelectors.push(
+      '.advantage-item',
+      '.pillar-card',
+      '.curriculum-card',
+      '.requirements-box',
+      '.highlight-stat-box',
+      '.modality-contact-card',
+      '.ib-news-grid .news-card'
+    );
+  }
+
+  const ibCards = document.querySelectorAll(ibSelectors.join(', '));
   ibCards.forEach(card => {
+    card.classList.add('ib-card-3d');
+
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -4;
-      const rotateY = ((x - centerX) / centerX) * 4;
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+      
+      const rotateX = ((y - centerY) / centerY) * -6;
+      const rotateY = ((x - centerX) / centerX) * 6;
+      
+      card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-8px) scale3d(1.015, 1.015, 1.015)`;
+
+      const glareX = ((x / rect.width) * 100).toFixed(1);
+      const glareY = ((y / rect.height) * 100).toFixed(1);
+      card.style.setProperty('--glare-x', `${glareX}%`);
+      card.style.setProperty('--glare-y', `${glareY}%`);
+      card.style.setProperty('--glare-opacity', '1');
     });
 
     card.addEventListener('mouseleave', () => {
       card.style.transform = '';
+      card.style.setProperty('--glare-opacity', '0');
     });
   });
 }

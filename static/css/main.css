@@ -5298,6 +5298,254 @@ body.devs-page-body {
 }
 
 /* --------------------------------------------------------------------------
+   SISTEMA DE PROFUNDIDAD Y MICROINTERACCIONES 3D PARA SUBPÁGINA IB
+   -------------------------------------------------------------------------- */
+.ib-card-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  will-change: transform;
+}
+
+/* Reflejo especular holográfico dinámico */
+.ib-card-3d::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle 320px at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255, 255, 255, 0.25), transparent 70%);
+  opacity: var(--glare-opacity, 0);
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+
+[data-theme="dark"] .ib-card-3d::after {
+  background: radial-gradient(circle 320px at var(--glare-x, 50%) var(--glare-y, 50%), rgba(56, 189, 248, 0.28), transparent 70%);
+}
+
+/* Efecto de elevación física en eje Z para elementos internos */
+.ib-card-3d .ib-stat-icon,
+.ib-card-3d .ib-triad-icon-badge,
+.ib-card-3d .advantage-icon,
+.ib-card-3d .pillar-number,
+.ib-card-3d .ib-hello-badge-floating,
+.ib-card-3d .ib-logo-container {
+  transform: translateZ(26px);
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease;
+}
+
+.ib-card-3d .ib-stat-value,
+.ib-card-3d .ib-triad-title,
+.ib-card-3d .advantage-title,
+.ib-card-3d .pillar-title,
+.ib-card-3d .ib-hello-title {
+  transform: translateZ(16px);
+  transform-style: preserve-3d;
+}
+
+/* Ambient Glow Orbs en Hero Banner */
+.theme-ib .modality-hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-ib .ib-ambient-glow-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.ib-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+
+.ib-orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #0284c7 0%, rgba(56, 189, 248, 0.2) 60%, transparent 80%);
+  top: -15%;
+  right: -10%;
+  animation: orbDrift1 12s ease-in-out infinite alternate;
+}
+
+.ib-orb-2 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, #6366f1 0%, rgba(147, 51, 234, 0.2) 60%, transparent 80%);
+  bottom: -20%;
+  left: -10%;
+  animation: orbDrift2 14s ease-in-out infinite alternate;
+}
+
+@keyframes orbDrift1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-40px, 30px) scale(1.1); }
+  100% { transform: translate(25px, -20px) scale(0.95); }
+}
+
+@keyframes orbDrift2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, -40px) scale(1.15); }
+  100% { transform: translate(-30px, 20px) scale(0.9); }
+}
+
+/* Hero Elite Badge */
+.theme-ib .ib-hero-elite-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1.25rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(56, 189, 248, 0.2) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #e0f2fe;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(2, 132, 199, 0.3), inset 0 0 10px rgba(56, 189, 248, 0.2);
+  margin-bottom: 1.25rem;
+}
+
+.ib-pulse-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 12px #38bdf8;
+  animation: pulseBeacon 1.8s ease-in-out infinite;
+}
+
+@keyframes pulseBeacon {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 10px #38bdf8; }
+  50% { transform: scale(1.35); opacity: 0.6; box-shadow: 0 0 20px #38bdf8, 0 0 30px #0284c7; }
+}
+
+/* Modern Colorful Upgrades para Ventajas IB */
+body.theme-ib .advantage-item {
+  border-radius: var(--radius-xl);
+  border: 1.5px solid rgba(2, 132, 199, 0.2);
+  background: linear-gradient(145deg, #ffffff 0%, rgba(240, 249, 255, 0.65) 100%);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 25px rgba(2, 132, 199, 0.08);
+}
+
+body.theme-ib .advantage-item:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 18px 45px rgba(2, 132, 199, 0.22);
+}
+
+body.theme-ib .advantage-icon {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.35);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+[data-theme="dark"] body.theme-ib .advantage-item {
+  background: linear-gradient(145deg, #0e1a30 0%, #091224 100%);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] body.theme-ib .advantage-item:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 20px 50px rgba(56, 189, 248, 0.25), 0 0 30px rgba(2, 132, 199, 0.2);
+}
+
+/* Modern Colorful Upgrades para Pilares IB */
+body.theme-ib .pillar-card {
+  border-radius: var(--radius-xl);
+  border: 1.5px solid rgba(2, 132, 199, 0.2);
+  background: linear-gradient(145deg, #ffffff 0%, rgba(240, 249, 255, 0.5) 100%);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 25px rgba(2, 132, 199, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+body.theme-ib .pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0284c7, #38bdf8, #6366f1);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+body.theme-ib .pillar-card:hover::before {
+  opacity: 1;
+}
+
+body.theme-ib .pillar-card:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 18px 45px rgba(2, 132, 199, 0.25);
+}
+
+body.theme-ib .pillar-number {
+  font-family: var(--font-heading);
+  font-size: 2.8rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="dark"] body.theme-ib .pillar-card {
+  background: linear-gradient(145deg, #0e1a30 0%, #091224 100%);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] body.theme-ib .pillar-card:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 20px 50px rgba(56, 189, 248, 0.25);
+}
+
+/* Modern Colorful Upgrades para Requisitos y Malla */
+body.theme-ib .requirements-box {
+  border-radius: var(--radius-2xl);
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  background: linear-gradient(145deg, rgba(2, 132, 199, 0.04) 0%, rgba(15, 52, 96, 0.08) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 16px 40px rgba(2, 132, 199, 0.12);
+}
+
+[data-theme="dark"] body.theme-ib .requirements-box {
+  background: linear-gradient(145deg, rgba(14, 28, 56, 0.95) 0%, rgba(9, 18, 36, 0.95) 100%);
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(2, 132, 199, 0.15);
+}
+
+body.theme-ib .curriculum-table {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 12px 35px rgba(2, 132, 199, 0.1);
+}
+
+body.theme-ib .curriculum-table thead th {
+  background: linear-gradient(135deg, #0284c7 0%, #00205b 100%);
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+/* --------------------------------------------------------------------------
    TRÍADA CENTRAL IB INTERACTIVA (CAS, TOK, MONOGRAFÍA)
    -------------------------------------------------------------------------- */
 .ib-triad-interactive-grid {
@@ -5308,37 +5556,71 @@ body.devs-page-body {
 }
 
 .ib-triad-card {
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(2, 132, 199, 0.2);
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(6px);
+  padding: 1.75rem 1.5rem;
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
 }
 
-.ib-triad-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 35px rgba(2, 132, 199, 0.2);
-}
-
-[data-theme="dark"] .ib-triad-card {
-  background: rgba(14, 24, 48, 0.85);
-  border-color: rgba(56, 189, 248, 0.25);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+.ib-triad-icon-badge {
+  font-size: 2.2rem;
+  margin-bottom: 0.85rem;
+  display: inline-block;
+  animation: ibIconBob 3.2s ease-in-out infinite;
 }
 
 .ib-triad-cas {
-  border-top: 4px solid #10b981;
+  border: 1.5px solid rgba(16, 185, 129, 0.3);
+  background: linear-gradient(145deg, rgba(236, 253, 245, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.12);
+}
+
+.ib-triad-cas:hover {
+  border-color: #10b981;
+  box-shadow: 0 18px 45px rgba(16, 185, 129, 0.3), 0 0 25px rgba(16, 185, 129, 0.2);
 }
 
 .ib-triad-tok {
-  border-top: 4px solid #6366f1;
+  border: 1.5px solid rgba(99, 102, 241, 0.3);
+  background: linear-gradient(145deg, rgba(238, 242, 255, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.12);
+}
+
+.ib-triad-tok:hover {
+  border-color: #6366f1;
+  box-shadow: 0 18px 45px rgba(99, 102, 241, 0.3), 0 0 25px rgba(99, 102, 241, 0.2);
 }
 
 .ib-triad-ee {
-  border-top: 4px solid #f59e0b;
+  border: 1.5px solid rgba(245, 158, 11, 0.3);
+  background: linear-gradient(145deg, rgba(254, 243, 199, 0.85) 0%, rgba(255, 255, 255, 0.95) 100%);
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.12);
+}
+
+.ib-triad-ee:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 18px 45px rgba(245, 158, 11, 0.3), 0 0 25px rgba(245, 158, 11, 0.2);
+}
+
+[data-theme="dark"] .ib-triad-cas {
+  background: linear-gradient(145deg, rgba(6, 44, 30, 0.9) 0%, rgba(9, 24, 20, 0.95) 100%);
+  border-color: rgba(52, 211, 153, 0.4);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(16, 185, 129, 0.2);
+}
+
+[data-theme="dark"] .ib-triad-tok {
+  background: linear-gradient(145deg, rgba(30, 27, 75, 0.9) 0%, rgba(15, 14, 38, 0.95) 100%);
+  border-color: rgba(129, 140, 248, 0.4);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="dark"] .ib-triad-ee {
+  background: linear-gradient(145deg, rgba(45, 26, 6, 0.9) 0%, rgba(24, 15, 4, 0.95) 100%);
+  border-color: rgba(251, 191, 36, 0.4);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(245, 158, 11, 0.2);
 }
 
 .ib-triad-badge {
