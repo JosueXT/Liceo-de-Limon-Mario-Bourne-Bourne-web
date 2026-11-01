@@ -112,7 +112,7 @@ FALLBACK_REAL_IB_POSTS = [
         "title": "🏆 ¡Limón tiene motivos para sentirse orgulloso!",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
-        "subcategory": "Redes Sociales",
+        "subcategory": "Instagram",
         "date": "30 de Octubre, 2026",
         "summary": "Felicitamos a los grupos 2, 3 y 4 por su participación en el proyecto @epicostarica, impulsado por MSC Mediterranean Shipping Company. De manera especial, felicitamos al Grupo 1, ganador del proyecto nacional.",
         "content": "🏆 ¡Limón tiene motivos para sentirse orgulloso!\n\nFelicitamos a los grupos 2, 3 y 4 por su participación en el proyecto @epicostarica , impulsado por MSC Mediterranean Shipping Company. Ser parte de esta experiencia ya es un gran logro, y reconocemos el esfuerzo, la creatividad y el compromiso ambiental de todos nuestros estudiantes.\n\nDe manera especial, felicitamos al Grupo 1, ganador del proyecto y uno de los tres finalistas a nivel nacional, con una propuesta que busca aprovechar el agua de lluvia para abastecer los sanitarios y reducir el consumo de agua potable en nuestra provincia.\n\nEl equipo está integrado por:\nJosue Amaya, Engel Zúñiga, Sofia Matarrita, Jeycob Nuñez y Annie Sánchez.\n\nEste reconocimiento es motivo de orgullo para Limón, nuestro Liceo y el Bachillerato Internacional. ¡Nuestros jóvenes demuestran que las grandes ideas también nacen en nuestra provincia!\n\n¡Felicidades a todos!\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
@@ -125,7 +125,7 @@ FALLBACK_REAL_IB_POSTS = [
         "title": "🎭 ¡Nuestras tradiciones siguen vivas en las nuevas generaciones!",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
-        "subcategory": "Redes Sociales",
+        "subcategory": "Instagram",
         "date": "30 de Octubre, 2026",
         "summary": "Los estudiantes de la sección 11-7 celebraron el Día Nacional de la Mascarada Costarricense elaborando sus propias máscaras, llenando de creatividad y color esta actividad representativa.",
         "content": "🎭 ¡Nuestras tradiciones siguen vivas en las nuevas generaciones!\n\nLos estudiantes de la sección 11-7 celebraron el Día Nacional de la Mascarada Costarricense elaborando sus propias máscaras, llenando de creatividad y color esta actividad inspirada en una de las expresiones más representativas de nuestra identidad cultural.\n\nPorque conocer nuestras raíces también es una forma de mantenerlas vivas. 🇨🇷\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
@@ -138,7 +138,7 @@ FALLBACK_REAL_IB_POSTS = [
         "title": "Dos años de esfuerzo nos han traído hasta este momento.",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
-        "subcategory": "Redes Sociales",
+        "subcategory": "Instagram",
         "date": "27 de Octubre, 2026",
         "summary": "Hoy, nuestros estudiantes de sexto año iniciaron las pruebas internacionales del Bachillerato Internacional (BI), una etapa que representa sueños, sacrificios y aprendizajes construidos con perseverancia.",
         "content": "Dos años de esfuerzo nos han traído hasta este momento.\n\nHoy, nuestros estudiantes de sexto año iniciaron las pruebas internacionales del Bachillerato Internacional (BI), una etapa que representa mucho más que evaluaciones: representa sueños, sacrificios, aprendizajes y metas construidas con perseverancia.\n\nQueridos estudiantes, confíen en todo lo que han aprendido y en las capacidades que han desarrollado. Recuerden que son mucho más que una calificación. Estamos orgullosos de la historia que han construido y de todo lo que han superado para llegar hasta aquí.\n\nAgradecemos profundamente a nuestra coordinadora, Andra Edwards Loban, por su entrega y acompañamiento, y a los profesores de todas las asignaturas por compartir sus conocimientos y ser parte fundamental de este proceso.\n\nQue cada respuesta refleje su esfuerzo y que, al terminar, puedan decir con orgullo: lo di todo.\n\n¡Les deseamos el mayor de los éxitos! Toda nuestra comunidad educativa cree en ustedes.\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
@@ -151,7 +151,7 @@ FALLBACK_REAL_IB_POSTS = [
         "title": "¡Compartiendo experiencias que dejan huella!",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
-        "subcategory": "Redes Sociales",
+        "subcategory": "Instagram",
         "date": "10 de Octubre, 2026",
         "summary": "Nuestros estudiantes de quinto año del Bachillerato Internacional participaron en una jornada de convivencia con las personas jubiladas de COLYPRO, cerca de Playa Bonita, Limón.",
         "content": "¡Compartiendo experiencias que dejan huella!\n\nNuestros estudiantes de quinto año del Bachillerato Internacional participaron en una jornada de convivencia con las personas jubiladas de COLYPRO, cerca de Playa Bonita, Limón.\n\nEntre bailes, juegos de mesa y momentos de alegría, fortalecieron los lazos entre generaciones y pusieron en práctica valores como el respeto, la empatía y la solidaridad.\n\n¡Aprender también es compartir con nuestra comunidad!",
@@ -164,7 +164,7 @@ FALLBACK_REAL_IB_POSTS = [
         "title": "🌎 ¿Por qué elegir el Bachillerato Internacional?",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
-        "subcategory": "Redes Sociales",
+        "subcategory": "Instagram",
         "date": "24 de Septiembre, 2026",
         "summary": "Elegir el Programa del Diploma del Bachillerato Internacional es apostar por una formación que va más allá del aula. Formación con visión global y excelencia académica.",
         "content": "🌎 ¿Por qué elegir el Bachillerato Internacional?\n\nElegir el Programa del Diploma del Bachillerato Internacional es apostar por una formación que va más allá del aula.\n\nDeslizá y descubrí por qué elegir el Bachillerato Internacional. ✨",
@@ -177,7 +177,7 @@ FALLBACK_REAL_IB_POSTS = [
         "title": "Celebramos nuestra independencia 🙌🏼🇨🇷",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
-        "subcategory": "Redes Sociales",
+        "subcategory": "Instagram",
         "date": "16 de Septiembre, 2026",
         "summary": "Con orgullo y alegría conmemoramos el Día de la Independencia de Costa Rica, participando en el tradicional desfile y celebrando juntos nuestra identidad, cultura y valores.",
         "content": "Celebramos nuestra independencia 🙌🏼🇨🇷\n\nCon orgullo y alegría conmemoramos el Día de la Independencia de Costa Rica, participando en el tradicional desfile y celebrando juntos nuestra identidad, cultura y valores.\n\n¡Viva Costa Rica! 🇨🇷🇨🇷",
@@ -241,7 +241,7 @@ def fetch_live_curator_posts():
                 "title": title,
                 "category": "Bachillerato Internacional",
                 "category_slug": "ib",
-                "subcategory": "Redes Sociales",
+                "subcategory": "Instagram",
                 "date": date_str,
                 "summary": summary,
                 "content": raw_text,
@@ -313,7 +313,7 @@ def fetch_live_behold_posts():
                 "title": title,
                 "category": "Bachillerato Internacional",
                 "category_slug": "ib",
-                "subcategory": "Redes Sociales",
+                "subcategory": "Instagram",
                 "date": date_str,
                 "summary": summary,
                 "content": raw_caption,
@@ -332,7 +332,7 @@ def sync_ib_social_posts(force=False):
     """
     Inserta o sincroniza las publicaciones oficiales y REALES de Instagram (@ib_limon_)
     en la tabla news_articles, asegurando:
-    1. Subcategoría exclusiva 'Redes Sociales'.
+    1. Subcategoría exclusiva 'Instagram'.
     2. Cero duplicados (deduplicación por enlace social_url y título).
     3. Si el usuario eliminó una publicación (deleted_social_posts), NO se vuelve a insertar.
     4. Si el docente o administrador desactivó una publicación (is_active = 0), NUNCA se reactiva automáticamente.
@@ -388,7 +388,7 @@ def sync_ib_social_posts(force=False):
             title=post['title'],
             category="Bachillerato Internacional",
             category_slug="ib",
-            subcategory="Redes Sociales",
+            subcategory="Instagram",
             date=post['date'],
             summary=post['summary'],
             content=post['content'],

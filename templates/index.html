@@ -61,9 +61,6 @@
   {% if is_admin %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
   {% endif %}
-
-  <!-- Widget Oficial de Behold para Feed en Vivo de Instagram (@ib_limon_) -->
-  <script type="module" src="https://w.behold.so/widget.js"></script>
 </head>
 <body data-is-admin="{{ 'true' if is_admin else 'false' }}">
 
@@ -712,7 +709,7 @@
       <div class="news-filter-tabs reveal">
         {% if is_ib_exclusive %}
         <button class="news-tab-btn active" data-filter="ib">📰 Todas las Noticias IB</button>
-        <button class="news-tab-btn" data-filter="ib" data-subfilter="Redes Sociales">📱 Redes Sociales (IG & FB)</button>
+        <button class="news-tab-btn" data-filter="ib" data-subfilter="Instagram">📸 Instagram (@ib_limon_)</button>
         <button class="news-tab-btn" data-filter="ib" data-subfilter="CAS">🎨 CAS (Comunidad)</button>
         <button class="news-tab-btn" data-filter="ib" data-subfilter="TOK">🧠 TOK (Teoría del Conocimiento)</button>
         <button class="news-tab-btn" data-filter="ib" data-subfilter="Convocatorias">📋 Admisión & Convocatorias</button>

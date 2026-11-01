@@ -364,7 +364,7 @@ def home():
     is_teacher = session.get('is_teacher', False)
     cms = get_all_content(force_fresh=is_admin)
     raw_news = get_all_news(force_fresh=is_admin)
-    if not any(n.get('subcategory') == 'Redes Sociales' for n in raw_news):
+    if not any(n.get('subcategory') in ('Instagram', 'Redes Sociales') for n in raw_news):
         try:
             from social_sync_service import sync_ib_social_posts
             sync_ib_social_posts()
@@ -408,7 +408,7 @@ def modalidad_detalle(slug):
     is_teacher = session.get('is_teacher', False)
     cms = get_all_content(force_fresh=is_admin)
     raw_news = get_all_news(force_fresh=is_admin)
-    if not any(n.get('subcategory') == 'Redes Sociales' for n in raw_news):
+    if not any(n.get('subcategory') in ('Instagram', 'Redes Sociales') for n in raw_news):
         try:
             from social_sync_service import sync_ib_social_posts
             sync_ib_social_posts()
@@ -566,15 +566,15 @@ def admin_panel():
     # Lectura veloz optimizada con caché en memoria
     cms = get_all_content()
     news = get_all_news()
-    official_news = [n for n in news if n.get('subcategory') != 'Redes Sociales' and not n.get('social_network') and not n.get('social_url')]
-    social_news = [n for n in news if n.get('subcategory') == 'Redes Sociales' or n.get('social_network') or n.get('social_url')]
+    official_news = [n for n in news if n.get('subcategory') not in ('Instagram', 'Redes Sociales') and not n.get('social_network') and not n.get('social_url')]
+    social_news = [n for n in news if n.get('subcategory') in ('Instagram', 'Redes Sociales') or n.get('social_network') or n.get('social_url')]
     if not social_news:
         try:
             from social_sync_service import sync_ib_social_posts
             sync_ib_social_posts()
             news = get_all_news(force_fresh=True)
-            official_news = [n for n in news if n.get('subcategory') != 'Redes Sociales' and not n.get('social_network') and not n.get('social_url')]
-            social_news = [n for n in news if n.get('subcategory') == 'Redes Sociales' or n.get('social_network') or n.get('social_url')]
+            official_news = [n for n in news if n.get('subcategory') not in ('Instagram', 'Redes Sociales') and not n.get('social_network') and not n.get('social_url')]
+            social_news = [n for n in news if n.get('subcategory') in ('Instagram', 'Redes Sociales') or n.get('social_network') or n.get('social_url')]
         except Exception:
             pass
     inquiries = get_all_inquiries()
@@ -619,7 +619,7 @@ def teacher_portal():
 
     cms = get_all_content()
     news = get_all_news()
-    if not any(n.get('subcategory') == 'Redes Sociales' for n in news):
+    if not any(n.get('subcategory') in ('Instagram', 'Redes Sociales') for n in news):
         try:
             from social_sync_service import sync_ib_social_posts
             sync_ib_social_posts()
@@ -710,7 +710,7 @@ def api_teacher_add_social_post():
         title=title,
         category='Bachillerato Internacional',
         category_slug='ib',
-        subcategory='Redes Sociales',
+        subcategory='Instagram',
         date=today_str,
         summary=summary,
         content=content,

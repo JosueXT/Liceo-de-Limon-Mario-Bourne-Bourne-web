@@ -23,9 +23,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
 
-  <!-- Widget Oficial de Behold para Feed en Vivo de Instagram (@ib_limon_) -->
-  <script type="module" src="https://w.behold.so/widget.js"></script>
-
   <style>
     /* Estilos del Panel Administrativo */
     body.admin-dashboard-body {
@@ -1474,7 +1471,7 @@
               📰 Comunicados Oficiales ({{ official_news|length }})
             </button>
             <button type="button" class="btn-subtab" id="btnSubtabSocial" onclick="switchNewsSubtab('social')">
-              📱 Redes Sociales IB (Instagram & Facebook) ({{ social_news|length }})
+              📸 Instagram IB (@ib_limon_) ({{ social_news|length }})
             </button>
           </div>
 
@@ -3498,7 +3495,7 @@
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('TOK')">TOK</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Actividades')">Actividades</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Monografía')">Monografía</button>
-          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; border-color: #0284c7; color: #0284c7; font-weight: 700;" onclick="setSubcat('Redes Sociales')">📱 Redes Sociales (IG & FB)</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; border-color: #e1306c; color: #e1306c; font-weight: 700;" onclick="setSubcat('Instagram')">📸 Instagram (@ib_limon_)</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('')">Sin subcategoría</button>
         `;
       } else if (catVal === 'Francés Avanzado') {
@@ -3537,7 +3534,7 @@
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('TOK')">TOK</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Actividades')">Actividades</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Monografía')">Monografía</button>
-          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; border-color: #0284c7; color: #0284c7; font-weight: 700;" onclick="setEditSubcat('Redes Sociales')">📱 Redes Sociales (IG & FB)</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; border-color: #e1306c; color: #e1306c; font-weight: 700;" onclick="setEditSubcat('Instagram')">📸 Instagram (@ib_limon_)</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('')">Sin subcategoría</button>
         `;
       } else if (catVal === 'Francés Avanzado') {

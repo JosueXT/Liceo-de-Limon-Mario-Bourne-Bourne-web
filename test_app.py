@@ -1116,10 +1116,10 @@ class LiceoLimonTestCase(unittest.TestCase):
         data_sync = json.loads(res_sync.data)
         self.assertTrue(data_sync['success'])
 
-        # 2. Comprobar que en la base de datos todas las noticias con 'Redes Sociales' tienen categoría 'Bachillerato Internacional'
+        # 2. Comprobar que en la base de datos todas las noticias con 'Instagram' tienen categoría 'Bachillerato Internacional'
         from database import get_all_news
         news_items = get_all_news()
-        social_items = [n for n in news_items if n.get('subcategory') == 'Redes Sociales']
+        social_items = [n for n in news_items if n.get('subcategory') in ('Instagram', 'Redes Sociales')]
         self.assertGreater(len(social_items), 0)
         for item in social_items:
             self.assertEqual(item['category_slug'], 'ib')
@@ -1187,7 +1187,7 @@ class LiceoLimonTestCase(unittest.TestCase):
         # 1. Ejecutar sincronización
         sync_ib_social_posts()
         news_items = get_all_news()
-        social_items = [n for n in news_items if n.get('subcategory') == 'Redes Sociales']
+        social_items = [n for n in news_items if n.get('subcategory') in ('Instagram', 'Redes Sociales')]
         self.assertGreater(len(social_items), 0)
         initial_count = len(social_items)
         target_item = social_items[0]
@@ -1205,7 +1205,7 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertEqual(paused_item_after_sync['is_active'], 0)
 
         # 4. Tampoco debe haber duplicados (el conteo de noticias sociales debe ser idéntico)
-        social_items_after_sync = [n for n in updated_items_2 if n.get('subcategory') == 'Redes Sociales']
+        social_items_after_sync = [n for n in updated_items_2 if n.get('subcategory') in ('Instagram', 'Redes Sociales')]
         self.assertEqual(len(social_items_after_sync), initial_count)
 
         # 5. Si se elimina una noticia social, NO debe resucitar al sincronizar de nuevo
@@ -1221,7 +1221,7 @@ class LiceoLimonTestCase(unittest.TestCase):
             title="Publicación Hipotética 21",
             category="Bachillerato Internacional",
             category_slug="ib",
-            subcategory="Redes Sociales",
+            subcategory="Instagram",
             date="31 de Octubre, 2026",
             summary="Prueba de persistencia histórica",
             content="Contenido",

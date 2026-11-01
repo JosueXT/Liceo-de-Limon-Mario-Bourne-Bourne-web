@@ -667,11 +667,11 @@ def resequence_news_ids():
 def delete_news(news_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    # Si la noticia que se elimina tiene social_url o pertenece a Redes Sociales, registrarla para no re-insertarla
+    # Si la noticia que se elimina tiene social_url o pertenece a Instagram / Redes Sociales, registrarla para no re-insertarla
     try:
         cursor.execute('SELECT social_url, title, subcategory FROM news_articles WHERE id = ?', (news_id,))
         row = cursor.fetchone()
-        if row and (row['social_url'] or (row['subcategory'] and 'Redes' in row['subcategory'])):
+        if row and (row['social_url'] or (row['subcategory'] and ('Instagram' in row['subcategory'] or 'Redes' in row['subcategory']))):
             url_to_block = (row['social_url'] or '').strip()
             title_to_block = (row['title'] or '').strip()
             cursor.execute("SELECT value FROM cms_content WHERE key = 'deleted_social_posts'")

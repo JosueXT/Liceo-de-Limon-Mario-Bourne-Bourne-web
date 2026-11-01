@@ -258,8 +258,8 @@ function initNewsFilters() {
       if (card.getAttribute('data-category') === category) {
         const sub = (card.getAttribute('data-subcategory') || '').trim();
         if (sub) {
-          // La subcategoría de Redes Sociales es estrictamente exclusiva del Bachillerato Internacional (IB)
-          if (category !== 'ib' && sub.toLowerCase().includes('redes')) {
+          // La subcategoría de Instagram / Redes Sociales es estrictamente exclusiva del Bachillerato Internacional (IB)
+          if (category !== 'ib' && (sub.toLowerCase() === 'instagram' || sub.toLowerCase().includes('redes'))) {
             return;
           }
           subcats.add(sub);
@@ -279,8 +279,8 @@ function initNewsFilters() {
     
     subcats.forEach(sub => {
       let label = sub;
-      if (sub.toLowerCase().includes('redes')) {
-        label = '📱 Redes Sociales (IG & FB)';
+      if (sub.toLowerCase() === 'instagram' || sub.toLowerCase().includes('redes')) {
+        label = '📸 Instagram';
       }
       html += `<button class="news-subtab-btn" data-subfilter="${sub}">${label}</button>`;
     });
