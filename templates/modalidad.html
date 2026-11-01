@@ -667,7 +667,7 @@
                   <span>📌</span> Fijada
                 </span>
                 {% endif %}
-                <span class="news-tag-overlay tag-ib" style="{{ 'left: auto; right: 0.75rem; top: 0.75rem;' if item.is_pinned and not item.gallery_images else '' }}">
+                <span class="news-tag-overlay tag-ib{% if item.is_pinned and not item.gallery_images %} tag-shift-pinned{% endif %}">
                   {{ item.category }}
                   {% if item.subcategory %}
                     <span class="news-subcategory-tag">{{ item.subcategory }}</span>

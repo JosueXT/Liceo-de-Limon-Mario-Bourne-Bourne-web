@@ -5251,3 +5251,38 @@ body.devs-page-body {
   touch-action: pan-y;
 }
 
+/* Utilidades para fijar noticias y visibilidad */
+.btn-pin-active {
+  background: #fef08a !important;
+  border-color: #ca8a04 !important;
+  color: #854d0e !important;
+  font-weight: 700 !important;
+}
+
+.btn-pin-inactive {
+  font-weight: 600;
+}
+
+.teacher-pin-active {
+  background: #fef08a !important;
+  border: 1.5px solid #ca8a04 !important;
+  color: #854d0e !important;
+  font-weight: 700 !important;
+}
+
+.teacher-pin-inactive {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.tag-shift-pinned {
+  left: auto !important;
+  right: 0.75rem !important;
+  top: 0.75rem !important;
+}
+
+.is-hidden {
+  display: none !important;
+}
+

@@ -555,7 +555,7 @@
                 <td style="padding: 1.2rem;">
                   <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                     <strong style="font-size: 1.1rem; color: #0f172a; display: inline-block;">{{ item.title }}</strong>
-                    <span class="teacher-pin-badge" id="teacherPinBadge-{{ item.id }}" style="background: #ca8a04; color: #fff; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 12px; font-weight: 700; {{ 'display: inline-block;' if item.is_pinned else 'display: none;' }}">📌 Fijada</span>
+                    <span class="teacher-pin-badge {% if not item.is_pinned %}is-hidden{% endif %}" id="teacherPinBadge-{{ item.id }}" style="background: #ca8a04; color: #fff; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 12px; font-weight: 700;">📌 Fijada</span>
                   </div>
                   <span style="font-size: 0.88rem; color: #64748b; display: block; margin-top: 4px;">{{ item.summary|truncate(90) }}</span>
                 </td>
@@ -574,8 +574,8 @@
                 </td>
                 <td style="padding: 1.2rem; text-align: center;">
                   <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
-                    <button type="button" class="teacher-btn-action" id="teacherPinBtn-{{ item.id }}" onclick="toggleTeacherPin({{ item.id }})" style="font-size: 0.88rem; padding: 0.55rem 0.95rem; border-radius: var(--radius-md); {{ 'background: #fef08a; border: 1.5px solid #ca8a04; color: #854d0e; font-weight: 700;' if item.is_pinned else 'background: #f8fafc; border: 1.5px solid #cbd5e1; color: #334155;' }}">
-                      📌 {{ 'Desfijar' if item.is_pinned else 'Fijar' }}
+                    <button type="button" class="teacher-btn-action {% if item.is_pinned %}teacher-pin-active{% else %}teacher-pin-inactive{% endif %}" id="teacherPinBtn-{{ item.id }}" data-id="{{ item.id }}" onclick="toggleTeacherPin(this.dataset.id)" style="font-size: 0.88rem; padding: 0.55rem 0.95rem; border-radius: var(--radius-md);">
+                      📌 {% if item.is_pinned %}Desfijar{% else %}Fijar{% endif %}
                     </button>
                     <button type="button" class="toggle-visibility-btn {{ 'is-active-btn' if item.is_active != 0 else '' }}" data-news-id="{{ item.id }}" onclick="toggleNewsState(this.dataset.newsId)" style="font-size: 0.92rem; padding: 0.55rem 1rem;">
                       <span id="btnIcon-{{ item.id }}">{{ '⏸️ Ocultar' if item.is_active != 0 else '▶️ Mostrar' }}</span>
@@ -822,13 +822,11 @@
           const badge = document.getElementById(`teacherPinBadge-${newsId}`);
           if (btn) {
             btn.innerHTML = isPinned ? '📌 Desfijar' : '📌 Fijar';
-            btn.style.background = isPinned ? '#fef08a' : '#f8fafc';
-            btn.style.borderColor = isPinned ? '#ca8a04' : '#cbd5e1';
-            btn.style.color = isPinned ? '#854d0e' : '#334155';
-            btn.style.fontWeight = isPinned ? '700' : '400';
+            btn.classList.toggle('teacher-pin-active', isPinned);
+            btn.classList.toggle('teacher-pin-inactive', !isPinned);
           }
           if (badge) {
-            badge.style.display = isPinned ? 'inline-block' : 'none';
+            badge.classList.toggle('is-hidden', !isPinned);
           }
           setTimeout(() => { window.location.reload(); }, 500);
         } else {
