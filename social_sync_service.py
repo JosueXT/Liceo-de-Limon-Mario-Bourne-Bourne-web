@@ -17,7 +17,7 @@ from datetime import datetime
 from database import get_db_connection, add_news, invalidate_cms_cache, resequence_news_ids
 
 # Publicaciones oficiales del Bachillerato Internacional (IB) en Redes Sociales
-# Extraídas directamente de las cuentas oficiales de Instagram (@ib_limon_) y Facebook Oficial IB
+# Re-subidas con las fotografías reales tomadas de las cuentas oficiales de Instagram (@ib_limon_) y Facebook Oficial IB
 OFFICIAL_IB_SOCIAL_FEEDS = [
     {
         "title": "🎭 Proyecto de Máscaras y Creatividad CAS: Tradición e Identidad Cultural en el IB",
@@ -27,10 +27,10 @@ OFFICIAL_IB_SOCIAL_FEEDS = [
         "date": "28 de Octubre, 2026",
         "summary": "Estudiantes del Diploma IB exhiben sus máscaras tradicionales artesanales (Spiderman, calaveras, payasos y máscaras folclóricas) creadas en el área de Creatividad, Actividad y Servicio.",
         "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nLos estudiantes del Bachillerato Internacional del Liceo de Limón presentaron sus creaciones de máscaras tradicionales, integrando elementos de la cultura costarricense y la expresión artística contemporánea. Una muestra palpable del entusiasmo, originalidad y compromiso que caracteriza a la comunidad del Diploma IB.",
-        "image": "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80",
+        "image": "/static/img/social/ig_mascaradas_cas.jpg",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_limon_/?post=mascaradas_tradicionales"
+        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
     },
     {
         "title": "🌊 Proyecto Marino CAS: Conservación de Arrecifes y Exploración Ecológica en el Caribe Sur",
@@ -40,10 +40,10 @@ OFFICIAL_IB_SOCIAL_FEEDS = [
         "date": "25 de Octubre, 2026",
         "summary": "Trabajo de campo ambiental de los estudiantes del IB explorando ecosistemas marinos y promoviendo la protección de los arrecifes coralinos de nuestra provincia.",
         "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nNuestros estudiantes del IB vivieron una enriquecedora experiencia de investigación y servicio comunitario en las costas del Caribe, documentando la biodiversidad marina y participando activamente en la sensibilización ambiental sobre la conservación de nuestros mares.",
-        "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+        "image": "/static/img/social/ig_arrecife_marino.jpg",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_limon_/?post=conservacion_marina_caribe"
+        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
     },
     {
         "title": "👥 Comunidad de Aprendizaje IB: Trabajo Colaborativo y Excelencia en el Aula",
@@ -51,12 +51,12 @@ OFFICIAL_IB_SOCIAL_FEEDS = [
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
         "date": "22 de Octubre, 2026",
-        "summary": "Estudiantes de la generación del Diploma del Liceo de Limón reunidos en el aula institucional, compartiendo experiencias y reforzando metas académicas.",
+        "summary": "Estudiantes de la generación del Diploma del Liceo de Limón reunidos en el aula institucional con su uniforme oficial, compartiendo experiencias y reforzando metas académicas.",
         "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nUna comunidad unida por el deseo de superación. Los estudiantes del Bachillerato Internacional demuestran día a día el perfil de la comunidad de aprendizaje del IB: indagadores, solidarios, reflexivos y comprometidos con el desarrollo de Limón.",
-        "image": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
+        "image": "/static/img/social/ig_estudiantes_aula.jpg",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_limon_/?post=comunidad_aula_ib"
+        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
     },
     {
         "title": "🎭 Muestra Cultural de Máscaras Tradicionales y Convivio Estudiantil IB",
@@ -66,36 +66,36 @@ OFFICIAL_IB_SOCIAL_FEEDS = [
         "date": "18 de Octubre, 2026",
         "summary": "Álbum fotográfico compartido en la página oficial de Facebook sobre la presentación de proyectos artísticos y convivencia de los alumnos del IB con pancarta de bienvenida.",
         "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional Liceo de Limón Mario Bourne Bourne).\n\nCompartimos las fotografías de la jornada cultural donde nuestros estudiantes presentaron sus creaciones de máscaras artesanales. ¡Felicitaciones a todos los participantes por su entusiasmo y orgullo institucional!",
-        "image": "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80",
+        "image": "/static/img/social/fb_mascaradas_1.jpg",
         "author": "Facebook IB Liceo de Limón",
         "social_network": "Facebook",
-        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?post=muestra_mascaras_cultural"
+        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
     },
     {
-        "title": "👥 Coloquio Anual de Teoría del Conocimiento (TOK): Debates y Ponencias Estudiantiles",
+        "title": "🎄 Convivio y Tradición Navideña en el Aula del Bachillerato Internacional",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
         "date": "12 de Octubre, 2026",
-        "summary": "Transmisión oficial y galería de fotos del coloquio de TOK donde los estudiantes analizan el rol del conocimiento y la ética en la sociedad actual.",
-        "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional Liceo de Limón Mario Bourne Bourne).\n\nRevise las exposiciones y discusiones filosóficas guiadas por los estudiantes del Diploma del IB. El pensamiento crítico y la argumentación fundamentada son pilares de nuestra formación internacional.",
-        "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80",
+        "summary": "Celebración de fin de año e integración comunitaria de los estudiantes del Diploma alrededor del árbol navideño y proyectos creativos en el Liceo.",
+        "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional Liceo de Limón Mario Bourne Bourne).\n\nCompartimos momentos de alegría y fraternidad estudiantil en el aula del IB. Un espacio para celebrar los logros académicos del año y fortalecer la unión de nuestra comunidad educativa.",
+        "image": "/static/img/social/fb_navidad_arbol.jpg",
         "author": "Facebook IB Liceo de Limón",
         "social_network": "Facebook",
-        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?post=coloquio_tok_2026"
+        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
     },
     {
-        "title": "📋 Convocatoria Abierta: Pruebas Diagnósticas e Inducción al Diploma IB 2026",
+        "title": "🎭 Exposición de Arte y Expresión Estudiantil IB en el Liceo de Limón",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
         "date": "5 de Octubre, 2026",
-        "summary": "Guía informativa con fechas, requisitos de inscripción y orientación para los estudiantes de 9° año que desean postular al Programa del Diploma.",
-        "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional Liceo de Limón Mario Bourne Bourne).\n\nInvitamos a toda la comunidad estudiantil de 9° año y a sus familias a participar en el proceso de admisión para la nueva promoción del Bachillerato Internacional público de Limón.",
-        "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80",
+        "summary": "Registro visual de la jornada artística del IB con máscaras representativas de leyendas y personajes tradicionales.",
+        "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional Liceo de Limón Mario Bourne Bourne).\n\nNuestros estudiantes exploran las artes visuales y la identidad nacional a través de proyectos manuales que fomentan la perseverancia, el trabajo en equipo y la autoexpresión.",
+        "image": "/static/img/social/fb_mascaradas_2.jpg",
         "author": "Facebook IB Liceo de Limón",
         "social_network": "Facebook",
-        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?post=convocatoria_induccion_ib"
+        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
     }
 ]
 
