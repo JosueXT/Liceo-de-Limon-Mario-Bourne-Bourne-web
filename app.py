@@ -364,13 +364,16 @@ def home():
     raw_news = get_all_news(force_fresh=is_admin)
     is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
 
-    if not is_admin:
+    if is_ib_exclusive and not is_admin:
+        news = [n for n in raw_news if n.get('is_active', 1) == 1 and n.get('category_slug') == 'ib']
+    elif not is_admin:
         news = [n for n in raw_news if n.get('is_active', 1) == 1]
     else:
         news = raw_news
 
     pathway_features = get_pathway_features(cms)
     dynamic_campus = get_campus_dynamic_list(cms)
+    ib_dynamic_lists = get_modality_dynamic_lists('ib', cms)
     return render_template(
         'index.html',
         cms=cms,
@@ -378,7 +381,8 @@ def home():
         is_admin=is_admin,
         is_ib_exclusive=is_ib_exclusive,
         pathway_features=pathway_features,
-        dynamic_campus=dynamic_campus
+        dynamic_campus=dynamic_campus,
+        ib_dynamic_lists=ib_dynamic_lists
     )
 
 @app.route('/oferta/<slug>')
@@ -395,9 +399,13 @@ def modalidad_detalle(slug):
     raw_news = get_all_news(force_fresh=is_admin)
     is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
 
-    # Si está activo el Modo Exclusivo IB y un visitante intenta entrar a otra modalidad, redirigir a IB
-    if is_ib_exclusive and slug != 'ib' and not is_admin:
-        return redirect(url_for('modalidad_detalle', slug='ib'))
+    # Si está activo el Modo Exclusivo IB:
+    # La información del IB está unificada en la página principal y no se requiere subpágina
+    if is_ib_exclusive:
+        if slug == 'ib':
+            return redirect(url_for('home') + '#programa-ib')
+        elif not is_admin:
+            return redirect(url_for('home'))
 
     if not is_admin:
         news = [n for n in raw_news if n.get('is_active', 1) == 1]

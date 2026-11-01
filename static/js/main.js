@@ -178,14 +178,25 @@ function initNewsFilters() {
   let currentCategory = null;
   let currentSubcategory = 'all';
 
-  // Ocultar todas las noticias al arrancar la página
-  newsCards.forEach(card => {
-    card.style.display = 'none';
-    card.classList.remove('news-card-deploying');
-  });
+  // Comprobar si hay una categoría o subcategoría activa por defecto (ej. en Modo Exclusivo IB)
+  const initiallyActive = document.querySelector('.news-tab-btn.active');
+  if (initiallyActive) {
+    currentCategory = initiallyActive.getAttribute('data-filter') || 'ib';
+    currentSubcategory = initiallyActive.getAttribute('data-subfilter') || 'all';
+    applyFilters();
+    if (!initiallyActive.hasAttribute('data-subfilter')) {
+      renderSubcategoriesForCategory(currentCategory);
+    }
+  } else {
+    // Ocultar todas las noticias al arrancar la página
+    newsCards.forEach(card => {
+      card.style.display = 'none';
+      card.classList.remove('news-card-deploying');
+    });
 
-  if (initialState) {
-    initialState.style.display = 'flex';
+    if (initialState) {
+      initialState.style.display = 'flex';
+    }
   }
 
   function applyFilters() {
@@ -291,7 +302,8 @@ function initNewsFilters() {
 
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const filterValue = btn.getAttribute('data-filter');
+      const filterValue = btn.getAttribute('data-filter') || 'ib';
+      const subVal = btn.getAttribute('data-subfilter');
 
       // Si se hace clic en la categoría que ya estaba activa, se deselecciona (toggle para plegar)
       if (btn.classList.contains('active')) {
@@ -303,14 +315,19 @@ function initNewsFilters() {
         return;
       }
 
-      // Si se selecciona una nueva categoría
+      // Si se selecciona una nueva categoría o subcategoría directa
       filterBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
       currentCategory = filterValue;
-      currentSubcategory = 'all'; // reiniciar subcategoría al cambiar categoría
+      if (subVal) {
+        currentSubcategory = subVal;
+        if (subfilterWrapper) subfilterWrapper.style.display = 'none';
+      } else {
+        currentSubcategory = 'all';
+        renderSubcategoriesForCategory(currentCategory);
+      }
 
-      renderSubcategoriesForCategory(currentCategory);
       applyFilters();
     });
   });

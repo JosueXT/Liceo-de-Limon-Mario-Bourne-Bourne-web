@@ -115,6 +115,16 @@
         <!-- Menú de Enlaces de Navegación -->
         <ul class="nav-menu" id="navMenu">
           <li class="nav-item"><a href="#inicio" class="nav-link active nav-pill-inicio" data-cms-key="nav_home">{{ cms.nav_home }}</a></li>
+          {% if is_ib_exclusive %}
+          <li class="nav-item"><a href="#programa-ib" class="nav-link nav-pill-ib" style="font-weight: 700; color: #0284c7;">Programa del Diploma</a></li>
+          <li class="nav-item"><a href="#requisitos" class="nav-link nav-pill-regular" style="font-weight: 700; color: #9f1239;">Admisión IB</a></li>
+          <li class="nav-item"><a href="#noticias" class="nav-link nav-pill-noticias">Noticias & Redes</a></li>
+          <li class="nav-item"><a href="#instalaciones" class="nav-link nav-pill-campus">Campus & Labs</a></li>
+          <li class="nav-item"><a href="#contacto" class="nav-link nav-pill-contacto">Contacto IB</a></li>
+          <li class="nav-item mobile-only-nav-item">
+            <a href="#requisitos" class="btn btn-vino btn-sm mobile-nav-btn">📋 Admisión IB</a>
+          </li>
+          {% else %}
           <li class="nav-item"><a href="#modalidades" class="nav-link nav-pill-modalidades" data-cms-key="nav_pathways">{{ cms.nav_pathways }}</a></li>
           <li class="nav-item"><a href="#noticias" class="nav-link nav-pill-noticias" data-cms-key="nav_news">{{ cms.nav_news }}</a></li>
           <li class="nav-item"><a href="#redes" class="nav-link nav-pill-redes" data-cms-key="nav_social">{{ cms.nav_social }}</a></li>
@@ -124,6 +134,7 @@
           <li class="nav-item mobile-only-nav-item">
             <a href="/modalidad/ib" class="btn btn-vino btn-sm mobile-nav-btn" data-cms-key="nav_btn_ib">{{ cms.nav_btn_ib }}</a>
           </li>
+          {% endif %}
         </ul>
 
         <!-- Acciones de Cabecera y Botón Hamburguesa -->
@@ -132,7 +143,13 @@
             <span class="theme-icon theme-icon-sun">☀️</span>
             <span class="theme-icon theme-icon-moon">🌙</span>
           </button>
+          {% if is_ib_exclusive %}
+          <a href="#requisitos" class="btn btn-neon-vino btn-sm desktop-only-btn" style="padding: 0.45rem 1.15rem;">
+            📋 Admisión IB 2026
+          </a>
+          {% else %}
           <a href="/modalidad/ib" class="btn btn-vino btn-sm desktop-only-btn" data-cms-key="nav_btn_ib">{{ cms.nav_btn_ib }}</a>
+          {% endif %}
           <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Abrir menú de navegación" aria-expanded="false">
             <span class="hamburger-bar"></span>
             <span class="hamburger-bar"></span>
@@ -185,22 +202,42 @@
       <div class="hero-content reveal-left">
         <!-- Distintivo de educación pública -->
         <div class="hero-badge-container">
-          <span class="hero-badge-dot"></span>
+          <span class="hero-badge-dot" style="{% if is_ib_exclusive %}background: #38bdf8; box-shadow: 0 0 10px #38bdf8;{% endif %}"></span>
+          {% if is_ib_exclusive %}
+          <span class="hero-badge-text">🌍 COLEGIO DEL MUNDO DEL IB • PROGRAMA DEL DIPLOMA (PD)</span>
+          {% else %}
           <span class="hero-badge-text" data-cms-key="hero_tagline">{{ cms.hero_tagline }}</span>
+          {% endif %}
         </div>
 
         <!-- Título y descripción principal -->
+        {% if is_ib_exclusive %}
+        <h1 class="hero-title">Bachillerato Internacional <span style="color: var(--vino-light);">Liceo de Limón</span></h1>
+        <p class="hero-description">
+          Formando líderes globales con excelencia académica, indagación crítica y calidez caribeña. Programa oficial del Diploma acreditado por la Organización del Bachillerato Internacional (IB) y el Ministerio de Educación Pública (MEP).
+        </p>
+        {% else %}
         <h1 class="hero-title" data-cms-key="hero_title">{{ cms.hero_title }}</h1>
         <p class="hero-description" data-cms-key="hero_description">{{ cms.hero_description }}</p>
+        {% endif %}
 
         <!-- Botones de Acción -->
         <div class="hero-actions">
+          {% if is_ib_exclusive %}
+          <a href="#programa-ib" class="btn hero-btn-ib btn-lg btn-neon-azul">
+            🌍 Explorar Programa del Diploma
+          </a>
+          <a href="#requisitos" class="btn btn-neon-vino btn-lg">
+            📋 Requisitos de Admisión
+          </a>
+          {% else %}
           <a href="/modalidad/ib" class="btn hero-btn-ib btn-lg" data-cms-key="hero_btn_ib">
             🎓 {{ cms.hero_btn_ib }}
           </a>
           <a href="#modalidades" class="btn hero-btn-mep btn-lg" data-cms-key="hero_btn_academic">
             🏛️ {{ cms.hero_btn_academic }}
           </a>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -243,8 +280,245 @@
   </div>
 
   <!-- =====================================================================
-       6. CAMINO ACADÉMICO (3 OFERTAS EDUCATIVAS CON SUBPÁGINA DEDICADA)
+       6. CAMINO ACADÉMICO / PORTAL EXCLUSIVO BACHILLERATO INTERNACIONAL (IB)
        ===================================================================== -->
+  {% if is_ib_exclusive %}
+  <div id="programa-ib">
+    <!-- 6.1 HELLO BANNER CON IMAGEN DE BIENVENIDA AL BACHILLERATO INTERNACIONAL -->
+    <section class="ib-hello-banner-section reveal-scale" style="padding-top: 2.5rem; padding-bottom: 1.5rem;">
+      <div class="container">
+        <div class="ib-hello-banner-card">
+          <div class="ib-hello-banner-content">
+            <span class="ib-hello-tag">
+              <span class="ib-tag-icon">🌟</span>
+              <span data-cms-key="ib_hello_tag">{{ cms.get('ib_hello_tag', '¡Bienvenidos al Programa del Diploma IB!') }}</span>
+            </span>
+            <h2 class="ib-hello-title" data-cms-key="ib_hello_title">{{ cms.get('ib_hello_title', 'Formando líderes globales con excelencia académica y calidez caribeña') }}</h2>
+            <p class="ib-hello-desc" data-cms-key="ib_hello_desc">{{ cms.get('ib_hello_desc', 'El Bachillerato Internacional en el Liceo de Limón abre un mundo de oportunidades universitarias y becas internacionales. Conozca nuestro proceso de admisión y actividades.') }}</p>
+            <div class="ib-hello-actions">
+              <a href="#requisitos" class="btn btn-neon-azul btn-sm" data-cms-key="ib_hello_btn_primary">{{ cms.get('ib_hello_btn_primary', '📋 Requisitos de Admisión') }}</a>
+              <a href="#noticias" class="btn btn-neon-vino btn-sm" data-cms-key="ib_hello_btn_secondary">{{ cms.get('ib_hello_btn_secondary', '📰 Proyectos & Noticias IB') }}</a>
+            </div>
+          </div>
+          <div class="ib-hello-banner-media cms-image-wrapper" data-cms-img="ib_hello_banner_image" title="Haga clic en modo edición para cambiar la imagen del Hello Banner">
+            <img src="{{ cms.get('ib_hello_banner_image', '/static/img/hero_ib.jpg') }}" alt="Bachillerato Internacional Limón" class="ib-hello-banner-img" data-cms-img="ib_hello_banner_image">
+            <div class="ib-hello-badge-floating">
+              <span class="ib-globe-icon" style="font-size: 1.4rem;">🌍</span>
+              <div>
+                <strong>Colegio del Mundo del IB</strong>
+                <small>Acreditación Oficial MEP & Organización del Bachillerato Internacional</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6.2 SELLO Y RECONOCIMIENTO OFICIAL IB WORLD SCHOOL -->
+    <section class="section ib-accreditation-section reveal-scale" style="padding-top: 1rem; padding-bottom: 2rem;">
+      <div class="container">
+        <div class="ib-accreditation-card ib-float">
+          <div class="ib-logo-container cms-image-wrapper" data-cms-img="ib_official_logo" title="Haga clic en modo edición para cambiar el logo oficial del IB">
+            <img src="{{ cms.get('ib_official_logo', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/International_Baccalaureate_Logo.svg/512px-International_Baccalaureate_Logo.svg.png') }}" alt="Bachillerato Internacional Oficial" class="ib-official-logo-img" data-cms-img="ib_official_logo">
+          </div>
+          <div class="ib-accreditation-content">
+            <div class="ib-badge-wrapper">
+              <span class="ib-accreditation-tag" data-cms-key="ib_official_tag">{{ cms.get('ib_official_tag', 'Acreditación Académica Global') }}</span>
+            </div>
+            <h2 class="ib-accreditation-title" data-cms-key="ib_official_title">{{ cms.get('ib_official_title', 'Colegio del Mundo del IB (International Baccalaureate)') }}</h2>
+            <p class="ib-accreditation-desc" data-cms-key="ib_official_desc">{{ cms.get('ib_official_desc', 'El Liceo de Limón Mario Bourne Bourne está oficialmente acreditado como Colegio del Mundo del IB, ofreciendo el prestigioso Programa del Diploma (PD) con validez y homologación universitaria a nivel internacional.') }}</p>
+            
+            <div class="ib-core-badge-container">
+              <span class="ib-core-pill ib-pill-cas" title="Creatividad, Actividad y Servicio">
+                <span>🌿</span> <strong>CAS:</strong> Creatividad, Actividad y Servicio
+              </span>
+              <span class="ib-core-pill ib-pill-tok" title="Teoría del Conocimiento">
+                <span>🧠</span> <strong>TOK:</strong> Teoría del Conocimiento
+              </span>
+              <span class="ib-core-pill ib-pill-ee" title="Investigación y Monografía Universitaria">
+                <span>📜</span> <strong>Monografía:</strong> 4000 Palabras
+              </span>
+            </div>
+
+            <div class="ib-accreditation-actions" style="margin-top: 1.2rem;">
+              <a href="{{ cms.get('ib_official_link', 'https://www.ibo.org/es/') }}" target="_blank" rel="noopener noreferrer" class="btn btn-ib-link">
+                <span data-cms-key="ib_official_btn_text">{{ cms.get('ib_official_btn_text', 'Conocer más en el sitio oficial del IB') }}</span> ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6.3 INTRODUCCIÓN PEDAGÓGICA Y ENFOQUE DEL DIPLOMA -->
+    <section class="section modality-intro-section" style="padding-top: 1.5rem;">
+      <div class="container">
+        <div class="modality-intro-grid">
+          <div class="modality-intro-text reveal-left">
+            <span class="section-tag" data-cms-key="modality_intro_tag">{{ cms.modality_intro_tag }}</span>
+            <h2 class="section-title" data-cms-key="modality_intro_heading">{{ cms.modality_intro_heading }}</h2>
+            <p class="lead-text" data-cms-key="ib_intro_p1">{{ cms.get('ib_intro_p1') }}</p>
+            <p class="body-text" data-cms-key="ib_intro_p2">{{ cms.get('ib_intro_p2') }}</p>
+          </div>
+
+          <div class="modality-intro-card-box reveal-right">
+            <div class="highlight-stat-box">
+              <span class="highlight-stat-tag" data-cms-key="modality_highlight_tag">{{ cms.modality_highlight_tag }}</span>
+              <h3 class="highlight-stat-title" data-cms-key="ib_sub_title">{{ cms.get('ib_sub_title', 'Bachillerato Internacional (IB)') }}</h3>
+              <p class="highlight-stat-desc" data-cms-key="modality_highlight_desc">{{ cms.modality_highlight_desc }}</p>
+              <div class="highlight-features-check">
+                <span data-cms-key="modality_highlight_check1">{{ cms.modality_highlight_check1 }}</span>
+                <span data-cms-key="modality_highlight_check2">{{ cms.modality_highlight_check2 }}</span>
+                <span data-cms-key="modality_highlight_check3">{{ cms.modality_highlight_check3 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6.4 PILARES FUNDAMENTALES DEL IB -->
+    <section class="section modality-pillars-section">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag" data-cms-key="modality_pillars_tag">{{ cms.modality_pillars_tag }}</span>
+          <h2 class="section-title" data-cms-key="modality_pillars_title">{{ cms.modality_pillars_title }}</h2>
+          <p class="section-subtitle" data-cms-key="modality_pillars_subtitle">{{ cms.modality_pillars_subtitle }}</p>
+        </div>
+
+        <div class="pillars-grid" data-cms-list="pillars" data-cms-prefix="ib_pillar">
+          {% for item in ib_dynamic_lists.pillars %}
+          <div class="pillar-card reveal-scale" data-cms-item-index="{{ loop.index }}">
+            <div class="pillar-card-top-bar">
+              <div class="pillar-number">{{ item.num }}</div>
+            </div>
+            <h3 class="pillar-title" data-cms-key="{{ item.title_key }}">{{ item.title }}</h3>
+            <p class="pillar-desc" data-cms-key="{{ item.desc_key }}">{{ item.desc }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- 6.5 MALLA CURRICULAR Y ASIGNATURAS DEL DIPLOMA -->
+    <section class="section modality-curriculum-section" id="malla">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag" data-cms-key="modality_curriculum_tag">{{ cms.modality_curriculum_tag }}</span>
+          <h2 class="section-title" data-cms-key="modality_curriculum_title">{{ cms.modality_curriculum_title }}</h2>
+          <p class="section-subtitle" data-cms-key="modality_curriculum_subtitle">{{ cms.modality_curriculum_subtitle }}</p>
+        </div>
+
+        <div class="curriculum-table-wrapper reveal">
+          <table class="curriculum-table" data-cms-list="curriculum" data-cms-prefix="ib_curr_">
+            <thead>
+              <tr>
+                <th style="width: 28%;" data-cms-key="modality_curriculum_th1">{{ cms.modality_curriculum_th1 }}</th>
+                <th style="width: 72%;" data-cms-key="modality_curriculum_th2">{{ cms.modality_curriculum_th2 }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in ib_dynamic_lists.curriculum %}
+              <tr data-cms-item-index="{{ loop.index }}">
+                <td class="curriculum-group-cell">
+                  <strong data-cms-key="{{ item.group_key }}">{{ item.group }}</strong>
+                </td>
+                <td class="curriculum-subject-cell" data-cms-key="{{ item.subject_key }}">{{ item.subject }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6.6 VENTAJAS Y REQUISITOS DE ADMISIÓN IB -->
+    <section class="section modality-advantages-section" id="requisitos">
+      <div class="container">
+        <div class="advantages-grid">
+          <div class="advantages-info-col reveal-left">
+            <span class="section-tag" data-cms-key="modality_advantages_tag">{{ cms.modality_advantages_tag }}</span>
+            <h2 class="section-title" data-cms-key="modality_advantages_title">{{ cms.modality_advantages_title }}</h2>
+            <p class="section-subtitle" data-cms-key="modality_advantages_subtitle">{{ cms.modality_advantages_subtitle }}</p>
+            
+            <div class="advantages-list" data-cms-list="advantages" data-cms-prefix="ib_adv_">
+              {% for item in ib_dynamic_lists.advantages %}
+              <div class="advantage-item" data-cms-item-index="{{ loop.index }}">
+                <span class="advantage-check-icon">✓</span>
+                <p class="advantage-text" data-cms-key="{{ item.key }}">{{ item.text }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="advantages-visual-col reveal-right">
+            <div class="requirements-box">
+              <h3 class="requirements-title" data-cms-key="modality_req_title">{{ cms.modality_req_title }}</h3>
+              <p class="requirements-subtitle" data-cms-key="modality_req_subtitle">{{ cms.modality_req_subtitle }}</p>
+
+              <ol class="requirements-list" data-cms-list="requirements" data-cms-prefix="ib_req_">
+                {% for item in ib_dynamic_lists.requirements %}
+                <li class="requirement-list-item" data-cms-item-index="{{ loop.index }}">
+                  <span class="req-number">{{ loop.index }}</span>
+                  <span class="req-text" data-cms-key="{{ item.key }}">{{ item.text }}</span>
+                </li>
+                {% endfor %}
+              </ol>
+
+              <div style="margin-top: 2rem;">
+                <a href="#contacto" class="btn btn-vino btn-lg" style="width: 100%;" data-cms-key="modality_req_btn">
+                  {{ cms.modality_req_btn }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta de Contacto Directo con la Coordinación IB -->
+        <div class="ib-coordination-card reveal" style="margin-top: 3.5rem;">
+          <div class="ib-coord-header">
+            <div class="ib-coord-badge-icon">🏛️</div>
+            <div>
+              <h3 class="ib-coord-title" data-cms-key="ib_contact_card_title">{{ cms.ib_contact_card_title }}</h3>
+              <p class="ib-coord-desc" data-cms-key="ib_contact_card_desc">{{ cms.ib_contact_card_desc }}</p>
+            </div>
+          </div>
+
+          <div class="ib-coord-grid">
+            <!-- Teléfono -->
+            <div class="ib-coord-item">
+              <div class="ib-coord-icon">📞</div>
+              <div class="ib-coord-details">
+                <span class="ib-coord-label" data-cms-key="ib_contact_phone_label">{{ cms.ib_contact_phone_label }}</span>
+                <a href="tel:{{ cms.ib_contact_phone }}" class="ib-coord-val ib-coord-link" data-cms-key="ib_contact_phone">{{ cms.ib_contact_phone }}</a>
+                <span class="ib-coord-sub" data-cms-key="ib_contact_phone_sub">{{ cms.ib_contact_phone_sub }}</span>
+              </div>
+            </div>
+
+            <!-- Correo -->
+            <div class="ib-coord-item">
+              <div class="ib-coord-icon">✉️</div>
+              <div class="ib-coord-details">
+                <span class="ib-coord-label" data-cms-key="ib_contact_email_label">{{ cms.ib_contact_email_label }}</span>
+                <a href="mailto:{{ cms.ib_contact_email }}" class="ib-coord-val ib-coord-link" data-cms-key="ib_contact_email">{{ cms.ib_contact_email }}</a>
+                <span class="ib-coord-sub" data-cms-key="ib_contact_email_sub">{{ cms.ib_contact_email_sub }}</span>
+              </div>
+            </div>
+
+            <!-- Oficina -->
+            <div class="ib-coord-item">
+              <div class="ib-coord-icon">📍</div>
+              <div class="ib-coord-details">
+                <span class="ib-coord-label" data-cms-key="ib_contact_office_label">{{ cms.ib_contact_office_label }}</span>
+                <p class="ib-coord-val" data-cms-key="ib_contact_office">{{ cms.ib_contact_office }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  {% else %}
   {% set hide_modalidades = (cms.get('hide_section_modalidades') == 'true') %}
   <section class="section academic-section cms-toggleable-section {% if hide_modalidades %}cms-hidden-exposure{% endif %}" id="modalidades" data-cms-visibility-key="hide_section_modalidades" {% if not is_admin and hide_modalidades %}style="display: none !important;"{% endif %}>
     <div class="container">
@@ -268,13 +542,7 @@
 
       <div class="pathways-grid">
         <!-- 1. Secundaria Regular -->
-        {% if not is_ib_exclusive or is_admin %}
-        <article class="pathway-card card-regular reveal-scale delay-100 {% if is_ib_exclusive and is_admin %}cms-hidden-exposure{% endif %}" {% if is_ib_exclusive and not is_admin %}style="display: none !important;"{% endif %}>
-          {% if is_ib_exclusive and is_admin %}
-          <div style="background: #0284c7; color: #fff; padding: 0.35rem 0.6rem; font-size: 0.75rem; font-weight: 700; text-align: center; border-radius: var(--radius-sm); margin: 0.5rem 0.5rem 0 0.5rem;">
-            🔒 Oculta para visitantes (Modo Exclusivo IB activo)
-          </div>
-          {% endif %}
+        <article class="pathway-card card-regular reveal-scale delay-100">
           <div class="pathway-image-wrapper cms-image-wrapper">
             <span class="pathway-badge-top" data-cms-key="regular_badge">{{ cms.regular_badge }}</span>
             <img src="{{ cms.regular_img }}" alt="Secundaria Regular MEP" class="pathway-image" data-cms-img="regular_img">
@@ -311,16 +579,9 @@
             </div>
           </div>
         </article>
-        {% endif %}
 
         <!-- 2. Francés Avanzado -->
-        {% if not is_ib_exclusive or is_admin %}
-        <article class="pathway-card card-french reveal-scale delay-200 {% if is_ib_exclusive and is_admin %}cms-hidden-exposure{% endif %}" {% if is_ib_exclusive and not is_admin %}style="display: none !important;"{% endif %}>
-          {% if is_ib_exclusive and is_admin %}
-          <div style="background: #0284c7; color: #fff; padding: 0.35rem 0.6rem; font-size: 0.75rem; font-weight: 700; text-align: center; border-radius: var(--radius-sm); margin: 0.5rem 0.5rem 0 0.5rem;">
-            🔒 Oculta para visitantes (Modo Exclusivo IB activo)
-          </div>
-          {% endif %}
+        <article class="pathway-card card-french reveal-scale delay-200">
           <div class="pathway-image-wrapper cms-image-wrapper">
             <span class="pathway-badge-top" data-cms-key="french_badge">{{ cms.french_badge }}</span>
             <img src="{{ cms.french_img }}" alt="Francés Avanzado MEP" class="pathway-image" data-cms-img="french_img">
@@ -364,10 +625,9 @@
             </div>
           </div>
         </article>
-        {% endif %}
 
         <!-- 3. Bachillerato Internacional IB -->
-        <article class="pathway-card card-ib reveal-scale delay-300" {% if is_ib_exclusive %}style="grid-column: 1 / -1; max-width: 820px; margin: 0 auto; width: 100%; border: 2px solid #38bdf8; box-shadow: 0 16px 40px rgba(2, 132, 199, 0.25);"{% endif %}>
+        <article class="pathway-card card-ib reveal-scale delay-300">
           <div class="pathway-image-wrapper cms-image-wrapper">
             <span class="pathway-badge-top" data-cms-key="ib_badge">{{ cms.ib_badge }}</span>
             <img src="{{ cms.ib_img }}" alt="Bachillerato Internacional IB" class="pathway-image" data-cms-img="ib_img">
@@ -415,6 +675,7 @@
       </div>
     </div>
   </section>
+  {% endif %}
 
   <!-- =====================================================================
        7. NOTICIAS Y COMUNICADOS (FILTRADO POR CATEGORÍA Y SUBCATEGORÍA)
@@ -442,11 +703,19 @@
 
       <!-- Filtros Principales por Categoría -->
       <div class="news-filter-tabs reveal">
+        {% if is_ib_exclusive %}
+        <button class="news-tab-btn active" data-filter="ib">📰 Todas las Noticias IB</button>
+        <button class="news-tab-btn" data-filter="ib" data-subfilter="Redes Sociales">📱 Redes Sociales (IG & FB)</button>
+        <button class="news-tab-btn" data-filter="ib" data-subfilter="CAS">🎨 CAS (Comunidad)</button>
+        <button class="news-tab-btn" data-filter="ib" data-subfilter="TOK">🧠 TOK (Teoría del Conocimiento)</button>
+        <button class="news-tab-btn" data-filter="ib" data-subfilter="Convocatorias">📋 Admisión & Convocatorias</button>
+        {% else %}
         <button class="news-tab-btn" data-filter="all" data-cms-key="news_tab_all">{{ cms.news_tab_all }}</button>
         <button class="news-tab-btn" data-filter="ib" data-cms-key="news_tab_ib">{{ cms.news_tab_ib }}</button>
         <button class="news-tab-btn" data-filter="frances" data-cms-key="news_tab_frances">{{ cms.news_tab_frances }}</button>
         <button class="news-tab-btn" data-filter="regular" data-cms-key="news_tab_regular">{{ cms.news_tab_regular }}</button>
         <button class="news-tab-btn" data-filter="institucionales" data-cms-key="news_tab_institucionales">{{ cms.news_tab_institucionales }}</button>
+        {% endif %}
       </div>
 
       <!-- Subfiltros Dinámicos (CAS, TOK, Actividades, DELF, etc.) -->
@@ -540,12 +809,72 @@
       {% endif %}
 
       <div class="section-header reveal">
+        {% if is_ib_exclusive %}
+        <span class="section-tag" style="background: rgba(2, 132, 199, 0.12); color: #0284c7;">🌐 Redes Sociales Oficiales</span>
+        <h2 class="section-title">Canales Oficiales del Bachillerato Internacional (IB)</h2>
+        <p class="section-subtitle">
+          Siga en vivo el trabajo de campo de CAS, exposiciones de TOK, muestras de Monografía y convocatorias oficiales de nuestro programa en Instagram y Facebook.
+        </p>
+        {% else %}
         <span class="section-tag" style="background: rgba(15, 52, 96, 0.1); color: var(--azul);" data-cms-key="social_section_tag">{{ cms.social_section_tag }}</span>
         <h2 class="section-title" data-cms-key="social_section_title">{{ cms.social_section_title }}</h2>
         <p class="section-subtitle" data-cms-key="social_section_subtitle">{{ cms.social_section_subtitle }}</p>
+        {% endif %}
       </div>
 
       <div class="social-grid">
+        {% if is_ib_exclusive %}
+        <!-- Tarjeta de Facebook IB -->
+        <div class="social-card social-card-fb reveal-scale delay-100">
+          <div>
+            <div class="social-card-header">
+              <div class="social-icon-box social-icon-fb">f</div>
+              <div>
+                <h3 class="social-name" data-cms-key="ib_facebook_title">{{ cms.ib_facebook_title }}</h3>
+                <span class="social-handle" data-cms-key="ib_facebook_handle">{{ cms.ib_facebook_handle }}</span>
+              </div>
+            </div>
+            <p class="social-desc" data-cms-key="ib_facebook_desc">{{ cms.ib_facebook_desc }}</p>
+          </div>
+          <a href="{{ cms.ib_facebook_url }}" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-fb">
+            <span data-cms-key="ib_facebook_btn">{{ cms.ib_facebook_btn }}</span> ↗
+          </a>
+        </div>
+
+        <!-- Tarjeta de Instagram IB -->
+        <div class="social-card social-card-ig reveal-scale delay-200">
+          <div>
+            <div class="social-card-header">
+              <div class="social-icon-box social-icon-ig">📷</div>
+              <div>
+                <h3 class="social-name" data-cms-key="ib_instagram_title">{{ cms.ib_instagram_title }}</h3>
+                <span class="social-handle" data-cms-key="ib_instagram_name">{{ cms.ib_instagram_name }}</span>
+              </div>
+            </div>
+            <p class="social-desc" data-cms-key="ib_instagram_desc">{{ cms.ib_instagram_desc }}</p>
+          </div>
+          <a href="{{ cms.ib_instagram_url }}" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-ig">
+            <span data-cms-key="ib_instagram_btn">{{ cms.ib_instagram_btn }}</span> ↗
+          </a>
+        </div>
+
+        <!-- Tarjeta de Canal de WhatsApp IB -->
+        <div class="social-card social-card-wa reveal-scale delay-300">
+          <div>
+            <div class="social-card-header">
+              <div class="social-icon-box social-icon-wa">💬</div>
+              <div>
+                <h3 class="social-name" data-cms-key="ib_whatsapp_title">{{ cms.ib_whatsapp_title }}</h3>
+                <span class="social-handle" data-cms-key="ib_whatsapp_handle">{{ cms.ib_whatsapp_handle }}</span>
+              </div>
+            </div>
+            <p class="social-desc" data-cms-key="ib_whatsapp_desc">{{ cms.ib_whatsapp_desc }}</p>
+          </div>
+          <a href="{{ cms.ib_whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-wa">
+            <span data-cms-key="ib_whatsapp_btn">{{ cms.ib_whatsapp_btn }}</span> ↗
+          </a>
+        </div>
+        {% else %}
         <!-- Tarjeta de Facebook -->
         <div class="social-card social-card-fb reveal-scale delay-100">
           <div>
@@ -596,6 +925,7 @@
             <span data-cms-key="whatsapp_btn_text">{{ cms.whatsapp_btn_text }}</span> ↗
           </a>
         </div>
+        {% endif %}
       </div>
     </div>
   </section>
@@ -810,10 +1140,17 @@
               <div class="form-group">
                 <label class="form-label" for="contactArea" data-cms-key="contact_form_area_label">{{ cms.contact_form_area_label }}</label>
                 <select id="contactArea" class="form-control">
+                  {% if is_ib_exclusive %}
+                  <option value="ib_admision">📋 Proceso de Admisión & Matrícula IB</option>
+                  <option value="ib_coordinacion">🏛️ Coordinación del Programa del Diploma</option>
+                  <option value="ib_cas_tok">🎨 Consultas CAS / Monografía / TOK</option>
+                  <option value="ib_general">ℹ️ Información General del Bachillerato Internacional</option>
+                  {% else %}
                   <option value="ib">Bachillerato Internacional (IB)</option>
                   <option value="frances">Francés Avanzado</option>
                   <option value="regular">Secundaria Regular</option>
                   <option value="general">Trámites de Secretaría / Constancias</option>
+                  {% endif %}
                 </select>
               </div>
             </div>
@@ -851,6 +1188,15 @@
         </div>
 
         <div>
+          {% if is_ib_exclusive %}
+          <h4 class="footer-col-title">Programa del Diploma IB</h4>
+          <div class="footer-links-list">
+            <a href="#programa-ib" class="footer-link-item">🌍 Modelo Curricular & Asignaturas</a>
+            <a href="#requisitos" class="footer-link-item">📋 Requisitos de Admisión 2026</a>
+            <a href="#noticias" class="footer-link-item">📰 Noticias & Redes Sociales IB</a>
+            <a href="#contacto" class="footer-link-item">✉️ Coordinación del Diploma</a>
+          </div>
+          {% else %}
           <h4 class="footer-col-title" data-cms-key="footer_col1_title">{{ cms.footer_col1_title }}</h4>
           <div class="footer-links-list">
             <a href="/modalidad/regular" class="footer-link-item" data-cms-key="footer_col1_link1">{{ cms.footer_col1_link1 }}</a>
@@ -858,9 +1204,19 @@
             <a href="/modalidad/ib" class="footer-link-item" data-cms-key="footer_col1_link3">{{ cms.footer_col1_link3 }}</a>
             <a href="#instalaciones" class="footer-link-item" data-cms-key="footer_col1_link4">{{ cms.footer_col1_link4 }}</a>
           </div>
+          {% endif %}
         </div>
 
         <div>
+          {% if is_ib_exclusive %}
+          <h4 class="footer-col-title">Redes Oficiales IB</h4>
+          <div class="footer-links-list">
+            <a href="{{ cms.ib_facebook_url }}" target="_blank" rel="noopener" class="footer-link-item">👥 Facebook Oficial IB</a>
+            <a href="{{ cms.ib_instagram_url }}" target="_blank" rel="noopener" class="footer-link-item">📸 Instagram @ib_limon_</a>
+            <a href="{{ cms.ib_whatsapp_url }}" target="_blank" rel="noopener" class="footer-link-item">💬 Canal Informativo IB</a>
+            <a href="#redes" class="footer-link-item">🌐 Centro de Redes Sociales</a>
+          </div>
+          {% else %}
           <h4 class="footer-col-title" data-cms-key="footer_col2_title">{{ cms.footer_col2_title }}</h4>
           <div class="footer-links-list">
             <a href="{{ cms.facebook_url }}" target="_blank" rel="noopener" class="footer-link-item" data-cms-key="footer_col2_link1">{{ cms.footer_col2_link1 }}</a>
@@ -868,6 +1224,7 @@
             <a href="{{ cms.whatsapp_url }}" target="_blank" rel="noopener" class="footer-link-item" data-cms-key="footer_col2_link3">{{ cms.footer_col2_link3 }}</a>
             <a href="#redes" class="footer-link-item" data-cms-key="footer_col2_link4">{{ cms.footer_col2_link4 }}</a>
           </div>
+          {% endif %}
         </div>
 
         <div>

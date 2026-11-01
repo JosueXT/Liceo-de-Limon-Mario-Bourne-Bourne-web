@@ -1023,18 +1023,17 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertTrue(data['success'])
         self.assertEqual(data['ib_exclusive_mode'], 'true')
 
-        # 3. Comprobar que visitantes públicos en /modalidad/regular son redirigidos a /modalidad/ib
+        # 3. Comprobar que visitantes públicos en /modalidad/regular son redirigidos
         with self.client.session_transaction() as sess:
             sess.clear()
 
         res_reg = self.client.get('/modalidad/regular')
         self.assertEqual(res_reg.status_code, 302)
-        self.assertIn('/modalidad/ib', res_reg.headers.get('Location', ''))
 
-        # 4. Comprobar que /modalidad/ib carga el Hello Banner con imagen
-        res_ib = self.client.get('/modalidad/ib')
-        self.assertEqual(res_ib.status_code, 200)
-        self.assertIn('ib-hello-banner-card', res_ib.get_data(as_text=True))
+        # 4. Comprobar que en Modo Exclusivo IB, la página principal unificada integra el Hello Banner con imagen
+        res_home_ib = self.client.get('/')
+        self.assertEqual(res_home_ib.status_code, 200)
+        self.assertIn('ib-hello-banner-card', res_home_ib.get_data(as_text=True))
 
         # 5. Restaurar Modo Colegio General
         with self.client.session_transaction() as sess:
