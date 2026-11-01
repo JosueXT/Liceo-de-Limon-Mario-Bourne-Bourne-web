@@ -2342,7 +2342,8 @@ body.theme-regular .pillar-number {
 }
 
 .social-card {
-  background: var(--blanco);
+  background: #ffffff !important;
+  isolation: isolate;
   border-radius: var(--radius-xl);
   padding: 2.2rem;
   border: 1.5px solid var(--gris-200);
@@ -2354,18 +2355,18 @@ body.theme-regular .pillar-number {
   z-index: 1;
 }
 
-/* Efecto de Luz Neón Ambiental de fondo detrás de los cuadros de redes sociales */
+/* Efecto de Luz Neón Ambiental de fondo detrás de los cuadros de redes sociales (sin alterar el fondo blanco del bloque) */
 .social-card::after {
   content: '';
   position: absolute;
-  inset: -6px;
-  border-radius: calc(var(--radius-xl) + 6px);
+  inset: -4px;
+  border-radius: calc(var(--radius-xl) + 4px);
   background: var(--social-neon-glow, transparent);
-  filter: blur(18px);
-  opacity: 0.55;
+  filter: blur(20px);
+  opacity: 0.65;
   z-index: -1;
   pointer-events: none;
-  transition: opacity 0.4s ease, filter 0.4s ease, inset 0.4s ease;
+  transition: opacity 0.35s ease, filter 0.35s ease, inset 0.35s ease;
 }
 
 .social-card:hover {
@@ -2373,9 +2374,9 @@ body.theme-regular .pillar-number {
 }
 
 .social-card:hover::after {
-  inset: -12px;
+  inset: -10px;
   filter: blur(28px);
-  opacity: 0.92;
+  opacity: 0.95;
 }
 
 .social-card::before {
@@ -2387,32 +2388,42 @@ body.theme-regular .pillar-number {
   height: 6px;
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
+  z-index: 2;
 }
 
-/* Variantes temáticas con resplandor neón */
+/* Variantes temáticas con resplandor neón exterior */
 .social-card-fb::before { background: #1877F2; }
 .social-card-fb {
-  --social-neon-glow: radial-gradient(circle at 50% 30%, #1877F2 0%, rgba(24, 119, 242, 0.5) 50%, transparent 80%);
+  --social-neon-glow: radial-gradient(circle at 50% 50%, #1877F2 0%, rgba(24, 119, 242, 0.75) 45%, rgba(59, 130, 246, 0.4) 75%, transparent 100%);
   border-color: rgba(24, 119, 242, 0.35);
-  box-shadow: 0 10px 30px rgba(24, 119, 242, 0.16), 0 0 22px rgba(24, 119, 242, 0.12);
+  box-shadow: 0 10px 30px rgba(24, 119, 242, 0.16), 0 0 24px rgba(24, 119, 242, 0.12);
 }
 .social-card-fb:hover {
   border-color: #1877F2;
-  box-shadow: 0 18px 45px rgba(24, 119, 242, 0.35), 0 0 38px rgba(24, 119, 242, 0.3);
+  box-shadow: 0 18px 45px rgba(24, 119, 242, 0.35), 0 0 40px rgba(24, 119, 242, 0.35);
 }
 
 .social-card-ig::before { background: linear-gradient(90deg, #F58529, #DD2A7B, #8134AF, #515BD4); }
 .social-card-ig {
-  --social-neon-glow: radial-gradient(circle at 50% 30%, #E1306C 0%, rgba(245, 133, 41, 0.6) 40%, rgba(129, 52, 175, 0.45) 70%, transparent 90%);
+  --social-neon-glow: radial-gradient(circle at 50% 50%, #E1306C 0%, rgba(245, 133, 41, 0.75) 40%, rgba(129, 52, 175, 0.6) 70%, transparent 100%);
   border-color: rgba(225, 48, 108, 0.35);
-  box-shadow: 0 10px 30px rgba(225, 48, 108, 0.16), 0 0 22px rgba(225, 48, 108, 0.12);
+  box-shadow: 0 10px 30px rgba(225, 48, 108, 0.16), 0 0 24px rgba(225, 48, 108, 0.12);
 }
 .social-card-ig:hover {
   border-color: #E1306C;
-  box-shadow: 0 18px 45px rgba(225, 48, 108, 0.35), 0 0 38px rgba(225, 48, 108, 0.3);
+  box-shadow: 0 18px 45px rgba(225, 48, 108, 0.35), 0 0 40px rgba(225, 48, 108, 0.35);
 }
 
 .social-card-wa::before { background: #25D366; }
+.social-card-wa {
+  --social-neon-glow: radial-gradient(circle at 50% 50%, #25D366 0%, rgba(37, 211, 102, 0.75) 45%, rgba(16, 185, 129, 0.4) 75%, transparent 100%);
+  border-color: rgba(37, 211, 102, 0.35);
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.16), 0 0 24px rgba(37, 211, 102, 0.12);
+}
+.social-card-wa:hover {
+  border-color: #25D366;
+  box-shadow: 0 18px 45px rgba(37, 211, 102, 0.35), 0 0 40px rgba(37, 211, 102, 0.35);
+}
 .social-card-wa {
   --social-neon-glow: radial-gradient(circle at 50% 30%, #25D366 0%, rgba(37, 211, 102, 0.5) 50%, transparent 80%);
   border-color: rgba(37, 211, 102, 0.35);
@@ -5462,6 +5473,111 @@ body.devs-page-body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 4px 20px rgba(2, 132, 199, 0.3), inset 0 0 10px rgba(56, 189, 248, 0.2);
+  margin-bottom: 1.25rem;
+}
+
+/* ==========================================================================
+   BORDES REDONDEADOS MODERNOS PARA CUADROS DE INFORMACIÓN EN IB
+   ========================================================================== */
+body.theme-ib .ib-hello-banner-card,
+body.theme-ib .ib-accreditation-card,
+body.theme-ib .ib-coordination-card,
+body.theme-ib .requirements-box,
+body.theme-ib .curriculum-table-wrapper {
+  border-radius: 34px !important;
+}
+
+body.theme-ib .ib-stat-item,
+body.theme-ib .ib-triad-card,
+body.theme-ib .advantage-item,
+body.theme-ib .pillar-card,
+body.theme-ib .highlight-stat-box,
+body.theme-ib .social-card,
+body.theme-ib .news-card,
+body.theme-ib .ib-hello-banner-media {
+  border-radius: 26px !important;
+}
+
+/* ==========================================================================
+   ANIMACIONES KINÉTICAS PARA EL HERO DE LA SUBPÁGINA IB
+   ========================================================================== */
+.theme-ib .modality-hero-title {
+  display: inline-block;
+  background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 35%, #38bdf8 70%, #ffffff 100%);
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ibTitleGlow 4s ease-in-out infinite, ibHeroTitleFloat 5s ease-in-out infinite alternate, titleShimmer 8s linear infinite;
+  text-shadow: 0 4px 28px rgba(56, 189, 248, 0.45);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.theme-ib .modality-hero-subtitle {
+  animation: ibSubtitleBreathe 4.5s ease-in-out infinite alternate;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+  max-width: 820px;
+}
+
+.theme-ib .modality-hero-actions {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.theme-ib .modality-hero-actions .btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  padding: 0.95rem 2.2rem;
+  font-size: 1.05rem;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.theme-ib .modality-hero-actions .btn-white {
+  background: #ffffff !important;
+  color: #00205b !important;
+  border: 2px solid #ffffff;
+  animation: ibBtnPulseWhite 3.5s ease-in-out infinite;
+}
+
+.theme-ib .modality-hero-actions .btn-white:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 16px 36px rgba(255, 255, 255, 0.4), 0 0 25px rgba(56, 189, 248, 0.6);
+  color: #0284c7 !important;
+}
+
+.theme-ib .modality-hero-actions .btn-outline-white {
+  background: rgba(2, 132, 199, 0.25) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff !important;
+  border: 2px solid rgba(56, 189, 248, 0.85);
+  animation: ibBtnPulseOutline 3.5s ease-in-out infinite 1.75s;
+}
+
+.theme-ib .modality-hero-actions .btn-outline-white:hover {
+  background: rgba(2, 132, 199, 0.5) !important;
+  border-color: #ffffff;
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 16px 36px rgba(2, 132, 199, 0.5), 0 0 30px rgba(56, 189, 248, 0.7);
+}
+
+.theme-ib .modality-hero-actions .btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: skewX(-20deg);
+  animation: neonSweepSheen 3.5s ease-in-out infinite;
+}
   margin-bottom: 1.25rem;
 }
 

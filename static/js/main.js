@@ -1190,7 +1190,8 @@ function initIBInteractiveEffects() {
     '.ib-stat-item',
     '.ib-triad-card',
     '.ib-coordination-card',
-    '.ib-coord-item'
+    '.ib-coord-item',
+    '.social-card'
   ];
   
   if (isIBPage) {

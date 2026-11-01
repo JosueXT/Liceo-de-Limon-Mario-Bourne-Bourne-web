@@ -261,6 +261,16 @@ DEFAULT_CMS_CONTENT = {
     "ib_hero_img": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1600&q=80",
     "ib_intro_p1": "El Programa del Diploma (PD) del Bachillerato Internacional en el Liceo de Limón Mario Bourne Bourne representa una de las oportunidades educativas más prestigiosas y transformadoras en la educación pública de Costa Rica. Como colegio público acreditado como 'IB World School', brindamos a jóvenes limonenses de alto rendimiento la oportunidad de cursar un currículo internacional riguroso y balanceado sin costo de matrícula.",
     "ib_intro_p2": "El programa busca formar jóvenes solidarios, informados y ávidos de conocimiento, capaces de contribuir a crear un mundo mejor y más pacífico, en el marco del entendimiento mutuo y el respeto intercultural.",
+    
+    # Estadísticas Destacadas de la Cinta IB (Editables)
+    "ib_stat_1_val": "100",
+    "ib_stat_1_label": "Acreditación Oficial MEP & IBO",
+    "ib_stat_2_val": "150",
+    "ib_stat_2_label": "Países con Homologación Directa",
+    "ib_stat_3_val": "4000",
+    "ib_stat_3_label": "Palabras en Monografía Universitaria",
+    "ib_stat_4_val": "7",
+    "ib_stat_4_label": "Resultados Clave y Proyectos CAS",
     "ib_pillar1_title": "Teoría del Conocimiento (TdC / TOK)",
     "ib_pillar1_desc": "Un curso interdisciplinario concebido para explorar la naturaleza del conocimiento en las distintas disciplinas y desarrollar el pensamiento crítico sobre cómo sabemos lo que afirmamos saber.",
     "ib_pillar2_title": "La Monografía (Extended Essay)",
