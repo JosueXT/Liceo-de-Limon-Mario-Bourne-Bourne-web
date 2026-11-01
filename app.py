@@ -12,7 +12,7 @@ from datetime import timedelta
 from collections import defaultdict
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_from_directory
 from email_service import load_env_file, check_smtp_health, send_admin_login_alert
-from gemini_service import check_gemini_health
+from gemini_service import check_gemini_health, ask_portal_assistant
 from database import (
     init_db,
     get_all_content,
@@ -1437,6 +1437,34 @@ def api_reset_defaults():
 
     reset_to_defaults()
     return jsonify({'success': True, 'message': 'Contenidos y consultas restaurados a valores iniciales de fábrica.'})
+
+@app.route('/api/assistant/chat', methods=['POST'])
+def api_assistant_chat():
+    """
+    Asistente Virtual interactivo con IA para orientar a Docentes y Administradores
+    sobre el uso de las herramientas del portal. Prohibido revelar secretos o credenciales.
+    """
+    is_admin = bool(session.get('is_admin', False))
+    is_teacher = bool(session.get('is_teacher', False))
+    if not is_admin and not is_teacher:
+        return jsonify({
+            'success': False,
+            'message': 'No autorizado. Debe iniciar sesión en el portal docente o administrativo.'
+        }), 403
+
+    data = request.get_json(silent=True) or {}
+    message = (data.get('message') or '').strip()
+    history = data.get('history') or []
+    portal_type = data.get('portal_type') or ('admin' if is_admin else 'teacher')
+
+    if not message:
+        return jsonify({'success': False, 'message': 'El mensaje no puede estar vacío.'}), 400
+
+    reply = ask_portal_assistant(message, history=history, portal_type=portal_type)
+    return jsonify({
+        'success': True,
+        'reply': reply
+    })
 
 # =============================================================================
 # ARRANQUE DEL SERVIDOR
