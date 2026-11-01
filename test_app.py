@@ -1006,6 +1006,106 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertIn('190.113.120.40', log_content)
         self.assertIn('SM-S928B', log_content)
 
+    def test_22_ib_exclusive_mode_and_visibility(self):
+        """Valida la activación del Modo Exclusivo IB y la reorientación hacia el portal del Diploma."""
+        # 1. Por defecto, Modo Exclusivo IB está apagado
+        res_home = self.client.get('/')
+        self.assertEqual(res_home.status_code, 200)
+
+        # 2. Activar Modo Exclusivo IB mediante API administrativa
+        with self.client.session_transaction() as sess:
+            sess['is_admin'] = True
+            sess['admin_username'] = 'Admin'
+
+        res_toggle = self.client.post('/api/admin/toggle-ib-exclusive')
+        self.assertEqual(res_toggle.status_code, 200)
+        data = json.loads(res_toggle.data)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['ib_exclusive_mode'], 'true')
+
+        # 3. Comprobar que visitantes públicos en /modalidad/regular son redirigidos a /modalidad/ib
+        with self.client.session_transaction() as sess:
+            sess.clear()
+
+        res_reg = self.client.get('/modalidad/regular')
+        self.assertEqual(res_reg.status_code, 302)
+        self.assertIn('/modalidad/ib', res_reg.headers.get('Location', ''))
+
+        # 4. Comprobar que /modalidad/ib carga el Hello Banner con imagen
+        res_ib = self.client.get('/modalidad/ib')
+        self.assertEqual(res_ib.status_code, 200)
+        self.assertIn('ib-hello-banner-card', res_ib.get_data(as_text=True))
+
+        # 5. Restaurar Modo Colegio General
+        with self.client.session_transaction() as sess:
+            sess['is_admin'] = True
+        res_restore = self.client.post('/api/admin/toggle-ib-exclusive')
+        self.assertEqual(json.loads(res_restore.data)['ib_exclusive_mode'], 'false')
+
+    def test_23_teacher_user_and_portal(self):
+        """Valida la creación de usuarios para docentes, el portal del profesor y la replicación de redes."""
+        # 1. Crear usuario docente desde administración
+        with self.client.session_transaction() as sess:
+            sess['is_admin'] = True
+
+        res_create = self.client.post('/api/admin/users/create-teacher', data={
+            'username': 'prof_garcia',
+            'password': 'password123',
+            'full_name': 'Prof. Juan García'
+        })
+        self.assertEqual(res_create.status_code, 200)
+        self.assertTrue(json.loads(res_create.data)['success'])
+
+        # 2. Iniciar sesión como docente y verificar redirección a /portal-docente
+        with self.client.session_transaction() as sess:
+            sess.clear()
+
+        res_login = self.client.post('/login', data={
+            'username': 'prof_garcia',
+            'password': 'password123'
+        }, follow_redirects=True)
+        self.assertEqual(res_login.status_code, 200)
+        content = res_login.get_data(as_text=True)
+        self.assertIn('Prof. Juan García', content)
+        self.assertIn('Portal Docente IB', content)
+
+        # 3. El docente puede publicar un comunicado de CAS
+        res_add_news = self.client.post('/api/teacher/news/add', data={
+            'title': 'Proyecto CAS Ecológico Limón 2026',
+            'subcategory': 'CAS',
+            'date': '31 de Octubre, 2026',
+            'summary': 'Estudiantes de IB inician reforestación costera.',
+            'content': 'Detalle completo del proyecto de reforestación coordinado con la comunidad...',
+            'image': '',
+            'video_url': ''
+        })
+        self.assertEqual(res_add_news.status_code, 200)
+        data_news = json.loads(res_add_news.data)
+        self.assertTrue(data_news['success'])
+        news_id = data_news['id']
+
+        # 4. El docente puede pausar y reactivar la noticia
+        res_toggle = self.client.post(f'/api/teacher/news/toggle/{news_id}')
+        self.assertEqual(res_toggle.status_code, 200)
+        self.assertEqual(json.loads(res_toggle.data)['is_active'], 0)
+
+        res_reactivate = self.client.post(f'/api/teacher/news/toggle/{news_id}')
+        self.assertEqual(json.loads(res_reactivate.data)['is_active'], 1)
+
+        # 5. El docente puede replicar una publicación de Instagram
+        res_social = self.client.post('/api/teacher/social-post/add', data={
+            'network': 'Instagram',
+            'post_url': 'https://www.instagram.com/p/DB123456789/',
+            'title': 'Galería de Experimentos de Biología IB',
+            'summary': 'Fotos de laboratorio de los estudiantes de segundo año del Diploma.'
+        })
+        self.assertEqual(res_social.status_code, 200)
+        self.assertTrue(json.loads(res_social.data)['success'])
+
+        # 6. Un docente no puede ingresar a /admin/panel (restringido a admin)
+        res_admin_restricted = self.client.get('/admin/panel')
+        self.assertEqual(res_admin_restricted.status_code, 302)
+
 if __name__ == '__main__':
     unittest.main()
 

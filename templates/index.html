@@ -143,6 +143,17 @@
     </div>
   </header>
 
+  {% if is_ib_exclusive %}
+  <div class="ib-exclusive-notice-banner">
+    <div class="container" style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+      <span>🌍 <strong>PORTAL OFICIAL DEL BACHILLERATO INTERNACIONAL (IB)</strong> • Liceo de Limón Mario Bourne Bourne (MEP)</span>
+      {% if is_admin %}
+      <a href="/admin/panel" class="btn btn-sm" style="background: rgba(255,255,255,0.25); color: #fff; padding: 0.2rem 0.65rem; font-size: 0.75rem; border-radius: var(--radius-full); text-decoration: none;">⚙️ Modo IB Activo (Gestionar)</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
   <!-- =====================================================================
        3. TICKER DE ANUNCIOS Y AVISOS OFICIALES EN TIEMPO REAL
        ===================================================================== -->
@@ -257,7 +268,13 @@
 
       <div class="pathways-grid">
         <!-- 1. Secundaria Regular -->
-        <article class="pathway-card card-regular reveal-scale delay-100">
+        {% if not is_ib_exclusive or is_admin %}
+        <article class="pathway-card card-regular reveal-scale delay-100 {% if is_ib_exclusive and is_admin %}cms-hidden-exposure{% endif %}" {% if is_ib_exclusive and not is_admin %}style="display: none !important;"{% endif %}>
+          {% if is_ib_exclusive and is_admin %}
+          <div style="background: #0284c7; color: #fff; padding: 0.35rem 0.6rem; font-size: 0.75rem; font-weight: 700; text-align: center; border-radius: var(--radius-sm); margin: 0.5rem 0.5rem 0 0.5rem;">
+            🔒 Oculta para visitantes (Modo Exclusivo IB activo)
+          </div>
+          {% endif %}
           <div class="pathway-image-wrapper cms-image-wrapper">
             <span class="pathway-badge-top" data-cms-key="regular_badge">{{ cms.regular_badge }}</span>
             <img src="{{ cms.regular_img }}" alt="Secundaria Regular MEP" class="pathway-image" data-cms-img="regular_img">
@@ -294,9 +311,16 @@
             </div>
           </div>
         </article>
+        {% endif %}
 
         <!-- 2. Francés Avanzado -->
-        <article class="pathway-card card-french reveal-scale delay-200">
+        {% if not is_ib_exclusive or is_admin %}
+        <article class="pathway-card card-french reveal-scale delay-200 {% if is_ib_exclusive and is_admin %}cms-hidden-exposure{% endif %}" {% if is_ib_exclusive and not is_admin %}style="display: none !important;"{% endif %}>
+          {% if is_ib_exclusive and is_admin %}
+          <div style="background: #0284c7; color: #fff; padding: 0.35rem 0.6rem; font-size: 0.75rem; font-weight: 700; text-align: center; border-radius: var(--radius-sm); margin: 0.5rem 0.5rem 0 0.5rem;">
+            🔒 Oculta para visitantes (Modo Exclusivo IB activo)
+          </div>
+          {% endif %}
           <div class="pathway-image-wrapper cms-image-wrapper">
             <span class="pathway-badge-top" data-cms-key="french_badge">{{ cms.french_badge }}</span>
             <img src="{{ cms.french_img }}" alt="Francés Avanzado MEP" class="pathway-image" data-cms-img="french_img">
@@ -340,9 +364,10 @@
             </div>
           </div>
         </article>
+        {% endif %}
 
         <!-- 3. Bachillerato Internacional IB -->
-        <article class="pathway-card card-ib reveal-scale delay-300">
+        <article class="pathway-card card-ib reveal-scale delay-300" {% if is_ib_exclusive %}style="grid-column: 1 / -1; max-width: 820px; margin: 0 auto; width: 100%; border: 2px solid #38bdf8; box-shadow: 0 16px 40px rgba(2, 132, 199, 0.25);"{% endif %}>
           <div class="pathway-image-wrapper cms-image-wrapper">
             <span class="pathway-badge-top" data-cms-key="ib_badge">{{ cms.ib_badge }}</span>
             <img src="{{ cms.ib_img }}" alt="Bachillerato Internacional IB" class="pathway-image" data-cms-img="ib_img">
@@ -422,6 +447,7 @@
         <button class="news-tab-btn" data-filter="frances" data-cms-key="news_tab_frances">{{ cms.news_tab_frances }}</button>
         <button class="news-tab-btn" data-filter="regular" data-cms-key="news_tab_regular">{{ cms.news_tab_regular }}</button>
         <button class="news-tab-btn" data-filter="institucionales" data-cms-key="news_tab_institucionales">{{ cms.news_tab_institucionales }}</button>
+        <button class="news-tab-btn" data-filter="redes">📱 Redes Sociales</button>
       </div>
 
       <!-- Subfiltros Dinámicos (CAS, TOK, Actividades, DELF, etc.) -->
@@ -440,7 +466,7 @@
       <!-- Cuadrícula Dinámica de Comunicados -->
       <div class="news-grid" id="newsGridContainer">
         {% for item in news %}
-        <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}" data-image-position="{{ item.image_position or 'center center' }}" data-video-url="{{ item.video_url or '' }}">
+        <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}" data-image-position="{{ item.image_position or 'center center' }}" data-video-url="{{ item.video_url or '' }}" data-social-url="{{ item.social_url or '' }}">
           <div class="news-image-container">
             <span class="news-tag-overlay tag-{{ item.category_slug }}">
               {{ item.category }}
@@ -448,6 +474,13 @@
                 <span class="news-subcategory-tag">{{ item.subcategory }}</span>
               {% endif %}
             </span>
+            {% if item.social_network %}
+              {% if item.social_network == 'Instagram' or 'instagram.com' in (item.social_url or '') %}
+                <span class="news-badge-ig" style="position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 3;">📸 Instagram</span>
+              {% elif item.social_network == 'Facebook' or 'facebook.com' in (item.social_url or '') %}
+                <span class="news-badge-fb" style="position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 3;">👥 Facebook</span>
+              {% endif %}
+            {% endif %}
             {% if item.video_url %}
             <span class="news-video-badge" title="Clic para reproducir video">▶ Video</span>
             <button type="button" class="news-play-btn" title="Reproducir video" aria-label="Reproducir video">
@@ -464,8 +497,23 @@
             </div>
             <h3 class="news-title">{{ item.title }}</h3>
             <p class="news-summary">{{ item.summary }}</p>
-            <div class="news-footer">
+            <div class="news-footer" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
               <a href="#" class="btn-read-more">Leer Comunicado Completo →</a>
+              {% if item.social_url %}
+                {% if item.social_network == 'Instagram' or 'instagram.com' in item.social_url %}
+                <a href="{{ item.social_url }}" target="_blank" rel="noopener noreferrer" class="btn-news-social-link link-ig" title="Abrir publicación en Instagram">
+                  <span>📸 Ver en Instagram</span> ↗
+                </a>
+                {% elif item.social_network == 'Facebook' or 'facebook.com' in item.social_url %}
+                <a href="{{ item.social_url }}" target="_blank" rel="noopener noreferrer" class="btn-news-social-link link-fb" title="Abrir publicación en Facebook">
+                  <span>👥 Ver en Facebook</span> ↗
+                </a>
+                {% else %}
+                <a href="{{ item.social_url }}" target="_blank" rel="noopener noreferrer" class="btn-news-social-link link-fb" title="Abrir publicación oficial">
+                  <span>🔗 Ver Red Social</span> ↗
+                </a>
+                {% endif %}
+              {% endif %}
             </div>
           </div>
         </article>

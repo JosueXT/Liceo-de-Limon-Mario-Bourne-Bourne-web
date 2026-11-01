@@ -213,8 +213,9 @@ function initNewsFilters() {
     newsCards.forEach(card => {
       const cardCategory = card.getAttribute('data-category');
       const cardSubcategory = (card.getAttribute('data-subcategory') || '').trim();
+      const hasSocial = Boolean(card.querySelector('.btn-news-social-link') || card.getAttribute('data-social-url'));
 
-      const matchesCategory = (currentCategory === 'all' || cardCategory === currentCategory);
+      const matchesCategory = (currentCategory === 'all' || cardCategory === currentCategory || (currentCategory === 'redes' && (cardSubcategory.toLowerCase().includes('redes') || hasSocial)));
       const matchesSubcategory = (currentSubcategory === 'all' || cardSubcategory.toLowerCase() === currentSubcategory.toLowerCase());
 
       if (matchesCategory && matchesSubcategory) {
@@ -623,7 +624,8 @@ function initIbNewsFilters() {
 
       cards.forEach(card => {
         const subcat = (card.getAttribute('data-subcategory') || '').toLowerCase().trim();
-        if (filter === 'all' || subcat.includes(filter) || (filter === 'general' && !subcat)) {
+        const hasSocial = Boolean(card.querySelector('.btn-news-social-link') || card.getAttribute('data-social-url'));
+        if (filter === 'all' || subcat.includes(filter) || (filter === 'redes sociales' && (subcat.includes('redes') || hasSocial)) || (filter === 'general' && !subcat)) {
           card.style.display = 'flex';
           card.classList.add('reveal-scale');
         } else {

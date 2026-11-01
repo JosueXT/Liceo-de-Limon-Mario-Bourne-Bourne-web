@@ -207,6 +207,12 @@ def init_db(force=False):
         cursor.execute("ALTER TABLE news_articles ADD COLUMN image_position TEXT DEFAULT 'center center'")
     if 'video_url' not in columns:
         cursor.execute("ALTER TABLE news_articles ADD COLUMN video_url TEXT DEFAULT ''")
+    if 'is_active' not in columns:
+        cursor.execute("ALTER TABLE news_articles ADD COLUMN is_active INTEGER DEFAULT 1")
+    if 'social_network' not in columns:
+        cursor.execute("ALTER TABLE news_articles ADD COLUMN social_network TEXT DEFAULT ''")
+    if 'social_url' not in columns:
+        cursor.execute("ALTER TABLE news_articles ADD COLUMN social_url TEXT DEFAULT ''")
 
     # 3. Tabla para consultas de contacto
     cursor.execute('''
@@ -260,6 +266,12 @@ def init_db(force=False):
         cursor.execute("ALTER TABLE admin_users ADD COLUMN recovery_key_hash TEXT")
     if 'recovery_email' not in admin_cols:
         cursor.execute("ALTER TABLE admin_users ADD COLUMN recovery_email TEXT DEFAULT 'jeredamaya@gmail.com'")
+    if 'role' not in admin_cols:
+        cursor.execute("ALTER TABLE admin_users ADD COLUMN role TEXT DEFAULT 'admin'")
+    if 'full_name' not in admin_cols:
+        cursor.execute("ALTER TABLE admin_users ADD COLUMN full_name TEXT DEFAULT 'Administrador'")
+    if 'is_active' not in admin_cols:
+        cursor.execute("ALTER TABLE admin_users ADD COLUMN is_active INTEGER DEFAULT 1")
 
     # Clave de recuperación institucional por defecto e inmutable (MEP-LIMON-2026)
     default_recovery_key = os.environ.get('ADMIN_RECOVERY_KEY', 'MEP-LIMON-2026')
@@ -529,37 +541,61 @@ def extract_video_thumbnail(video_url):
         return f"https://drive.google.com/thumbnail?id={drive_m.group(1)}&sz=w1000"
     return None
 
-def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url=''):
+def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=1):
     if not image or not str(image).strip():
         image = extract_video_thumbnail(video_url) or DEFAULT_NEWS_IMAGE
 
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or ''))
+        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url, social_network, social_url, is_active)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', 1 if is_active else 0))
     new_id = cursor.lastrowid
     conn.commit()
     conn.close()
     invalidate_cms_cache()
     return new_id
 
-def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url=''):
+def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=None):
     if not image or not str(image).strip():
         image = extract_video_thumbnail(video_url) or DEFAULT_NEWS_IMAGE
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE news_articles
-        SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?, video_url = ?
-        WHERE id = ?
-    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', news_id))
+    if is_active is None:
+        cursor.execute('''
+            UPDATE news_articles
+            SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?, video_url = ?, social_network = ?, social_url = ?
+            WHERE id = ?
+        ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', news_id))
+    else:
+        cursor.execute('''
+            UPDATE news_articles
+            SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?, video_url = ?, social_network = ?, social_url = ?, is_active = ?
+            WHERE id = ?
+        ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', 1 if is_active else 0, news_id))
     conn.commit()
     conn.close()
     invalidate_cms_cache()
     return True
+
+def toggle_news_visibility(news_id: int):
+    """Activa o pausa una noticia (1 <-> 0) sin eliminarla, ideal para docentes."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT is_active FROM news_articles WHERE id = ?', (news_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return False, "Noticia no encontrada"
+    current_val = row['is_active'] if row['is_active'] is not None else 1
+    new_val = 0 if current_val == 1 else 1
+    cursor.execute('UPDATE news_articles SET is_active = ? WHERE id = ?', (new_val, news_id))
+    conn.commit()
+    conn.close()
+    invalidate_cms_cache()
+    return True, new_val
 
 def resequence_news_ids():
     """
@@ -682,6 +718,7 @@ def reset_to_defaults():
     resequence_news_ids()
     invalidate_cms_cache()
     return True
+    # pyrefly: ignore[unreachable]
     conn.close()
     invalidate_cms_cache()
     return True
@@ -1231,4 +1268,132 @@ def update_admin_credentials(new_username, new_password, new_recovery_email=None
     conn.commit()
     conn.close()
     return True
+
+# =============================================================================
+# GESTIÓN MULTI-USUARIO: CUENTAS DE DOCENTES Y PERMISOS SIMPLIFICADOS
+# =============================================================================
+
+def get_all_users() -> List[Dict[str, Any]]:
+    """Obtiene la lista de todas las cuentas registradas (administradores y profesores)."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username, role, full_name, is_active, recovery_email, created_at FROM admin_users ORDER BY id ASC')
+    rows = cursor.fetchall()
+    conn.close()
+    users = []
+    for r in rows:
+        d = dict(r)
+        d['role'] = d.get('role') or 'admin'
+        d['full_name'] = d.get('full_name') or ('Administrador' if d['role'] == 'admin' else d['username'])
+        d['is_active'] = 1 if d.get('is_active') is None else d.get('is_active')
+        users.append(d)
+    return users
+
+def create_teacher_user(username: str, password: str, full_name: str) -> Tuple[bool, str]:
+    """Crea una nueva cuenta de profesor con permisos limitados y amigables."""
+    username = (username or '').strip().lower()
+    full_name = (full_name or '').strip()
+    password = (password or '').strip()
+
+    if not username or len(username) < 3:
+        return False, "El nombre de usuario debe contener al menos 3 caracteres."
+    if not password or len(password) < 6:
+        return False, "La contraseña del docente debe tener al menos 6 caracteres."
+    if not full_name:
+        full_name = f"Prof. {username.capitalize()}"
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM admin_users WHERE LOWER(username) = LOWER(?)', (username,))
+    if cursor.fetchone():
+        conn.close()
+        return False, f"El usuario '{username}' ya se encuentra registrado."
+
+    pass_hash = generate_password_hash(password)
+    rec_hash = generate_password_hash(DEFAULT_RECOVERY_KEY)
+    cursor.execute('''
+        INSERT INTO admin_users (username, password_hash, recovery_key_hash, role, full_name, is_active)
+        VALUES (?, ?, ?, 'teacher', ?, 1)
+    ''', (username, pass_hash, rec_hash, full_name))
+    conn.commit()
+    conn.close()
+    return True, f"¡Docente '{full_name}' registrado exitosamente con usuario '{username}'!"
+
+def toggle_user_active(user_id: int) -> Tuple[bool, str]:
+    """Activa o suspende el acceso de un usuario."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username, role, is_active FROM admin_users WHERE id = ?', (user_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return False, "Usuario no encontrado"
+
+    if row['role'] == 'admin' and row['id'] == 1:
+        conn.close()
+        return False, "No es posible desactivar la cuenta principal del Administrador."
+
+    current_val = 1 if row['is_active'] is None else row['is_active']
+    new_val = 0 if current_val == 1 else 1
+    cursor.execute('UPDATE admin_users SET is_active = ? WHERE id = ?', (new_val, user_id))
+    conn.commit()
+    conn.close()
+    estado_str = "activado" if new_val == 1 else "pausado temporalmente"
+    return True, f"Usuario '{row['username']}' {estado_str}."
+
+def delete_teacher_user(user_id: int) -> Tuple[bool, str]:
+    """Elimina una cuenta de profesor (no permite eliminar la cuenta de administración)."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username, role FROM admin_users WHERE id = ?', (user_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return False, "Usuario no encontrado"
+
+    if row['role'] == 'admin':
+        conn.close()
+        return False, "Por seguridad institucional, no se pueden eliminar cuentas de Administrador."
+
+    cursor.execute('DELETE FROM admin_users WHERE id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+    return True, f"Docente '{row['username']}' eliminado exitosamente."
+
+def verify_user_credentials(username: str, password: str) -> Tuple[Optional[Dict[str, Any]], bool, str]:
+    """Valida credenciales para cualquier usuario (administrador o docente)."""
+    if not username or not password:
+        return None, False, "Ingrese usuario y contraseña."
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username, password_hash, role, full_name, is_active FROM admin_users WHERE LOWER(username) = LOWER(?) LIMIT 1', (username.strip(),))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return None, False, "Credenciales incorrectas. Verifique usuario y contraseña."
+
+    user_dict = dict(row)
+    user_dict['role'] = user_dict.get('role') or 'admin'
+    user_dict['full_name'] = user_dict.get('full_name') or ('Administrador' if user_dict['role'] == 'admin' else user_dict['username'])
+    user_dict['is_active'] = 1 if user_dict.get('is_active') is None else user_dict.get('is_active')
+
+    if user_dict['is_active'] == 0:
+        return None, False, "Esta cuenta ha sido pausada temporalmente por la dirección institucional."
+
+    stored_hash = user_dict['password_hash']
+    is_valid = False
+    if stored_hash.startswith(('scrypt:', 'pbkdf2:')):
+        is_valid = check_password_hash(stored_hash, password)
+    else:
+        is_valid = (stored_hash == password)
+        if is_valid:
+            update_admin_credentials(user_dict['username'], password)
+
+    if not is_valid:
+        return None, False, "Credenciales incorrectas. Verifique usuario y contraseña."
+
+    return user_dict, True, "OK"
+
 

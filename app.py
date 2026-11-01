@@ -44,7 +44,13 @@ from database import (
     verify_recovery_key,
     create_password_reset_otp,
     verify_and_consume_otp,
-    get_admin_recovery_email
+    get_admin_recovery_email,
+    toggle_news_visibility,
+    get_all_users,
+    create_teacher_user,
+    toggle_user_active,
+    delete_teacher_user,
+    verify_user_credentials
 )
 from seed_data import MODALIDADES_DETALLE
 
@@ -354,7 +360,14 @@ def home():
     """Ruta Principal Pública: Carga el sitio institucional con los contenidos del CMS"""
     is_admin = session.get('is_admin', False)
     cms = get_all_content(force_fresh=is_admin)
-    news = get_all_news(force_fresh=is_admin)
+    raw_news = get_all_news(force_fresh=is_admin)
+    is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
+
+    if not is_admin:
+        news = [n for n in raw_news if n.get('is_active', 1) == 1]
+    else:
+        news = raw_news
+
     pathway_features = get_pathway_features(cms)
     dynamic_campus = get_campus_dynamic_list(cms)
     return render_template(
@@ -362,12 +375,13 @@ def home():
         cms=cms,
         news=news,
         is_admin=is_admin,
+        is_ib_exclusive=is_ib_exclusive,
         pathway_features=pathway_features,
         dynamic_campus=dynamic_campus
     )
 
-@app.route('/modalidad/<slug>')
 @app.route('/oferta/<slug>')
+@app.route('/modalidad/<slug>')
 def modalidad_detalle(slug):
     """Subpáginas dedicadas de oferta educativa (ib, frances, regular)"""
     slug = slug.lower().strip()
@@ -377,7 +391,17 @@ def modalidad_detalle(slug):
     modalidad_info = MODALIDADES_DETALLE[slug]
     is_admin = session.get('is_admin', False)
     cms = get_all_content(force_fresh=is_admin)
-    news = get_all_news(force_fresh=is_admin)
+    raw_news = get_all_news(force_fresh=is_admin)
+    is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
+
+    # Si está activo el Modo Exclusivo IB y un visitante intenta entrar a otra modalidad, redirigir a IB
+    if is_ib_exclusive and slug != 'ib' and not is_admin:
+        return redirect(url_for('modalidad_detalle', slug='ib'))
+
+    if not is_admin:
+        news = [n for n in raw_news if n.get('is_active', 1) == 1]
+    else:
+        news = raw_news
 
     # Verificación de mantenimiento para visitantes no administradores
     subpage_key = f"subpage_status_{slug}"
@@ -399,6 +423,7 @@ def modalidad_detalle(slug):
         modalidad=modalidad_info,
         cms=cms,
         is_admin=is_admin,
+        is_ib_exclusive=is_ib_exclusive,
         dynamic_lists=dynamic_lists,
         news=news,
         is_maintenance_mode=is_deactivated
@@ -443,6 +468,8 @@ def login():
     if request.method == 'GET':
         if session.get('is_admin', False):
             return redirect(url_for('admin_panel'))
+        if session.get('is_teacher', False):
+            return redirect(url_for('teacher_portal'))
         return render_template('login.html', cms=cms)
 
     if not app.config.get('TESTING'):
@@ -455,19 +482,30 @@ def login():
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '').strip()
 
-    if verify_admin_credentials(username, password):
+    user, ok, err_msg = verify_user_credentials(username, password)
+    if ok and user:
         client_ip = get_client_ip()
         if not app.config.get('TESTING'):
             security_shield.reset_failures(client_ip, 'login')
         session.clear()  # Protección contra fijación de sesión (Session Fixation OWASP)
-        session['is_admin'] = True
-        session['admin_username'] = username
-        trigger_admin_login_alert(username, client_ip, request.headers.get('User-Agent', ''))
-        return redirect(url_for('admin_panel'))
+
+        role = user.get('role', 'admin')
+        if role == 'teacher':
+            session['is_teacher'] = True
+            session['teacher_id'] = user['id']
+            session['teacher_username'] = user['username']
+            session['teacher_name'] = user['full_name'] or user['username']
+            session['is_admin'] = False
+            return redirect(url_for('teacher_portal'))
+        else:
+            session['is_admin'] = True
+            session['admin_username'] = user['username']
+            trigger_admin_login_alert(username, client_ip, request.headers.get('User-Agent', ''))
+            return redirect(url_for('admin_panel'))
     else:
         if not app.config.get('TESTING'):
             security_shield.record_failure(get_client_ip(), 'login')
-        return render_template('login.html', cms=cms, error='Credenciales incorrectas. Verifique su usuario y contraseña.')
+        return render_template('login.html', cms=cms, error=err_msg or 'Credenciales incorrectas. Verifique su usuario y contraseña.')
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -498,6 +536,8 @@ def admin_panel():
     system_health = get_system_health()
     smtp_status = check_smtp_health()
     gemini_status = check_gemini_health()
+    users_list = get_all_users()
+    is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
     return render_template(
         'admin_panel.html',
         cms=cms,
@@ -509,8 +549,180 @@ def admin_panel():
         smtp_status=smtp_status,
         gemini_status=gemini_status,
         current_admin_username=current_admin_username,
-        current_recovery_email=current_recovery_email
+        current_recovery_email=current_recovery_email,
+        users_list=users_list,
+        is_ib_exclusive=is_ib_exclusive
     )
+
+# =============================================================================
+# 3.1 PORTAL DEDICADO PARA PROFESORES (PANEL SIMPLIFICADO Y AMIGABLE)
+# =============================================================================
+
+@app.route('/portal-docente')
+@app.route('/profesor')
+def teacher_portal():
+    """Portal hiper amigable para profesores (noticias, redes, contacto y consultas)."""
+    if not session.get('is_teacher') and not session.get('is_admin'):
+        return redirect(url_for('login'))
+
+    cms = get_all_content(force_fresh=True)
+    news = get_all_news(force_fresh=True)
+    inquiries = get_all_inquiries()
+    teacher_name = session.get('teacher_name') or session.get('admin_username') or 'Docente'
+    
+    from datetime import datetime
+    today_str = datetime.now().strftime("%d de %B, %Y").replace('October', 'Octubre').replace('November', 'Noviembre').replace('December', 'Diciembre').replace('January', 'Enero')
+
+    return render_template(
+        'portal_docente.html',
+        cms=cms,
+        news=news,
+        inquiries=inquiries,
+        teacher_name=teacher_name,
+        today_str=today_str,
+        is_admin=session.get('is_admin', False)
+    )
+
+@app.route('/api/teacher/news/add', methods=['POST'])
+def api_teacher_add_news():
+    if not session.get('is_teacher') and not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+
+    title = request.form.get('title', '').strip()
+    subcategory = request.form.get('subcategory', 'General').strip()
+    date_str = request.form.get('date', '').strip()
+    summary = request.form.get('summary', '').strip()
+    content = request.form.get('content', '').strip()
+    image = request.form.get('image', '').strip()
+    video_url = request.form.get('video_url', '').strip()
+    author = session.get('teacher_name') or 'Docente IB'
+
+    if not title or not summary or not content:
+        return jsonify({'success': False, 'message': 'Debe completar el título, resumen y contenido.'}), 400
+
+    new_id = add_news(
+        title=title,
+        category='Bachillerato Internacional',
+        category_slug='ib',
+        subcategory=subcategory,
+        date=date_str,
+        summary=summary,
+        content=content,
+        image=image,
+        author=author,
+        video_url=video_url,
+        is_active=1
+    )
+    return jsonify({'success': True, 'id': new_id, 'message': '¡Noticia publicada con éxito!'})
+
+@app.route('/api/teacher/news/toggle/<int:news_id>', methods=['POST'])
+def api_teacher_toggle_news(news_id):
+    if not session.get('is_teacher') and not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+
+    success, new_state = toggle_news_visibility(news_id)
+    if success:
+        return jsonify({'success': True, 'is_active': new_state})
+    return jsonify({'success': False, 'message': str(new_state)}), 400
+
+@app.route('/api/teacher/social-post/add', methods=['POST'])
+def api_teacher_add_social_post():
+    if not session.get('is_teacher') and not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+
+    network = request.form.get('network', 'Instagram').strip()
+    post_url = request.form.get('post_url', '').strip()
+    title = request.form.get('title', '').strip()
+    summary = request.form.get('summary', '').strip()
+    image_url = request.form.get('image_url', '').strip()
+    author = session.get('teacher_name') or 'Docente IB'
+
+    if not title or not post_url:
+        return jsonify({'success': False, 'message': 'El título y enlace de la publicación son obligatorios.'}), 400
+
+    from datetime import datetime
+    today_str = datetime.now().strftime("%d de %B, %Y").replace('October', 'Octubre').replace('November', 'Noviembre').replace('December', 'Diciembre').replace('January', 'Enero')
+
+    content = f"Publicación oficial replicada desde {network}.\n\nPuede ver la publicación completa directamente en el enlace oficial de la red social."
+    if not image_url:
+        image_url = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
+
+    new_id = add_news(
+        title=title,
+        category='Bachillerato Internacional',
+        category_slug='ib',
+        subcategory='Redes Sociales',
+        date=today_str,
+        summary=summary,
+        content=content,
+        image=image_url,
+        author=author,
+        social_network=network,
+        social_url=post_url,
+        is_active=1
+    )
+    return jsonify({'success': True, 'id': new_id, 'message': '¡Publicación compartida con éxito!'})
+
+@app.route('/api/teacher/social/save', methods=['POST'])
+def api_teacher_save_social_links():
+    if not session.get('is_teacher') and not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+
+    data = {
+        'ib_whatsapp_url': request.form.get('ib_whatsapp_url', '').strip(),
+        'ib_instagram_url': request.form.get('ib_instagram_url', '').strip(),
+        'ib_facebook_url': request.form.get('ib_facebook_url', '').strip(),
+        'contact_phone': request.form.get('contact_phone', '').strip(),
+        'contact_email': request.form.get('contact_email', '').strip()
+    }
+    update_bulk_content(data)
+    return jsonify({'success': True, 'message': 'Enlaces de contacto actualizados correctamente.'})
+
+@app.route('/api/admin/toggle-ib-exclusive', methods=['POST'])
+def api_toggle_ib_exclusive():
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+
+    cms = get_all_content(force_fresh=True)
+    current = cms.get('ib_exclusive_mode', 'false')
+    new_val = 'false' if current == 'true' else 'true'
+    update_bulk_content({'ib_exclusive_mode': new_val})
+    return jsonify({'success': True, 'ib_exclusive_mode': new_val})
+
+@app.route('/api/admin/users/create-teacher', methods=['POST'])
+def api_create_teacher():
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '').strip()
+    full_name = request.form.get('full_name', '').strip()
+
+    success, msg = create_teacher_user(username, password, full_name)
+    return jsonify({'success': success, 'message': msg})
+
+@app.route('/api/admin/users/toggle-active/<int:user_id>', methods=['POST'])
+def api_toggle_user_active(user_id):
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+
+    success, msg = toggle_user_active(user_id)
+    return jsonify({'success': success, 'message': msg})
+
+@app.route('/api/admin/users/delete/<int:user_id>', methods=['POST'])
+def api_delete_teacher(user_id):
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+
+    success, msg = delete_teacher_user(user_id)
+    return jsonify({'success': success, 'message': msg})
+
+@app.route('/api/admin/users/list', methods=['GET'])
+def api_list_users():
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+
+    return jsonify({'success': True, 'users': get_all_users()})
 
 # =============================================================================
 # 4. ENDPOINTS API REST (FORMULARIO DE CONTACTO PÚBLICO)

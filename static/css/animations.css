@@ -311,3 +311,97 @@
 .ib-orb-drift-2 {
   animation: orbDrift 22s ease-in-out infinite alternate-reverse;
 }
+
+/* --------------------------------------------------------------------------
+   5. BOTONES NEÓN CON ANIMACIONES VIVAS Y RESPLANDOR REACTIVO
+   -------------------------------------------------------------------------- */
+@keyframes neonPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(2, 132, 199, 0.45), 0 0 24px rgba(2, 132, 199, 0.2), inset 0 0 8px rgba(255, 255, 255, 0.2);
+    border-color: rgba(56, 189, 248, 0.85);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(2, 132, 199, 0.8), 0 0 38px rgba(56, 189, 248, 0.45), inset 0 0 12px rgba(255, 255, 255, 0.4);
+    border-color: #38bdf8;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes neonVinoPulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(110, 15, 30, 0.45), 0 0 24px rgba(184, 28, 56, 0.25);
+    border-color: rgba(225, 29, 72, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(225, 29, 72, 0.75), 0 0 40px rgba(184, 28, 56, 0.35);
+    border-color: #f43f5e;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes neonSweepSheen {
+  0% {
+    transform: translateX(-150%) skewX(-25deg);
+  }
+  20%, 100% {
+    transform: translateX(250%) skewX(-25deg);
+  }
+}
+
+.btn-neon,
+.btn-neon-azul,
+.btn-neon-vino,
+.btn-neon-celeste {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  z-index: 1;
+}
+
+.btn-neon-azul {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(56, 189, 248, 0.7);
+  animation: neonPulseGlow 3s ease-in-out infinite;
+}
+
+.btn-neon-azul:hover {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  box-shadow: 0 0 26px rgba(14, 165, 233, 0.95), 0 0 48px rgba(2, 132, 199, 0.55);
+  transform: translateY(-3px) scale(1.02);
+}
+
+.btn-neon-vino {
+  background: linear-gradient(135deg, #9f1239 0%, #6e0f1e 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(244, 63, 94, 0.7);
+  animation: neonVinoPulse 3s ease-in-out infinite;
+}
+
+.btn-neon-vino:hover {
+  background: linear-gradient(135deg, #be123c 0%, #881337 100%);
+  box-shadow: 0 0 26px rgba(244, 63, 94, 0.9), 0 0 48px rgba(190, 18, 60, 0.5);
+  transform: translateY(-3px) scale(1.02);
+}
+
+.btn-neon::after,
+.btn-neon-azul::after,
+.btn-neon-vino::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 100%);
+  animation: neonSweepSheen 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  z-index: 2;
+}

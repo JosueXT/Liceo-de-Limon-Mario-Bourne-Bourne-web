@@ -185,6 +185,50 @@
 
   {% if modalidad.slug == 'ib' %}
   <!-- =====================================================================
+       4.0 HELLO BANNER CON IMAGEN DE BIENVENIDA AL BACHILLERATO INTERNACIONAL
+       ===================================================================== -->
+  {% set hide_ib_hello = (cms.get('hide_section_ib_hello') == 'true') %}
+  <section class="ib-hello-banner-section reveal-scale cms-toggleable-section {% if hide_ib_hello %}cms-hidden-exposure{% endif %}" data-cms-visibility-key="hide_section_ib_hello" {% if not is_admin and hide_ib_hello %}style="display: none !important;"{% endif %}>
+    <div class="container">
+      {% if is_admin %}
+      <div class="cms-visibility-toolbar" style="margin-bottom: 0.75rem;">
+        <button type="button" class="btn-cms-visibility-toggle {{ 'btn-cms-visibility-hidden' if hide_ib_hello else '' }}" data-cms-visibility-target="hide_section_ib_hello" data-is-hidden="{{ 'true' if hide_ib_hello else 'false' }}">
+          <span class="vis-icon">{{ '🚫' if hide_ib_hello else '👁️' }}</span>
+          <span class="vis-text">{{ 'Hello Banner Oculto' if hide_ib_hello else 'Hello Banner Visible' }}</span>
+        </button>
+        <span class="cms-hidden-exposure-badge" {% if not hide_ib_hello %}hidden{% endif %}>
+          ⚠️ Hello Banner Oculto al Público
+        </span>
+      </div>
+      {% endif %}
+      <div class="ib-hello-banner-card">
+        <div class="ib-hello-banner-content">
+          <span class="ib-hello-tag">
+            <span class="ib-tag-icon">🌟</span>
+            <span data-cms-key="ib_hello_tag">{{ cms.get('ib_hello_tag', '¡Bienvenidos al Programa del Diploma IB!') }}</span>
+          </span>
+          <h2 class="ib-hello-title" data-cms-key="ib_hello_title">{{ cms.get('ib_hello_title', 'Formando líderes globales con excelencia académica y calidez caribeña') }}</h2>
+          <p class="ib-hello-desc" data-cms-key="ib_hello_desc">{{ cms.get('ib_hello_desc', 'El Bachillerato Internacional en el Liceo de Limón abre un mundo de oportunidades universitarias y becas internacionales. Conozca nuestro proceso de admisión y actividades.') }}</p>
+          <div class="ib-hello-actions">
+            <a href="#requisitos" class="btn btn-neon-azul btn-sm" data-cms-key="ib_hello_btn_primary">{{ cms.get('ib_hello_btn_primary', '📋 Requisitos de Admisión') }}</a>
+            <a href="#noticias" class="btn btn-neon-vino btn-sm" data-cms-key="ib_hello_btn_secondary">{{ cms.get('ib_hello_btn_secondary', '📰 Proyectos & Noticias IB') }}</a>
+          </div>
+        </div>
+        <div class="ib-hello-banner-media cms-image-wrapper" data-cms-img="ib_hello_banner_image" title="Haga clic en modo edición para cambiar la imagen del Hello Banner">
+          <img src="{{ cms.get('ib_hello_banner_image', '/static/img/hero_ib.jpg') }}" alt="Bachillerato Internacional Limón" class="ib-hello-banner-img" data-cms-img="ib_hello_banner_image">
+          <div class="ib-hello-badge-floating">
+            <span class="ib-globe-icon" style="font-size: 1.4rem;">🌍</span>
+            <div>
+              <strong>Colegio del Mundo del IB</strong>
+              <small>Acreditación Oficial MEP & Organización del Bachillerato Internacional</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
        4.1 SELLO Y RECONOCIMIENTO OFICIAL IB WORLD SCHOOL
        ===================================================================== -->
   {% set hide_ib_accreditation = (cms.get('hide_section_ib_accreditation') == 'true') %}
@@ -603,6 +647,7 @@
         <button type="button" class="ib-subfilter-btn" data-subfilter="CAS">🌿 CAS (Creatividad, Actividad, Servicio)</button>
         <button type="button" class="ib-subfilter-btn" data-subfilter="TOK">🧠 TOK (Teoría del Conocimiento)</button>
         <button type="button" class="ib-subfilter-btn" data-subfilter="Actividades">📋 Admisión & Actividades</button>
+        <button type="button" class="ib-subfilter-btn" data-subfilter="Redes Sociales">📱 Redes Sociales (IG & FB)</button>
       </div>
 
       <!-- Cuadrícula de Noticias IB -->
@@ -619,6 +664,13 @@
                     <span class="news-subcategory-tag">{{ item.subcategory }}</span>
                   {% endif %}
                 </span>
+                {% if item.social_network %}
+                  {% if item.social_network == 'Instagram' or 'instagram.com' in (item.social_url or '') %}
+                    <span class="news-badge-ig" style="position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 3;">📸 Instagram</span>
+                  {% elif item.social_network == 'Facebook' or 'facebook.com' in (item.social_url or '') %}
+                    <span class="news-badge-fb" style="position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 3;">👥 Facebook</span>
+                  {% endif %}
+                {% endif %}
                 {% if item.video_url %}
                 <span class="news-video-badge" title="Clic para reproducir video">▶ Video</span>
                 <button type="button" class="news-play-btn" title="Reproducir video" aria-label="Reproducir video">
@@ -635,8 +687,23 @@
                 </div>
                 <h3 class="news-title">{{ item.title }}</h3>
                 <p class="news-summary">{{ item.summary }}</p>
-                <div class="news-footer">
+                <div class="news-footer" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                   <a href="#" class="btn-read-more">Leer Comunicado Completo →</a>
+                  {% if item.social_url %}
+                    {% if item.social_network == 'Instagram' or 'instagram.com' in item.social_url %}
+                    <a href="{{ item.social_url }}" target="_blank" rel="noopener noreferrer" class="btn-news-social-link link-ig" title="Abrir publicación en Instagram">
+                      <span>📸 Ver en Instagram</span> ↗
+                    </a>
+                    {% elif item.social_network == 'Facebook' or 'facebook.com' in item.social_url %}
+                    <a href="{{ item.social_url }}" target="_blank" rel="noopener noreferrer" class="btn-news-social-link link-fb" title="Abrir publicación en Facebook">
+                      <span>👥 Ver en Facebook</span> ↗
+                    </a>
+                    {% else %}
+                    <a href="{{ item.social_url }}" target="_blank" rel="noopener noreferrer" class="btn-news-social-link link-fb" title="Abrir publicación oficial">
+                      <span>🔗 Ver Red Social</span> ↗
+                    </a>
+                    {% endif %}
+                  {% endif %}
                 </div>
               </div>
             </article>

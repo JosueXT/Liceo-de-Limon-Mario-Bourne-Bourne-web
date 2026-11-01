@@ -891,6 +891,14 @@
       <button class="sidebar-btn" data-tab="tab-credentials" style="color: var(--azul-dark); font-weight: 700;">
         <span>🔐 Seguridad & Credenciales</span>
       </button>
+
+      <div class="sidebar-heading">Docentes & Cuentas</div>
+      <button class="sidebar-btn" data-tab="tab-teachers" style="color: var(--azul-dark); font-weight: 700;">
+        <span>👩‍🏫 Profesores & Cuentas</span>
+      </button>
+      <a href="/portal-docente" target="_blank" class="sidebar-btn" style="text-decoration: none; color: #0284c7; font-weight: 700; display: flex; align-items: center; justify-content: space-between;">
+        <span>↗ Abrir Portal Docente</span>
+      </a>
     </aside>
 
     <!-- Área de Contenido Principal -->
@@ -908,6 +916,31 @@
           <div class="welcome-status-pill">
             <span class="status-dot-green"></span>
             <span>Sistema Institucional en Línea • Base de Datos Conectada</span>
+          </div>
+        </div>
+
+        <!-- Control de Modo Exclusivo IB (Si la institución no aprueba la página completa) -->
+        <div class="card" style="margin-bottom: 2rem; border-left: 6px solid #0284c7; background: linear-gradient(135deg, rgba(2, 132, 199, 0.05) 0%, #ffffff 100%);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div style="flex: 1; min-width: 280px;">
+              <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
+                <span style="font-size: 1.4rem;">🌍</span>
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: #0369a1; font-weight: 800; margin: 0;">
+                  Modo Exclusivo Bachillerato Internacional (Portal Dedicado IB)
+                </h3>
+                <span id="ibExclusiveBadge" class="badge" style="background: {{ '#dcfce7; color: #15803d;' if is_ib_exclusive else '#f1f5f9; color: #64748b;' }} font-weight: 800; font-size: 0.75rem;">
+                  {{ '🟢 MODO EXCLUSIVO IB ACTIVO' if is_ib_exclusive else '⚪ MODO COLEGIO GENERAL ACTIVO' }}
+                </span>
+              </div>
+              <p style="font-size: 0.88rem; color: var(--gris-700); margin: 0; line-height: 1.5;">
+                <strong>¿La institución aún no aprueba la página general?</strong> Active este modo con un clic. La página principal se enfocará exclusivamente en el <strong>Bachillerato Internacional</strong>, ocultando las otras modalidades (Secundaria Regular y Francés) y la información no relevante, dejando listo el portal oficial para la coordinación y los docentes del Diploma IB.
+              </p>
+            </div>
+            <div>
+              <button type="button" class="btn {{ 'btn-vino' if is_ib_exclusive else 'btn-azul' }}" id="btnToggleIbExclusive" onclick="handleToggleIbExclusive()">
+                <span>{{ '⏸️ Desactivar y Restaurar Colegio General' if is_ib_exclusive else '🚀 Activar Portal Exclusivo IB' }}</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -2774,6 +2807,120 @@
         </div>
       </section>
 
+      <!-- ==================== PESTAÑA: DOCENTES & GESTIÓN DE PROFESORES ==================== -->
+      <section class="admin-tab-pane" id="tab-teachers">
+        <div class="panel-section-header">
+          <div>
+            <h2 class="panel-section-title">👩‍🏫 Gestión de Cuentas de Profesores (Portal Docente)</h2>
+            <p class="panel-section-desc">
+              Cree accesos con panel simplificado y amigable para que los profesores y coordinadores del Bachillerato Internacional puedan publicar comunicados, pausar avisos no vigentes, replicar publicaciones de redes sociales y responder consultas de las familias sin riesgo de alterar configuraciones técnicas.
+            </p>
+          </div>
+          <a href="/portal-docente" target="_blank" class="btn btn-azul btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+            <span>↗ Abrir Portal Docente</span>
+          </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <!-- Formulario para Crear Nuevo Profesor -->
+          <div class="card">
+            <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--azul-dark); font-weight: 800; margin-top: 0; margin-bottom: 1rem;">
+              ➕ Registrar Nuevo(a) Profesor(a)
+            </h3>
+            <form id="adminCreateTeacherForm">
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="font-weight: 700; font-size: 0.88rem; display: block; margin-bottom: 0.35rem;">Nombre Completo del Docente *</label>
+                <input type="text" id="teacherFullName" name="full_name" class="form-control" placeholder="Ej: Prof. María Cordero Alvarado" required>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="font-weight: 700; font-size: 0.88rem; display: block; margin-bottom: 0.35rem;">Usuario de Acceso * (en minúsculas)</label>
+                <input type="text" id="teacherUsername" name="username" class="form-control" placeholder="Ej: mcordero" required>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="font-weight: 700; font-size: 0.88rem; display: block; margin-bottom: 0.35rem;">Contraseña Temporal * (mínimo 6 caracteres)</label>
+                <input type="password" id="teacherPassword" name="password" class="form-control" placeholder="••••••••" required>
+              </div>
+
+              <button type="submit" class="btn btn-azul" id="btnSubmitNewTeacher" style="width: 100%;">
+                <span>💾 Crear Cuenta de Docente</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Información de Ayuda -->
+          <div class="card" style="background: rgba(2, 132, 199, 0.04); border-color: rgba(2, 132, 199, 0.2);">
+            <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: #0284c7; font-weight: 800; margin-top: 0; margin-bottom: 0.75rem;">
+              🛡️ Seguridad y Permisos del Portal Docente
+            </h3>
+            <ul style="font-size: 0.88rem; color: var(--gris-700); line-height: 1.7; padding-left: 1.2rem; list-style: disc;">
+              <li><strong>Permitido:</strong> Crear comunicados de CAS, TOK, Monografías y convocatorias.</li>
+              <li><strong>Permitido:</strong> Pausar o reactivar noticias cuando finalice su vigencia sin eliminarlas.</li>
+              <li><strong>Permitido:</strong> Replicar publicaciones de Instagram y Facebook con enlace directo.</li>
+              <li><strong>Permitido:</strong> Ver consultas de padres y responderles por WhatsApp o email.</li>
+              <li><strong style="color: #dc2626;">Restringido:</strong> Los profesores <u>no pueden</u> eliminar noticias definitivamente, cambiar contraseñas maestras ni borrar bases de datos.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tabla de Usuarios Registrados -->
+        <div class="card">
+          <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--azul-dark); font-weight: 800; margin-top: 0; margin-bottom: 1rem;">
+            👥 Cuentas de Acceso Registradas
+          </h3>
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre Completo</th>
+                  <th>Usuario</th>
+                  <th>Rol / Permiso</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                {% for u in users_list %}
+                <tr>
+                  <td>#{{ u.id }}</td>
+                  <td><strong>{{ u.full_name }}</strong></td>
+                  <td><code>{{ u.username }}</code></td>
+                  <td>
+                    {% if u.role == 'admin' %}
+                    <span class="badge" style="background: #6e0f1e; color: #fff;">👑 Administrador Total</span>
+                    {% else %}
+                    <span class="badge" style="background: #0284c7; color: #fff;">👩‍🏫 Profesor (Portal Docente)</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if u.is_active == 1 %}
+                    <span style="color: #15803d; font-weight: 700;">🟢 Activo</span>
+                    {% else %}
+                    <span style="color: #64748b; font-weight: 700;">⚪ Pausado</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if u.role != 'admin' %}
+                    <button type="button" class="btn btn-sm btn-outline" onclick="toggleTeacherActive({{ u.id }})" style="margin-right: 0.35rem;">
+                      {{ 'Pausar' if u.is_active == 1 else 'Activar' }}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-vino" onclick="deleteTeacher({{ u.id }}, '{{ u.username }}')">
+                      Eliminar
+                    </button>
+                    {% else %}
+                    <span style="font-size: 0.8rem; color: var(--gris-500);">Cuenta Principal</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -4020,6 +4167,103 @@
           btn.disabled = false;
           btn.innerText = '⚡ Probar Conexión';
         }
+      }
+    }
+
+    // Alternar Modo Exclusivo IB
+    async function handleToggleIbExclusive() {
+      const btn = document.getElementById('btnToggleIbExclusive');
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch('/api/admin/toggle-ib-exclusive', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          const isExclusive = (data.ib_exclusive_mode === 'true');
+          const badge = document.getElementById('ibExclusiveBadge');
+          if (badge) {
+            badge.style.background = isExclusive ? '#dcfce7' : '#f1f5f9';
+            badge.style.color = isExclusive ? '#15803d' : '#64748b';
+            badge.innerText = isExclusive ? '🟢 MODO EXCLUSIVO IB ACTIVO' : '⚪ MODO COLEGIO GENERAL ACTIVO';
+          }
+          if (btn) {
+            btn.className = isExclusive ? 'btn btn-vino' : 'btn btn-azul';
+            btn.innerHTML = isExclusive ? '<span>⏸️ Desactivar y Restaurar Colegio General</span>' : '<span>🚀 Activar Portal Exclusivo IB</span>';
+          }
+          showToast(isExclusive ? '✓ Portal Exclusivo IB activado exitosamente.' : '✓ Modo Colegio General restaurado con éxito.', 'success');
+        } else {
+          showToast('Error al cambiar de modo: ' + (data.message || 'Error desconocido'), 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al alternar Modo Exclusivo IB.', 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // Registrar Docente
+    document.getElementById('adminCreateTeacherForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitNewTeacher');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Guardando docente...';
+      }
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch('/api/admin/users/create-teacher', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          setTimeout(() => location.reload(), 1200);
+        } else {
+          showToast('Error: ' + data.message, 'error');
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = '💾 Crear Cuenta de Docente';
+          }
+        }
+      } catch (err) {
+        showToast('Error de comunicación con el servidor.', 'error');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '💾 Crear Cuenta de Docente';
+        }
+      }
+    });
+
+    // Pausar/Activar Docente
+    async function toggleTeacherActive(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/toggle-active/${userId}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          setTimeout(() => location.reload(), 900);
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión.', 'error');
+      }
+    }
+
+    // Eliminar Docente
+    async function deleteTeacher(userId, username) {
+      if (!confirm(`¿Está seguro de eliminar definitivamente la cuenta de '${username}'?`)) return;
+      try {
+        const res = await fetch(`/api/admin/users/delete/${userId}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          setTimeout(() => location.reload(), 900);
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión.', 'error');
       }
     }
   </script>

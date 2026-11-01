@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal del Docente | Liceo de Limón Mario Bourne Bourne</title>
+  
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="icon" type="image/png" sizes="64x64" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/escudo_liceo.jpg') }}">
+
+  <!-- Tipografías -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+
+  <script>
+    (function() {
+      var saved = localStorage.getItem('liceo_theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <style>
+    :root {
+      --prof-primary: #0284c7;
+      --prof-primary-dark: #0369a1;
+      --prof-vino: #6e0f1e;
+      --prof-green: #059669;
+      --prof-bg: #f8fafc;
+      --prof-card: #ffffff;
+      --prof-text: #1e293b;
+    }
+
+    [data-theme="dark"] {
+      --prof-bg: #070d1e;
+      --prof-card: #0f172a;
+      --prof-text: #f1f5f9;
+    }
+
+    body.teacher-portal-body {
+      background: var(--prof-bg);
+      color: var(--prof-text);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .teacher-header {
+      background: linear-gradient(135deg, #0f274a 0%, #0d47a1 100%);
+      color: #ffffff;
+      padding: 1.25rem 2rem;
+      border-bottom: 3px solid #38bdf8;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .teacher-header-content {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .teacher-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .teacher-badge-role {
+      background: rgba(56, 189, 248, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      color: #38bdf8;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .teacher-welcome-text h1 {
+      font-size: 1.35rem;
+      margin: 0;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .teacher-welcome-text p {
+      font-size: 0.85rem;
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .teacher-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .teacher-layout-container {
+      max-width: 1300px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 4rem 1.5rem;
+    }
+
+    /* Barra Superior de Pestañas con Letra Grande y Clara */
+    .teacher-tabs-nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    .teacher-tab-btn {
+      background: var(--prof-card);
+      border: 2px solid var(--gris-200);
+      color: var(--prof-text);
+      padding: 1.1rem 1.25rem;
+      border-radius: var(--radius-lg);
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.25s ease;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+      text-align: left;
+    }
+
+    .teacher-tab-btn:hover {
+      border-color: var(--prof-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(2, 132, 199, 0.15);
+    }
+
+    .teacher-tab-btn.active {
+      background: linear-gradient(135deg, var(--prof-primary) 0%, var(--prof-primary-dark) 100%);
+      color: #ffffff !important;
+      border-color: var(--prof-primary);
+      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.35);
+    }
+
+    .teacher-tab-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .teacher-tab-pane {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .teacher-tab-pane.active {
+      display: block;
+    }
+
+    .teacher-panel-card {
+      background: var(--prof-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--gris-200);
+      padding: 2.25rem 2.5rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+      margin-bottom: 2rem;
+    }
+
+    .teacher-guide-box {
+      background: rgba(2, 132, 199, 0.08);
+      border-left: 5px solid var(--prof-primary);
+      padding: 1rem 1.4rem;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      color: var(--prof-text);
+    }
+
+    .teacher-form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .teacher-label {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--prof-text);
+    }
+
+    .teacher-label small {
+      font-weight: 400;
+      color: var(--gris-500);
+      font-size: 0.85rem;
+    }
+
+    .teacher-input, .teacher-textarea, .teacher-select {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.85rem 1.15rem;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--gris-300);
+      background: var(--prof-card);
+      color: var(--prof-text);
+      font-family: inherit;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .teacher-input:focus, .teacher-textarea:focus, .teacher-select:focus {
+      outline: none;
+      border-color: var(--prof-primary);
+      box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);
+    }
+
+    .teacher-btn-action {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: #ffffff;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+    }
+
+    .teacher-btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(5, 150, 105, 0.45);
+    }
+
+    .teacher-news-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 1.5rem;
+      border: 1px solid var(--gris-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .teacher-news-table th {
+      background: rgba(2, 132, 199, 0.08);
+      padding: 1rem 1.25rem;
+      text-align: left;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border-bottom: 2px solid var(--gris-200);
+    }
+
+    .teacher-news-table td {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid var(--gris-200);
+      vertical-align: middle;
+      font-size: 0.95rem;
+    }
+
+    .teacher-news-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .status-pill.active {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+
+    .status-pill.inactive {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+    }
+
+    .toggle-visibility-btn {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      color: #334155;
+      padding: 0.55rem 1.15rem;
+      border-radius: var(--radius-full);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-visibility-btn:hover {
+      background: #e2e8f0;
+      border-color: #94a3b8;
+      transform: translateY(-1px);
+    }
+
+    .toggle-visibility-btn.is-active-btn {
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+
+    .toggle-visibility-btn.is-active-btn:hover {
+      background: #fee2e2;
+    }
+
+    .inquiry-card {
+      background: var(--prof-card);
+      border: 1px solid var(--gris-200);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .inquiry-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--gris-200);
+      padding-bottom: 0.75rem;
+    }
+
+    .inquiry-author {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--prof-text);
+    }
+
+    .inquiry-contact-links {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-respond {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      border-radius: var(--radius-full);
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .btn-respond-wa {
+      background: #25D366;
+      color: #064e26;
+    }
+
+    .btn-respond-mail {
+      background: #0284c7;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body class="teacher-portal-body">
+
+  <!-- Encabezado Limpio del Profesor -->
+  <header class="teacher-header">
+    <div class="teacher-header-content">
+      <div class="teacher-brand">
+        <img src="{{ cms.site_logo }}" alt="Logo" style="width: 44px; height: 44px; border-radius: 8px; background: #fff; padding: 2px;">
+        <div class="teacher-welcome-text">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <h1>{{ teacher_name }}</h1>
+            <span class="teacher-badge-role">Portal Docente IB</span>
+          </div>
+          <p>Liceo de Limón Mario Bourne Bourne • Gestión Simple de Contenidos</p>
+        </div>
+      </div>
+
+      <div class="teacher-nav-actions">
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Cambiar tema" title="Modo Claro / Oscuro" style="width: 36px; height: 36px; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff;">
+          <span class="theme-icon-light">☀️</span>
+          <span class="theme-icon-dark">🌙</span>
+        </button>
+        <a href="/" target="_blank" class="btn btn-sm" style="background: rgba(255,255,255,0.15); color: #ffffff; border-radius: var(--radius-full); padding: 0.45rem 1rem; font-weight: 700; text-decoration: none;">
+          🌐 Ver Sitio Web ↗
+        </a>
+        <a href="/logout" class="btn btn-sm" style="background: #ef4444; color: #ffffff; border-radius: var(--radius-full); padding: 0.45rem 1rem; font-weight: 700; text-decoration: none;">
+          🚪 Salir
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal del Portal -->
+  <main class="teacher-layout-container">
+
+    <!-- Navegación por pestañas intuitivas -->
+    <nav class="teacher-tabs-nav" aria-label="Opciones de profesor">
+      <button class="teacher-tab-btn active" data-tab="tab-news-manager">
+        <span class="teacher-tab-icon">📰</span>
+        <div>
+          <span>Noticias y Comunicados</span>
+          <small style="display: block; font-size: 0.78rem; opacity: 0.85;">Subir y pausar avisos</small>
+        </div>
+      </button>
+
+      <button class="teacher-tab-btn" data-tab="tab-social-post">
+        <span class="teacher-tab-icon">📸</span>
+        <div>
+          <span>Replicar Redes Sociales</span>
+          <small style="display: block; font-size: 0.78rem; opacity: 0.85;">Instagram y Facebook</small>
+        </div>
+      </button>
+
+      <button class="teacher-tab-btn" data-tab="tab-social-links">
+        <span class="teacher-tab-icon">📱</span>
+        <div>
+          <span>Redes & Contacto</span>
+          <small style="display: block; font-size: 0.78rem; opacity: 0.85;">WhatsApp y enlaces</small>
+        </div>
+      </button>
+
+      <button class="teacher-tab-btn" data-tab="tab-inquiries-box">
+        <span class="teacher-tab-icon">📬</span>
+        <div>
+          <span>Bandeja de Consultas</span>
+          <small style="display: block; font-size: 0.78rem; opacity: 0.85;">Mensajes de familias ({{ inquiries|length }})</small>
+        </div>
+      </button>
+    </nav>
+
+    <!-- =====================================================================
+         PESTAÑA 1: GESTIÓN DE NOTICIAS (SUBIR Y PAUSAR/ACTIVAR SIN ELIMINAR)
+         ===================================================================== -->
+    <section class="teacher-tab-pane active" id="tab-news-manager">
+      <div class="teacher-panel-card">
+        <h2 style="font-size: 1.5rem; margin-top: 0; margin-bottom: 0.5rem; font-weight: 800;">
+          📢 Publicar Nuevo Comunicado o Noticia
+        </h2>
+        <div class="teacher-guide-box">
+          💡 <strong>Guía para el Docente:</strong> Complete los campos a continuación para informar a los estudiantes y padres de familia. Su nombre aparecerá automáticamente como autor del comunicado.
+        </div>
+
+        <form id="teacherAddNewsForm">
+          <div class="teacher-form-group">
+            <label class="teacher-label" for="newsTitle">Título del Comunicado *</label>
+            <input type="text" id="newsTitle" name="title" class="teacher-input" placeholder="Ej: Convocatoria para Proyectos CAS 2026" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+            <div class="teacher-form-group">
+              <label class="teacher-label" for="newsSubcategory">Subcategoría del Programa *</label>
+              <select id="newsSubcategory" name="subcategory" class="teacher-select">
+                <option value="CAS">🌿 CAS (Creatividad, Actividad y Servicio)</option>
+                <option value="TOK">🧠 TOK (Teoría del Conocimiento)</option>
+                <option value="Monografía">📚 Monografía (Extended Essay)</option>
+                <option value="Admisión">📋 Admisión & Convocatoria IB</option>
+                <option value="Académica">🎓 Actividades Académicas</option>
+                <option value="General">📢 Aviso General Institucional</option>
+              </select>
+            </div>
+
+            <div class="teacher-form-group">
+              <label class="teacher-label" for="newsDate">Fecha de Publicación</label>
+              <input type="text" id="newsDate" name="date" class="teacher-input" value="{{ today_str or '31 de Octubre, 2026' }}">
+            </div>
+          </div>
+
+          <div class="teacher-form-group">
+            <label class="teacher-label" for="newsSummary">Resumen Corto (Aparece en la tarjeta) *</label>
+            <input type="text" id="newsSummary" name="summary" class="teacher-input" placeholder="Breve descripción de 1 a 2 oraciones..." required>
+          </div>
+
+          <div class="teacher-form-group">
+            <label class="teacher-label" for="newsContent">Contenido Completo del Comunicado *</label>
+            <textarea id="newsContent" name="content" class="teacher-textarea" rows="5" placeholder="Escriba aquí los detalles completos del aviso, instrucciones para los estudiantes o fechas importantes..." required></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+            <div class="teacher-form-group">
+              <label class="teacher-label" for="newsImage">Enlace de Imagen o Foto <small>(Opcional)</small></label>
+              <input type="url" id="newsImage" name="image" class="teacher-input" placeholder="https://ejemplo.com/foto.jpg">
+            </div>
+
+            <div class="teacher-form-group">
+              <label class="teacher-label" for="newsVideo">Enlace de Video de YouTube o Drive <small>(Opcional)</small></label>
+              <input type="url" id="newsVideo" name="video_url" class="teacher-input" placeholder="https://youtube.com/watch?v=...">
+            </div>
+          </div>
+
+          <button type="submit" class="teacher-btn-action" id="btnPublishNews">
+            <span>💾 Publicar Comunicado Oficial</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Listado de Noticias Actuales con Botones de Pausar / Reactivar -->
+      <div class="teacher-panel-card">
+        <h3 style="font-size: 1.35rem; margin-top: 0; font-weight: 800;">
+          📋 Comunicados Actuales en la Plataforma
+        </h3>
+        <p style="color: var(--gris-600); margin-bottom: 1.25rem;">
+          Puede <strong>Pausar</strong> temporalmente una noticia cuando ya no esté vigente para que los estudiantes no la vean, o <strong>Reactivarla</strong> con un solo clic. Por seguridad institucional, los comunicados no se borran definitivamente.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <table class="teacher-news-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Título del Comunicado</th>
+                <th>Subcategoría</th>
+                <th>Fecha</th>
+                <th>Estado Público</th>
+                <th>Acción Rápida</th>
+              </tr>
+            </thead>
+            <tbody id="teacherNewsTableBody">
+              {% for item in news %}
+              <tr>
+                <td><strong>#{{ item.id }}</strong></td>
+                <td>
+                  <strong>{{ item.title }}</strong>
+                  {% if item.social_url %}
+                    <span style="font-size: 0.78rem; display: block; color: #0284c7;">🔗 Enlace a Red Social activo</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span style="background: rgba(2, 132, 199, 0.1); color: #0284c7; padding: 0.2rem 0.6rem; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700;">
+                    {{ item.subcategory or item.category }}
+                  </span>
+                </td>
+                <td>{{ item.date }}</td>
+                <td>
+                  {% if item.is_active == 0 %}
+                    <span class="status-pill inactive" id="statusPill-{{ item.id }}">⚪ En Pausa (Oculta)</span>
+                  {% else %}
+                    <span class="status-pill active" id="statusPill-{{ item.id }}">🟢 Publicada (Visible)</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <button type="button" class="toggle-visibility-btn {{ 'is-active-btn' if item.is_active != 0 else '' }}" data-news-id="{{ item.id }}" onclick="toggleNewsState({{ item.id }})">
+                    <span id="btnIcon-{{ item.id }}">{{ '⏸️ Pausar Aviso' if item.is_active != 0 else '▶️ Reactivar Aviso' }}</span>
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         PESTAÑA 2: REPLICAR PUBLICACIONES DE REDES SOCIALES (IG & FB)
+         ===================================================================== -->
+    <section class="teacher-tab-pane" id="tab-social-post">
+      <div class="teacher-panel-card">
+        <h2 style="font-size: 1.5rem; margin-top: 0; margin-bottom: 0.5rem; font-weight: 800;">
+          📸 Compartir Publicación de Instagram o Facebook en las Noticias
+        </h2>
+        <div class="teacher-guide-box">
+          💡 <strong>¿Cómo funciona?</strong> Cuando suba una foto o video a la cuenta oficial de Instagram o Facebook del Bachillerato Internacional, copie el enlace aquí. Se creará automáticamente una noticia con el logotipo de la red social y un botón directo para que los visitantes puedan abrirla en su celular o computadora.
+        </div>
+
+        <form id="teacherSocialPostForm">
+          <div class="teacher-form-group">
+            <label class="teacher-label" for="socialNetwork">Red Social de Origen *</label>
+            <select id="socialNetwork" name="network" class="teacher-select" style="font-weight: 700;">
+              <option value="Instagram">📸 Instagram Oficial (Liceo IB)</option>
+              <option value="Facebook">👥 Facebook Institucional</option>
+            </select>
+          </div>
+
+          <div class="teacher-form-group">
+            <label class="teacher-label" for="socialPostUrl">Enlace Directo a la Publicación (URL) *</label>
+            <input type="url" id="socialPostUrl" name="post_url" class="teacher-input" placeholder="https://www.instagram.com/p/... o https://www.facebook.com/..." required>
+          </div>
+
+          <div class="teacher-form-group">
+            <label class="teacher-label" for="socialPostTitle">Título para la Noticia *</label>
+            <input type="text" id="socialPostTitle" name="title" class="teacher-input" placeholder="Ej: Nueva actividad comunitaria de los estudiantes de CAS" required>
+          </div>
+
+          <div class="teacher-form-group">
+            <label class="teacher-label" for="socialPostSummary">Breve descripción del contenido *</label>
+            <textarea id="socialPostSummary" name="summary" class="teacher-textarea" rows="3" placeholder="Resumen de la foto o evento compartido en redes sociales..." required></textarea>
+          </div>
+
+          <div class="teacher-form-group">
+            <label class="teacher-label" for="socialPostImage">Imagen de Portada (Foto de la publicación) <small>(Opcional)</small></label>
+            <input type="url" id="socialPostImage" name="image_url" class="teacher-input" placeholder="https://... o deje vacío para usar imagen por defecto">
+          </div>
+
+          <button type="submit" class="teacher-btn-action" id="btnShareSocial">
+            <span>🚀 Replicar y Publicar en Noticias</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         PESTAÑA 3: ACTUALIZAR REDES SOCIALES Y CONTACTO
+         ===================================================================== -->
+    <section class="teacher-tab-pane" id="tab-social-links">
+      <div class="teacher-panel-card">
+        <h2 style="font-size: 1.5rem; margin-top: 0; margin-bottom: 0.5rem; font-weight: 800;">
+          📱 Redes Sociales y Datos de Contacto
+        </h2>
+        <div class="teacher-guide-box">
+          💡 Actualice aquí los enlaces de comunicación para que los padres de familia y nuevos postulantes puedan comunicarse directamente con los coordinadores y profesores del Bachillerato Internacional.
+        </div>
+
+        <form id="teacherSocialLinksForm">
+          <h3 style="font-size: 1.15rem; color: #0284c7; margin-bottom: 1rem;">🌐 Canales Oficiales del Bachillerato Internacional (IB)</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+            <div class="teacher-form-group">
+              <label class="teacher-label" for="ibWaUrl">Enlace de WhatsApp IB</label>
+              <input type="url" id="ibWaUrl" name="ib_whatsapp_url" class="teacher-input" value="{{ cms.ib_whatsapp_url }}">
+            </div>
+
+            <div class="teacher-form-group">
+              <label class="teacher-label" for="ibIgUrl">Página de Instagram IB</label>
+              <input type="url" id="ibIgUrl" name="ib_instagram_url" class="teacher-input" value="{{ cms.ib_instagram_url }}">
+            </div>
+
+            <div class="teacher-form-group">
+              <label class="teacher-label" for="ibFbUrl">Página de Facebook IB</label>
+              <input type="url" id="ibFbUrl" name="ib_facebook_url" class="teacher-input" value="{{ cms.ib_facebook_url }}">
+            </div>
+          </div>
+
+          <h3 style="font-size: 1.15rem; color: #0284c7; margin-top: 1.5rem; margin-bottom: 1rem;">📞 Contacto Institucional & Teléfonos</h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+            <div class="teacher-form-group">
+              <label class="teacher-label" for="contactPhone">Teléfono de Atención</label>
+              <input type="text" id="contactPhone" name="contact_phone" class="teacher-input" value="{{ cms.contact_phone }}">
+            </div>
+
+            <div class="teacher-form-group">
+              <label class="teacher-label" for="contactEmail">Correo de Contacto</label>
+              <input type="email" id="contactEmail" name="contact_email" class="teacher-input" value="{{ cms.contact_email }}">
+            </div>
+          </div>
+
+          <button type="submit" class="teacher-btn-action" id="btnSaveLinks">
+            <span>💾 Guardar Enlaces de Contacto</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         PESTAÑA 4: BANDEJA DE CONSULTAS RECIBIDAS
+         ===================================================================== -->
+    <section class="teacher-tab-pane" id="tab-inquiries-box">
+      <div class="teacher-panel-card">
+        <h2 style="font-size: 1.5rem; margin-top: 0; margin-bottom: 0.5rem; font-weight: 800;">
+          📬 Consultas y Solicitudes de Matrícula Recibidas
+        </h2>
+        <div class="teacher-guide-box">
+          💡 A continuación puede leer los mensajes enviados por padres y postulantes desde el sitio web. Puede responderles directamente con un solo clic a través de WhatsApp o correo electrónico.
+        </div>
+
+        {% if inquiries|length == 0 %}
+        <div style="text-align: center; padding: 3rem 1rem; color: var(--gris-500);">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">📭</div>
+          <h3>No hay consultas pendientes en este momento</h3>
+          <p>Cuando un estudiante o padre de familia envíe un mensaje, aparecerá listado aquí.</p>
+        </div>
+        {% else %}
+        <div>
+          {% for inq in inquiries %}
+          <div class="inquiry-card">
+            <div class="inquiry-header">
+              <div>
+                <span class="inquiry-author">{{ inq.name }}</span>
+                <span style="margin-left: 0.5rem; font-size: 0.8rem; background: rgba(2, 132, 199, 0.1); color: #0284c7; padding: 0.2rem 0.6rem; border-radius: var(--radius-full); font-weight: 700;">
+                  Área: {{ inq.area }}
+                </span>
+              </div>
+              <span style="font-size: 0.85rem; color: var(--gris-500);">📅 {{ inq.created_at }}</span>
+            </div>
+
+            <p style="margin: 0; font-size: 1rem; line-height: 1.5;">
+              <strong>Mensaje:</strong> {{ inq.message }}
+            </p>
+
+            <div class="inquiry-contact-links">
+              {% if inq.phone %}
+              <a href="https://wa.me/{{ inq.phone|replace(' ', '')|replace('-', '')|replace('+', '') }}?text=Hola%20{{ inq.name }},%20le%20escribimos%20desde%20la%20coordinación%20del%20Bachillerato%20Internacional%20del%20Liceo%20de%20Limón%20respecto%20a%20su%20consulta." target="_blank" rel="noopener" class="btn-respond btn-respond-wa">
+                <span>💬 Responder por WhatsApp</span>
+              </a>
+              {% endif %}
+              <a href="mailto:{{ inq.email }}?subject=Respuesta%20a%20consulta%20-%20Bachillerato%20Internacional%20Liceo%20de%20Limón" class="btn-respond btn-respond-mail">
+                <span>✉️ Responder por Correo</span>
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Conmutador de Pestañas
+    document.querySelectorAll('.teacher-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.teacher-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.teacher-tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const target = document.getElementById(btn.dataset.tab);
+        if (target) target.classList.add('active');
+      });
+    });
+
+    // Publicar Noticia
+    document.getElementById('teacherAddNewsForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnPublishNews');
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Publicando comunicado...';
+
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch('/api/teacher/news/add', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✓ ¡Comunicado publicado con éxito! Ya se encuentra visible para los estudiantes.');
+          location.reload();
+        } else {
+          alert('Error: ' + (data.message || 'No fue posible publicar'));
+          btn.disabled = false;
+          btn.innerHTML = '💾 Publicar Comunicado Oficial';
+        }
+      } catch (err) {
+        alert('Error de conexión con el servidor.');
+        btn.disabled = false;
+        btn.innerHTML = '💾 Publicar Comunicado Oficial';
+      }
+    });
+
+    // Replicar Publicación de Redes Sociales
+    document.getElementById('teacherSocialPostForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnShareSocial');
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Replicando publicación...';
+
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch('/api/teacher/social-post/add', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✓ ¡Publicación de red social replicada con éxito en el centro de noticias!');
+          location.reload();
+        } else {
+          alert('Error: ' + (data.message || 'No fue posible compartir'));
+          btn.disabled = false;
+          btn.innerHTML = '🚀 Replicar y Publicar en Noticias';
+        }
+      } catch (err) {
+        alert('Error de red al compartir.');
+        btn.disabled = false;
+        btn.innerHTML = '🚀 Replicar y Publicar en Noticias';
+      }
+    });
+
+    // Guardar Enlaces de Redes y Contacto
+    document.getElementById('teacherSocialLinksForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSaveLinks');
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Guardando cambios...';
+
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch('/api/teacher/social/save', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✓ ¡Enlaces de redes sociales y teléfonos actualizados con éxito!');
+        } else {
+          alert('Error: ' + (data.message || 'No fue posible guardar'));
+        }
+      } catch (err) {
+        alert('Error de conexión.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '💾 Guardar Enlaces de Contacto';
+      }
+    });
+
+    // Pausar / Reactivar Noticias
+    async function toggleNewsState(newsId) {
+      const btn = document.querySelector(`[data-news-id="${newsId}"]`);
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/teacher/news/toggle/${newsId}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          const pill = document.getElementById(`statusPill-${newsId}`);
+          const btnIcon = document.getElementById(`btnIcon-${newsId}`);
+          if (data.is_active === 1) {
+            if (pill) {
+              pill.className = 'status-pill active';
+              pill.innerText = '🟢 Publicada (Visible)';
+            }
+            if (btn) btn.classList.add('is-active-btn');
+            if (btnIcon) btnIcon.innerText = '⏸️ Pausar Aviso';
+          } else {
+            if (pill) {
+              pill.className = 'status-pill inactive';
+              pill.innerText = '⚪ En Pausa (Oculta)';
+            }
+            if (btn) btn.classList.remove('is-active-btn');
+            if (btnIcon) btnIcon.innerText = '▶️ Reactivar Aviso';
+          }
+        } else {
+          alert('No se pudo cambiar el estado: ' + (data.message || 'Error'));
+        }
+      } catch (err) {
+        alert('Error de conexión al cambiar visibilidad.');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
