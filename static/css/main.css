@@ -1408,7 +1408,7 @@ body.cms-edit-mode .mep-flag-strip:hover {
   right: 0.85rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.45rem;
   pointer-events: none;
   z-index: 6;
@@ -1419,7 +1419,7 @@ body.cms-edit-mode .mep-flag-strip:hover {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   pointer-events: auto;
 }
 
@@ -1432,11 +1432,12 @@ body.cms-edit-mode .mep-flag-strip:hover {
 .news-card-badge-bar .news-video-badge,
 .news-card-badge-bar .news-gallery-badge,
 .news-card-badge-bar .news-pinned-badge {
-  position: relative;
-  top: auto;
-  left: auto;
-  right: auto;
-  bottom: auto;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
 }
 
 .news-pinned-badge {
@@ -4096,25 +4097,29 @@ body.cms-preview-mode .contact-info-panel.contact-info-preview-full .contact-det
    SOPORTE PARA VIDEOS EN NOTICIAS (BADGE Y REPRODUCTOR RESPONSIVO)
    ============================================================================= */
 .news-video-badge {
-  position: absolute;
-  top: 1.1rem;
-  right: 1.1rem;
-  background: linear-gradient(135deg, #dc2626, #991b1b);
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
   backdrop-filter: blur(8px);
-  color: var(--blanco);
-  padding: 0.35rem 0.85rem;
+  color: #ffffff !important;
+  padding: 0.32rem 0.75rem;
   border-radius: var(--radius-full);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
-  display: flex;
+  letter-spacing: 0.4px;
+  display: inline-flex !important;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
+  gap: 0.35rem;
   z-index: 6;
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 3px 12px rgba(220, 38, 38, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   animation: pulseVideoBadge 2.2s infinite ease-in-out;
   cursor: pointer;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.2;
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
@@ -4128,32 +4133,46 @@ body.cms-preview-mode .contact-info-panel.contact-info-preview-full .contact-det
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(1);
-  width: 62px;
-  height: 62px;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: rgba(220, 38, 38, 0.92);
+  background: rgba(220, 38, 38, 0.94);
   color: #ffffff;
-  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  border: 2.5px solid rgba(255, 255, 255, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.45rem;
-  padding-left: 4px;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0 0 0 2px;
   cursor: pointer;
   z-index: 5;
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(220, 38, 38, 0.7);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  animation: playBtnSonar 2.2s infinite ease-in-out;
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .news-play-btn:hover {
-  transform: translate(-50%, -50%) scale(1.18);
+  transform: translate(-50%, -50%) scale(1.15);
   background: #ef4444;
-  box-shadow: 0 12px 34px rgba(220, 38, 38, 0.65);
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.65);
 }
 
 .news-card:hover .news-play-btn {
   transform: translate(-50%, -50%) scale(1.08);
+}
+
+@keyframes playBtnSonar {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 0 0 rgba(220, 38, 38, 0.65);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.08);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 0 12px rgba(220, 38, 38, 0);
+  }
 }
 
 .news-card.is-playing-video .news-image,
@@ -6348,7 +6367,7 @@ body.theme-ib .curriculum-subject-cell {
 }
 
 .news-play-btn {
-  animation: sonarPulse 2.2s infinite;
+  animation: playBtnSonar 2.2s infinite ease-in-out;
 }
 
 /* ==========================================================================

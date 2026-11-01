@@ -1357,29 +1357,85 @@ function initIBInteractiveEffects() {
     }
   });
 
-  // Efecto Giroscopio / Inclinación 3D en dispositivos móviles con acelerómetro
-  if (!hasHoverPointer && window.DeviceOrientationEvent) {
-    let lastGyro = 0;
-    window.addEventListener('deviceorientation', (e) => {
-      const now = performance.now();
-      if (now - lastGyro < 45) return; // ~22fps óptimo para consumo de batería
-      lastGyro = now;
+  // 10.3 Sistema 3D Completo para Móviles: Giroscopio Físico + Parallax de Scroll + Tacto
+  if (!hasHoverPointer) {
+    let gyroActive = false;
+    let gyroRotX = 0;
+    let gyroRotY = 0;
+
+    const handleOrientation = (e) => {
       if (e.gamma === null || e.beta === null) return;
+      gyroActive = true;
+      const clampGamma = Math.max(-25, Math.min(25, e.gamma));
+      const clampBeta = Math.max(15, Math.min(65, e.beta));
+      gyroRotY = (clampGamma / 25) * 6;
+      gyroRotX = ((clampBeta - 40) / 25) * -6;
+    };
 
-      const clampGamma = Math.max(-20, Math.min(20, e.gamma));
-      const clampBeta = Math.max(20, Math.min(60, e.beta));
-      const rotY = (clampGamma / 20) * 5;
-      const rotX = ((clampBeta - 40) / 20) * -5;
+    const startGyro = () => {
+      if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+      }
+    };
 
+    // En iOS 13+ Safari se requiere solicitar permiso explícito mediante un gesto del usuario
+    const requestiOSGyroPermission = () => {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+          .then(state => {
+            if (state === 'granted') {
+              startGyro();
+            }
+          })
+          .catch(() => {});
+      } else {
+        startGyro();
+      }
+    };
+
+    window.addEventListener('touchstart', requestiOSGyroPermission, { once: true, passive: true });
+    window.addEventListener('click', requestiOSGyroPermission, { once: true, passive: true });
+    startGyro(); // Intento directo para navegadores Android y dispositivos compatibles
+
+    // Parallax 3D continuo en scroll y giroscopio sincronizado mediante requestAnimationFrame
+    let scrollRaf = null;
+    const updateMobile3D = () => {
       const vh = window.innerHeight;
+      const vhCenter = vh / 2;
+
       ibCards.forEach(c => {
         if (c.dataset.touching) return;
         const r = c.getBoundingClientRect();
-        if (r.top < vh && r.bottom > 0) {
-          c.style.transform = `perspective(800px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg) translateZ(0)`;
+        if (r.bottom > 0 && r.top < vh) {
+          const cardCenter = r.top + r.height / 2;
+          const scrollFactor = Math.max(-1, Math.min(1, (cardCenter - vhCenter) / vhCenter));
+          // Inclinación 3D natural por scroll (ángulo de cámara)
+          const scrollTiltX = scrollFactor * -4.5;
+
+          const finalRotX = (gyroActive ? (gyroRotX * 0.7 + scrollTiltX * 0.3) : scrollTiltX).toFixed(1);
+          const finalRotY = (gyroActive ? gyroRotY : 0).toFixed(1);
+
+          c.style.transform = `perspective(850px) rotateX(${finalRotX}deg) rotateY(${finalRotY}deg) translateZ(0)`;
         }
       });
+      scrollRaf = null;
+    };
+
+    window.addEventListener('scroll', () => {
+      if (!scrollRaf) {
+        scrollRaf = requestAnimationFrame(updateMobile3D);
+      }
     }, { passive: true });
+
+    // Actualización periódica ligera cuando el giroscopio está activo
+    setInterval(() => {
+      if (gyroActive && !scrollRaf) {
+        scrollRaf = requestAnimationFrame(updateMobile3D);
+      }
+    }, 45);
+
+    // Pasada inicial al cargar
+    requestAnimationFrame(updateMobile3D);
   }
 }
 
