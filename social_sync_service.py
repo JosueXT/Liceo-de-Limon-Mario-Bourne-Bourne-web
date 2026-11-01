@@ -102,12 +102,25 @@ def sync_ib_social_posts(force=False):
     1. Pertenezcan exclusivamente a category='Bachillerato Internacional' y category_slug='ib'.
     2. Tengan subcategory='Redes Sociales'.
     3. Posean su enlace oficial de Instagram o Facebook.
+    4. NO se dupliquen (deduplicación estricta por enlace y título).
+    5. NO se re-inserten si fueron eliminadas por el usuario (respetando deleted_social_posts).
+    6. NO se reactiven automáticamente si el docente o administrador las pausó manualmente (is_active = 0).
     """
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Obtener títulos o enlaces existentes de redes sociales
-    cursor.execute("SELECT title, social_url FROM news_articles WHERE category_slug = 'ib'")
+    # 1. Obtener lista de publicaciones eliminadas por el usuario para no re-insertarlas como fantasmas
+    blocked_items = set()
+    try:
+        cursor.execute("SELECT value FROM cms_content WHERE key = 'deleted_social_posts'")
+        val_row = cursor.fetchone()
+        if val_row and val_row[0]:
+            blocked_items = set(json.loads(val_row[0]))
+    except Exception:
+        pass
+
+    # 2. Obtener noticias existentes de redes sociales en la base de datos
+    cursor.execute("SELECT id, title, social_url, is_active FROM news_articles WHERE category_slug = 'ib'")
     rows = cursor.fetchall()
     existing_titles = set(r['title'].strip() for r in rows if r['title'])
     existing_urls = set(r['social_url'].strip() for r in rows if r['social_url'])
@@ -115,8 +128,16 @@ def sync_ib_social_posts(force=False):
 
     synced_count = 0
     for post in OFFICIAL_IB_SOCIAL_FEEDS:
-        # Verificar si ya existe por título o enlace
-        if not force and (post['title'].strip() in existing_titles or post['social_url'].strip() in existing_urls):
+        clean_url = post['social_url'].strip()
+        clean_title = post['title'].strip()
+
+        # Si fue eliminada voluntariamente por el usuario, NUNCA re-insertarla
+        if not force and (clean_url in blocked_items or clean_title in blocked_items):
+            continue
+
+        # Si ya existe en la base de datos:
+        # NO re-insertar (evitar duplicados) y NUNCA alterar el estado si el usuario la pausó (is_active = 0)
+        if not force and (clean_url in existing_urls or clean_title in existing_titles):
             continue
 
         add_news(
@@ -145,6 +166,6 @@ def sync_ib_social_posts(force=False):
     return {
         'success': True,
         'synced_count': synced_count,
-        'message': f'Sincronización exitosa: {synced_count} publicaciones oficiales de redes sociales incorporadas al Bachillerato Internacional.'
+        'message': f'Sincronización completada: {synced_count} publicaciones oficiales de redes sociales integradas.'
     }
 

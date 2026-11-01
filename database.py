@@ -652,6 +652,24 @@ def resequence_news_ids():
 def delete_news(news_id):
     conn = get_db_connection()
     cursor = conn.cursor()
+    # Si la noticia que se elimina tiene social_url o pertenece a Redes Sociales, registrarla para no re-insertarla
+    try:
+        cursor.execute('SELECT social_url, title, subcategory FROM news_articles WHERE id = ?', (news_id,))
+        row = cursor.fetchone()
+        if row and (row['social_url'] or (row['subcategory'] and 'Redes' in row['subcategory'])):
+            url_to_block = (row['social_url'] or '').strip()
+            title_to_block = (row['title'] or '').strip()
+            cursor.execute("SELECT value FROM cms_content WHERE key = 'deleted_social_posts'")
+            val_row = cursor.fetchone()
+            blocked_set = set(json.loads(val_row[0])) if val_row and val_row[0] else set()
+            if url_to_block:
+                blocked_set.add(url_to_block)
+            if title_to_block:
+                blocked_set.add(title_to_block)
+            cursor.execute("INSERT OR REPLACE INTO cms_content (key, value) VALUES ('deleted_social_posts', ?)", (json.dumps(list(blocked_set)),))
+    except Exception:
+        pass
+
     cursor.execute('DELETE FROM news_articles WHERE id = ?', (news_id,))
     conn.commit()
     conn.close()
