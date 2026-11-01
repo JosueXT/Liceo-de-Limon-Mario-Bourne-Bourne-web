@@ -1245,6 +1245,19 @@ function initIBInteractiveEffects() {
     card.classList.add('ib-card-3d');
 
     if (hasHoverPointer) {
+      let rafId = null;
+      let isHovered = false;
+      let targetRotateX = 0;
+      let targetRotateY = 0;
+      let glareX = 50;
+      let glareY = 50;
+
+      card.addEventListener('mouseenter', () => {
+        isHovered = true;
+        // Respuesta ultra ágil y reactiva sin retraso mientras el mouse se mueve
+        card.style.transition = 'transform 0.06s ease-out, box-shadow 0.15s ease';
+      });
+
       card.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -1252,19 +1265,32 @@ function initIBInteractiveEffects() {
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
         
-        const rotateX = ((y - centerY) / centerY) * -6;
-        const rotateY = ((x - centerX) / centerX) * 6;
-        
-        card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-8px) scale3d(1.015, 1.015, 1.015)`;
+        targetRotateX = ((y - centerY) / centerY) * -8.5;
+        targetRotateY = ((x - centerX) / centerX) * 8.5;
+        glareX = ((x / rect.width) * 100).toFixed(1);
+        glareY = ((y / rect.height) * 100).toFixed(1);
 
-        const glareX = ((x / rect.width) * 100).toFixed(1);
-        const glareY = ((y / rect.height) * 100).toFixed(1);
-        card.style.setProperty('--glare-x', `${glareX}%`);
-        card.style.setProperty('--glare-y', `${glareY}%`);
-        card.style.setProperty('--glare-opacity', '1');
+        if (!rafId) {
+          rafId = requestAnimationFrame(() => {
+            if (isHovered) {
+              card.style.transform = `perspective(1000px) rotateX(${targetRotateX.toFixed(2)}deg) rotateY(${targetRotateY.toFixed(2)}deg) translateY(-8px) scale3d(1.025, 1.025, 1.025)`;
+              card.style.setProperty('--glare-x', `${glareX}%`);
+              card.style.setProperty('--glare-y', `${glareY}%`);
+              card.style.setProperty('--glare-opacity', '1');
+            }
+            rafId = null;
+          });
+        }
       });
 
       card.addEventListener('mouseleave', () => {
+        isHovered = false;
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+        // Desaceleración suave y elegante hacia la posición neutra de reposo
+        card.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease';
         card.style.transform = '';
         card.style.setProperty('--glare-opacity', '0');
       });

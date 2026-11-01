@@ -2350,36 +2350,33 @@ body.theme-regular .pillar-number {
   border-radius: var(--radius-xl);
   padding: 2.2rem;
   border: 1.5px solid var(--gris-200);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
   z-index: 1;
+  will-change: transform;
 }
 
 /* Efecto de Luz Neón Ambiental de fondo detrás de los cuadros de redes sociales (sin alterar el fondo blanco del bloque) */
 .social-card::after {
   content: '';
   position: absolute;
-  inset: -4px;
-  border-radius: calc(var(--radius-xl) + 4px);
+  inset: -6px;
+  border-radius: calc(var(--radius-xl) + 6px);
   background: var(--social-neon-glow, transparent);
-  filter: blur(20px);
+  filter: blur(22px);
   opacity: 0.65;
   z-index: -1;
   pointer-events: none;
-  transition: opacity 0.35s ease, filter 0.35s ease, inset 0.35s ease;
-}
-
-.social-card:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateZ(0);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 .social-card:hover::after {
-  inset: -10px;
-  filter: blur(28px);
-  opacity: 0.95;
+  opacity: 1;
+  transform: scale(1.05) translateZ(0);
 }
 
 .social-card::before {
