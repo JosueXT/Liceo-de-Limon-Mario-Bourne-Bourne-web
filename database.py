@@ -662,7 +662,17 @@ def delete_news(news_id):
             cursor.execute("SELECT value FROM cms_content WHERE key = 'deleted_social_posts'")
             val_row = cursor.fetchone()
             blocked_set = set(json.loads(val_row[0])) if val_row and val_row[0] else set()
-            if url_to_block:
+
+            # NUNCA bloquear las URLs principales de perfil de Facebook o Instagram, solo enlaces individuales o títulos específicos
+            generic_profiles = (
+                'https://www.instagram.com/ib_limon_',
+                'https://www.instagram.com/ib_limon_/',
+                'https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh',
+                'https://www.facebook.com/share/1FSMbJo8Xz',
+                'https://www.facebook.com/share/1FSMbJo8Xz/',
+                'https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr'
+            )
+            if url_to_block and not any(url_to_block.startswith(gp) for gp in generic_profiles):
                 blocked_set.add(url_to_block)
             if title_to_block:
                 blocked_set.add(title_to_block)

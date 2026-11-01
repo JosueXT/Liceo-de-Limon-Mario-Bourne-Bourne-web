@@ -363,6 +363,13 @@ def home():
     is_teacher = session.get('is_teacher', False)
     cms = get_all_content(force_fresh=is_admin)
     raw_news = get_all_news(force_fresh=is_admin)
+    if not any(n.get('subcategory') == 'Redes Sociales' for n in raw_news):
+        try:
+            from social_sync_service import sync_ib_social_posts
+            sync_ib_social_posts()
+            raw_news = get_all_news(force_fresh=True)
+        except Exception:
+            pass
     is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
 
     if is_ib_exclusive and not is_admin:
@@ -400,6 +407,13 @@ def modalidad_detalle(slug):
     is_teacher = session.get('is_teacher', False)
     cms = get_all_content(force_fresh=is_admin)
     raw_news = get_all_news(force_fresh=is_admin)
+    if not any(n.get('subcategory') == 'Redes Sociales' for n in raw_news):
+        try:
+            from social_sync_service import sync_ib_social_posts
+            sync_ib_social_posts()
+            raw_news = get_all_news(force_fresh=True)
+        except Exception:
+            pass
     is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
 
     # Si está activo el Modo Exclusivo IB:
@@ -553,6 +567,15 @@ def admin_panel():
     news = get_all_news()
     official_news = [n for n in news if n.get('subcategory') != 'Redes Sociales' and not n.get('social_network') and not n.get('social_url')]
     social_news = [n for n in news if n.get('subcategory') == 'Redes Sociales' or n.get('social_network') or n.get('social_url')]
+    if not social_news:
+        try:
+            from social_sync_service import sync_ib_social_posts
+            sync_ib_social_posts()
+            news = get_all_news(force_fresh=True)
+            official_news = [n for n in news if n.get('subcategory') != 'Redes Sociales' and not n.get('social_network') and not n.get('social_url')]
+            social_news = [n for n in news if n.get('subcategory') == 'Redes Sociales' or n.get('social_network') or n.get('social_url')]
+        except Exception:
+            pass
     inquiries = get_all_inquiries()
     snapshots = get_all_snapshots()
     developers = get_developers_dynamic_list(cms)
@@ -592,6 +615,13 @@ def teacher_portal():
 
     cms = get_all_content()
     news = get_all_news()
+    if not any(n.get('subcategory') == 'Redes Sociales' for n in news):
+        try:
+            from social_sync_service import sync_ib_social_posts
+            sync_ib_social_posts()
+            news = get_all_news(force_fresh=True)
+        except Exception:
+            pass
     inquiries = get_all_inquiries()
     teacher_name = session.get('teacher_name') or session.get('admin_username') or 'Docente'
     
