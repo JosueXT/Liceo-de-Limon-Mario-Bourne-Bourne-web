@@ -5252,6 +5252,7 @@ body.devs-page-body {
   font-weight: 900;
   background: linear-gradient(135deg, #0284c7 0%, #00205b 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.35rem;
   line-height: 1.1;
@@ -5260,6 +5261,7 @@ body.devs-page-body {
 [data-theme="dark"] .ib-stat-value {
   background: linear-gradient(135deg, #38bdf8 0%, #ffffff 50%, #818cf8 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
