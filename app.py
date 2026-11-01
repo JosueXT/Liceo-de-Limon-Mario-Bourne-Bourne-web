@@ -583,6 +583,8 @@ def admin_panel():
     system_health = get_system_health()
     smtp_status = check_smtp_health()
     gemini_status = check_gemini_health()
+    from social_sync_service import check_social_feed_health
+    social_feed_status = check_social_feed_health()
     users_list = get_all_users()
     is_ib_exclusive = (cms.get('ib_exclusive_mode', 'false') == 'true')
     return render_template(
@@ -597,6 +599,7 @@ def admin_panel():
         system_health=system_health,
         smtp_status=smtp_status,
         gemini_status=gemini_status,
+        social_feed_status=social_feed_status,
         current_admin_username=current_admin_username,
         current_recovery_email=current_recovery_email,
         users_list=users_list,
@@ -1450,6 +1453,8 @@ def api_admin_system_status():
     health = get_system_health()
     smtp = check_smtp_health()
     gemini = check_gemini_health()
+    from social_sync_service import check_social_feed_health
+    social_feed = check_social_feed_health()
     
     # Métricas del Escudo de Seguridad
     locked_count = len(security_shield.failed_attempts)
@@ -1459,6 +1464,7 @@ def api_admin_system_status():
         'database': health,
         'smtp': smtp,
         'gemini': gemini,
+        'social_feed': social_feed,
         'security': {
             'shield_active': True,
             'locked_identities': locked_count,

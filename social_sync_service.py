@@ -10,10 +10,63 @@ a partir de las publicaciones REALES de Instagram (@ib_limon_) mediante Curator.
 
 import re
 import json
+import time
 import urllib.request
 import urllib.error
 from datetime import datetime
 from database import get_db_connection, add_news, invalidate_cms_cache, resequence_news_ids
+
+_feed_health_cache = {'data': None, 'timestamp': 0}
+
+def check_social_feed_health(force=False):
+    """
+    Verifica el estado del feed del widget (Curator.io / Instagram @ib_limon_).
+    Usa caché en memoria de 5 minutos para una respuesta instantánea.
+    """
+    now = time.time()
+    if not force and _feed_health_cache['data'] and (now - _feed_health_cache['timestamp'] < 300):
+        return _feed_health_cache['data']
+
+    t0 = time.time()
+    feed_id = "d1493603-e0a9-4ad7-a2fb-e329cb0dc272"
+    try:
+        req = urllib.request.Request(
+            CURATOR_FEED_URL,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) LiceoDeLimonIB/1.0',
+                'Accept': 'application/json'
+            }
+        )
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+        
+        latency = round((time.time() - t0) * 1000, 1)
+        posts = data.get('posts', [])
+        status = {
+            'active': True,
+            'provider': 'Curator.io API',
+            'feed_id': feed_id,
+            'source': '@ib_limon_ (Instagram)',
+            'posts_count': len(posts),
+            'latency_ms': latency,
+            'status_message': 'Conexión verificada con éxito',
+            'last_checked': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+    except Exception as e:
+        status = {
+            'active': False,
+            'provider': 'Curator.io API',
+            'feed_id': feed_id,
+            'source': '@ib_limon_ (Instagram)',
+            'posts_count': 0,
+            'latency_ms': 0,
+            'status_message': f'Fallo de conexión: {str(e)}',
+            'last_checked': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+    _feed_health_cache['data'] = status
+    _feed_health_cache['timestamp'] = now
+    return status
 
 def fetch_opengraph_metadata(url):
     """

@@ -1129,6 +1129,29 @@
               </div>
             </div>
 
+            <!-- Tarjeta 6: Sincronizador de Redes Sociales (Curator.io API) -->
+            <div id="cardSocialFeedHealth" class="health-card {{ 'border-ok' if social_feed_status.active else 'border-warn' }}">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.4rem;">📱</span>
+                <span class="admin-badge-pill {{ 'badge-health-ok' if social_feed_status.active else 'badge-health-warn' }}" style="font-size: 0.72rem;" id="badgeSocialFeedStatus">
+                  {% if social_feed_status.active %}🟢 Feed Activo (Curator){% else %}🟡 Feed Sin Conexión{% endif %}
+                </span>
+              </div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--azul-dark); margin: 0 0 0.2rem 0;">Redes Sociales (Curator.io)</h4>
+              <p style="font-size: 0.78rem; color: var(--gris-600); margin-bottom: 0.6rem;">
+                <strong>Cuenta:</strong> <span id="healthSocialAccount">{{ social_feed_status.source }}</span><br>
+                <strong>Disponibles en API:</strong> <span id="healthSocialCount">{{ social_feed_status.posts_count }} publicaciones</span><br>
+                <strong>Latencia API:</strong> <span id="healthSocialLatency">{{ social_feed_status.latency_ms }} ms</span>
+              </p>
+              <div id="socialFeedSubbadge" class="gemini-subbadge {{ 'badge-ok' if social_feed_status.active else 'badge-warn' }}">
+                {% if social_feed_status.active %}
+                  <span>✓</span> <span>Sincronización en Línea</span>
+                {% else %}
+                  <span>⚠️</span> <span>{{ social_feed_status.status_message }}</span>
+                {% endif %}
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -1793,6 +1816,34 @@
                 <a href="https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="background: #fff; border-color: #1877f2; color: #1877f2; font-size: 0.78rem;">
                   👥 Ver Facebook IB ↗
                 </a>
+              </div>
+            </div>
+
+            <!-- Estado del Feed y Sincronizador de Redes Sociales (Curator.io) en Vivo -->
+            <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: var(--radius-md); padding: 1.1rem 1.4rem; margin-bottom: 1.8rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+              <div style="display: flex; align-items: center; gap: 0.9rem;">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: {{ '#dcfce7' if social_feed_status.active else '#fef3c7' }}; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                  {{ '🟢' if social_feed_status.active else '🟡' }}
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <strong style="color: var(--azul-dark); font-size: 0.98rem;">Estado del Feed Oficial (@ib_limon_)</strong>
+                    <span class="admin-badge-pill {{ 'badge-health-ok' if social_feed_status.active else 'badge-health-warn' }}" style="font-size: 0.72rem;">
+                      {{ '🟢 Conexión Activa y Verificada' if social_feed_status.active else '🟡 Sin Conexión' }}
+                    </span>
+                  </div>
+                  <span style="font-size: 0.8rem; color: var(--gris-600); display: block; margin-top: 0.2rem;">
+                    <strong>Proveedor:</strong> {{ social_feed_status.provider }} • <strong>Feed ID:</strong> <code>{{ social_feed_status.feed_id }}</code> • <strong>Latencia API:</strong> {{ social_feed_status.latency_ms }} ms • <strong>Última verificación:</strong> {{ social_feed_status.last_checked }}
+                  </span>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                <span style="font-size: 0.82rem; color: #059669; font-weight: 700; background: #ecfdf5; padding: 0.4rem 0.85rem; border-radius: 20px; border: 1px solid #a7f3d0;">
+                  📦 {{ social_news|length }} publicaciones guardadas en BD
+                </span>
+                <span style="font-size: 0.82rem; color: #0284c7; font-weight: 700; background: #f0f9ff; padding: 0.4rem 0.85rem; border-radius: 20px; border: 1px solid #bae6fd;">
+                  🌐 {{ social_feed_status.posts_count }} disponibles en feed
+                </span>
               </div>
             </div>
 
