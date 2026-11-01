@@ -54,11 +54,11 @@ function initNavbarScroll() {
 
 /**
  * 2. Efecto Parallax en el Hero Banner
- * Desplaza la imagen de fondo a menor velocidad que el texto para crear profundidad.
+ * Desplaza la imagen de fondo a menor velocidad que el texto para crear profundidad 3D en inicio y subpáginas.
  */
 function initParallaxHero() {
-  const heroSection = document.querySelector('.hero-section');
-  const parallaxBg = document.querySelector('.hero-parallax-bg');
+  const heroSection = document.querySelector('.hero-section, .modality-hero-section');
+  const parallaxBg = document.querySelector('.hero-parallax-bg, .modality-hero-bg');
   
   if (!heroSection || !parallaxBg) return;
 
@@ -71,8 +71,8 @@ function initParallaxHero() {
         const heroHeight = heroSection.offsetHeight;
 
         if (scrollY <= heroHeight) {
-          // Factor de velocidad (0.4x)
-          const translateY = scrollY * 0.4;
+          // Factor de velocidad fluido (0.35x)
+          const translateY = scrollY * 0.35;
           parallaxBg.style.transform = `translate3d(0, ${translateY}px, 0)`;
         }
         ticking = false;
@@ -84,17 +84,27 @@ function initParallaxHero() {
 
 /**
  * 3. Scroll Reveal mediante IntersectionObserver
- * Revela suavemente las tarjetas y secciones al aparecer en pantalla.
+ * Revela suavemente las tarjetas y secciones al aparecer en pantalla con cascada escalonada.
  */
 function initScrollReveal() {
   const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
   
   if (!revealElements.length) return;
 
+  // En cascada: aplicar retardos escalonados a elementos agrupados para un efecto fluido y moderno
+  document.querySelectorAll('.pillars-grid, .ib-stats-ribbon-grid, .social-grid, .news-grid, .ib-triad-interactive-grid, .advantages-grid').forEach(grid => {
+    Array.from(grid.children).forEach((child, i) => {
+      if (!child.style.transitionDelay && (child.classList.contains('reveal') || child.classList.contains('reveal-scale') || child.classList.contains('reveal-left') || child.classList.contains('reveal-right'))) {
+        child.style.transitionDelay = `${(i % 5) * 85}ms`;
+      }
+    });
+  });
+
+  const isMobile = window.innerWidth <= 768;
   const observerOptions = {
     root: null,
-    rootMargin: '0px 0px 80px 0px',
-    threshold: 0.01
+    rootMargin: isMobile ? '0px 0px -20px 0px' : '0px 0px -40px 0px',
+    threshold: isMobile ? 0.05 : 0.08
   };
 
   const observer = new IntersectionObserver((entries, obs) => {
@@ -111,12 +121,13 @@ function initScrollReveal() {
 
 /**
  * 4. Contadores Numéricos Animados
- * Cuenta progresivamente de 0 al valor final cuando las estadísticas entran al viewport.
+ * Cuenta progresivamente de 0 al valor final cuando las estadísticas entran al viewport (visible en móvil y desktop).
  */
 function initAnimatedCounters() {
   const statNumbers = document.querySelectorAll('.stat-number, .counter-num');
   if (!statNumbers.length) return;
 
+  const isMobile = window.innerWidth <= 768;
   const counterObserver = new IntersectionObserver((entries, obs) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -128,18 +139,24 @@ function initAnimatedCounters() {
           const targetNum = parseInt(numericMatch.join(''), 10);
           const hasPlus = targetText.includes('+');
           const hasPercent = targetText.includes('%');
+          const hasSlash = targetText.includes('/');
+          const slashPart = hasSlash ? targetText.substring(targetText.indexOf('/')) : '';
           
-          animateValue(el, 0, targetNum, 1600, hasPlus, hasPercent);
+          animateValue(el, 0, targetNum, 1400, hasPlus, hasPercent, slashPart);
         }
         obs.unobserve(el);
       }
     });
-  }, { threshold: 0.5 });
+  }, {
+    root: null,
+    rootMargin: isMobile ? '0px 0px -20px 0px' : '0px 0px -40px 0px',
+    threshold: isMobile ? 0.12 : 0.25
+  });
 
   statNumbers.forEach(num => counterObserver.observe(num));
 }
 
-function animateValue(obj, start, end, duration, hasPlus, hasPercent) {
+function animateValue(obj, start, end, duration, hasPlus, hasPercent, slashPart = '') {
   let startTimestamp = null;
   const step = (timestamp) => {
     if (!startTimestamp) startTimestamp = timestamp;
@@ -149,8 +166,9 @@ function animateValue(obj, start, end, duration, hasPlus, hasPercent) {
     const currentVal = Math.floor(easeProgress * (end - start) + start);
     
     let formatted = currentVal.toLocaleString('es-CR');
-    if (hasPlus) formatted += '+';
-    if (hasPercent) formatted += '%';
+    if (hasPlus) formatted = `+${formatted}`;
+    if (hasPercent) formatted = `${formatted}%`;
+    if (slashPart) formatted = `${formatted}${slashPart}`;
     
     obj.innerText = formatted;
     if (progress < 1) {
@@ -1295,16 +1313,73 @@ function initIBInteractiveEffects() {
         card.style.setProperty('--glare-opacity', '0');
       });
     } else {
-      // En dispositivos móviles táctiles evitamos que se congele la rotación 3D
-      card.addEventListener('touchstart', () => {
-        card.style.transform = 'scale(0.985)';
+      // Experiencia 3D táctil reactiva en pantallas móviles
+      card.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        card.dataset.touching = 'true';
+        card.style.transition = 'transform 0.08s ease-out, box-shadow 0.15s ease';
+        const touch = e.touches[0];
+        const rect = card.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        const rotX = ((y - rect.height / 2) / (rect.height / 2)) * -6;
+        const rotY = ((x - rect.width / 2) / (rect.width / 2)) * 6;
+        card.style.transform = `perspective(800px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg) scale3d(1.02, 1.02, 1.02)`;
+        card.style.setProperty('--glare-opacity', '0.7');
+        card.style.setProperty('--glare-x', `${((x / rect.width) * 100).toFixed(0)}%`);
+        card.style.setProperty('--glare-y', `${((y / rect.height) * 100).toFixed(0)}%`);
       }, { passive: true });
+
+      card.addEventListener('touchmove', (e) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const rect = card.getBoundingClientRect();
+        if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+            touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
+          const rotX = ((y - rect.height / 2) / (rect.height / 2)) * -6.5;
+          const rotY = ((x - rect.width / 2) / (rect.width / 2)) * 6.5;
+          card.style.transform = `perspective(800px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg) scale3d(1.025, 1.025, 1.025)`;
+          card.style.setProperty('--glare-x', `${((x / rect.width) * 100).toFixed(0)}%`);
+          card.style.setProperty('--glare-y', `${((y / rect.height) * 100).toFixed(0)}%`);
+        }
+      }, { passive: true });
+
       const resetTouch = () => {
+        delete card.dataset.touching;
+        card.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease';
         card.style.transform = '';
+        card.style.setProperty('--glare-opacity', '0');
       };
       card.addEventListener('touchend', resetTouch, { passive: true });
       card.addEventListener('touchcancel', resetTouch, { passive: true });
     }
   });
+
+  // Efecto Giroscopio / Inclinación 3D en dispositivos móviles con acelerómetro
+  if (!hasHoverPointer && window.DeviceOrientationEvent) {
+    let lastGyro = 0;
+    window.addEventListener('deviceorientation', (e) => {
+      const now = performance.now();
+      if (now - lastGyro < 45) return; // ~22fps óptimo para consumo de batería
+      lastGyro = now;
+      if (e.gamma === null || e.beta === null) return;
+
+      const clampGamma = Math.max(-20, Math.min(20, e.gamma));
+      const clampBeta = Math.max(20, Math.min(60, e.beta));
+      const rotY = (clampGamma / 20) * 5;
+      const rotX = ((clampBeta - 40) / 20) * -5;
+
+      const vh = window.innerHeight;
+      ibCards.forEach(c => {
+        if (c.dataset.touching) return;
+        const r = c.getBoundingClientRect();
+        if (r.top < vh && r.bottom > 0) {
+          c.style.transform = `perspective(800px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg) translateZ(0)`;
+        }
+      });
+    }, { passive: true });
+  }
 }
 

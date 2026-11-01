@@ -3455,6 +3455,17 @@ body.mobile-menu-open {
     overflow: hidden;
   }
 
+  /* Efecto Neón ambiental activo y continuo para móvil detrás de cuadros de redes */
+  .social-card::after {
+    opacity: 0.82 !important;
+    transform: scale(1.02) translateZ(0) !important;
+    animation: mobileNeonPulse 3.5s ease-in-out infinite alternate !important;
+  }
+
+  .social-card:active {
+    transform: scale(0.975) translateY(2px) !important;
+  }
+
   /* Desarrolladores y Créditos en 1 columna */
   .devs-grid {
     grid-template-columns: 1fr;
@@ -3546,7 +3557,7 @@ body.mobile-menu-open {
     transform: none !important;
   }
 
-  /* Pilares de Modalidad en 1 columna */
+  /* Pilares de Modalidad en 1 columna con aura pulsante y microanimación */
   .pillars-grid {
     grid-template-columns: 1fr;
     gap: 1.4rem;
@@ -3554,6 +3565,85 @@ body.mobile-menu-open {
 
   .pillar-card {
     padding: 1.8rem 1.4rem;
+  }
+
+  body.theme-ib .pillar-card {
+    animation: pillarAuraPulse 4.5s ease-in-out infinite alternate;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  body.theme-ib .pillar-card:nth-child(2) {
+    animation-delay: 0.8s;
+  }
+  body.theme-ib .pillar-card:nth-child(3) {
+    animation-delay: 1.6s;
+  }
+  body.theme-ib .pillar-card:nth-child(4) {
+    animation-delay: 2.4s;
+  }
+  .pillar-card:active {
+    transform: scale(0.98) translateY(2px) !important;
+  }
+
+  /* Animación perimetral y toque táctil en tabla curricular */
+  body.theme-ib .curriculum-table-wrapper {
+    animation: tableBorderGlow 4.5s ease-in-out infinite alternate;
+  }
+
+  body.theme-ib .curriculum-group-cell strong {
+    animation: groupBadgeGlow 3.2s ease-in-out infinite alternate;
+  }
+
+  body.theme-ib .curriculum-table tbody tr {
+    transition: background-color 0.2s ease;
+  }
+
+  body.theme-ib .curriculum-table tbody tr:active {
+    background: rgba(56, 189, 248, 0.12) !important;
+  }
+
+  /* Tríada IB en móvil (CAS, TOK, Monografía) con respiración de color */
+  .ib-triad-interactive-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .ib-triad-cas {
+    animation: triadPulseGreen 4s ease-in-out infinite alternate !important;
+  }
+
+  .ib-triad-tok {
+    animation: triadPulseIndigo 4s ease-in-out infinite alternate 1.3s !important;
+  }
+
+  .ib-triad-ee {
+    animation: triadPulseAmber 4s ease-in-out infinite alternate 2.6s !important;
+  }
+
+  .ib-triad-card:active {
+    transform: scale(0.975) translateY(2px) !important;
+  }
+
+  /* Ribbon de Estadísticas IB con iconos animados */
+  .ib-stat-item {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .ib-stat-item:active {
+    transform: scale(0.975) translateY(2px) !important;
+  }
+
+  .ib-stat-item .ib-stat-icon {
+    animation: ibIconBob 3s ease-in-out infinite !important;
+  }
+
+  /* Retroalimentación táctil de botones y tarjetas generales */
+  .btn:active {
+    transform: scale(0.96) translateY(2px) !important;
+  }
+
+  .news-card:active,
+  .advantage-item:active {
+    transform: scale(0.985) !important;
   }
 
   /* Modal de Noticias adaptado para pantallas táctiles */
