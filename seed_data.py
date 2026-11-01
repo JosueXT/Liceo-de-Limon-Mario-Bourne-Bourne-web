@@ -494,6 +494,48 @@ DEFAULT_NEWS = [
         "content": "Con presentaciones de la Banda Institucional, grupos de danza folclórica limonense y oratoria cívica, la comunidad liceísta celebró un aniversario más de la designación institucional con el nombre del insigne formador Mario Bourne Bourne, renovando el compromiso con la equidad educativa.",
         "image": "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80",
         "author": "Dirección Liceo de Limón"
+    },
+    {
+        "id": 7,
+        "title": "📸 Proyecto CAS IB: Reforestación y Conciencia Marina en el Caribe Sur",
+        "category": "Bachillerato Internacional",
+        "category_slug": "ib",
+        "subcategory": "Redes Sociales",
+        "date": "29 de Octubre, 2026",
+        "summary": "Estudiantes del Diploma IB documentaron en Instagram su trabajo de campo ecológico y servicio comunitario en Playa Bonita y Cahuita.",
+        "content": "Publicación oficial replicada desde Instagram (@ib_liceodelimon).\n\nLos estudiantes de la generación 2026 del Bachillerato Internacional del Liceo de Limón lideraron una jornada ecológica y de educación ambiental marina en alianza con organizaciones comunitarias del Caribe costarricense.\n\nSiga las historias, videos y testimonios completos en nuestra cuenta oficial de Instagram.",
+        "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+        "author": "Instagram @ib_liceodelimon",
+        "social_network": "Instagram",
+        "social_url": "https://www.instagram.com/ib_liceodelimon"
+    },
+    {
+        "id": 8,
+        "title": "👥 Coloquio de Teoría del Conocimiento (TOK): Ponencias Estudiantiles en Vivo",
+        "category": "Bachillerato Internacional",
+        "category_slug": "ib",
+        "subcategory": "Redes Sociales",
+        "date": "26 de Octubre, 2026",
+        "summary": "Transmisión oficial y galería de fotos compartida en nuestra página de Facebook sobre el coloquio anual de epistemología y ética TOK.",
+        "content": "Publicación oficial replicada desde Facebook (Bachillerato Internacional - Liceo de Limón).\n\nRevise las presentaciones orales, ensayos destacados y debates interactivos de los alumnos del Diploma del IB sobre preguntas centrales del conocimiento humano, perspectivas culturales y ética contemporánea.\n\nEl video completo de la transmisión se encuentra disponible en nuestro Facebook oficial.",
+        "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80",
+        "author": "Facebook IB Liceo de Limón",
+        "social_network": "Facebook",
+        "social_url": "https://www.facebook.com/liceodelimon"
+    },
+    {
+        "id": 9,
+        "title": "📸 Convocatoria Abierta: Pruebas Diagnósticas e Inducción al Diploma IB 2026",
+        "category": "Bachillerato Internacional",
+        "category_slug": "ib",
+        "subcategory": "Redes Sociales",
+        "date": "22 de Octubre, 2026",
+        "summary": "Información oficial compartida en Instagram con requisitos, cronograma de exámenes y fechas de charlas informativas para 9° año.",
+        "content": "Publicación oficial replicada desde Instagram (@ib_liceodelimon).\n\nInvitamos a los estudiantes de 9° año y a sus familias interesadas en formar parte del Bachillerato Internacional público a consultar los requisitos de admisión, documentación y fechas clave en el enlace oficial de la publicación.",
+        "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80",
+        "author": "Instagram @ib_liceodelimon",
+        "social_network": "Instagram",
+        "social_url": "https://www.instagram.com/ib_liceodelimon"
     }
 ]
 

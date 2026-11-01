@@ -1106,6 +1106,35 @@ class LiceoLimonTestCase(unittest.TestCase):
         res_admin_restricted = self.client.get('/admin/panel')
         self.assertEqual(res_admin_restricted.status_code, 302)
 
+    def test_24_ib_social_sync_and_exclusive_subcategory(self):
+        """Valida que la sincronización automática de redes sociales asigne publicaciones exclusivamente a Bachillerato Internacional."""
+        with self.client.session_transaction() as sess:
+            sess['is_admin'] = True
+
+        # 1. Probar endpoint de sincronización
+        res_sync = self.client.post('/api/social/sync-ib')
+        self.assertEqual(res_sync.status_code, 200)
+        data_sync = json.loads(res_sync.data)
+        self.assertTrue(data_sync['success'])
+
+        # 2. Comprobar que en la base de datos todas las noticias con 'Redes Sociales' tienen categoría 'Bachillerato Internacional'
+        from database import get_all_news
+        news_items = get_all_news()
+        social_items = [n for n in news_items if n.get('subcategory') == 'Redes Sociales']
+        self.assertGreater(len(social_items), 0)
+        for item in social_items:
+            self.assertEqual(item['category_slug'], 'ib')
+            self.assertEqual(item['category'], 'Bachillerato Internacional')
+            self.assertTrue(item.get('social_network') in ('Instagram', 'Facebook'))
+            self.assertTrue(bool(item.get('social_url')))
+
+        # 3. Comprobar que en la página de inicio o IB se renderizan los distintivos oficiales
+        res_home = self.client.get('/')
+        self.assertEqual(res_home.status_code, 200)
+        html_home = res_home.data.decode('utf-8')
+        self.assertIn('📸 Instagram', html_home)
+        self.assertIn('👥 Facebook', html_home)
+
 if __name__ == '__main__':
     unittest.main()
 

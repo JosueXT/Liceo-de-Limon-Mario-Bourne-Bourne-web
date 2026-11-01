@@ -351,6 +351,11 @@ def init_db(force=False):
     conn.close()
     _DB_ALREADY_INITIALIZED = True
     try:
+        from social_sync_service import sync_ib_social_posts
+        sync_ib_social_posts()
+    except Exception:
+        pass
+    try:
         resequence_news_ids()
     except Exception:
         pass
@@ -368,8 +373,8 @@ def seed_news(conn):
     cursor = conn.cursor()
     for item in DEFAULT_NEWS:
         cursor.execute('''
-            INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url, social_network, social_url)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             item['title'],
             item['category'],
@@ -381,7 +386,9 @@ def seed_news(conn):
             item['image'],
             item['author'],
             item.get('image_position', 'center center'),
-            item.get('video_url', '')
+            item.get('video_url', ''),
+            item.get('social_network', ''),
+            item.get('social_url', '')
         ))
     conn.commit()
 

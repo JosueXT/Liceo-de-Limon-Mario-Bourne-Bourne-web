@@ -213,9 +213,8 @@ function initNewsFilters() {
     newsCards.forEach(card => {
       const cardCategory = card.getAttribute('data-category');
       const cardSubcategory = (card.getAttribute('data-subcategory') || '').trim();
-      const hasSocial = Boolean(card.querySelector('.btn-news-social-link') || card.getAttribute('data-social-url'));
 
-      const matchesCategory = (currentCategory === 'all' || cardCategory === currentCategory || (currentCategory === 'redes' && (cardSubcategory.toLowerCase().includes('redes') || hasSocial)));
+      const matchesCategory = (currentCategory === 'all' || cardCategory === currentCategory);
       const matchesSubcategory = (currentSubcategory === 'all' || cardSubcategory.toLowerCase() === currentSubcategory.toLowerCase());
 
       if (matchesCategory && matchesSubcategory) {
@@ -247,7 +246,13 @@ function initNewsFilters() {
     newsCards.forEach(card => {
       if (card.getAttribute('data-category') === category) {
         const sub = (card.getAttribute('data-subcategory') || '').trim();
-        if (sub) subcats.add(sub);
+        if (sub) {
+          // La subcategoría de Redes Sociales es estrictamente exclusiva del Bachillerato Internacional (IB)
+          if (category !== 'ib' && sub.toLowerCase().includes('redes')) {
+            return;
+          }
+          subcats.add(sub);
+        }
       }
     });
 
@@ -262,7 +267,11 @@ function initNewsFilters() {
     html += `<button class="news-subtab-btn active" data-subfilter="all">Todas (${category.toUpperCase()})</button>`;
     
     subcats.forEach(sub => {
-      html += `<button class="news-subtab-btn" data-subfilter="${sub}">${sub}</button>`;
+      let label = sub;
+      if (sub.toLowerCase().includes('redes')) {
+        label = '📱 Redes Sociales (IG & FB)';
+      }
+      html += `<button class="news-subtab-btn" data-subfilter="${sub}">${label}</button>`;
     });
 
     subfilterWrapper.innerHTML = html;
@@ -447,11 +456,28 @@ function initNewsModal() {
 
     const modalBody = document.getElementById('modalNewsBody');
     if (modalBody) {
-      modalBody.innerHTML = rawContent
+      let bodyHtml = rawContent
         .split('\n\n')
         .filter(p => p.trim())
         .map(p => `<p style="margin-bottom: 1.2rem; line-height: 1.8;">${p.trim()}</p>`)
         .join('');
+
+      const socialUrl = card.getAttribute('data-social-url');
+      if (socialUrl) {
+        const isIg = socialUrl.includes('instagram.com');
+        const isFb = socialUrl.includes('facebook.com');
+        const btnText = isIg ? '📸 Abrir Publicación Oficial en Instagram' : (isFb ? '👥 Abrir Publicación Oficial en Facebook' : '🔗 Abrir Publicación en Red Social');
+        const btnClass = isIg ? 'link-ig' : 'link-fb';
+        bodyHtml += `
+          <div style="margin-top: 1.8rem; padding-top: 1.2rem; border-top: 1px solid var(--gris-200); display: flex; justify-content: flex-start;">
+            <a href="${socialUrl}" target="_blank" rel="noopener noreferrer" class="btn-news-social-link ${btnClass}" style="font-size: 0.92rem; padding: 0.6rem 1.3rem;">
+              <span>${btnText}</span> ↗
+            </a>
+          </div>
+        `;
+      }
+
+      modalBody.innerHTML = bodyHtml;
     }
 
     modal.style.display = 'flex';

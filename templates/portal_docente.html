@@ -581,25 +581,42 @@
          ===================================================================== -->
     <section class="teacher-tab-pane" id="tab-social-post">
       <div class="teacher-panel-card">
-        <h2 style="font-size: 1.5rem; margin-top: 0; margin-bottom: 0.5rem; font-weight: 800;">
-          📸 Compartir Publicación de Instagram o Facebook en las Noticias
-        </h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.8rem;">
+          <div>
+            <h2 style="font-size: 1.5rem; margin: 0; font-weight: 800;">
+              📸 Compartir Publicación de Instagram o Facebook en las Noticias
+            </h2>
+            <p style="margin: 0.2rem 0 0 0; font-size: 0.88rem; color: #64748b;">
+              Exclusivo para la sección de <strong>Bachillerato Internacional (IB)</strong>.
+            </p>
+          </div>
+          <button type="button" class="teacher-btn-action" onclick="syncTeacherSocialPosts()" id="btnSyncTeacherSocial" style="background: #0284c7; padding: 0.5rem 1.1rem; font-size: 0.85rem; width: auto;">
+            🔄 Sincronizar Publicaciones Oficiales IB Ahora
+          </button>
+        </div>
+
         <div class="teacher-guide-box">
-          💡 <strong>¿Cómo funciona?</strong> Cuando suba una foto o video a la cuenta oficial de Instagram o Facebook del Bachillerato Internacional, copie el enlace aquí. Se creará automáticamente una noticia con el logotipo de la red social y un botón directo para que los visitantes puedan abrirla en su celular o computadora.
+          💡 <strong>¿Cómo funciona?</strong> Cuando suba una foto o video a la cuenta oficial de Instagram o Facebook del Bachillerato Internacional, pegue el enlace aquí. Puede hacer clic en <strong>"🪄 Cargar Automáticamente"</strong> para que el sistema lea la foto y el texto oficial de la publicación por usted. Se creará una noticia con el logo de la red social y un botón directo.
         </div>
 
         <form id="teacherSocialPostForm">
           <div class="teacher-form-group">
             <label class="teacher-label" for="socialNetwork">Red Social de Origen *</label>
             <select id="socialNetwork" name="network" class="teacher-select" style="font-weight: 700;">
-              <option value="Instagram">📸 Instagram Oficial (Liceo IB)</option>
-              <option value="Facebook">👥 Facebook Institucional</option>
+              <option value="Instagram">📸 Instagram Oficial (@ib_liceodelimon)</option>
+              <option value="Facebook">👥 Facebook Oficial (Bachillerato Internacional - Liceo de Limón)</option>
             </select>
           </div>
 
           <div class="teacher-form-group">
             <label class="teacher-label" for="socialPostUrl">Enlace Directo a la Publicación (URL) *</label>
-            <input type="url" id="socialPostUrl" name="post_url" class="teacher-input" placeholder="https://www.instagram.com/p/... o https://www.facebook.com/..." required>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <input type="url" id="socialPostUrl" name="post_url" class="teacher-input" style="flex: 1; min-width: 250px;" placeholder="https://www.instagram.com/p/... o https://www.facebook.com/..." required>
+              <button type="button" class="teacher-btn-action" id="btnAutoFetch" onclick="autoFetchSocialMetadata()" style="background: #0ea5e9; padding: 0.5rem 1rem; font-size: 0.85rem; width: auto; white-space: nowrap;">
+                🪄 Cargar Automáticamente
+              </button>
+            </div>
+            <small style="display: block; font-size: 0.78rem; color: #64748b; margin-top: 4px;">Pegue el enlace y presione "Cargar Automáticamente" para rellenar el título y la foto al instante.</small>
           </div>
 
           <div class="teacher-form-group">
@@ -618,7 +635,7 @@
           </div>
 
           <button type="submit" class="teacher-btn-action" id="btnShareSocial">
-            <span>🚀 Replicar y Publicar en Noticias</span>
+            <span>🚀 Replicar y Publicar en Noticias IB</span>
           </button>
         </form>
       </div>
@@ -862,6 +879,79 @@
         alert('Error de conexión al cambiar visibilidad.');
       } finally {
         if (btn) btn.disabled = false;
+      }
+    }
+
+    // Cargar automáticamente información desde enlace de Instagram / Facebook
+    async function autoFetchSocialMetadata() {
+      const urlInput = document.getElementById('socialPostUrl');
+      const url = urlInput ? urlInput.value.trim() : '';
+      if (!url) {
+        alert('Por favor ingrese primero el enlace de la publicación de Instagram o Facebook.');
+        return;
+      }
+
+      const btn = document.getElementById('btnAutoFetch');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Leyendo red social...';
+      }
+
+      try {
+        const res = await fetch('/api/social/extract-metadata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.metadata) {
+          const meta = data.metadata;
+          if (meta.title && document.getElementById('socialPostTitle')) {
+            document.getElementById('socialPostTitle').value = meta.title;
+          }
+          if (meta.description && document.getElementById('socialPostSummary')) {
+            document.getElementById('socialPostSummary').value = meta.description;
+          }
+          if (meta.image && document.getElementById('socialPostImage')) {
+            document.getElementById('socialPostImage').value = meta.image;
+          }
+          alert('✓ ¡Información de la publicación cargada automáticamente!');
+        } else {
+          alert(data.message || 'La red social requiere inicio de sesión. Por favor complete el título manualmente.');
+        }
+      } catch (err) {
+        alert('No fue posible contactar con la red social directamente. Puede ingresar el título manualmente.');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '🪄 Cargar Automáticamente';
+        }
+      }
+    }
+
+    // Sincronizar todas las publicaciones oficiales de IB
+    async function syncTeacherSocialPosts() {
+      const btn = document.getElementById('btnSyncTeacherSocial');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Sincronizando redes...';
+      }
+      try {
+        const res = await fetch('/api/social/sync-ib', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert('✓ ¡Sincronización completada! ' + data.message);
+          location.reload();
+        } else {
+          alert('Aviso: ' + (data.message || 'No se pudieron sincronizar las redes'));
+        }
+      } catch (err) {
+        alert('Error de conexión al sincronizar redes.');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '🔄 Sincronizar Publicaciones Oficiales IB Ahora';
+        }
       }
     }
   </script>

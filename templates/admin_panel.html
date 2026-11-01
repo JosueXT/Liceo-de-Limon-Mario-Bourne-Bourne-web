@@ -1407,7 +1407,12 @@
               <h2 class="panel-card-title">Gestión y Edición de Noticias</h2>
               <p class="panel-card-desc">Publique o edite comunicados institucionales asignando categorías y subcategorías (ej. CAS, TOK, DELF, etc.).</p>
             </div>
-            <button class="btn btn-azul btn-sm" onclick="toggleAddNewsForm()">➕ Publicar Nuevo Comunicado</button>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="syncIbSocialPosts()" id="btnSyncSocial" style="border-color: #0284c7; color: #0284c7; font-weight: 700;">
+                🔄 Sincronizar Redes IB (IG & FB)
+              </button>
+              <button type="button" class="btn btn-azul btn-sm" onclick="toggleAddNewsForm()">➕ Publicar Nuevo Comunicado</button>
+            </div>
           </div>
 
           <!-- Formulario 1: EDITAR NOTICIA EXISTENTE -->
@@ -3210,6 +3215,7 @@
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('TOK')">TOK</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Actividades')">Actividades</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('Monografía')">Monografía</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; border-color: #0284c7; color: #0284c7; font-weight: 700;" onclick="setSubcat('Redes Sociales')">📱 Redes Sociales (IG & FB)</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setSubcat('')">Sin subcategoría</button>
         `;
       } else if (catVal === 'Francés Avanzado') {
@@ -3248,6 +3254,7 @@
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('TOK')">TOK</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Actividades')">Actividades</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('Monografía')">Monografía</button>
+          <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; border-color: #0284c7; color: #0284c7; font-weight: 700;" onclick="setEditSubcat('Redes Sociales')">📱 Redes Sociales (IG & FB)</button>
           <button type="button" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;" onclick="setEditSubcat('')">Sin subcategoría</button>
         `;
       } else if (catVal === 'Francés Avanzado') {
@@ -3520,6 +3527,31 @@
           }
         } catch (err) {
           showToast('Error al eliminar comunicado.', 'error');
+        }
+      }
+    }
+
+    async function syncIbSocialPosts() {
+      const btn = document.getElementById('btnSyncSocial');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '🔄 Sincronizando...';
+      }
+      try {
+        const res = await fetch('/api/social/sync-ib', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(`✓ ${data.message}`, 'success');
+          setTimeout(() => window.location.reload(), 900);
+        } else {
+          showToast(data.message || 'Error al sincronizar redes sociales.', 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al sincronizar redes sociales.', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '🔄 Sincronizar Redes IB (IG & FB)';
         }
       }
     }

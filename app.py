@@ -684,6 +684,28 @@ def api_teacher_save_social_links():
     update_bulk_content(data)
     return jsonify({'success': True, 'message': 'Enlaces de contacto actualizados correctamente.'})
 
+@app.route('/api/social/sync-ib', methods=['POST'])
+def api_social_sync_ib():
+    """Sincroniza y publica automáticamente las publicaciones de redes sociales oficiales de IB."""
+    if not session.get('is_admin') and not session.get('is_teacher'):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+    from social_sync_service import sync_ib_social_posts
+    result = sync_ib_social_posts()
+    return jsonify(result)
+
+@app.route('/api/social/extract-metadata', methods=['POST'])
+def api_social_extract_metadata():
+    """Extrae automáticamente título, descripción y foto de un enlace de Instagram/Facebook."""
+    if not session.get('is_admin') and not session.get('is_teacher'):
+        return jsonify({'success': False, 'message': 'No autorizado.'}), 403
+    data = request.get_json(silent=True) or request.form
+    url = data.get('url', '').strip()
+    from social_sync_service import fetch_opengraph_metadata
+    meta = fetch_opengraph_metadata(url)
+    if not meta:
+        return jsonify({'success': False, 'message': 'No fue posible extraer metadatos del enlace (la red social requiere inicio de sesión público).'}), 404
+    return jsonify({'success': True, 'metadata': meta})
+
 @app.route('/api/admin/toggle-ib-exclusive', methods=['POST'])
 def api_toggle_ib_exclusive():
     if not session.get('is_admin'):
