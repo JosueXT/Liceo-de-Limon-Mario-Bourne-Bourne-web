@@ -1400,6 +1400,76 @@ body.cms-edit-mode .mep-flag-strip:hover {
   transform: scale(1.08);
 }
 
+/* Barra superior organizadora de insignias en tarjetas de noticias */
+.news-card-badge-bar {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.85rem;
+  right: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.45rem;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.news-badge-group-left,
+.news-badge-group-right {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  pointer-events: auto;
+}
+
+.news-badge-group-right {
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.news-card-badge-bar .news-tag-overlay,
+.news-card-badge-bar .news-video-badge,
+.news-card-badge-bar .news-gallery-badge,
+.news-card-badge-bar .news-pinned-badge {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+}
+
+.news-pinned-badge {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+  color: #ffffff;
+  padding: 0.32rem 0.72rem;
+  border-radius: var(--radius-full);
+  font-size: 0.76rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 4px 12px rgba(202, 138, 4, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  line-height: 1.2;
+}
+
+.news-gallery-badge {
+  background: rgba(15, 23, 42, 0.82);
+  color: #fff;
+  padding: 0.32rem 0.68rem;
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  line-height: 1.2;
+}
+
 .news-tag-overlay {
   position: absolute;
   top: 1.1rem;
@@ -1407,12 +1477,20 @@ body.cms-edit-mode .mep-flag-strip:hover {
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(8px);
   color: var(--blanco);
-  padding: 0.35rem 0.9rem;
+  padding: 0.35rem 0.85rem;
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  line-height: 1.2;
+}
+
+.cat-text-short {
+  display: none;
 }
 
 .news-tag-overlay.tag-ib {
@@ -1479,8 +1557,11 @@ body.cms-edit-mode .mep-flag-strip:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
   border-top: 1px solid var(--gris-200);
-  padding-top: 1.2rem;
+  padding-top: 1.1rem;
+  margin-top: auto;
 }
 
 .btn-read-more {
@@ -3233,11 +3314,73 @@ body.mobile-menu-open {
   }
 
   .news-image-container {
-    height: 200px;
+    height: 220px;
+  }
+
+  .news-card-badge-bar {
+    top: 0.6rem;
+    left: 0.6rem;
+    right: 0.6rem;
+    gap: 0.35rem;
+  }
+
+  .cat-text-full {
+    display: none;
+  }
+
+  .cat-text-short {
+    display: inline;
+    font-weight: 800;
+  }
+
+  .news-tag-overlay {
+    padding: 0.28rem 0.6rem;
+    font-size: 0.72rem;
+  }
+
+  .news-video-badge {
+    padding: 0.28rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .news-gallery-badge {
+    padding: 0.28rem 0.55rem;
+    font-size: 0.7rem;
+  }
+
+  .news-pinned-badge {
+    padding: 0.28rem 0.55rem;
+    font-size: 0.72rem;
+  }
+
+  .news-badge-ig,
+  .news-badge-fb {
+    display: none !important;
+  }
+
+  .news-play-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.15rem;
+    padding-left: 3px;
   }
 
   .news-body {
-    padding: 1.5rem 1.25rem;
+    padding: 1.25rem 1.15rem 1.85rem 1.15rem;
+  }
+
+  .news-footer {
+    padding-top: 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .news-footer .btn-read-more {
+    font-size: 0.88rem;
+  }
+
+  .btn-news-social-link {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.75rem;
   }
 
   .news-title {
@@ -3926,7 +4069,8 @@ body.cms-preview-mode .contact-info-panel.contact-info-preview-full .contact-det
 .news-card.is-playing-video .news-image,
 .news-card.is-playing-video .news-play-btn,
 .news-card.is-playing-video .news-video-badge,
-.news-card.is-playing-video .news-tag-overlay {
+.news-card.is-playing-video .news-tag-overlay,
+.news-card.is-playing-video .news-card-badge-bar {
   display: none !important;
 }
 
@@ -6258,6 +6402,10 @@ body.theme-ib .curriculum-subject-cell {
    INSIGNIAS Y ENLACES DE REDES SOCIALES EN TARJETAS DE NOTICIAS
    ========================================================================== */
 .news-badge-ig {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  z-index: 3;
   background: linear-gradient(135deg, #E1306C 0%, #C13584 100%);
   color: #ffffff !important;
   font-weight: 700;
@@ -6271,6 +6419,10 @@ body.theme-ib .curriculum-subject-cell {
 }
 
 .news-badge-fb {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  z-index: 3;
   background: #1877F2;
   color: #ffffff !important;
   font-weight: 700;
@@ -6287,13 +6439,13 @@ body.theme-ib .curriculum-subject-cell {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 0.45rem 0.95rem;
+  padding: 0.4rem 0.85rem;
   border-radius: var(--radius-full);
   text-decoration: none;
   transition: all var(--transition-fast);
-  margin-top: 0.6rem;
+  margin-top: 0;
 }
 
 .btn-news-social-link.link-ig {

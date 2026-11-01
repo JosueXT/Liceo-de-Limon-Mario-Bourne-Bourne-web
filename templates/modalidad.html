@@ -731,33 +731,47 @@
               <div class="news-full-content is-hidden">{{ item.content or item.summary or '' }}</div>
               <script type="application/json" class="news-gallery-json">{{ (item.gallery_images or '[]') | safe }}</script>
               <div class="news-image-container">
-                {% if item.is_pinned %}
-                <span class="news-pinned-badge" style="position: absolute; top: 0.75rem; left: 0.75rem; background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); color: #ffffff; padding: 0.32rem 0.75rem; border-radius: 20px; font-size: 0.78rem; font-weight: 800; z-index: 4; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 4px 12px rgba(202, 138, 4, 0.45); border: 1px solid rgba(255,255,255,0.4);">
-                  <span>📌</span> Fijada
-                </span>
-                {% endif %}
-                <span class="news-tag-overlay tag-ib{% if item.is_pinned and not item.gallery_images %} tag-shift-pinned{% endif %}">
-                  {{ item.category }}
-                  {% if item.subcategory %}
-                    <span class="news-subcategory-tag">{{ item.subcategory }}</span>
-                  {% endif %}
-                </span>
+                <div class="news-card-badge-bar">
+                  <div class="news-badge-group-left">
+                    {% if item.is_pinned %}
+                    <span class="news-pinned-badge">
+                      <span>📌</span> <span class="pinned-text">Fijada</span>
+                    </span>
+                    {% endif %}
+                    <span class="news-tag-overlay tag-ib">
+                      <span class="cat-text-full">{{ item.category }}</span>
+                      <span class="cat-text-short">{% if item.category_slug == 'ib' or 'Bachillerato' in item.category %}IB{% elif 'Franc' in item.category %}Francés{% elif 'Regular' in item.category %}Académica{% else %}{{ item.category }}{% endif %}</span>
+                      {% if item.subcategory and item.subcategory not in ['Instagram', 'Facebook', item.category, 'Redes Sociales', 'General'] %}
+                        <span class="news-subcategory-tag">{{ item.subcategory }}</span>
+                      {% endif %}
+                    </span>
+                  </div>
+                  <div class="news-badge-group-right">
+                    {% if item.gallery_images and item.gallery_images != '[]' and item.gallery_images != 'null' and item.gallery_images != '' %}
+                    <span class="news-gallery-badge">
+                      📸 <span class="card-gallery-counter">Carrusel</span>
+                    </span>
+                    {% endif %}
+                    {% if item.video_url %}
+                    <span class="news-video-badge" title="Clic para reproducir video">▶ Video</span>
+                    {% endif %}
+                  </div>
+                </div>
+
                 {% if item.gallery_images and item.gallery_images != '[]' and item.gallery_images != 'null' and item.gallery_images != '' %}
-                <span class="news-gallery-badge" style="position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(15, 23, 42, 0.82); color: #fff; padding: 0.3rem 0.65rem; border-radius: 20px; font-size: 0.76rem; font-weight: 700; z-index: 4; display: flex; align-items: center; gap: 0.3rem; backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.25);">
-                  📸 <span class="card-gallery-counter">Carrusel</span>
-                </span>
                 <button type="button" class="card-gallery-nav-btn card-gallery-prev" aria-label="Foto anterior" title="Foto anterior">⟨</button>
                 <button type="button" class="card-gallery-nav-btn card-gallery-next" aria-label="Foto siguiente" title="Foto siguiente">⟩</button>
                 {% endif %}
+
                 {% if item.social_network %}
                   {% if item.social_network == 'Instagram' or 'instagram.com' in (item.social_url or '') %}
-                    <span class="news-badge-ig" style="position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 3;">📸 Instagram</span>
+                    <span class="news-badge-ig">📸 Instagram</span>
                   {% elif item.social_network == 'Facebook' or 'facebook.com' in (item.social_url or '') %}
-                    <span class="news-badge-fb" style="position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 3;">👥 Facebook</span>
+                    <span class="news-badge-fb">👥 Facebook</span>
                   {% endif %}
                 {% endif %}
+
                 {% if item.video_url %}
-                <span class="news-video-badge" title="Clic para reproducir video">▶ Video</span>
                 <button type="button" class="news-play-btn" title="Reproducir video" aria-label="Reproducir video">
                   ▶
                 </button>
@@ -772,7 +786,7 @@
                 </div>
                 <h3 class="news-title">{{ item.title }}</h3>
                 <p class="news-summary">{{ item.summary }}</p>
-                <div class="news-footer" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                <div class="news-footer">
                   <a href="#" class="btn-read-more">Leer Comunicado Completo →</a>
                   {% if item.social_url %}
                     {% if item.social_network == 'Instagram' or 'instagram.com' in item.social_url %}
