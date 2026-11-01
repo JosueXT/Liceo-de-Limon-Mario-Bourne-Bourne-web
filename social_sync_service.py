@@ -4,164 +4,199 @@ SERVICIO DE SINCRONIZACIÓN Y REPLICACIÓN DE REDES SOCIALES (IB)
 LICEO DE LIMÓN MARIO BOURNE BOURNE - PROGRAMA DEL DIPLOMA
 ==============================================================================
 Sincroniza y publica automáticamente noticias del Bachillerato Internacional (IB)
-a partir de publicaciones de Instagram (@ib_limon_) y Facebook Oficial IB.
+a partir de las publicaciones REALES de Instagram (@ib_limon_) mediante Behold API.
 ==============================================================================
 """
 
-import re
 import json
-import time
 import urllib.request
 import urllib.error
 from datetime import datetime
 from database import get_db_connection, add_news, invalidate_cms_cache, resequence_news_ids
 
-# Publicaciones oficiales del Bachillerato Internacional (IB) en Redes Sociales
-# Re-subidas con las fotografías reales tomadas de las cuentas oficiales de Instagram (@ib_limon_) y Facebook Oficial IB
-OFFICIAL_IB_SOCIAL_FEEDS = [
+BEHOLD_FEED_URL = "https://feeds.behold.so/W8N8DJRtNSUmqg5S5yRs"
+
+SPANISH_MONTHS = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+
+# Publicaciones oficiales y 100% REALES extraídas directamente de la cuenta oficial @ib_limon_
+# Se utilizan como respaldo si no hay conexión externa en el momento de la consulta.
+FALLBACK_REAL_IB_POSTS = [
     {
-        "title": "🎭 Proyecto de Máscaras y Creatividad CAS: Tradición e Identidad Cultural en el IB",
+        "title": "🏆 ¡Limón tiene motivos para sentirse orgulloso!",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "28 de Octubre, 2026",
-        "summary": "Estudiantes del Diploma IB exhiben sus máscaras tradicionales artesanales (Spiderman, calaveras, payasos y máscaras folclóricas) creadas en el área de Creatividad, Actividad y Servicio.",
-        "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nLos estudiantes del Bachillerato Internacional del Liceo de Limón presentaron sus creaciones de máscaras tradicionales, integrando elementos de la cultura costarricense y la expresión artística contemporánea. Una muestra palpable del entusiasmo, originalidad y compromiso que caracteriza a la comunidad del Diploma IB.",
-        "image": "/static/img/social/ig_mascaradas_cas.jpg",
+        "date": "30 de Octubre, 2026",
+        "summary": "Felicitamos a los grupos 2, 3 y 4 por su participación en el proyecto @epicostarica, impulsado por MSC Mediterranean Shipping Company. De manera especial, felicitamos al Grupo 1, ganador del proyecto nacional.",
+        "content": "🏆 ¡Limón tiene motivos para sentirse orgulloso!\n\nFelicitamos a los grupos 2, 3 y 4 por su participación en el proyecto @epicostarica , impulsado por MSC Mediterranean Shipping Company. Ser parte de esta experiencia ya es un gran logro, y reconocemos el esfuerzo, la creatividad y el compromiso ambiental de todos nuestros estudiantes.\n\nDe manera especial, felicitamos al Grupo 1, ganador del proyecto y uno de los tres finalistas a nivel nacional, con una propuesta que busca aprovechar el agua de lluvia para abastecer los sanitarios y reducir el consumo de agua potable en nuestra provincia.\n\nEl equipo está integrado por:\nJosue Amaya, Engel Zúñiga, Sofia Matarrita, Jeycob Nuñez y Annie Sánchez.\n\nEste reconocimiento es motivo de orgullo para Limón, nuestro Liceo y el Bachillerato Internacional. ¡Nuestros jóvenes demuestran que las grandes ideas también nacen en nuestra provincia!\n\n¡Felicidades a todos!\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
+        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODExMzQ2MTAxOTE0NTE2NyIsImgiOiIxNGl6Mm54In0.jpg?class=squareLarge",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
+        "social_url": "https://www.instagram.com/p/DfIuZD5jrHC/"
     },
     {
-        "title": "🌊 Proyecto Marino CAS: Conservación de Arrecifes y Exploración Ecológica en el Caribe Sur",
+        "title": "🎭 ¡Nuestras tradiciones siguen vivas en las nuevas generaciones!",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "25 de Octubre, 2026",
-        "summary": "Trabajo de campo ambiental de los estudiantes del IB explorando ecosistemas marinos y promoviendo la protección de los arrecifes coralinos de nuestra provincia.",
-        "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nNuestros estudiantes del IB vivieron una enriquecedora experiencia de investigación y servicio comunitario en las costas del Caribe, documentando la biodiversidad marina y participando activamente en la sensibilización ambiental sobre la conservación de nuestros mares.",
-        "image": "/static/img/social/ig_arrecife_marino.jpg",
+        "date": "30 de Octubre, 2026",
+        "summary": "Los estudiantes de la sección 11-7 celebraron el Día Nacional de la Mascarada Costarricense elaborando sus propias máscaras, llenando de creatividad y color esta actividad representativa.",
+        "content": "🎭 ¡Nuestras tradiciones siguen vivas en las nuevas generaciones!\n\nLos estudiantes de la sección 11-7 celebraron el Día Nacional de la Mascarada Costarricense elaborando sus propias máscaras, llenando de creatividad y color esta actividad inspirada en una de las expresiones más representativas de nuestra identidad cultural.\n\nPorque conocer nuestras raíces también es una forma de mantenerlas vivas. 🇨🇷\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
+        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODExOTk5OTg0MzA4NDM0NCIsImgiOiIxMzNrN211In0.jpg?class=squareLarge",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
+        "social_url": "https://www.instagram.com/p/DfIp6NUoApo/"
     },
     {
-        "title": "👥 Comunidad de Aprendizaje IB: Trabajo Colaborativo y Excelencia en el Aula",
+        "title": "Dos años de esfuerzo nos han traído hasta este momento.",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "22 de Octubre, 2026",
-        "summary": "Estudiantes de la generación del Diploma del Liceo de Limón reunidos en el aula institucional con su uniforme oficial, compartiendo experiencias y reforzando metas académicas.",
-        "content": "Publicación oficial importada automáticamente desde Instagram (@ib_limon_).\n\nUna comunidad unida por el deseo de superación. Los estudiantes del Bachillerato Internacional demuestran día a día el perfil de la comunidad de aprendizaje del IB: indagadores, solidarios, reflexivos y comprometidos con el desarrollo de Limón.",
-        "image": "/static/img/social/ig_estudiantes_aula.jpg",
+        "date": "27 de Octubre, 2026",
+        "summary": "Hoy, nuestros estudiantes de sexto año iniciaron las pruebas internacionales del Bachillerato Internacional (BI), una etapa que representa sueños, sacrificios y aprendizajes construidos con perseverancia.",
+        "content": "Dos años de esfuerzo nos han traído hasta este momento.\n\nHoy, nuestros estudiantes de sexto año iniciaron las pruebas internacionales del Bachillerato Internacional (BI), una etapa que representa mucho más que evaluaciones: representa sueños, sacrificios, aprendizajes y metas construidas con perseverancia.\n\nQueridos estudiantes, confíen en todo lo que han aprendido y en las capacidades que han desarrollado. Recuerden que son mucho más que una calificación. Estamos orgullosos de la historia que han construido y de todo lo que han superado para llegar hasta aquí.\n\nAgradecemos profundamente a nuestra coordinadora, Andra Edwards Loban, por su entrega y acompañamiento, y a los profesores de todas las asignaturas por compartir sus conocimientos y ser parte fundamental de este proceso.\n\nQue cada respuesta refleje su esfuerzo y que, al terminar, puedan decir con orgullo: lo di todo.\n\n¡Les deseamos el mayor de los éxitos! Toda nuestra comunidad educativa cree en ustedes.\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
+        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxNzk5ODYzMDI3ODA1MTk3OCIsImgiOiIxdzBnajhkIn0.jpg?class=squareLarge",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
+        "social_url": "https://www.instagram.com/p/DfA1lBYoJT5/"
     },
     {
-        "title": "🎭 Muestra Cultural de Máscaras Tradicionales y Convivio Estudiantil IB",
+        "title": "¡Compartiendo experiencias que dejan huella!",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "18 de Octubre, 2026",
-        "summary": "Álbum fotográfico compartido en la página oficial de Facebook sobre la presentación de proyectos artísticos y convivencia de los alumnos del IB con pancarta de bienvenida.",
-        "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional Liceo de Limón Mario Bourne Bourne).\n\nCompartimos las fotografías de la jornada cultural donde nuestros estudiantes presentaron sus creaciones de máscaras artesanales. ¡Felicitaciones a todos los participantes por su entusiasmo y orgullo institucional!",
-        "image": "/static/img/social/fb_mascaradas_1.jpg",
-        "author": "Facebook IB Liceo de Limón",
-        "social_network": "Facebook",
-        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
+        "date": "10 de Octubre, 2026",
+        "summary": "Nuestros estudiantes de quinto año del Bachillerato Internacional participaron en una jornada de convivencia con las personas jubiladas de COLYPRO, cerca de Playa Bonita, Limón.",
+        "content": "¡Compartiendo experiencias que dejan huella!\n\nNuestros estudiantes de quinto año del Bachillerato Internacional participaron en una jornada de convivencia con las personas jubiladas de COLYPRO, cerca de Playa Bonita, Limón.\n\nEntre bailes, juegos de mesa y momentos de alegría, fortalecieron los lazos entre generaciones y pusieron en práctica valores como el respeto, la empatía y la solidaridad.\n\n¡Aprender también es compartir con nuestra comunidad!",
+        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODAyNjU5NTczNDg2OTcwMyIsImgiOiIxeHUwMGYzIn0.jpg?class=squareLarge",
+        "author": "Instagram @ib_limon_",
+        "social_network": "Instagram",
+        "social_url": "https://www.instagram.com/p/DeS8i6Ijn2z/"
     },
     {
-        "title": "🎄 Convivio y Tradición Navideña en el Aula del Bachillerato Internacional",
+        "title": "🌎 ¿Por qué elegir el Bachillerato Internacional?",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "12 de Octubre, 2026",
-        "summary": "Celebración de fin de año e integración comunitaria de los estudiantes del Diploma alrededor del árbol navideño y proyectos creativos en el Liceo.",
-        "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional Liceo de Limón Mario Bourne Bourne).\n\nCompartimos momentos de alegría y fraternidad estudiantil en el aula del IB. Un espacio para celebrar los logros académicos del año y fortalecer la unión de nuestra comunidad educativa.",
-        "image": "/static/img/social/fb_navidad_arbol.jpg",
-        "author": "Facebook IB Liceo de Limón",
-        "social_network": "Facebook",
-        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
+        "date": "24 de Septiembre, 2026",
+        "summary": "Elegir el Programa del Diploma del Bachillerato Internacional es apostar por una formación que va más allá del aula. Formación con visión global y excelencia académica.",
+        "content": "🌎 ¿Por qué elegir el Bachillerato Internacional?\n\nElegir el Programa del Diploma del Bachillerato Internacional es apostar por una formación que va más allá del aula.\n\nDeslizá y descubrí por qué elegir el Bachillerato Internacional. ✨",
+        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxNzg4Njg0MjcxNTQ3OTA2NCIsImgiOiI2bjhpZW8ifQ.jpg?class=squareLarge",
+        "author": "Instagram @ib_limon_",
+        "social_network": "Instagram",
+        "social_url": "https://www.instagram.com/p/DdpmlK2jnZu/"
     },
     {
-        "title": "🎭 Exposición de Arte y Expresión Estudiantil IB en el Liceo de Limón",
+        "title": "Celebramos nuestra independencia 🙌🏼🇨🇷",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "5 de Octubre, 2026",
-        "summary": "Registro visual de la jornada artística del IB con máscaras representativas de leyendas y personajes tradicionales.",
-        "content": "Publicación oficial importada automáticamente desde Facebook (Bachillerato Internacional Liceo de Limón Mario Bourne Bourne).\n\nNuestros estudiantes exploran las artes visuales y la identidad nacional a través de proyectos manuales que fomentan la perseverancia, el trabajo en equipo y la autoexpresión.",
-        "image": "/static/img/social/fb_mascaradas_2.jpg",
-        "author": "Facebook IB Liceo de Limón",
-        "social_network": "Facebook",
-        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
+        "date": "16 de Septiembre, 2026",
+        "summary": "Con orgullo y alegría conmemoramos el Día de la Independencia de Costa Rica, participando en el tradicional desfile y celebrando juntos nuestra identidad, cultura y valores.",
+        "content": "Celebramos nuestra independencia 🙌🏼🇨🇷\n\nCon orgullo y alegría conmemoramos el Día de la Independencia de Costa Rica, participando en el tradicional desfile y celebrando juntos nuestra identidad, cultura y valores.\n\n¡Viva Costa Rica! 🇨🇷🇨🇷",
+        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODQwNjM0NTE4MDA4MDgzMSIsImgiOiIxYnd4OTU5In0.jpg?class=squareLarge",
+        "author": "Instagram @ib_limon_",
+        "social_network": "Instagram",
+        "social_url": "https://www.instagram.com/p/DdVTXScjhhx/"
     }
 ]
 
-def fetch_opengraph_metadata(url):
+def fetch_live_behold_posts():
     """
-    Extrae título, descripción y foto de una publicación de Instagram, Facebook o web
-    utilizando etiquetas OpenGraph oficiales (og:title, og:description, og:image).
+    Consulta en tiempo real la API de Behold.so para extraer las publicaciones
+    oficiales más recientes de la cuenta de Instagram @ib_limon_.
     """
-    if not url or not isinstance(url, str):
-        return None
-
-    clean_url = url.strip()
     try:
         req = urllib.request.Request(
-            clean_url,
+            BEHOLD_FEED_URL,
             headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 LiceoLimónBot/1.0',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) LiceoDeLimonIB/1.0',
+                'Accept': 'application/json'
             }
         )
-        with urllib.request.urlopen(req, timeout=5) as response:
-            html = response.read().decode('utf-8', errors='ignore')
+        with urllib.request.urlopen(req, timeout=4) as response:
+            if response.status != 200:
+                return None
+            data = json.loads(response.read().decode('utf-8'))
 
-        # Extraer og:title
-        title_m = re.search(r'<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']', html, re.IGNORECASE)
-        # Extraer og:description
-        desc_m = re.search(r'<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']', html, re.IGNORECASE)
-        # Extraer og:image
-        img_m = re.search(r'<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']', html, re.IGNORECASE)
+        raw_posts = data.get('posts', [])
+        if not raw_posts:
+            return None
 
-        return {
-            'title': title_m.group(1).strip() if title_m else None,
-            'description': desc_m.group(1).strip() if desc_m else None,
-            'image': img_m.group(1).strip() if img_m else None
-        }
+        parsed_posts = []
+        for p in raw_posts:
+            raw_caption = (p.get('prunedCaption') or p.get('caption') or '').strip()
+            lines = [l.strip() for l in raw_caption.split('\n') if l.strip()]
+            first_line = lines[0] if lines else "Publicación Oficial de Instagram"
+            title = first_line[:110]
+
+            summary = lines[1] if len(lines) > 1 else lines[0] if lines else ''
+            if len(summary) > 220:
+                summary = summary[:217] + '...'
+
+            ts = p.get('timestamp')
+            if ts:
+                try:
+                    dt = datetime.fromisoformat(ts.replace('Z', '+00:00'))
+                    date_str = f"{dt.day} de {SPANISH_MONTHS[dt.month]}, {dt.year}"
+                except Exception:
+                    date_str = "Reciente"
+            else:
+                date_str = "Reciente"
+
+            sizes = p.get('sizes') or {}
+            img_url = (
+                sizes.get('large', {}).get('mediaUrl') or
+                sizes.get('medium', {}).get('mediaUrl') or
+                sizes.get('small', {}).get('mediaUrl') or
+                p.get('mediaUrl') or ''
+            )
+
+            permalink = p.get('permalink') or 'https://www.instagram.com/ib_limon_/'
+
+            parsed_posts.append({
+                "title": title,
+                "category": "Bachillerato Internacional",
+                "category_slug": "ib",
+                "subcategory": "Redes Sociales",
+                "date": date_str,
+                "summary": summary,
+                "content": raw_caption,
+                "image": img_url,
+                "author": "Instagram @ib_limon_",
+                "social_network": "Instagram",
+                "social_url": permalink
+            })
+
+        return parsed_posts
     except Exception:
         return None
 
 def sync_ib_social_posts(force=False):
     """
-    Inserta o sincroniza las publicaciones oficiales de redes sociales del Bachillerato Internacional (IB)
-    en la tabla news_articles, asegurando que:
-    1. Pertenezcan exclusivamente a category='Bachillerato Internacional' y category_slug='ib'.
-    2. Tengan subcategory='Redes Sociales'.
-    3. Posean su enlace oficial de Instagram o Facebook.
-    4. NO se dupliquen (deduplicación estricta por enlace y título).
-    5. NO se re-inserten si fueron eliminadas por el usuario (respetando deleted_social_posts).
-    6. NO se reactiven automáticamente si el docente o administrador las pausó manualmente (is_active = 0).
+    Inserta o sincroniza las publicaciones oficiales y REALES de Instagram (@ib_limon_)
+    en la tabla news_articles, asegurando:
+    1. Subcategoría exclusiva 'Redes Sociales'.
+    2. Cero duplicados (deduplicación por enlace social_url y título).
+    3. Si el usuario eliminó una publicación (deleted_social_posts), NO se vuelve a insertar.
+    4. Si el docente o administrador desactivó una publicación (is_active = 0), NUNCA se reactiva automáticamente.
+    5. Solo publicaciones auténticas de la institución.
     """
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1. Obtener lista de publicaciones eliminadas por el usuario para no re-insertarlas como fantasmas
+    # 1. Obtener lista de publicaciones bloqueadas/eliminadas voluntariamente por el usuario
     blocked_items = set()
     generic_profiles = (
         'https://www.instagram.com/ib_limon_',
-        'https://www.facebook.com/share/1FSMbJo8Xz',
-        'https://www.facebook.com/people/Bachillerato-Internacional'
+        'https://www.facebook.com/share/1FSMbJo8Xz'
     )
     try:
         cursor.execute("SELECT value FROM cms_content WHERE key = 'deleted_social_posts'")
         val_row = cursor.fetchone()
         if val_row and val_row[0]:
             raw_blocked = set(json.loads(val_row[0]))
-            blocked_items = set(x for x in raw_blocked if not any(x.startswith(gp) for gp in generic_profiles))
+            blocked_items = set(x for x in raw_blocked if not any(x.rstrip('/') == gp.rstrip('/') for gp in generic_profiles))
     except Exception:
         pass
 
@@ -172,8 +207,13 @@ def sync_ib_social_posts(force=False):
     existing_urls = set(r['social_url'].strip() for r in rows if r['social_url'])
     conn.close()
 
+    # 3. Intentar obtener publicaciones en vivo desde Behold; si falla, usar publicaciones reales de respaldo
+    posts_to_sync = fetch_live_behold_posts()
+    if not posts_to_sync:
+        posts_to_sync = FALLBACK_REAL_IB_POSTS
+
     synced_count = 0
-    for post in OFFICIAL_IB_SOCIAL_FEEDS:
+    for post in posts_to_sync:
         clean_url = post['social_url'].strip()
         clean_title = post['title'].strip()
 
@@ -212,6 +252,5 @@ def sync_ib_social_posts(force=False):
     return {
         'success': True,
         'synced_count': synced_count,
-        'message': f'Sincronización completada: {synced_count} publicaciones oficiales de redes sociales integradas.'
+        'message': f'Sincronización completada: {synced_count} publicaciones oficiales de Instagram integradas.'
     }
-

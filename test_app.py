@@ -1132,7 +1132,7 @@ class LiceoLimonTestCase(unittest.TestCase):
         self.assertEqual(res_home.status_code, 200)
         html_home = res_home.data.decode('utf-8')
         self.assertIn('📸 Instagram', html_home)
-        self.assertIn('👥 Facebook', html_home)
+        self.assertIn('ib_limon_', html_home)
 
     def test_25_portal_assistant_and_security_guardrails(self):
         """Valida el Asistente Virtual con IA: autorización, respuestas de ayuda y rechazo estricto de preguntas sensibles."""

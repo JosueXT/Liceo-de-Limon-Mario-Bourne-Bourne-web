@@ -87,15 +87,15 @@ def add_security_headers(response):
     if os.environ.get('RENDER') or os.environ.get('FLASK_ENV') == 'production':
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
 
-    # Content Security Policy (permite fuentes de Google, recursos del MEP, YouTube y Unsplash)
+    # Content Security Policy (permite fuentes de Google, recursos del MEP, YouTube, Unsplash y Behold para feeds oficiales)
     csp_directives = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://w.behold.so",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com data:",
-        "img-src 'self' data: https: blob:",
+        "img-src 'self' data: https: blob: https://behold.pictures https://cdn2.behold.pictures",
         "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
-        "connect-src 'self' https:"
+        "connect-src 'self' https: https://feeds.behold.so"
     ]
     response.headers['Content-Security-Policy'] = "; ".join(csp_directives)
     return response

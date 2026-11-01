@@ -49,6 +49,9 @@
   {% if is_admin %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
   {% endif %}
+
+  <!-- Widget Oficial de Behold para Feed en Vivo de Instagram (@ib_limon_) -->
+  <script type="module" src="https://w.behold.so/widget.js"></script>
 </head>
 <body data-is-admin="{{ 'true' if is_admin else 'false' }}" class="theme-{{ modalidad.slug }}">
 

@@ -497,45 +497,45 @@ DEFAULT_NEWS = [
     },
     {
         "id": 7,
-        "title": "📸 Proyecto CAS IB: Reforestación y Conciencia Marina en el Caribe Sur",
+        "title": "🏆 ¡Limón tiene motivos para sentirse orgulloso!",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "29 de Octubre, 2026",
-        "summary": "Estudiantes del Diploma IB documentaron en Instagram su trabajo de campo ecológico y servicio comunitario en Playa Bonita y Cahuita.",
-        "content": "Publicación oficial replicada desde Instagram (@ib_limon_).\n\nLos estudiantes de la generación 2026 del Bachillerato Internacional del Liceo de Limón lideraron una jornada ecológica y de educación ambiental marina en alianza con organizaciones comunitarias del Caribe costarricense.\n\nSiga las historias, videos y testimonios completos en nuestra cuenta oficial de Instagram.",
-        "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+        "date": "30 de Octubre, 2026",
+        "summary": "Felicitamos a los grupos 2, 3 y 4 por su participación en el proyecto @epicostarica, impulsado por MSC Mediterranean Shipping Company. De manera especial, felicitamos al Grupo 1, ganador a nivel nacional.",
+        "content": "🏆 ¡Limón tiene motivos para sentirse orgulloso!\n\nFelicitamos a los grupos 2, 3 y 4 por su participación en el proyecto @epicostarica , impulsado por MSC Mediterranean Shipping Company. Ser parte de esta experiencia ya es un gran logro, y reconocemos el esfuerzo, la creatividad y el compromiso ambiental de todos nuestros estudiantes.\n\nDe manera especial, felicitamos al Grupo 1, ganador del proyecto y uno de los tres finalistas a nivel nacional, con una propuesta que busca aprovechar el agua de lluvia para abastecer los sanitarios y reducir el consumo de agua potable en nuestra provincia.\n\nEl equipo está integrado por:\nJosue Amaya, Engel Zúñiga, Sofia Matarrita, Jeycob Nuñez y Annie Sánchez.\n\nEste reconocimiento es motivo de orgullo para Limón, nuestro Liceo y el Bachillerato Internacional. ¡Nuestros jóvenes demuestran que las grandes ideas también nacen en nuestra provincia!\n\n¡Felicidades a todos!\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
+        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODExMzQ2MTAxOTE0NTE2NyIsImgiOiIxNGl6Mm54In0.jpg?class=squareLarge",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
+        "social_url": "https://www.instagram.com/p/DfIuZD5jrHC/"
     },
     {
         "id": 8,
-        "title": "👥 Coloquio de Teoría del Conocimiento (TOK): Ponencias Estudiantiles en Vivo",
+        "title": "🎭 ¡Nuestras tradiciones siguen vivas en las nuevas generaciones!",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "26 de Octubre, 2026",
-        "summary": "Transmisión oficial y galería de fotos compartida en nuestra página de Facebook sobre el coloquio anual de epistemología y ética TOK.",
-        "content": "Publicación oficial replicada desde Facebook (Bachillerato Internacional - Liceo de Limón).\n\nRevise las presentaciones orales, ensayos destacados y debates interactivos de los alumnos del Diploma del IB sobre preguntas centrales del conocimiento humano, perspectivas culturales y ética contemporánea.\n\nEl video completo de la transmisión se encuentra disponible en nuestro Facebook oficial.",
-        "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80",
-        "author": "Facebook IB Liceo de Limón",
-        "social_network": "Facebook",
-        "social_url": "https://www.facebook.com/share/1FSMbJo8Xz/?mibextid=wwXIfr"
+        "date": "30 de Octubre, 2026",
+        "summary": "Los estudiantes de la sección 11-7 celebraron el Día Nacional de la Mascarada Costarricense elaborando sus propias máscaras artesanales con gran creatividad y color.",
+        "content": "🎭 ¡Nuestras tradiciones siguen vivas en las nuevas generaciones!\n\nLos estudiantes de la sección 11-7 celebraron el Día Nacional de la Mascarada Costarricense elaborando sus propias máscaras, llenando de creatividad y color esta actividad inspirada en una de las expresiones más representativas de nuestra identidad cultural.\n\nPorque conocer nuestras raíces también es una forma de mantenerlas vivas. 🇨🇷\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
+        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxODExOTk5OTg0MzA4NDM0NCIsImgiOiIxMzNrN211In0.jpg?class=squareLarge",
+        "author": "Instagram @ib_limon_",
+        "social_network": "Instagram",
+        "social_url": "https://www.instagram.com/p/DfIp6NUoApo/"
     },
     {
         "id": 9,
-        "title": "📸 Convocatoria Abierta: Pruebas Diagnósticas e Inducción al Diploma IB 2026",
+        "title": "Dos años de esfuerzo nos han traído hasta este momento.",
         "category": "Bachillerato Internacional",
         "category_slug": "ib",
         "subcategory": "Redes Sociales",
-        "date": "22 de Octubre, 2026",
-        "summary": "Información oficial compartida en Instagram con requisitos, cronograma de exámenes y fechas de charlas informativas para 9° año.",
-        "content": "Publicación oficial replicada desde Instagram (@ib_limon_).\n\nInvitamos a los estudiantes de 9° año y a sus familias interesadas en formar parte del Bachillerato Internacional público a consultar los requisitos de admisión, documentación y fechas clave en el enlace oficial de la publicación.",
-        "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80",
+        "date": "27 de Octubre, 2026",
+        "summary": "Nuestros estudiantes de sexto año iniciaron las pruebas internacionales del Bachillerato Internacional (BI), una etapa de grandes sueños y metas alcanzadas.",
+        "content": "Dos años de esfuerzo nos han traído hasta este momento.\n\nHoy, nuestros estudiantes de sexto año iniciaron las pruebas internacionales del Bachillerato Internacional (BI), una etapa que representa mucho más que evaluaciones: representa sueños, sacrificios, aprendizajes y metas construidas con perseverancia.\n\nQueridos estudiantes, confíen en todo lo que han aprendido y en las capacidades que han desarrollado. Recuerden que son mucho más que una calificación. Estamos orgullosos de la historia que han construido y de todo lo que han superado para llegar hasta aquí.\n\nAgradecemos profundamente a nuestra coordinadora, Andra Edwards Loban, por su entrega y acompañamiento, y a los profesores de todas las asignaturas por compartir sus conocimientos y ser parte fundamental de este proceso.\n\nQue cada respuesta refleje su esfuerzo y que, al terminar, puedan decir con orgullo: lo di todo.\n\n¡Les deseamos el mayor de los éxitos! Toda nuestra comunidad educativa cree en ustedes.\n\nLiceo de Limón Mario Bourne Bourne | Bachillerato Internacional",
+        "image": "https://behold.pictures/eyJ1IjoiTEdzU2pXQkNmQ1Z6YVRCb0RHeE9Id3B3RDAyMiIsImYiOiJXOE44REpSdE5TVW1xZzVTNXlScyIsInAiOiIxNzk5ODYzMDI3ODA1MTk3OCIsImgiOiIxdzBnajhkIn0.jpg?class=squareLarge",
         "author": "Instagram @ib_limon_",
         "social_network": "Instagram",
-        "social_url": "https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh"
+        "social_url": "https://www.instagram.com/p/DfA1lBYoJT5/"
     }
 ]
 
