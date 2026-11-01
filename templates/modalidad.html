@@ -432,6 +432,28 @@
         </button>
         {% endif %}
       </div>
+
+      <!-- Feed en Vivo Oficial de Instagram (@ib_limon_) vía Behold -->
+      <div class="behold-feed-card reveal" style="margin-top: 2.5rem; background: var(--blanco); border-radius: var(--radius-xl); padding: clamp(1.2rem, 2.5vw, 2.2rem); box-shadow: var(--shadow-md); border: 1px solid var(--gris-200);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--gris-200); padding-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.4rem;">
+              📸
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <h3 style="margin: 0; font-size: 1.2rem; color: var(--azul-dark); font-weight: 800;">Instagram Oficial en Vivo (@ib_limon_)</h3>
+                <span class="live-dot" style="display: inline-block; width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981;" title="En vivo"></span>
+              </div>
+              <span style="font-size: 0.82rem; color: var(--gris-600);">Actualizado en tiempo real directamente desde Instagram</span>
+            </div>
+          </div>
+          <a href="https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="border-color: #e1306c; color: #e1306c; font-weight: 700;">
+            Ver en Instagram ↗
+          </a>
+        </div>
+        <behold-widget feed-id="W8N8DJRtNSUmqg5S5yRs"></behold-widget>
+      </div>
     </div>
   </section>
 
@@ -722,6 +744,28 @@
         </div>
         {% endif %}
       </div>
+
+      <!-- Feed en Vivo Oficial de Instagram (@ib_limon_) vía Behold -->
+      <div class="behold-feed-card reveal" style="margin-top: 2.5rem; background: var(--blanco); border-radius: var(--radius-xl); padding: clamp(1.2rem, 2.5vw, 2.2rem); box-shadow: var(--shadow-md); border: 1px solid var(--gris-200);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--gris-200); padding-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.4rem;">
+              📸
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <h3 style="margin: 0; font-size: 1.2rem; color: var(--azul-dark); font-weight: 800;">Instagram Oficial en Vivo (@ib_limon_)</h3>
+                <span class="live-dot" style="display: inline-block; width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981;" title="En vivo"></span>
+              </div>
+              <span style="font-size: 0.82rem; color: var(--gris-600);">Actualizado en tiempo real directamente desde Instagram</span>
+            </div>
+          </div>
+          <a href="https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="border-color: #e1306c; color: #e1306c; font-weight: 700;">
+            Ver en Instagram ↗
+          </a>
+        </div>
+        <behold-widget feed-id="W8N8DJRtNSUmqg5S5yRs"></behold-widget>
+      </div>
     </div>
   </section>
   {% endif %}
@@ -808,5 +852,13 @@
   {% if is_admin %}
   <script src="{{ url_for('static', filename='js/admin_cms.js') }}"></script>
   {% endif %}
+  <!-- Script Oficial del Widget en Vivo de Instagram (Behold.so) -->
+  <script>
+    (() => {
+      if(window.__bhldScript)return;window.__bhldScript=true;
+      const d=document,s=d.createElement("script");s.type="module";
+      s.src="https://w.behold.so/widget.js";setTimeout(()=>{d.head.append(s);},0);
+    })();
+  </script>
 </body>
 </html>

@@ -791,6 +791,23 @@
         </article>
         {% endfor %}
       </div>
+
+      <!-- Feed en Vivo de Instagram (@ib_limon_) Integrado en Noticias -->
+      <div class="news-live-social-feed reveal" id="newsLiveSocialFeed" style="margin-top: 2.5rem; background: var(--blanco); border-radius: var(--radius-xl); padding: clamp(1.2rem, 2vw, 1.8rem); box-shadow: var(--shadow-sm); border: 1px solid var(--gris-200);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.8rem; border-bottom: 1px solid var(--gris-200); padding-bottom: 0.8rem;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <span style="font-size: 1.4rem;">📸</span>
+            <div>
+              <h4 style="margin: 0; font-size: 1.1rem; color: var(--azul-dark); font-weight: 800;">Publicaciones en Vivo de Instagram (@ib_limon_)</h4>
+              <span style="font-size: 0.8rem; color: var(--gris-600);">Se actualizan automáticamente en tiempo real cada vez que publicas en Instagram</span>
+            </div>
+          </div>
+          <a href="https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="border-color: #e1306c; color: #e1306c; font-size: 0.78rem; font-weight: 700;">
+            Ver Perfil Oficial ↗
+          </a>
+        </div>
+        <behold-widget feed-id="W8N8DJRtNSUmqg5S5yRs"></behold-widget>
+      </div>
     </div>
   </section>
 
@@ -930,6 +947,30 @@
           </a>
         </div>
         {% endif %}
+      </div>
+
+      <!-- Feed en Vivo Oficial de Instagram (@ib_limon_) vía Behold -->
+      <div class="behold-feed-card reveal" style="margin-top: 2.5rem; background: var(--blanco); border-radius: var(--radius-xl); padding: clamp(1.2rem, 2.5vw, 2.2rem); box-shadow: var(--shadow-md); border: 1px solid var(--gris-200);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--gris-200); padding-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.5rem; box-shadow: 0 4px 14px rgba(225, 48, 108, 0.35);">
+              📸
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <h3 style="margin: 0; font-size: 1.25rem; color: var(--azul-dark); font-weight: 800;">Publicaciones en Vivo de Instagram</h3>
+                <span class="live-dot" style="display: inline-block; width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981;" title="Conexión en vivo activa"></span>
+              </div>
+              <span style="font-size: 0.85rem; color: var(--gris-600); font-weight: 600;">@ib_limon_ • Bachillerato Internacional del Liceo de Limón</span>
+            </div>
+          </div>
+          <a href="https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="border-color: #e1306c; color: #e1306c; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <span>Visitar @ib_limon_ en Instagram</span> ↗
+          </a>
+        </div>
+
+        <!-- Widget Oficial de Behold para @ib_limon_ -->
+        <behold-widget feed-id="W8N8DJRtNSUmqg5S5yRs"></behold-widget>
       </div>
     </div>
   </section>
@@ -1277,5 +1318,13 @@
   {% if is_admin %}
   <script src="{{ url_for('static', filename='js/admin_cms.js') }}"></script>
   {% endif %}
+  <!-- Script Oficial del Widget en Vivo de Instagram (Behold.so) -->
+  <script>
+    (() => {
+      if(window.__bhldScript)return;window.__bhldScript=true;
+      const d=document,s=d.createElement("script");s.type="module";
+      s.src="https://w.behold.so/widget.js";setTimeout(()=>{d.head.append(s);},0);
+    })();
+  </script>
 </body>
 </html>

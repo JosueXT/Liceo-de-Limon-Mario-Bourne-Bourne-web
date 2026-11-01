@@ -638,6 +638,23 @@
             </button>
           </div>
         </form>
+
+        <!-- Vista Previa de Publicaciones de Instagram en Vivo (@ib_limon_) -->
+        <div style="margin-top: 3rem; background: #ffffff; border: 2px solid #e2e8f0; border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.8rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 1.4rem;">📸</span>
+              <div>
+                <strong style="color: #0369a1; font-size: 1.15rem;">Feed en Vivo de Instagram (@ib_limon_)</strong>
+                <span style="font-size: 0.85rem; color: #64748b; display: block;">Muestra en vivo las publicaciones que suban a Instagram sin configurar nada más.</span>
+              </div>
+            </div>
+            <a href="https://www.instagram.com/ib_limon_?vrfl=bmI5MHczbXZidXFh" target="_blank" rel="noopener noreferrer" class="teacher-btn-action" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; background: #e1306c; border-color: #e1306c;">
+              <span>Ver en Instagram ↗</span>
+            </a>
+          </div>
+          <behold-widget feed-id="W8N8DJRtNSUmqg5S5yRs"></behold-widget>
+        </div>
       </div>
     </section>
 
@@ -799,6 +816,14 @@
         if (btn) btn.disabled = false;
       }
     }
+  </script>
+  <!-- Script Oficial del Widget en Vivo de Instagram (Behold.so) -->
+  <script>
+    (() => {
+      if(window.__bhldScript)return;window.__bhldScript=true;
+      const d=document,s=d.createElement("script");s.type="module";
+      s.src="https://w.behold.so/widget.js";setTimeout(()=>{d.head.append(s);},0);
+    })();
   </script>
   {% include 'components/assistant_chat.html' %}
 </body>

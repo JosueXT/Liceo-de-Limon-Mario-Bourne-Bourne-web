@@ -1793,6 +1793,21 @@
               </div>
             </div>
 
+            <!-- Vista Previa en Vivo de Behold Instagram Widget -->
+            <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span style="font-size: 1.3rem;">📸</span>
+                  <div>
+                    <strong style="color: var(--azul-dark); font-size: 0.95rem;">Vista Previa en Vivo: Feed de Instagram (@ib_limon_)</strong>
+                    <span style="font-size: 0.75rem; color: var(--gris-500); display: block;">Conectado oficialmente mediante Behold Widget (Feed ID: W8N8DJRtNSUmqg5S5yRs)</span>
+                  </div>
+                </div>
+                <span class="admin-badge-pill badge-health-ok" style="font-size: 0.72rem;">🟢 Feed Conectado y Activo</span>
+              </div>
+              <behold-widget feed-id="W8N8DJRtNSUmqg5S5yRs"></behold-widget>
+            </div>
+
             <!-- Tabla de Publicaciones de Redes Sociales IB -->
             {% if social_news %}
             <table class="admin-table">
@@ -4585,6 +4600,14 @@
         showToast('Error de conexión.', 'error');
       }
     }
+  </script>
+  <!-- Script Oficial del Widget en Vivo de Instagram (Behold.so) -->
+  <script>
+    (() => {
+      if(window.__bhldScript)return;window.__bhldScript=true;
+      const d=document,s=d.createElement("script");s.type="module";
+      s.src="https://w.behold.so/widget.js";setTimeout(()=>{d.head.append(s);},0);
+    })();
   </script>
   {% include 'components/assistant_chat.html' %}
 </body>
