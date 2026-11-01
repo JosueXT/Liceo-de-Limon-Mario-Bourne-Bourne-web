@@ -694,7 +694,7 @@
         {% for item in news %}
           {% if item.category_slug == 'ib' %}
             {% set _ = ib_items.append(item) %}
-            <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}" data-image-position="{{ item.image_position or 'center center' }}" data-video-url="{{ item.video_url or '' }}">
+            <article class="news-card reveal-scale" data-category="{{ item.category_slug }}" data-subcategory="{{ item.subcategory }}" data-content="{{ item.content }}" data-image-position="{{ item.image_position or 'center center' }}" data-video-url="{{ item.video_url or '' }}" data-social-url="{{ item.social_url or '' }}" data-gallery='{{ item.gallery_images or "[]" }}'>
               <div class="news-image-container">
                 <span class="news-tag-overlay tag-ib">
                   {{ item.category }}
@@ -702,6 +702,11 @@
                     <span class="news-subcategory-tag">{{ item.subcategory }}</span>
                   {% endif %}
                 </span>
+                {% if item.gallery_images and item.gallery_images != '[]' and item.gallery_images != 'null' and item.gallery_images != '' %}
+                <span class="news-gallery-badge" style="position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(15, 23, 42, 0.78); color: #fff; padding: 0.3rem 0.65rem; border-radius: 20px; font-size: 0.76rem; font-weight: 700; z-index: 3; display: flex; align-items: center; gap: 0.3rem; backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+                  📸 Carrusel
+                </span>
+                {% endif %}
                 {% if item.social_network %}
                   {% if item.social_network == 'Instagram' or 'instagram.com' in (item.social_url or '') %}
                     <span class="news-badge-ig" style="position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 3;">📸 Instagram</span>
@@ -821,6 +826,12 @@
     <div class="modal-dialog">
       <button class="modal-close-btn" id="closeNewsModalBtn">&times;</button>
       <div id="modalNewsVideoContainer" class="modal-video-wrapper" style="display: none;"></div>
+      <div id="modalNewsGalleryContainer" class="modal-gallery-wrapper" style="display: none; position: relative; background: #0f172a; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden;">
+        <img src="" alt="Foto Carrusel" id="modalNewsGalleryImage" style="width: 100%; max-height: 480px; object-fit: contain; display: block; margin: 0 auto;">
+        <button type="button" id="modalGalleryPrevBtn" aria-label="Foto Anterior" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); color: #fff; border: 1.5px solid rgba(255,255,255,0.4); border-radius: 50%; width: 44px; height: 44px; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.2s;">⟨</button>
+        <button type="button" id="modalGalleryNextBtn" aria-label="Foto Siguiente" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); color: #fff; border: 1.5px solid rgba(255,255,255,0.4); border-radius: 50%; width: 44px; height: 44px; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.2s;">⟩</button>
+        <div id="modalGalleryCounter" style="position: absolute; bottom: 12px; right: 16px; background: rgba(0,0,0,0.75); color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; z-index: 5; backdrop-filter: blur(4px);">1 / 1</div>
+      </div>
       <img src="" alt="Noticia" id="modalNewsImage" class="modal-image">
       <div class="modal-body">
         <h2 class="modal-title" id="modalNewsTitle">Título de la Noticia</h2>

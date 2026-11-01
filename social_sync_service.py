@@ -147,6 +147,8 @@ def fetch_live_curator_posts():
             img_url = p.get('image_large') or p.get('image') or ''
             permalink = p.get('url') or 'https://www.instagram.com/ib_limon_/'
             video_url = p.get('video') or ''
+            images_list = [img.get('url') for img in p.get('images', []) if img.get('url')]
+            gallery_json = json.dumps(images_list) if images_list else '[]'
 
             parsed_posts.append({
                 "title": title,
@@ -158,6 +160,7 @@ def fetch_live_curator_posts():
                 "content": raw_text,
                 "image": img_url,
                 "video_url": video_url,
+                "gallery_images": gallery_json,
                 "author": "Instagram @ib_limon_",
                 "social_network": "Instagram",
                 "social_url": permalink
@@ -307,7 +310,8 @@ def sync_ib_social_posts(force=False):
             video_url=post.get('video_url', ''),
             social_network=post['social_network'],
             social_url=post['social_url'],
-            is_active=1
+            is_active=1,
+            gallery_images=post.get('gallery_images', '[]')
         )
         synced_count += 1
 

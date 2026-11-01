@@ -415,15 +415,34 @@ function initNewsModal() {
     const rawContent = card.getAttribute('data-content') || card.querySelector('.news-summary')?.innerText.trim() || '';
 
     const modalVideo = document.getElementById('modalNewsVideoContainer');
+    const modalGallery = document.getElementById('modalNewsGalleryContainer');
+    const modalGalleryImg = document.getElementById('modalNewsGalleryImage');
+    const modalGalleryCounter = document.getElementById('modalGalleryCounter');
+    const prevBtn = document.getElementById('modalGalleryPrevBtn');
+    const nextBtn = document.getElementById('modalGalleryNextBtn');
     const modalImg = document.getElementById('modalNewsImage');
 
+    // Parsear galería de imágenes (carrusel)
+    let galleryImages = [];
+    const rawGallery = card.getAttribute('data-gallery');
+    try {
+      if (rawGallery) {
+        const parsed = JSON.parse(rawGallery);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          galleryImages = parsed.filter(Boolean);
+        }
+      }
+    } catch (e) {
+      galleryImages = [];
+    }
+
     // Manejo de Video
-    if (modalVideo) {
-      const parsedVideo = parseMediaVideoUrl(videoUrl);
-      if (parsedVideo) {
+    const parsedVideo = parseMediaVideoUrl(videoUrl);
+    if (parsedVideo) {
+      if (modalVideo) {
         if (parsedVideo.type === 'direct') {
           modalVideo.innerHTML = `
-            <video controls autoplay playsinline style="width:100%; height:100%; object-fit:contain; background:#000;">
+            <video controls autoplay playsinline style="width:100%; height:100%; max-height:480px; object-fit:contain; background:#000; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
               <source src="${parsedVideo.videoUrl}">
               Su navegador no soporta reproducción de video HTML5.
             </video>
@@ -438,27 +457,57 @@ function initNewsModal() {
           `;
         }
         modalVideo.style.display = 'block';
-        if (modalImg) modalImg.style.display = 'none';
-      } else {
+      }
+      if (modalGallery) modalGallery.style.display = 'none';
+      if (modalImg) modalImg.style.display = 'none';
+    } else if (modalGallery && modalGalleryImg && galleryImages.length > 1) {
+      // Manejo de Carrusel de Fotos
+      if (modalVideo) {
         modalVideo.innerHTML = '';
         modalVideo.style.display = 'none';
-        if (modalImg) {
-          if (imageSrc) {
-            modalImg.src = imageSrc;
-            modalImg.style.objectPosition = imagePos;
-            modalImg.style.display = 'block';
-          } else {
-            modalImg.style.display = 'none';
-          }
-        }
       }
-    } else if (modalImg) {
-      if (imageSrc) {
-        modalImg.src = imageSrc;
-        modalImg.style.objectPosition = imagePos;
-        modalImg.style.display = 'block';
-      } else {
-        modalImg.style.display = 'none';
+      if (modalImg) modalImg.style.display = 'none';
+
+      let currentGalleryIdx = 0;
+      const updateGalleryView = () => {
+        modalGalleryImg.src = galleryImages[currentGalleryIdx];
+        if (modalGalleryCounter) {
+          modalGalleryCounter.innerText = `Foto ${currentGalleryIdx + 1} de ${galleryImages.length}`;
+        }
+      };
+
+      updateGalleryView();
+      modalGallery.style.display = 'block';
+
+      if (prevBtn) {
+        prevBtn.onclick = (e) => {
+          e.stopPropagation();
+          currentGalleryIdx = (currentGalleryIdx - 1 + galleryImages.length) % galleryImages.length;
+          updateGalleryView();
+        };
+      }
+      if (nextBtn) {
+        nextBtn.onclick = (e) => {
+          e.stopPropagation();
+          currentGalleryIdx = (currentGalleryIdx + 1) % galleryImages.length;
+          updateGalleryView();
+        };
+      }
+    } else {
+      // Manejo de Imagen Estática Simple
+      if (modalVideo) {
+        modalVideo.innerHTML = '';
+        modalVideo.style.display = 'none';
+      }
+      if (modalGallery) modalGallery.style.display = 'none';
+      if (modalImg) {
+        if (imageSrc) {
+          modalImg.src = imageSrc;
+          modalImg.style.objectPosition = imagePos;
+          modalImg.style.display = 'block';
+        } else {
+          modalImg.style.display = 'none';
+        }
       }
     }
 

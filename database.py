@@ -213,6 +213,8 @@ def init_db(force=False):
         cursor.execute("ALTER TABLE news_articles ADD COLUMN social_network TEXT DEFAULT ''")
     if 'social_url' not in columns:
         cursor.execute("ALTER TABLE news_articles ADD COLUMN social_url TEXT DEFAULT ''")
+    if 'gallery_images' not in columns:
+        cursor.execute("ALTER TABLE news_articles ADD COLUMN gallery_images TEXT DEFAULT '[]'")
 
     # 3. Tabla para consultas de contacto
     cursor.execute('''
@@ -548,16 +550,16 @@ def extract_video_thumbnail(video_url):
         return f"https://drive.google.com/thumbnail?id={drive_m.group(1)}&sz=w1000"
     return None
 
-def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=1):
+def add_news(title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=1, gallery_images='[]'):
     if not image or not str(image).strip():
         image = extract_video_thumbnail(video_url) or DEFAULT_NEWS_IMAGE
 
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url, social_network, social_url, is_active)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', 1 if is_active else 0))
+        INSERT INTO news_articles (title, category, category_slug, subcategory, date, summary, content, image, author, image_position, video_url, social_network, social_url, is_active, gallery_images)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', 1 if is_active else 0, gallery_images or '[]'))
     new_id = cursor.lastrowid
     conn.commit()
     conn.close()
@@ -568,18 +570,31 @@ def add_news(title, category, category_slug, subcategory, date, summary, content
     invalidate_cms_cache()
     return new_id
 
-def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=None):
+def update_news(news_id, title, category, category_slug, subcategory, date, summary, content, image, author, image_position='center center', video_url='', social_network='', social_url='', is_active=None, gallery_images=None):
     if not image or not str(image).strip():
         image = extract_video_thumbnail(video_url) or DEFAULT_NEWS_IMAGE
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    if is_active is None:
+    if is_active is None and gallery_images is None:
         cursor.execute('''
             UPDATE news_articles
             SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?, video_url = ?, social_network = ?, social_url = ?
             WHERE id = ?
         ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', news_id))
+    elif gallery_images is not None:
+        if is_active is None:
+            cursor.execute('''
+                UPDATE news_articles
+                SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?, video_url = ?, social_network = ?, social_url = ?, gallery_images = ?
+                WHERE id = ?
+            ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', gallery_images, news_id))
+        else:
+            cursor.execute('''
+                UPDATE news_articles
+                SET title = ?, category = ?, category_slug = ?, subcategory = ?, date = ?, summary = ?, content = ?, image = ?, author = ?, image_position = ?, video_url = ?, social_network = ?, social_url = ?, is_active = ?, gallery_images = ?
+                WHERE id = ?
+            ''', (title, category, category_slug, subcategory, date, summary, content, image, author, image_position or 'center center', video_url or '', social_network or '', social_url or '', 1 if is_active else 0, gallery_images, news_id))
     else:
         cursor.execute('''
             UPDATE news_articles
