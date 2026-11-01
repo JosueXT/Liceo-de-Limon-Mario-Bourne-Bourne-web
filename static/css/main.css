@@ -2379,20 +2379,7 @@ body.theme-regular .pillar-number {
   transform: scale(1.05) translateZ(0);
 }
 
-.social-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  border-top-left-radius: inherit;
-  border-top-right-radius: inherit;
-  z-index: 2;
-}
-
 /* Variantes temáticas con resplandor neón exterior */
-.social-card-fb::before { background: #1877F2; }
 .social-card-fb {
   --social-neon-glow: radial-gradient(circle at 50% 50%, #1877F2 0%, rgba(24, 119, 242, 0.75) 45%, rgba(59, 130, 246, 0.4) 75%, transparent 100%);
   border-color: rgba(24, 119, 242, 0.35);
@@ -2403,7 +2390,6 @@ body.theme-regular .pillar-number {
   box-shadow: 0 18px 45px rgba(24, 119, 242, 0.35), 0 0 40px rgba(24, 119, 242, 0.35);
 }
 
-.social-card-ig::before { background: linear-gradient(90deg, #F58529, #DD2A7B, #8134AF, #515BD4); }
 .social-card-ig {
   --social-neon-glow: radial-gradient(circle at 50% 50%, #E1306C 0%, rgba(245, 133, 41, 0.75) 40%, rgba(129, 52, 175, 0.6) 70%, transparent 100%);
   border-color: rgba(225, 48, 108, 0.35);
@@ -2414,7 +2400,6 @@ body.theme-regular .pillar-number {
   box-shadow: 0 18px 45px rgba(225, 48, 108, 0.35), 0 0 40px rgba(225, 48, 108, 0.35);
 }
 
-.social-card-wa::before { background: #25D366; }
 .social-card-wa {
   --social-neon-glow: radial-gradient(circle at 50% 50%, #25D366 0%, rgba(37, 211, 102, 0.75) 45%, rgba(16, 185, 129, 0.4) 75%, transparent 100%);
   border-color: rgba(37, 211, 102, 0.35);
@@ -2423,15 +2408,6 @@ body.theme-regular .pillar-number {
 .social-card-wa:hover {
   border-color: #25D366;
   box-shadow: 0 18px 45px rgba(37, 211, 102, 0.35), 0 0 40px rgba(37, 211, 102, 0.35);
-}
-.social-card-wa {
-  --social-neon-glow: radial-gradient(circle at 50% 30%, #25D366 0%, rgba(37, 211, 102, 0.5) 50%, transparent 80%);
-  border-color: rgba(37, 211, 102, 0.35);
-  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.16), 0 0 22px rgba(37, 211, 102, 0.12);
-}
-.social-card-wa:hover {
-  border-color: #25D366;
-  box-shadow: 0 18px 45px rgba(37, 211, 102, 0.35), 0 0 38px rgba(37, 211, 102, 0.3);
 }
 
 .social-card-header {
